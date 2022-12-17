@@ -1,10 +1,14 @@
 package install
 
+import "nas2cloud/services/dao"
+
 type Config struct {
-	DbName string `json:"dbName"`
-	DbUser string `json:"dbUser"`
-	DbPass string `json:"dbPass"`
+	DbAddress string `json:"db_address"`
+	DbName    string `json:"db_name"`
+	DbUser    string `json:"db_user"`
+	DbPass    string `json:"db_pass"`
 }
 
 func Install(config *Config) {
+	dao.GetOrConnectDb("install", config.DbAddress, config.DbName, config.DbUser, config.DbPass)
 }
