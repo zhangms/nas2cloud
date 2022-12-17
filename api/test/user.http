@@ -3,7 +3,8 @@ Content-Type: application/json
 
 {
   "username": "zms",
-  "password": "baobao4321x"
+  "password": "baobao4321x",
+  "device": "http-client"
 }
 
 ###

@@ -1,10 +1,10 @@
-package httpapi
+package api
 
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs/logger"
-	"nas2cloud/services/user"
+	"nas2cloud/svc/user"
 	"net/http"
 )
 
@@ -12,6 +12,7 @@ func userLogin(c *fiber.Ctx) error {
 	type loginRequest struct {
 		UserName string `json:"username"`
 		Password string `json:"password"`
+		Device   string `json:"device"`
 	}
 
 	type loginResponse struct {
@@ -26,7 +27,7 @@ func userLogin(c *fiber.Ctx) error {
 		logger.ErrorStacktrace(err, string(body))
 		return SendError(c, http.StatusBadRequest, "request error")
 	}
-	token, err := user.Login(request.UserName, request.Password)
+	token, err := user.Login(request.UserName, request.Password, request.Device)
 	if err != nil {
 		return SendError(c, http.StatusForbidden, err.Error())
 	}

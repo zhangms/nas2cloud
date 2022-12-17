@@ -1,8 +1,8 @@
-package httpapi
+package api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"nas2cloud/services/fm"
+	"nas2cloud/svc/fm"
 )
 
 type Resp struct {

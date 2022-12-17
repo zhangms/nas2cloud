@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Family",
+    "type": "local",
+    "path": "/Volumes/X",
+    "authorize": "admin,family"
+  }
+]

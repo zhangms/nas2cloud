@@ -63,7 +63,7 @@ func caller(skip int) string {
 func msg(tag string, v ...any) any {
 	ret := tag
 	for _, m := range v {
-		ret += fmt.Sprintf("|%v", m)
+		ret += fmt.Sprintf("|%#v", m)
 	}
 	return ret
 }
