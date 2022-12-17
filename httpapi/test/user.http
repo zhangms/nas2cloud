@@ -1,0 +1,9 @@
+POST http://localhost:8080/user/login
+Content-Type: application/json
+
+{
+  "username": "zms",
+  "password": "baobao4321x"
+}
+
+###
