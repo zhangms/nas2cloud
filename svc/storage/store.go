@@ -7,7 +7,7 @@ type ObjectType string
 const (
 	ObjectTypeFile ObjectType = "FILE"
 	ObjectTypeDir  ObjectType = "DIR"
-	ObjectTypeLink ObjectType = "LINK"
+	ObjectTypeExt  ObjectType = "EXT"
 )
 
 type ObjectInfo struct {
@@ -22,6 +22,12 @@ type ObjectInfo struct {
 	Size    int64
 }
 
-type Store interface {
-	List(path string) []*ObjectInfo
+type store interface {
+	list(fullPath string) []*ObjectInfo
+
+	info(fullPath string) *ObjectInfo
+}
+
+func emptyObjectInfos() []*ObjectInfo {
+	return []*ObjectInfo{}
 }

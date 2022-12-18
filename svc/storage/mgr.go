@@ -1,26 +1,17 @@
 package storage
 
-import (
-	"encoding/json"
-	"nas2cloud/res"
-)
+func List(username string, fullPath string) {
+	if fullPath == "" || fullPath == "/" {
 
-type external struct {
-	Name      string `json:"name"`
-	Type      string `json:"type"`
-	Path      string `json:"path"`
-	Authorize string `json:"authorize"`
+	}
 }
 
-var externals []*external
-
-func init() {
-	data, _ := res.ReadData("external.json")
-	extList := make([]*external, 0)
-	_ = json.Unmarshal(data, &extList)
-	externals = extList
-}
-
-func Ext() []*external {
-	return externals
+func getUserAuthorizedExternal(username string) []string {
+	ret := make([]string, 0)
+	for _, e := range externals {
+		if e.Authorized(username) {
+			ret = append(ret, e.Name)
+		}
+	}
+	return ret
 }

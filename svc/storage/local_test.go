@@ -7,8 +7,8 @@ import (
 
 func TestLocalManager_List(t *testing.T) {
 
-	localMgr := &LocalStore{}
-	objs := localMgr.List("/Users/ZMS/Documents")
+	localMgr := &localStore{}
+	objs := localMgr.list("/Users/ZMS/Documents")
 	for _, o := range objs {
 		fmt.Printf("%#v\n", o)
 	}

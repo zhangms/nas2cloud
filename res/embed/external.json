@@ -4,5 +4,11 @@
     "type": "local",
     "path": "/Volumes/X",
     "authorize": "admin,family"
+  },
+  {
+    "name": "Downloads",
+    "type": "local",
+    "path": "/Users/ZMS/Downloads",
+    "authorize": "admin,family"
   }
 ]
