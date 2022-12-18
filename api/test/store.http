@@ -1,0 +1,10 @@
+GET http://localhost:8080/file/list
+Content-Type: application/json
+
+{
+  "username": "zms",
+  "password": "baobao4321x",
+  "device": "http-client"
+}
+
+###

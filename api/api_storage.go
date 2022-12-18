@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"nas2cloud/svc/fm"
+	"nas2cloud/svc/storage"
 )
 
 type Resp struct {
@@ -11,10 +11,5 @@ type Resp struct {
 }
 
 func fileList(c *fiber.Ctx) error {
-	count, size := fm.Walk(c.Query("path"))
-	resp := &Resp{
-		Count: count,
-		Size:  size,
-	}
-	return c.JSON(resp)
+	return c.JSON(storage.Ext())
 }
