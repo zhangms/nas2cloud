@@ -1,4 +1,4 @@
-package storage
+package store
 
 import "time"
 
@@ -22,12 +22,8 @@ type ObjectInfo struct {
 	Size    int64
 }
 
-type store interface {
-	list(fullPath string) []*ObjectInfo
+type Store interface {
+	List(fullPath string) []*ObjectInfo
 
-	info(fullPath string) *ObjectInfo
-}
-
-func emptyObjectInfos() []*ObjectInfo {
-	return []*ObjectInfo{}
+	Info(fullPath string) *ObjectInfo
 }

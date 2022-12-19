@@ -1,14 +1,20 @@
 [
   {
     "name": "Family",
-    "type": "local",
-    "path": "/Volumes/X",
+    "mountType": "local",
+    "endpoint": "/Volumes/X",
     "authorize": "admin,family"
   },
   {
     "name": "Downloads",
-    "type": "local",
-    "path": "/Users/ZMS/Downloads",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Downloads",
+    "authorize": "admin,family"
+  },
+  {
+    "name": "Documents",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Documents/",
     "authorize": "admin,family"
   }
 ]
