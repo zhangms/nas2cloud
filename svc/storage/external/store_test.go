@@ -8,7 +8,7 @@ import (
 
 func TestExternal(t *testing.T) {
 
-	ret := Store.List("external:/Documents/")
+	ret, _ := Storage.List("external:/Documents/")
 	for _, r := range ret {
 		d, _ := json.Marshal(r)
 		fmt.Println(string(d))
@@ -16,7 +16,7 @@ func TestExternal(t *testing.T) {
 
 	fmt.Println("---------------")
 
-	i := Store.Info("external:/Documents")
+	i, _ := Storage.Info("external:/Documents")
 	d1, _ := json.Marshal(i)
 	fmt.Println(string(d1))
 

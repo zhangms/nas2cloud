@@ -27,11 +27,7 @@ func printError(skip int, v ...any) {
 	inner.Println(msg("[ERROR] "+caller(skip), v...))
 }
 
-func ErrorStacktrace(err error, v ...any) {
-	if err == nil {
-		printError(3, v...)
-		return
-	}
+func ErrorStacktrace(v ...any) {
 	stack := make([]string, 0)
 	for i := 1; ; i++ {
 		pc, file, line, ok := runtime.Caller(i)
@@ -43,7 +39,6 @@ func ErrorStacktrace(err error, v ...any) {
 	}
 	message := make([]any, 0)
 	message = append(message, v...)
-	message = append(message, err)
 	if len(stack) > 0 {
 		stack = append(stack, "\n")
 		message = append(message, strings.Join(stack, ""))
@@ -63,7 +58,7 @@ func caller(skip int) string {
 func msg(tag string, v ...any) any {
 	ret := tag
 	for _, m := range v {
-		ret += fmt.Sprintf("|%#v", m)
+		ret += fmt.Sprintf("|%v", m)
 	}
 	return ret
 }

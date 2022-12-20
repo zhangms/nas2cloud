@@ -4,13 +4,13 @@ import (
 	"nas2cloud/svc/storage/store"
 )
 
-type extStoreEmpty struct {
+type storeEmpty struct {
 }
 
-func (e *extStoreEmpty) List(fullPath string) []*store.ObjectInfo {
-	return []*store.ObjectInfo{}
+func (e *storeEmpty) List(fullPath string) ([]*store.ObjectInfo, error) {
+	return []*store.ObjectInfo{}, nil
 }
 
-func (e *extStoreEmpty) Info(fullPath string) *store.ObjectInfo {
-	return nil
+func (e *storeEmpty) Info(fullPath string) (*store.ObjectInfo, error) {
+	return &store.ObjectInfo{}, nil
 }

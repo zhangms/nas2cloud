@@ -23,7 +23,7 @@ type ObjectInfo struct {
 }
 
 type Store interface {
-	List(fullPath string) []*ObjectInfo
+	List(fullPath string) ([]*ObjectInfo, error)
 
-	Info(fullPath string) *ObjectInfo
+	Info(fullPath string) (*ObjectInfo, error)
 }

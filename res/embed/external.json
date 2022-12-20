@@ -9,7 +9,7 @@
     "name": "Downloads",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Downloads",
-    "authorize": "admin,family"
+    "authorize": "admin"
   },
   {
     "name": "Documents",

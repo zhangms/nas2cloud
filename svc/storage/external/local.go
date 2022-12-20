@@ -6,22 +6,26 @@ import (
 	"path"
 )
 
-type extStoreLocal struct {
-	volume *volume
+type storeLocal struct {
+	volume *Volume
 }
 
-func (e *extStoreLocal) List(fullPath string) []*store.ObjectInfo {
-	ret := local.Store.List(path.Join(e.volume.endpoint, fullPath))
+func (e *storeLocal) List(fullPath string) ([]*store.ObjectInfo, error) {
+	ret, err := local.Storage.List(path.Join(e.volume.endpoint, fullPath))
+	if err != nil {
+		return nil, err
+	}
 	for _, o := range ret {
-		o.Path = path.Join(e.volume.protocol(), o.Path[len(e.volume.endpoint):])
+		o.Path = path.Join(e.volume.Protocol(), o.Path[len(e.volume.endpoint):])
 	}
-	return ret
+	return ret, err
 }
 
-func (e *extStoreLocal) Info(fullPath string) *store.ObjectInfo {
-	o := local.Store.Info(path.Join(e.volume.endpoint, fullPath))
-	if o != nil {
-		o.Path = path.Join(e.volume.protocol(), o.Path[len(path.Join(e.volume.endpoint)):])
+func (e *storeLocal) Info(fullPath string) (*store.ObjectInfo, error) {
+	o, err := local.Storage.Info(path.Join(e.volume.endpoint, fullPath))
+	if err != nil {
+		return nil, err
 	}
-	return o
+	o.Path = path.Join(e.volume.Protocol(), o.Path[len(path.Join(e.volume.endpoint)):])
+	return o, nil
 }
