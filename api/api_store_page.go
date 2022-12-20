@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func storePage(c *fiber.Ctx) error {
+func storeListPage(c *fiber.Ctx) error {
 	p := c.Params("*", "/")
 	list := storage.List("zms", p)
 	data, err := res.ParseHtml("store.html", list)

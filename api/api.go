@@ -9,7 +9,7 @@ import (
 
 func Register(app *fiber.App) {
 	app.Get("/store/list/*", handler(storeList))
-	app.Get("/store/page/*", handler(storePage))
+	app.Get("/store/list/page/*", handler(storeListPage))
 	app.Post("/user/login", handler(userLogin))
 }
 
