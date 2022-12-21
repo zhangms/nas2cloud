@@ -56,7 +56,7 @@ func (l *Store) infoF(fullPath string, fi os.FileInfo) (*store.ObjectInfo, error
 	return &store.ObjectInfo{
 		Name:    fi.Name(),
 		Path:    fullPath,
-		Type:    libs.IF(fi.IsDir(), store.ObjectTypeDir, store.ObjectTypeFile).(store.ObjectType),
+		Type:    libs.If(fi.IsDir(), store.ObjectTypeDir, store.ObjectTypeFile).(store.ObjectType),
 		Hidden:  strings.Index(fi.Name(), ".") == 0,
 		ModTime: &modTime,
 		Size:    fi.Size(),

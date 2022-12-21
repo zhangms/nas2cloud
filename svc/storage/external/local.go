@@ -26,6 +26,9 @@ func (e *storeLocal) Info(fullPath string) (*store.ObjectInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	if fullPath == "/" || fullPath == "" {
+		o.Name = e.volume.name
+	}
 	o.Path = path.Join(e.volume.Protocol(), o.Path[len(path.Join(e.volume.endpoint)):])
 	return o, nil
 }

@@ -59,7 +59,7 @@ func GetVolume(fullPath string) (*Volume, string, error) {
 	if volumes[arr[0]] == nil {
 		return nil, "", errors.New("external volume not exists")
 	}
-	return volumes[arr[0]], libs.If(len(arr) > 1, func() any {
+	return volumes[arr[0]], libs.IF(len(arr) > 1, func() any {
 		return arr[1]
 	}, func() any {
 		return ""
@@ -84,7 +84,7 @@ func init() {
 		volumes[conf.Name] = &Volume{
 			name:      conf.Name,
 			mountType: conf.MountType,
-			endpoint:  conf.Endpoint,
+			endpoint:  path.Clean(conf.Endpoint),
 			authorize: conf.Authorize,
 		}
 	}

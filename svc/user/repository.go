@@ -76,3 +76,11 @@ func findUserByAuthToken(userName string, token string) (*User, error) {
 	}
 	return usr.Clone(), nil
 }
+
+func GetUserGroup(userName string) string {
+	usr := users[userName]
+	if usr != nil {
+		return usr.Group
+	}
+	return ""
+}

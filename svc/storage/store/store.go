@@ -7,7 +7,6 @@ type ObjectType string
 const (
 	ObjectTypeFile ObjectType = "FILE"
 	ObjectTypeDir  ObjectType = "DIR"
-	ObjectTypeExt  ObjectType = "EXT"
 )
 
 type ObjectInfo struct {

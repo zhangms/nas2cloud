@@ -1,30 +1,11 @@
-package api
+package base
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"nas2cloud/libs/logger"
+	"nas2cloud/libs"
 	"nas2cloud/res"
 	"net/http"
 )
-
-func Register(app *fiber.App) {
-	app.Get("/store/list/*", handler(storeList))
-	app.Get("/store/list/page/*", handler(storeListPage))
-	app.Post("/user/login", handler(userLogin))
-}
-
-func handler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
-	return func(c *fiber.Ctx) error {
-		defer func() {
-			err := recover()
-			if err != nil {
-				logger.ErrorStacktrace(err, "api_handler_recovered")
-				_ = SendError(c, http.StatusInternalServerError, "error")
-			}
-		}()
-		return impl(c)
-	}
-}
 
 type Result struct {
 	Success bool   `json:"success"`
@@ -50,7 +31,15 @@ func SendOK(c *fiber.Ctx, data any) error {
 
 func SendErrorPage(c *fiber.Ctx, status int, err error) error {
 	c.Type("html", "utf-8")
-	data, _ := res.ReadData("tpl/err.html")
+	data, _ := res.ParseText("err.html", &struct {
+		Message string
+	}{
+		Message: libs.IF(err != nil, func() any {
+			return err.Error()
+		}, func() any {
+			return "some error"
+		}).(string),
+	})
 	return c.Status(status).Send(data)
 }
 

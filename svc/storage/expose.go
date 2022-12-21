@@ -1,12 +1,14 @@
 package storage
 
 import (
+	"errors"
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/storage/store"
+	"nas2cloud/svc/user"
 )
 
 func List(username string, fullPath string) []*store.ObjectInfo {
-	userGroupName := "family"
+	userGroupName := user.GetUserGroup(username)
 	if fullPath == "" || fullPath == "/" {
 		return getAuthorizedExternal(userGroupName)
 	}
@@ -20,4 +22,20 @@ func List(username string, fullPath string) []*store.ObjectInfo {
 		return []*store.ObjectInfo{}
 	}
 	return ret
+}
+
+func Info(username string, fullPath string) (*store.ObjectInfo, error) {
+	if fullPath == "" || fullPath == "/" {
+		return &store.ObjectInfo{
+			Name: ".",
+			Path: "/",
+			Type: store.ObjectTypeDir,
+		}, nil
+	}
+	userGroupName := user.GetUserGroup(username)
+	st := getStore(fullPath)
+	if !authorized(userGroupName, st, fullPath) {
+		return nil, errors.New("no authority")
+	}
+	return st.Info(fullPath)
 }

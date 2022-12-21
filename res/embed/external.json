@@ -2,7 +2,7 @@
   {
     "name": "Family",
     "mountType": "local",
-    "endpoint": "/Volumes/X",
+    "endpoint": "/Users/ZMS/Music",
     "authorize": "admin,family"
   },
   {

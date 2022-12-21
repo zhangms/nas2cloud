@@ -5,6 +5,11 @@
     <title>Store</title>
 </head>
 <body>
-hello world
+<div><a href="?path={{.ParentValue}}">{{.ParentName}}</a>/{{.CurrentName}} &gt;</div>
+{{range .Items}}
+<div>
+    <a href="?path={{.Value}}">{{.Name}}</a>
+</div>
+{{end}}
 </body>
 </html>
