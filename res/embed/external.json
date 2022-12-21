@@ -3,13 +3,13 @@
     "name": "Family",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Music",
-    "authorize": "admin,family"
+    "authorize": "admin"
   },
   {
     "name": "Downloads",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Downloads",
-    "authorize": "admin"
+    "authorize": "admin,family"
   },
   {
     "name": "Documents",

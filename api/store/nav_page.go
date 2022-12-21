@@ -10,9 +10,11 @@ import (
 )
 
 type navItem struct {
-	Name  string
-	Type  string
-	Value string
+	Name    string
+	Type    string
+	Value   string
+	Size    string
+	ModTime string
 }
 
 type navPage struct {
@@ -43,9 +45,11 @@ func createNavPage(fullPath string, infos []*store.ObjectInfo) ([]byte, error) {
 			ret := make([]*navItem, 0)
 			for _, o := range infos {
 				ret = append(ret, &navItem{
-					Name:  o.Name,
-					Type:  string(o.Type),
-					Value: o.Path,
+					Name:    o.Name,
+					Type:    string(o.Type),
+					Value:   o.Path,
+					Size:    libs.If(o.Type == store.ObjectTypeDir, "", libs.ReadableDataSize(o.Size)).(string),
+					ModTime: o.ModTime.Format("2006-01-02"),
 				})
 			}
 			return ret
