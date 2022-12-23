@@ -1,9 +1,21 @@
 [
   {
+    "name": "__thumb__",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Thumb",
+    "authorize": "admin"
+  },
+  {
     "name": "Family",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Music",
     "authorize": "admin"
+  },
+  {
+    "name": "Pic",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Pictures",
+    "authorize": "admin,family"
   },
   {
     "name": "Downloads",
@@ -12,7 +24,7 @@
     "authorize": "admin,family"
   },
   {
-    "name": "Documents",
+    "name": "Docs",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Documents/",
     "authorize": "admin,family"

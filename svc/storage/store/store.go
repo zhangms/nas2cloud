@@ -1,6 +1,8 @@
 package store
 
-import "time"
+import (
+	"time"
+)
 
 type ObjectType string
 
@@ -25,4 +27,8 @@ type Store interface {
 	List(fullPath string) ([]*ObjectInfo, error)
 
 	Info(fullPath string) (*ObjectInfo, error)
+
+	Read(fullPath string) ([]byte, error)
+
+	Write(fullPath string, data []byte) error
 }

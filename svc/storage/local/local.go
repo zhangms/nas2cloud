@@ -1,6 +1,8 @@
 package local
 
 import (
+	"io/fs"
+	"io/ioutil"
 	"nas2cloud/libs"
 	"nas2cloud/svc/storage/store"
 	"os"
@@ -13,8 +15,8 @@ type Store struct {
 
 var Storage = &Store{}
 
-func (l *Store) List(fullPath string) ([]*store.ObjectInfo, error) {
-	info, err := l.Info(fullPath)
+func (s *Store) List(fullPath string) ([]*store.ObjectInfo, error) {
+	info, err := s.Info(fullPath)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +36,7 @@ func (l *Store) List(fullPath string) ([]*store.ObjectInfo, error) {
 		if fi.Name() == "$RECYCLE.BIN" {
 			continue
 		}
-		inf, er := l.infoF(path.Join(fullPath, fi.Name()), fi)
+		inf, er := s.infoF(path.Join(fullPath, fi.Name()), fi)
 		if er != nil {
 			continue
 		}
@@ -43,15 +45,23 @@ func (l *Store) List(fullPath string) ([]*store.ObjectInfo, error) {
 	return ret, nil
 }
 
-func (l *Store) Info(fullPath string) (*store.ObjectInfo, error) {
+func (s *Store) Info(fullPath string) (*store.ObjectInfo, error) {
 	fi, err := os.Stat(fullPath)
 	if err != nil {
 		return nil, err
 	}
-	return l.infoF(fullPath, fi)
+	return s.infoF(fullPath, fi)
 }
 
-func (l *Store) infoF(fullPath string, fi os.FileInfo) (*store.ObjectInfo, error) {
+func (s *Store) Read(fullPath string) ([]byte, error) {
+	return ioutil.ReadFile(fullPath)
+}
+
+func (s *Store) Write(fullPath string, data []byte) error {
+	return ioutil.WriteFile(fullPath, data, fs.ModePerm)
+}
+
+func (s *Store) infoF(fullPath string, fi os.FileInfo) (*store.ObjectInfo, error) {
 	modTime := fi.ModTime()
 	return &store.ObjectInfo{
 		Name:    fi.Name(),

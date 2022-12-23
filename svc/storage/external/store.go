@@ -52,7 +52,7 @@ func AuthorizedVolumes(groupName string) []string {
 
 func GetVolume(fullPath string) (*Volume, string, error) {
 	if strings.Index(fullPath, Protocol) != 0 {
-		return nil, "", errors.New("not valid Store endpoint")
+		return nil, "", errors.New("not valid external path")
 	}
 	p := fullPath[len(Protocol):]
 	arr := strings.SplitN(p, "/", 2)
@@ -105,6 +105,18 @@ func (s *Store) Info(fullPath string) (*store.ObjectInfo, error) {
 	ext, file, _ := GetVolume(fullPath)
 	impl := s.getStoreImpl(ext)
 	return impl.Info(file)
+}
+
+func (s *Store) Read(fullPath string) ([]byte, error) {
+	ext, file, _ := GetVolume(fullPath)
+	impl := s.getStoreImpl(ext)
+	return impl.Read(file)
+}
+
+func (s *Store) Write(fullPath string, data []byte) error {
+	ext, file, _ := GetVolume(fullPath)
+	impl := s.getStoreImpl(ext)
+	return impl.Write(file, data)
 }
 
 func (s *Store) getStoreImpl(v *Volume) store.Store {

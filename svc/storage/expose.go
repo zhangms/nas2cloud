@@ -21,6 +21,7 @@ func List(username string, fullPath string) []*store.ObjectInfo {
 		logger.ErrorStacktrace(err, fullPath)
 		return []*store.ObjectInfo{}
 	}
+	batchThumbnail(ret)
 	return ret
 }
 
@@ -37,5 +38,10 @@ func Info(username string, fullPath string) (*store.ObjectInfo, error) {
 	if !authorized(userGroupName, st, fullPath) {
 		return nil, errors.New("no authority")
 	}
-	return st.Info(fullPath)
+	info, err := st.Info(fullPath)
+	if err != nil {
+		return nil, err
+	}
+	thumbnail(info)
+	return info, nil
 }
