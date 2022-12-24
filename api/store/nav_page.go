@@ -13,6 +13,7 @@ type navItem struct {
 	Value   string
 	Size    string
 	ModTime string
+	Preview string
 }
 
 type navPage struct {
@@ -38,6 +39,7 @@ func createNavPage(fullPath string, infos []*vfs.ObjectInfo) ([]byte, error) {
 					Value:   o.Path,
 					Size:    libs.If(o.Type == vfs.ObjectTypeDir, "", libs.ReadableDataSize(o.Size)).(string),
 					ModTime: o.ModTime.Format("2006-01-02"),
+					Preview: o.Preview,
 				})
 			}
 			return ret

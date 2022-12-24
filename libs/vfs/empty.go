@@ -20,3 +20,7 @@ func (e *empty) Read(file string) ([]byte, error) {
 func (e *empty) Write(file string, data []byte) error {
 	return errors.New("cannot write")
 }
+
+func (e *empty) Exists(file string) bool {
+	return false
+}

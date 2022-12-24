@@ -6,10 +6,14 @@ import (
 	"nas2cloud/api/store"
 	"nas2cloud/api/user"
 	"nas2cloud/libs/logger"
+	"nas2cloud/libs/vfs"
+	"nas2cloud/svc/storage/thumbs"
 	"net/http"
 )
 
 func Register(app *fiber.App) {
+	bucket, _, _ := vfs.GetBucket(thumbs.ThumbUser, thumbs.ThumbnailDir)
+	app.Static(thumbs.ThumbnailDir, bucket.Endpoint())
 	app.Get("/store/nav", handler(store.Navigate))
 	app.Get("/page/store/nav", handler(store.NavigatePage))
 	app.Post("/user/login", handler(user.Login))

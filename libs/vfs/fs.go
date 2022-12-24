@@ -4,20 +4,21 @@ import (
 	"encoding/json"
 	"errors"
 	"nas2cloud/libs"
+	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"path"
 	"strings"
 )
 
-type bucket struct {
+type Bucket struct {
 	name      string
 	mountType string
 	endpoint  string
 	authorize string
 }
 
-func (b *bucket) authorized(user string) bool {
-	if b.authorize == "ALL" {
+func (b *Bucket) authorized(user string) bool {
+	if b.authorize == "ALL" || user == "root" {
 		return true
 	}
 	arr := strings.Split(b.authorize, ",")
@@ -29,11 +30,15 @@ func (b *bucket) authorized(user string) bool {
 	return false
 }
 
-func (b *bucket) dir() string {
+func (b *Bucket) dir() string {
 	return path.Join("/", b.name)
 }
 
-var buckets map[string]*bucket
+func (b *Bucket) Endpoint() string {
+	return b.endpoint
+}
+
+var buckets map[string]*Bucket
 var bucketNames []string
 
 func init() {
@@ -46,25 +51,26 @@ func init() {
 	configs := make([]*config, 0)
 	data, _ := res.ReadData("bucket.json")
 	_ = json.Unmarshal(data, &configs)
-	buckets = make(map[string]*bucket)
+	buckets = make(map[string]*Bucket)
 	bucketNames = make([]string, 0)
 	for _, conf := range configs {
 		bucketNames = append(bucketNames, conf.Name)
-		buckets[conf.Name] = &bucket{
+		buckets[conf.Name] = &Bucket{
 			name:      conf.Name,
 			mountType: conf.MountType,
 			endpoint:  path.Clean(conf.Endpoint),
 			authorize: conf.Authorize,
 		}
 	}
+	logger.Info("VFS initialized:", len(buckets))
 }
 
-func getBucket(user string, file string) (*bucket, string, error) {
+func GetBucket(user string, file string) (*Bucket, string, error) {
 	pth := path.Clean(libs.If(path.IsAbs(file), file, "/"+file).(string))
 	arr := strings.SplitN(pth, "/", 3)
 	b := buckets[arr[1]]
 	if b == nil {
-		return nil, "", errors.New("bucket not exists :" + arr[1])
+		return nil, "", errors.New("Bucket not exists :" + arr[1])
 	}
 	if !b.authorized(user) {
 		return nil, "", errors.New("no authority")
@@ -76,7 +82,7 @@ func getBucket(user string, file string) (*bucket, string, error) {
 }
 
 func getStore(user string, file string) (Store, string, error) {
-	b, f, err := getBucket(user, file)
+	b, f, err := GetBucket(user, file)
 	if err != nil {
 		return nil, f, err
 	}
@@ -139,4 +145,12 @@ func Write(user string, file string, data []byte) error {
 		return err
 	}
 	return store.Write(f, data)
+}
+
+func Exists(user string, file string) bool {
+	store, f, err := getStore(user, file)
+	if err != nil {
+		return false
+	}
+	return store.Exists(f)
 }

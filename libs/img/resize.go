@@ -11,7 +11,7 @@ import (
 	"math"
 )
 
-func Thumbnail(imgData []byte, width int, height int) ([]byte, error) {
+func Resize(imgData []byte, width int, height int) ([]byte, error) {
 	reader := bytes.NewReader(imgData)
 	im, _, err := image.Decode(reader)
 	if err != nil {

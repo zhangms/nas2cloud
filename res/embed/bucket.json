@@ -3,7 +3,7 @@
     "name": "__thumb__",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Thumb",
-    "authorize": "admin"
+    "authorize": "root"
   },
   {
     "name": "Family",

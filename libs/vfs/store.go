@@ -29,4 +29,6 @@ type Store interface {
 	Read(file string) ([]byte, error)
 
 	Write(file string, data []byte) error
+
+	Exists(file string) bool
 }

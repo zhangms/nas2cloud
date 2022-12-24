@@ -10,7 +10,7 @@ import (
 )
 
 type vLocal struct {
-	bucket *bucket
+	bucket *Bucket
 }
 
 //本地文件的绝对路径
@@ -67,6 +67,14 @@ func (l *vLocal) Read(file string) ([]byte, error) {
 
 func (l *vLocal) Write(file string, data []byte) error {
 	return ioutil.WriteFile(l.rAbs(file), data, fs.ModePerm)
+}
+
+func (l *vLocal) Exists(file string) bool {
+	_, err := os.Stat(l.rAbs(file))
+	if err != nil {
+		return os.IsExist(err)
+	}
+	return true
 }
 
 func (l *vLocal) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
