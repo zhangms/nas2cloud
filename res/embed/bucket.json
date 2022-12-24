@@ -6,10 +6,10 @@
     "authorize": "root"
   },
   {
-    "name": "Family",
+    "name": "Movies",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/Music",
-    "authorize": "admin"
+    "endpoint": "/Users/ZMS/Movies",
+    "authorize": "admin,family"
   },
   {
     "name": "Pic",

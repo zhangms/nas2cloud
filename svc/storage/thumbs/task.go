@@ -6,6 +6,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"path"
+	"reflect"
 	"strings"
 )
 
@@ -25,10 +26,12 @@ func init() {
 }
 
 var supportType = map[string]thumbnail{
-	".JPG":  &imgThumbnail{},
-	".JPEG": &imgThumbnail{},
-	".PNG":  &imgThumbnail{},
-	".GIF":  &imgThumbnail{},
+	".JPG":  &ffmpegThumbnail{},
+	".JPEG": &ffmpegThumbnail{},
+	".PNG":  &ffmpegThumbnail{},
+	".GIF":  &ffmpegThumbnail{},
+	".MP4":  &ffmpegThumbnail{},
+	".MOV":  &ffmpegThumbnail{},
 }
 
 func worker() {
@@ -45,7 +48,9 @@ func worker() {
 		}
 		err := thumb.exec(file, thumbName, thumbWidth, thumbHeight)
 		if err != nil {
-			logger.Error("thumb error", file, err)
+			logger.Error("image thumb error", reflect.TypeOf(thumb), file, err)
+		} else {
+			logger.Info("image thumb", file)
 		}
 	}
 }

@@ -81,13 +81,13 @@ func GetBucket(user string, file string) (*Bucket, string, error) {
 	return b, "", nil
 }
 
-func getStore(user string, file string) (Store, string, error) {
+func GetStore(user string, file string) (Store, string, error) {
 	b, f, err := GetBucket(user, file)
 	if err != nil {
 		return nil, f, err
 	}
 	if b.mountType == "local" {
-		return &vLocal{bucket: b}, f, nil
+		return &Local{bucket: b}, f, nil
 	}
 	return &empty{}, f, nil
 }
@@ -108,7 +108,7 @@ func List(user string, file string) ([]*ObjectInfo, error) {
 		}
 		return ret, nil
 	}
-	store, f, err := getStore(user, file)
+	store, f, err := GetStore(user, file)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func Info(user string, file string) (*ObjectInfo, error) {
 			Type:   ObjectTypeDir,
 		}, nil
 	}
-	store, f, err := getStore(user, file)
+	store, f, err := GetStore(user, file)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func Info(user string, file string) (*ObjectInfo, error) {
 }
 
 func Read(user string, file string) ([]byte, error) {
-	store, f, err := getStore(user, file)
+	store, f, err := GetStore(user, file)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func Read(user string, file string) ([]byte, error) {
 }
 
 func Write(user string, file string, data []byte) error {
-	store, f, err := getStore(user, file)
+	store, f, err := GetStore(user, file)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func Write(user string, file string, data []byte) error {
 }
 
 func Exists(user string, file string) bool {
-	store, f, err := getStore(user, file)
+	store, f, err := GetStore(user, file)
 	if err != nil {
 		return false
 	}

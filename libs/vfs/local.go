@@ -6,24 +6,33 @@ import (
 	"nas2cloud/libs"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
-type vLocal struct {
+type Local struct {
 	bucket *Bucket
 }
 
-//本地文件的绝对路径
-func (l *vLocal) rAbs(file string) string {
-	return path.Join(l.bucket.endpoint, file)
+// AbsLocal 本地文件的绝对路径
+func (l *Local) AbsLocal(file string) string {
+	if l.bucket != nil {
+		return path.Join(l.bucket.endpoint, file)
+	}
+	p, _ := filepath.Abs(file)
+	return p
 }
 
-//vfs中的绝对路径
-func (l *vLocal) vAbs(file string) string {
-	return path.Join(l.bucket.dir(), file)
+// AbsVirtual vfs中的绝对路径
+func (l *Local) AbsVirtual(file string) string {
+	if l.bucket != nil {
+		return path.Join(l.bucket.dir(), file)
+	}
+	p, _ := filepath.Abs(file)
+	return p
 }
 
-func (l *vLocal) List(file string) ([]*ObjectInfo, error) {
+func (l *Local) List(file string) ([]*ObjectInfo, error) {
 	info, err := l.Info(file)
 	if err != nil {
 		return nil, err
@@ -31,7 +40,7 @@ func (l *vLocal) List(file string) ([]*ObjectInfo, error) {
 	if info.Type != ObjectTypeDir {
 		return []*ObjectInfo{}, nil
 	}
-	entries, err := os.ReadDir(l.rAbs(file))
+	entries, err := os.ReadDir(l.AbsLocal(file))
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +53,7 @@ func (l *vLocal) List(file string) ([]*ObjectInfo, error) {
 		if fi.Name() == "$RECYCLE.BIN" {
 			continue
 		}
-		inf, er := l.infoF(path.Join(l.vAbs(file), fi.Name()), fi)
+		inf, er := l.infoF(path.Join(l.AbsVirtual(file), fi.Name()), fi)
 		if er != nil {
 			continue
 		}
@@ -53,31 +62,31 @@ func (l *vLocal) List(file string) ([]*ObjectInfo, error) {
 	return ret, nil
 }
 
-func (l *vLocal) Info(file string) (*ObjectInfo, error) {
-	fi, err := os.Stat(l.rAbs(file))
+func (l *Local) Info(file string) (*ObjectInfo, error) {
+	fi, err := os.Stat(l.AbsLocal(file))
 	if err != nil {
 		return nil, err
 	}
-	return l.infoF(l.vAbs(file), fi)
+	return l.infoF(l.AbsVirtual(file), fi)
 }
 
-func (l *vLocal) Read(file string) ([]byte, error) {
-	return ioutil.ReadFile(l.rAbs(file))
+func (l *Local) Read(file string) ([]byte, error) {
+	return ioutil.ReadFile(l.AbsLocal(file))
 }
 
-func (l *vLocal) Write(file string, data []byte) error {
-	return ioutil.WriteFile(l.rAbs(file), data, fs.ModePerm)
+func (l *Local) Write(file string, data []byte) error {
+	return ioutil.WriteFile(l.AbsLocal(file), data, fs.ModePerm)
 }
 
-func (l *vLocal) Exists(file string) bool {
-	_, err := os.Stat(l.rAbs(file))
+func (l *Local) Exists(file string) bool {
+	_, err := os.Stat(l.AbsLocal(file))
 	if err != nil {
 		return os.IsExist(err)
 	}
 	return true
 }
 
-func (l *vLocal) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
+func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
 	modTime := fi.ModTime()
 	return &ObjectInfo{
 		Name:    libs.If(fullPath == l.bucket.dir(), l.bucket.name, fi.Name()).(string),
