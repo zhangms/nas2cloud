@@ -1,0 +1,17 @@
+[
+  {
+    "name": "dioscoreae",
+    "password": "baobao1234",
+    "group": "admin"
+  },
+  {
+    "name": "zms",
+    "password": "baobao4321x",
+    "group": "family"
+  },
+  {
+    "name": "pmz",
+    "password": "baobao123678",
+    "group": "family"
+  }
+]
