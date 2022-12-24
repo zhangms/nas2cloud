@@ -1,8 +1,6 @@
-package store
+package vfs
 
-import (
-	"time"
-)
+import "time"
 
 type ObjectType string
 
@@ -24,11 +22,11 @@ type ObjectInfo struct {
 }
 
 type Store interface {
-	List(fullPath string) ([]*ObjectInfo, error)
+	List(file string) ([]*ObjectInfo, error)
 
-	Info(fullPath string) (*ObjectInfo, error)
+	Info(file string) (*ObjectInfo, error)
 
-	Read(fullPath string) ([]byte, error)
+	Read(file string) ([]byte, error)
 
-	Write(fullPath string, data []byte) error
+	Write(file string, data []byte) error
 }

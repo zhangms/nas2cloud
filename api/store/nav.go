@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/api/base"
+	"nas2cloud/libs/vfs"
 	"nas2cloud/svc/storage"
-	"nas2cloud/svc/storage/store"
 	"net/http"
 	"net/url"
 )
@@ -28,7 +28,7 @@ func NavigatePage(c *fiber.Ctx) error {
 	if err != nil {
 		return base.SendErrorPage(c, http.StatusBadRequest, err)
 	}
-	if info.Type != store.ObjectTypeDir {
+	if info.Type != vfs.ObjectTypeDir {
 		return base.SendErrorPage(c, http.StatusForbidden, errors.New("not support"))
 	}
 	list := storage.List(username, fullPath)

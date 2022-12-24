@@ -2,11 +2,9 @@ package store
 
 import (
 	"nas2cloud/libs"
+	"nas2cloud/libs/vfs"
 	"nas2cloud/res"
-	"nas2cloud/svc/storage/external"
-	"nas2cloud/svc/storage/store"
 	"path"
-	"strings"
 )
 
 type navItem struct {
@@ -25,21 +23,11 @@ type navPage struct {
 	Items       []*navItem
 }
 
-func createNavPage(fullPath string, infos []*store.ObjectInfo) ([]byte, error) {
+func createNavPage(fullPath string, infos []*vfs.ObjectInfo) ([]byte, error) {
 	dir, file := path.Split(path.Clean(fullPath))
 	page := &navPage{
-		ParentName: libs.IF(dir == "" || dir == "/" || dir == external.Protocol,
-			func() any {
-				return "."
-			},
-			func() any {
-				p := path.Clean(dir)
-				if strings.Index(p, external.Protocol) == 0 {
-					return "./" + p[len(external.Protocol):]
-				}
-				return p
-			}).(string),
-		ParentValue: libs.If(dir == "" || dir == "/" || dir == external.Protocol, "/", path.Clean(dir)).(string),
+		ParentName:  libs.If(dir == "" || dir == "/", ".", "."+path.Clean(dir)).(string),
+		ParentValue: libs.If(dir == "" || dir == "/", "/", path.Clean(dir)).(string),
 		CurrentName: file,
 		Items: func() []*navItem {
 			ret := make([]*navItem, 0)
@@ -48,7 +36,7 @@ func createNavPage(fullPath string, infos []*store.ObjectInfo) ([]byte, error) {
 					Name:    o.Name,
 					Type:    string(o.Type),
 					Value:   o.Path,
-					Size:    libs.If(o.Type == store.ObjectTypeDir, "", libs.ReadableDataSize(o.Size)).(string),
+					Size:    libs.If(o.Type == vfs.ObjectTypeDir, "", libs.ReadableDataSize(o.Size)).(string),
 					ModTime: o.ModTime.Format("2006-01-02"),
 				})
 			}
