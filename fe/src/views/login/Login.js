@@ -1,36 +1,28 @@
 import React from 'react';
-import {Alert, Button, Form, Input} from 'antd';
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
-import API from "./api";
+import {Alert, Button, Form, Input} from "antd";
+import {connect} from "react-redux";
+import API from "../../requests/api";
+import {LoginActions} from "../../models/login";
+import {AppActions} from "../../models/app";
 
 class Login extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            "alertDisplay": "none",
-            "alertMessage": ""
-        }
-    }
-
-    async onFinish(values) {
-        this.setState({
-            "alertDisplay": "none",
-            "alertMessage": ""
-        })
+    async onFinish(dispatch, values) {
+        dispatch(LoginActions.closeError())
         const resp = await API.login(values)
-        if (!resp.success) {
-            this.setState({
-                "alertDisplay": "",
-                "alertMessage": resp.message
-            })
-            return
+        if (resp.success) {
+            dispatch(AppActions.logged())
+        } else {
+            dispatch(AppActions.notLogged())
+            dispatch(LoginActions.showError(resp))
         }
-        console.log("login success");
 
     }
 
     render() {
+        console.log(this.props)
+        const {errorDisplay, errorMessage, dispatch} = this.props
         return (
             <Form
                 style={{marginTop: "12%"}}
@@ -40,7 +32,7 @@ class Login extends React.Component {
                 initialValues={{
                     remember: true,
                 }}
-                onFinish={e => this.onFinish(e)}
+                onFinish={e => this.onFinish(dispatch, e)}
             >
                 <Form.Item
                     name="username"
@@ -70,9 +62,9 @@ class Login extends React.Component {
                 </Form.Item>
                 <Form.Item>
                     <Alert
-                        style={{display: this.state.alertDisplay}}
+                        style={{display: errorDisplay}}
                         message="Error Text"
-                        description={this.state.alertMessage}
+                        description={errorMessage}
                         type="error"
                     />
                 </Form.Item>
@@ -86,4 +78,6 @@ class Login extends React.Component {
     }
 }
 
-export default Login;
+export default Login = connect(function (state) {
+    return {...state.Login}
+})(Login)
