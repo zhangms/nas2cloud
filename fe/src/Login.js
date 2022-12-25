@@ -1,11 +1,33 @@
 import React from 'react';
-import {Button, Form, Input} from 'antd';
+import {Alert, Button, Form, Input} from 'antd';
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
+import API from "./api";
 
 class Login extends React.Component {
 
-    onFinish(values) {
-        console.log(values)
+    constructor(props) {
+        super(props);
+        this.state = {
+            "alertDisplay": "none",
+            "alertMessage": ""
+        }
+    }
+
+    async onFinish(values) {
+        this.setState({
+            "alertDisplay": "none",
+            "alertMessage": ""
+        })
+        const resp = await API.login(values)
+        if (!resp.success) {
+            this.setState({
+                "alertDisplay": "",
+                "alertMessage": resp.message
+            })
+            return
+        }
+        console.log("login success");
+
     }
 
     render() {
@@ -18,7 +40,7 @@ class Login extends React.Component {
                 initialValues={{
                     remember: true,
                 }}
-                onFinish={this.onFinish}
+                onFinish={e => this.onFinish(e)}
             >
                 <Form.Item
                     name="username"
@@ -44,6 +66,14 @@ class Login extends React.Component {
                         prefix={<LockOutlined className="site-form-item-icon"/>}
                         type="password"
                         placeholder="Password"
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Alert
+                        style={{display: this.state.alertDisplay}}
+                        message="Error Text"
+                        description={this.state.alertMessage}
+                        type="error"
                     />
                 </Form.Item>
                 <Form.Item>
