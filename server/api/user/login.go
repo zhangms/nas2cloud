@@ -13,14 +13,11 @@ func Login(c *fiber.Ctx) error {
 	type loginRequest struct {
 		UserName string `json:"username"`
 		Password string `json:"password"`
-		Device   string `json:"device"`
 	}
-
 	type loginResponse struct {
 		UserName string `json:"username"`
 		Token    string `json:"token"`
 	}
-
 	request := &loginRequest{}
 	body := c.Body()
 	err := json.Unmarshal(body, request)
@@ -28,7 +25,7 @@ func Login(c *fiber.Ctx) error {
 		logger.ErrorStacktrace(err, string(body))
 		return base.SendError(c, http.StatusBadRequest, "request error")
 	}
-	token, err := user.Login(request.UserName, request.Password, request.Device)
+	token, err := user.Login(request.UserName, request.Password, c.Get("device"))
 	if err != nil {
 		return base.SendError(c, http.StatusForbidden, err.Error())
 	}
