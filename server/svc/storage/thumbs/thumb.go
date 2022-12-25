@@ -8,6 +8,7 @@ import (
 	"nas2cloud/libs/img"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/svc"
 	"os"
 	"os/exec"
 	"path"
@@ -79,13 +80,11 @@ func (f *ffmpegThumbnail) execLowPerformance(from string, to string, width int, 
 	if err != nil {
 		return err
 	}
-	dir := ".tmp"
+	dir := svc.GetTempDir()
 
 	name := uuid.New().String()
 	origin := path.Join(dir, name+".origin")
 	thumb := path.Join(dir, name)
-
-	_ = os.MkdirAll(path.Dir(origin), fs.ModePerm)
 	err = os.WriteFile(origin, data, fs.ModePerm)
 	if err != nil {
 		return err

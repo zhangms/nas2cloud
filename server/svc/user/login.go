@@ -11,7 +11,7 @@ func Login(name string, password string, device string) (string, error) {
 	if usr == nil {
 		return "", errors.New("username or password error")
 	}
-	_, err := expireAllUserAuthToken(usr.Name)
+	_, err := expireUserAuthToken(usr.Name, device)
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		return "", errors.New("login failed")
@@ -26,8 +26,8 @@ func Login(name string, password string, device string) (string, error) {
 	return token, nil
 }
 
-func GetLoggedUser(name string, token string) *User {
-	usr, err := findUserByAuthToken(name, token)
+func GetLoggedUser(name string, device string, token string) *User {
+	usr, err := findUserByAuthToken(name, device, token)
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		return nil

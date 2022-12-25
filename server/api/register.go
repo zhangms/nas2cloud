@@ -21,6 +21,8 @@ func Register(app *fiber.App) {
 
 func handler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
+		c.Set("Access-Control-Allow-Credentials", "true")
+		c.Set("Access-Control-Allow-Origin", "*")
 		defer func() {
 			err := recover()
 			if err != nil {
