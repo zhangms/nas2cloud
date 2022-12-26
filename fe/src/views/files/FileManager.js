@@ -19,6 +19,61 @@ class FileManager extends React.Component {
             },
             {
                 title: 'Ant Design Title 4',
+            },{
+                title: 'Ant Design Title 1',
+            },
+            {
+                title: 'Ant Design Title 2',
+            },
+            {
+                title: 'Ant Design Title 3',
+            },
+            {
+                title: 'Ant Design Title 4',
+            },{
+                title: 'Ant Design Title 1',
+            },
+            {
+                title: 'Ant Design Title 2',
+            },
+            {
+                title: 'Ant Design Title 3',
+            },
+            {
+                title: 'Ant Design Title 4',
+            },{
+                title: 'Ant Design Title 1',
+            },
+            {
+                title: 'Ant Design Title 2',
+            },
+            {
+                title: 'Ant Design Title 3',
+            },
+            {
+                title: 'Ant Design Title 4',
+            },{
+                title: 'Ant Design Title 1',
+            },
+            {
+                title: 'Ant Design Title 2',
+            },
+            {
+                title: 'Ant Design Title 3',
+            },
+            {
+                title: 'Ant Design Title 4',
+            },{
+                title: 'Ant Design Title 1',
+            },
+            {
+                title: 'Ant Design Title 2',
+            },
+            {
+                title: 'Ant Design Title 3',
+            },
+            {
+                title: 'Ant Design Title 4',
             },
         ];
 
@@ -44,7 +99,7 @@ class FileManager extends React.Component {
                 width: '100%',
             }}>
                 <Breadcrumb style={{
-                    margin: '18px 0',
+                    margin: '20px -30px',
                 }}>
                     <Breadcrumb.Item href="">
                         <HomeOutlined/>
@@ -57,7 +112,8 @@ class FileManager extends React.Component {
                 </Breadcrumb>
             </Header>
             <Content style={{
-                background: "white"
+                background: "white",
+                paddingTop:10
             }}>
                 <List
                     itemLayout="horizontal"
