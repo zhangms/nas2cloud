@@ -1,21 +1,16 @@
 import {createSlice} from "@reduxjs/toolkit";
+import API from "../requests/api";
+
 
 const appSlice = createSlice({
     name: "app",
     initialState: {
-        loginState: false,
+        isLogged: API.isLogged()
     },
     reducers: {
-        logged: function (state, action) {
-            console.log("====>logged")
+        updateLoginState: function (state, action) {
             return {
-                loginState: true
-            }
-        },
-
-        notLogged: function (state, action) {
-            return {
-                loginState: false
+                isLogged: API.isLogged()
             }
         }
     }

@@ -1,13 +1,14 @@
 import React from 'react';
 import Login from "./login/Login";
 import {connect} from "react-redux";
+import Main from "./main/Main";
 
 class App extends React.Component {
 
     render() {
-        const {loginState} = this.props
+        const {isLogged} = this.props
         return (
-            loginState ? <>login success</> : <Login/>
+            isLogged ? <Main/> : <Login/>
         )
     }
 }

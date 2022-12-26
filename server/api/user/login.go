@@ -7,6 +7,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/user"
 	"net/http"
+	"time"
 )
 
 func Login(c *fiber.Ctx) error {
@@ -15,9 +16,11 @@ func Login(c *fiber.Ctx) error {
 		Password string `json:"password"`
 	}
 	type loginResponse struct {
-		UserName string `json:"username"`
-		Token    string `json:"token"`
+		UserName   string `json:"username"`
+		Token      string `json:"token"`
+		CreateTime string `json:"createTime"`
 	}
+
 	request := &loginRequest{}
 	body := c.Body()
 	err := json.Unmarshal(body, request)
@@ -30,7 +33,8 @@ func Login(c *fiber.Ctx) error {
 		return base.SendError(c, http.StatusForbidden, err.Error())
 	}
 	return base.SendOK(c, &loginResponse{
-		UserName: request.UserName,
-		Token:    token,
+		UserName:   request.UserName,
+		Token:      token,
+		CreateTime: time.Now().Format(time.RFC3339),
 	})
 }
