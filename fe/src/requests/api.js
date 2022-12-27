@@ -13,11 +13,6 @@ const API = {
         return JSON.parse(state)
     },
 
-    isLogged: function () {
-        const state = this.getLoginState();
-        return state != null && state.username != null && state.token != null;
-    },
-
     saveLoginState: function (state) {
         if (state == null) {
             localStorage.removeItem("loginState")
@@ -26,12 +21,17 @@ const API = {
         }
     },
 
+    isLogged: function () {
+        const state = this.getLoginState();
+        return state != null && state.username != null && state.token != null;
+    },
+
     headers: function () {
         if (this.isLogged()) {
             const state = this.getLoginState()
             return {
                 "X-AUTH-TOKEN": state.username + " " + state.token,
-                "device": "web"
+                "X-DEVICE": "web"
             }
         }
         return {

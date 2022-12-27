@@ -30,7 +30,7 @@ func Register(app *fiber.App) {
 
 func getLoggedUser(c *fiber.Ctx) (*user.User, error) {
 	token := c.Get("X-AUTH-TOKEN")
-	device := c.Get("device")
+	device := c.Get("X-DEVICE")
 	if len(token) == 0 || len(device) == 0 {
 		return nil, errors.New("token not exists")
 	}
