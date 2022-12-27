@@ -11,15 +11,13 @@ import (
 )
 
 func Navigate(c *fiber.Ctx) error {
-	//getStoreList(c)
-	//return c.JSON(base.ResultOK(list))
-	return nil
+	u, _ := base.GetLoggedUser(c)
+	body := make(map[string]string)
+	_ = c.BodyParser(body)
+	p := body["path"]
+	list := storage.List(u.Name, p)
+	return base.SendOK(c, list)
 }
-
-//func getStoreList(c *fiber.Ctx) {
-//	p, _ := url.QueryUnescape(c.Query("path", "/"))
-//	list := storage.List("zms", p)
-//}
 
 func NavigatePage(c *fiber.Ctx) error {
 	fullPath, _ := url.QueryUnescape(c.Query("path", "/"))

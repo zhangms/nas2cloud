@@ -2,15 +2,16 @@ import React from 'react';
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {Alert, Button, Form, Input} from "antd";
 import {connect} from "react-redux";
-import API from "../../requests/api";
 import {LoginActions} from "../../models/login";
 import {AppActions} from "../../models/app";
+import UserApi from "../../requests/api_user";
+import API from "../../requests/api";
 
 class Login extends React.Component {
 
     async onFinish(dispatch, values) {
         dispatch(LoginActions.closeError())
-        const resp = await API.login(values)
+        const resp = await UserApi.login(values)
         if (resp.success) {
             API.saveLoginState(resp.data)
         } else {

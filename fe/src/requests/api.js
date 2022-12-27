@@ -1,6 +1,7 @@
 const API = {
     host: "http://localhost:8080",
-    api: function (requestURI) {
+
+    fullUrl: function (requestURI) {
         return this.host + requestURI
     },
 
@@ -25,16 +26,32 @@ const API = {
         }
     },
 
-    login: async function (params) {
-        const resp = await fetch(this.api("/user/login"), {
-            method: "POST",
-            headers: {
+    headers: function () {
+        if (this.isLogged()) {
+            const state = this.getLoginState()
+            return {
+                "X-AUTH-TOKEN": state.username + " " + state.token,
                 "device": "web"
-            },
-            body: JSON.stringify(params),
+            }
+        }
+        return {
+            "device": "web",
+        }
+    },
+
+    POST: async function (requestURI, body) {
+        const resp = await fetch(this.fullUrl(requestURI), {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: this.headers(),
         })
-        return await resp.json()
-    }
+        const ret = await resp.json()
+        if (!ret.success && ret.message === "LOGIN_REQUIRED") {
+            this.saveLoginState(null)
+            console.log("需要登录")
+        }
+        return ret;
+    },
 }
 
 export default API

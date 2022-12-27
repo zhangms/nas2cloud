@@ -1,95 +1,26 @@
 import React from 'react';
-import {Avatar, Breadcrumb, Button, Layout, List} from "antd";
+import {Avatar, Breadcrumb, Layout, List} from "antd";
 import {HomeOutlined, UserOutlined} from "@ant-design/icons";
 import {Content, Header} from "antd/es/layout/layout";
+import {connect} from "react-redux";
+import FileApi from "../../requests/api_file";
+import {FileActions} from "../../models/file";
 
 class FileManager extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.dispatch = props.dispatch
+    }
+
+    componentDidMount() {
+        FileApi.list("/").then(resp => {
+            this.dispatch(FileActions.onLoaded(resp.data))
+        })
+    }
+
     render() {
-
-        const data = [
-            {
-                title: 'Ant Design Title 1',
-            },
-            {
-                title: 'Ant Design Title 2',
-            },
-            {
-                title: 'Ant Design Title 3',
-            },
-            {
-                title: 'Ant Design Title 4',
-            },{
-                title: 'Ant Design Title 1',
-            },
-            {
-                title: 'Ant Design Title 2',
-            },
-            {
-                title: 'Ant Design Title 3',
-            },
-            {
-                title: 'Ant Design Title 4',
-            },{
-                title: 'Ant Design Title 1',
-            },
-            {
-                title: 'Ant Design Title 2',
-            },
-            {
-                title: 'Ant Design Title 3',
-            },
-            {
-                title: 'Ant Design Title 4',
-            },{
-                title: 'Ant Design Title 1',
-            },
-            {
-                title: 'Ant Design Title 2',
-            },
-            {
-                title: 'Ant Design Title 3',
-            },
-            {
-                title: 'Ant Design Title 4',
-            },{
-                title: 'Ant Design Title 1',
-            },
-            {
-                title: 'Ant Design Title 2',
-            },
-            {
-                title: 'Ant Design Title 3',
-            },
-            {
-                title: 'Ant Design Title 4',
-            },{
-                title: 'Ant Design Title 1',
-            },
-            {
-                title: 'Ant Design Title 2',
-            },
-            {
-                title: 'Ant Design Title 3',
-            },
-            {
-                title: 'Ant Design Title 4',
-            },
-        ];
-
-        const loadMore = function () {
-            return <div
-                style={{
-                    textAlign: 'center',
-                    marginTop: 12,
-                    height: 32,
-                    lineHeight: '32px',
-                }}
-            >
-                <Button>loading more</Button>
-            </div>;
-        }
-
+        const {data, initLoading} = this.props;
         return <Layout>
             <Header style={{
                 background: "#f5f5f5",
@@ -113,21 +44,21 @@ class FileManager extends React.Component {
             </Header>
             <Content style={{
                 background: "white",
-                paddingTop:10
+                paddingTop: 10
             }}>
                 <List
+                    loading={initLoading}
                     itemLayout="horizontal"
                     size={"small"}
                     dataSource={data}
-                    loadMore={loadMore()}
                     renderItem={(item) => (
                         <List.Item>
                             <div style={{display: "flex"}}>
                                 <Avatar style={{marginRight: 10}} shape={"square"}
                                         src="https://randomuser.me/api/portraits/women/16.jpg"/>
                                 <div>
-                                    <div>HELLO</div>
-                                    <div style={{color: "gray"}}>2020-12-12 38kb</div>
+                                    <div>{item.Name}</div>
+                                    <div style={{color: "gray"}}>{item.ModTime} {item.Size}</div>
                                 </div>
                             </div>
                         </List.Item>
@@ -138,4 +69,6 @@ class FileManager extends React.Component {
     }
 }
 
-export default FileManager
+export default FileManager = connect(function (state) {
+    return {...state.File}
+})(FileManager)

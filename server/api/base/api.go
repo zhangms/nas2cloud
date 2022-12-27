@@ -1,9 +1,12 @@
 package base
 
 import (
+	"context"
+	"errors"
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs"
 	"nas2cloud/res"
+	"nas2cloud/svc/user"
 	"net/http"
 )
 
@@ -46,4 +49,21 @@ func SendErrorPage(c *fiber.Ctx, status int, err error) error {
 func SendPage(c *fiber.Ctx, data []byte) error {
 	c.Type("html", "utf-8")
 	return c.Send(data)
+}
+
+func SendLoginRequired(c *fiber.Ctx) error {
+	return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
+}
+
+func SetLoggedUser(c *fiber.Ctx, usr *user.User) {
+	ctx := context.WithValue(context.Background(), "loggedUser", usr)
+	c.SetUserContext(ctx)
+}
+
+func GetLoggedUser(c *fiber.Ctx) (*user.User, error) {
+	u := c.UserContext().Value("loggedUser")
+	if u == nil {
+		return nil, errors.New("NOT_LOGIN")
+	}
+	return u.(*user.User), nil
 }
