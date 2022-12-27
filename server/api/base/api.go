@@ -51,10 +51,6 @@ func SendPage(c *fiber.Ctx, data []byte) error {
 	return c.Send(data)
 }
 
-func SendLoginRequired(c *fiber.Ctx) error {
-	return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
-}
-
 func SetLoggedUser(c *fiber.Ctx, usr *user.User) {
 	ctx := context.WithValue(context.Background(), "loggedUser", usr)
 	c.SetUserContext(ctx)

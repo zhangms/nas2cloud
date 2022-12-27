@@ -23,8 +23,8 @@ func Register(app *fiber.App) {
 		AllowOrigins:     "*",
 		AllowHeaders:     "*",
 	}))
-	app.Get("/page/store/nav", loginHandler(store.NavigatePage))
-	app.Post("/store/nav", loginHandler(store.Navigate))
+	app.Get("/page/store/nav", loginRequestHandler(store.NavigatePage))
+	app.Post("/store/nav", loginRequestHandler(store.Navigate))
 	app.Post("/user/login", handler(usr.Login))
 }
 
@@ -45,7 +45,7 @@ func getLoggedUser(c *fiber.Ctx) (*user.User, error) {
 	return u, nil
 }
 
-func loginHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
+func loginRequestHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		defer func() {
 			err := recover()
@@ -59,7 +59,7 @@ func loginHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 		c.Set(fiber.HeaderAccessControlAllowHeaders, "*")
 		u, err := getLoggedUser(c)
 		if err != nil {
-			return base.SendLoginRequired(c)
+			return base.SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
 		}
 		base.SetLoggedUser(c, u)
 		return impl(c)
