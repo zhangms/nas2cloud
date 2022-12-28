@@ -1,23 +1,19 @@
-CREATE DATABASE nas2cloud DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE IF NOT EXISTS nas2cloud DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE USER 'nas2cloud'@'%' IDENTIFIED BY 'nas2cloud';
 GRANT ALL ON nas2cloud.* TO 'nas2cloud'@'%';
 FLUSH PRIVILEGES;
 
-create table nas2cloud.user_auth_token
+CREATE TABLE IF NOT EXISTS nas2cloud.user_auth_token
 (
-    id           bigint auto_increment
-        primary key,
-    gmt_create   datetime     not null,
-    git_modified datetime     not null,
-    user_name    varchar(64)  not null,
-    token        varchar(128) not null,
-    device       varchar(256) null,
-    status       tinyint      not null
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gmt_create   DATETIME     NOT NULL,
+    git_modified DATETIME     NOT NULL,
+    user_name    VARCHAR(64)  NOT NULL,
+    token        VARCHAR(128) NOT NULL,
+    device_type  VARCHAR(64)  NOT NULL,
+    device       VARCHAR(256) NULL,
+    status       TINYINT      NOT NULL
 );
 
-create index user_auth_token_token_index
-    on nas2cloud.user_auth_token (token);
-
-
-
+CREATE INDEX user_auth_token_token_index ON nas2cloud.user_auth_token (token);

@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"nas2cloud/api"
+	logger2 "nas2cloud/libs/logger"
 	_ "nas2cloud/libs/vfs"
 	_ "nas2cloud/svc/dao"
 )
@@ -14,6 +15,6 @@ func main() {
 	api.Register(app)
 	err := app.Listen(":8080")
 	if err != nil {
-		//logger.ErrorStacktrace(err)
+		logger2.ErrorStacktrace(err)
 	}
 }

@@ -23,8 +23,8 @@ func Register(app *fiber.App) {
 		AllowOrigins:     "*",
 		AllowHeaders:     "*",
 	}))
-	app.Get("/page/store/nav", loginRequestHandler(store.NavigatePage))
-	app.Post("/store/nav", loginRequestHandler(store.Navigate))
+	app.Get("/page/store/list", loginRequestHandler(store.ListPage))
+	app.Post("/store/list", loginRequestHandler(store.List))
 	app.Post("/user/login", handler(usr.Login))
 }
 

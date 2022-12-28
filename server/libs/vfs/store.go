@@ -19,6 +19,7 @@ type ObjectInfo struct {
 	MD5Sum  string
 	Preview string
 	Size    int64
+	Ext     string
 }
 
 type Store interface {

@@ -14,11 +14,12 @@ class Login extends React.Component {
         const resp = await UserApi.login(values)
         if (resp.success) {
             API.saveLoginState(resp.data)
+            dispatch(AppActions.updateLoginState())
         } else {
             API.saveLoginState(resp.data)
             dispatch(LoginActions.showError(resp))
+            dispatch(AppActions.updateLoginState())
         }
-        dispatch(AppActions.updateLoginState())
     }
 
     render() {

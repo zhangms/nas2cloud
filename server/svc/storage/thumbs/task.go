@@ -64,10 +64,10 @@ func BatchThumbnail(infos []*vfs.ObjectInfo) {
 		if inf.Hidden || inf.Type != vfs.ObjectTypeFile {
 			continue
 		}
-		inf.Preview = getThumbName(inf.Path)
 		suffix := strings.ToUpper(path.Ext(inf.Name))
 		_, ok := supportType[suffix]
 		if ok {
+			inf.Preview = getThumbName(inf.Path)
 			queue <- inf.Path
 		}
 	}
