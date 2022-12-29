@@ -7,6 +7,10 @@ const fileSlice = createSlice({
         data: []
     },
     reducers: {
+        showLoading: function (state, action) {
+            return {...state, initLoading: true}
+        },
+
         onLoaded: function (state, action) {
             return {
                 initLoading: false,

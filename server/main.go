@@ -6,7 +6,7 @@ import (
 	"nas2cloud/api"
 	logger2 "nas2cloud/libs/logger"
 	_ "nas2cloud/libs/vfs"
-	_ "nas2cloud/svc/dao"
+	_ "nas2cloud/svc/db"
 )
 
 func main() {

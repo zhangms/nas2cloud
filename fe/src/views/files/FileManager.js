@@ -34,6 +34,7 @@ class FileManager extends React.Component {
     }
 
     list(path) {
+        this.dispatch(FileActions.showLoading({}))
         FileApi.list(path).then(resp => {
             console.log(resp)
             this.dispatch(FileActions.onLoaded(resp.data))

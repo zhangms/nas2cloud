@@ -1,4 +1,4 @@
-package dao
+package db
 
 import (
 	"database/sql"
@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"nas2cloud/libs/db"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"sync"
@@ -58,7 +57,7 @@ func OpenDB(conf *Config) (*sql.DB, error) {
 	if ok {
 		return loaded.(*sql.DB), nil
 	}
-	sqlDb, err := db.Open(&db.Config{
+	sqlDb, err := open(&config{
 		Driver:          "mysql",
 		Url:             fmt.Sprintf("%s:%s@tcp(%s)/%s", conf.User, conf.Password, conf.Address, conf.Name),
 		ConnMaxLifeTime: time.Minute * 3,

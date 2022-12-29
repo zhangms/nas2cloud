@@ -40,7 +40,7 @@ func ListPage(c *fiber.Ctx) error {
 	if info.Type != vfs.ObjectTypeDir {
 		return base.SendErrorPage(c, http.StatusForbidden, errors.New("not support"))
 	}
-	list := storage.List(username, fullPath)
+	list, _ := storage.List(username, fullPath)
 	data, err := createNavPage(fullPath, list)
 	if err != nil {
 		return base.SendErrorPage(c, http.StatusInternalServerError, err)

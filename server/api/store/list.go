@@ -5,7 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/api/base"
 	"nas2cloud/libs"
+	"nas2cloud/libs/logger"
 	"nas2cloud/svc/storage"
+	"net/http"
 	"path/filepath"
 )
 
@@ -37,11 +39,19 @@ func List(c *fiber.Ctx) error {
 	if len(p) == 0 {
 		p = "/"
 	}
-	resp := list(u.Name, p)
+	resp, err := list(u.Name, p)
+	if err != nil {
+		logger.ErrorStacktrace(err)
+		return base.SendError(c, http.StatusInternalServerError, "ERROR")
+	}
 	return base.SendOK(c, resp)
 }
 
-func list(username string, p string) *listResult {
+func list(username string, p string) (*listResult, error) {
+	lst, err := storage.List(username, p)
+	if err != nil {
+		return nil, err
+	}
 	return &listResult{
 		Navigate: func() []*navigate {
 			ret := make([]*navigate, 0)
@@ -71,7 +81,7 @@ func list(username string, p string) *listResult {
 			return ret
 		}(),
 		Files: func() []*fileItem {
-			lst := storage.List(username, p)
+
 			items := make([]*fileItem, 0)
 			for _, item := range lst {
 				items = append(items, &fileItem{
@@ -86,5 +96,5 @@ func list(username string, p string) *listResult {
 			}
 			return items
 		}(),
-	}
+	}, nil
 }

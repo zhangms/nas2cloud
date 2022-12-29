@@ -5,7 +5,7 @@ import (
 	"errors"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
-	"nas2cloud/svc/dao"
+	"nas2cloud/svc/db"
 	"strings"
 	"time"
 )
@@ -58,7 +58,7 @@ func deviceType(device string) string {
 }
 
 func expireUserAuthToken(username string, device string) (int64, error) {
-	sqlDb := dao.DB()
+	sqlDb := db.DB()
 	result, err := sqlDb.Exec("update user_auth_token set status=0, git_modified=now()"+
 		" where user_name=? and device_type=? and status=1",
 		username, deviceType(device))
@@ -69,7 +69,7 @@ func expireUserAuthToken(username string, device string) (int64, error) {
 }
 
 func createNewUserAuthToken(userName string, token string, device string) (int64, error) {
-	sqlDb := dao.DB()
+	sqlDb := db.DB()
 	result, err := sqlDb.Exec("insert into user_auth_token"+
 		"(gmt_create, git_modified, user_name, token, device_type, device, status)"+
 		" values (now(), now(), ?, ?, ?, ?, ?)",
@@ -81,7 +81,7 @@ func createNewUserAuthToken(userName string, token string, device string) (int64
 }
 
 func findUserByAuthToken(userName string, device string, token string) (*User, error) {
-	sqlDb := dao.DB()
+	sqlDb := db.DB()
 	row := sqlDb.QueryRow("select count(1) from user_auth_token"+
 		" where token=? and user_name=? and status=1 and device_type=?",
 		token, userName, deviceType(device))

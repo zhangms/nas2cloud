@@ -1,9 +1,11 @@
 package storage
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"nas2cloud/libs"
+	"nas2cloud/libs/vfs"
 	"path/filepath"
 	"testing"
 )
@@ -16,4 +18,15 @@ func TestWalk(t *testing.T) {
 	})
 	fmt.Println(err)
 	fmt.Println(libs.ReadableDataSize(size))
+}
+
+func TestName(t *testing.T) {
+
+	str := "[{\"Name\":\"Movies\",\"Path\":\"/Movies\",\"Type\":\"DIR\",\"Hidden\":false,\"CreTime\":null,\"ModTime\":\"2022-06-13T23:25:37.982544569+08:00\",\"MD5Sum\":\"\",\"Preview\":\"\",\"Size\":224,\"Ext\":\"\"},{\"Name\":\"Pic\",\"Path\":\"/Pic\",\"Type\":\"DIR\",\"Hidden\":false,\"CreTime\":null,\"ModTime\":\"2022-12-24T22:18:45.293498133+08:00\",\"MD5Sum\":\"\",\"Preview\":\"\",\"Size\":736,\"Ext\":\"\"},{\"Name\":\"Downloads\",\"Path\":\"/Downloads\",\"Type\":\"DIR\",\"Hidden\":false,\"CreTime\":null,\"ModTime\":\"2022-12-27T23:58:07.561576294+08:00\",\"MD5Sum\":\"\",\"Preview\":\"\",\"Size\":832,\"Ext\":\"\"},{\"Name\":\"Docs\",\"Path\":\"/Docs\",\"Type\":\"DIR\",\"Hidden\":false,\"CreTime\":null,\"ModTime\":\"2022-10-18T21:02:47.245442022+08:00\",\"MD5Sum\":\"\",\"Preview\":\"\",\"Size\":672,\"Ext\":\"\"}]"
+
+	ret := make([]*vfs.ObjectInfo, 0)
+	err := json.Unmarshal([]byte(str), &ret)
+	fmt.Println(err)
+	fmt.Println()
+
 }

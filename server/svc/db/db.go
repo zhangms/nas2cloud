@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Config struct {
+type config struct {
 	Driver          string
 	Url             string
 	ConnMaxLifeTime time.Duration
@@ -13,19 +13,19 @@ type Config struct {
 	MaxIdleConns    int
 }
 
-func Open(conf *Config) (*sql.DB, error) {
-	rdb, err := sql.Open(conf.Driver, conf.Url)
+func open(conf *config) (*sql.DB, error) {
+	sqlDb, err := sql.Open(conf.Driver, conf.Url)
 	if err != nil {
 		return nil, err
 	}
 	if conf.ConnMaxLifeTime > 0 {
-		rdb.SetConnMaxLifetime(conf.ConnMaxLifeTime)
+		sqlDb.SetConnMaxLifetime(conf.ConnMaxLifeTime)
 	}
 	if conf.MaxOpenConns > 0 {
-		rdb.SetMaxOpenConns(conf.MaxOpenConns)
+		sqlDb.SetMaxOpenConns(conf.MaxOpenConns)
 	}
 	if conf.MaxIdleConns > 0 {
-		rdb.SetMaxIdleConns(conf.MaxIdleConns)
+		sqlDb.SetMaxIdleConns(conf.MaxIdleConns)
 	}
-	return rdb, nil
+	return sqlDb, nil
 }
