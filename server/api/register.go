@@ -24,8 +24,7 @@ func Register(app *fiber.App) {
 		AllowOrigins:     "*",
 		AllowHeaders:     "*",
 	}))
-	//app.Get("/page/store/list", loginRequestHandler(store.ListPage))
-	app.Post("/store/list", loginRequestHandler(store.List))
+	app.Post("/store/walk", loginRequestHandler(store.Walk))
 	app.Post("/user/login", handler(usr.Login))
 }
 

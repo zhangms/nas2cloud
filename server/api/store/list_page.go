@@ -41,8 +41,8 @@ package store
 //	if info.Type != vfs.ObjectTypeDir {
 //		return base.SendErrorPage(c, http.StatusForbidden, errors.New("not support"))
 //	}
-//	list, _ := storage.List(username, fullPath, "fileName", int64(0),int64(10000))
-//	data, err := createNavPage(fullPath, list)
+//	walk, _ := storage.Walk(username, fullPath, "fileName", int64(0),int64(10000))
+//	data, err := createNavPage(fullPath, walk)
 //	if err != nil {
 //		return base.SendErrorPage(c, http.StatusInternalServerError, err)
 //	}

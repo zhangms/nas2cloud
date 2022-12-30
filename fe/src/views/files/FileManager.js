@@ -24,23 +24,23 @@ class FileManager extends React.Component {
     }
 
     componentDidMount() {
-        this.list("/")
+        this.walk("/")
     }
 
     onClickItem(item) {
         if (item.type === "DIR") {
-            this.list(item.path)
+            this.walk(item.path)
         }
     }
 
-    list(path) {
+    walk(path) {
         this.dispatch(FileActions.showLoading({}))
-        FileApi.list(path).then(resp => {
+        FileApi.walk(path).then(resp => {
             console.log(resp)
             if (resp.success) {
                 this.dispatch(FileActions.onLoaded(resp.data))
             } else if (resp.message === "RetryLaterAgain") {
-                setTimeout(() => this.list(path), 200)
+                setTimeout(() => this.walk(path), 200)
             } else {
                 this.dispatch(FileActions.onLoaded({}))
             }
@@ -97,7 +97,7 @@ class FileManager extends React.Component {
                 <Breadcrumb style={{
                     margin: '20px -30px',
                 }}>
-                    <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.list("/")}>
+                    <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.walk("/")}>
                         <HomeOutlined/>
                     </Breadcrumb.Item>
                     {nav.map((item, index) => {
@@ -107,7 +107,7 @@ class FileManager extends React.Component {
                             </Breadcrumb.Item>
                             :
                             <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
-                                             onClick={e => this.list(item.path)}>
+                                             onClick={e => this.walk(item.path)}>
                                 {item.name}
                             </Breadcrumb.Item>
                     })}
