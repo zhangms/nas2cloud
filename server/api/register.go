@@ -9,21 +9,22 @@ import (
 	"nas2cloud/api/usr"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
-	"nas2cloud/svc/storage/thumbs"
+	"nas2cloud/svc/storage"
 	"nas2cloud/svc/user"
 	"net/http"
 	"strings"
 )
 
 func Register(app *fiber.App) {
-	bucket, _, _ := vfs.GetBucket(thumbs.ThumbUser, thumbs.ThumbnailDir)
-	app.Static(thumbs.ThumbnailDir, bucket.Endpoint())
+	thumb := storage.Thumbnail()
+	bucket, _, _ := vfs.GetBucket(thumb.ThumbUser(), thumb.ThumbDir())
+	app.Static(thumb.ThumbDir(), bucket.Endpoint())
 	app.Options("/*", cors.New(cors.Config{
 		AllowCredentials: true,
 		AllowOrigins:     "*",
 		AllowHeaders:     "*",
 	}))
-	app.Get("/page/store/list", loginRequestHandler(store.ListPage))
+	//app.Get("/page/store/list", loginRequestHandler(store.ListPage))
 	app.Post("/store/list", loginRequestHandler(store.List))
 	app.Post("/user/login", handler(usr.Login))
 }

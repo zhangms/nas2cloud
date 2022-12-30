@@ -7,6 +7,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -92,8 +93,13 @@ func GetStore(user string, file string) (Store, string, error) {
 	return &empty{}, f, nil
 }
 
+func IsRoot(p string) bool {
+	clean := filepath.Clean(p)
+	return clean == "" || clean == "." || clean == "/"
+}
+
 func List(user string, file string) ([]*ObjectInfo, error) {
-	if file == "" || file == "/" {
+	if IsRoot(file) {
 		ret := make([]*ObjectInfo, 0)
 		for _, name := range bucketNames {
 			b := buckets[name]

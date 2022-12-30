@@ -6,6 +6,8 @@ import (
 	"nas2cloud/api/base"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
+	"nas2cloud/libs/vfs"
+	"nas2cloud/svc"
 	"nas2cloud/svc/storage"
 	"net/http"
 	"path/filepath"
@@ -29,17 +31,24 @@ type fileItem struct {
 type listResult struct {
 	Navigate []*navigate `json:"navigate"`
 	Files    []*fileItem `json:"files"`
+	Total    int64
+	Current  int64
+	Page     int
+}
+
+type listRequest struct {
+	Path    string `json:"path"`
+	PageNo  int    `json:"pageNo"`
+	OrderBy string `json:"orderBy"`
 }
 
 func List(c *fiber.Ctx) error {
 	u, _ := base.GetLoggedUser(c)
-	body := make(map[string]string)
-	_ = json.Unmarshal(c.Body(), &body)
-	p := body["path"]
-	if len(p) == 0 {
-		p = "/"
+	request := getRequest(c)
+	resp, err := list(u.Name, request)
+	if err == svc.RetryLaterAgain {
+		return base.SendError(c, http.StatusCreated, err.Error())
 	}
-	resp, err := list(u.Name, p)
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		return base.SendError(c, http.StatusInternalServerError, "ERROR")
@@ -47,54 +56,72 @@ func List(c *fiber.Ctx) error {
 	return base.SendOK(c, resp)
 }
 
-func list(username string, p string) (*listResult, error) {
-	lst, err := storage.List(username, p)
+func getRequest(c *fiber.Ctx) *listRequest {
+	req := &listRequest{}
+	_ = json.Unmarshal(c.Body(), req)
+	if len(req.OrderBy) == 0 {
+		req.OrderBy = "fileName"
+	}
+	return req
+}
+
+func list(username string, request *listRequest) (*listResult, error) {
+	pageSize := 10
+	start := int64(request.PageNo * pageSize)
+	stop := int64((request.PageNo + 1) * pageSize)
+	lst, total, err := storage.FileList().List(username, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}
 	return &listResult{
-		Navigate: func() []*navigate {
-			ret := make([]*navigate, 0)
-			pp := filepath.Clean(p)
-			dir := filepath.Dir(pp)
-			name := filepath.Base(pp)
-			if name == "/" || name == "." {
-				return ret
-			}
-			ret = append(ret, &navigate{
-				Name: name,
-				Path: "",
-			})
-			for {
-				name = filepath.Base(dir)
-				if name == "/" || name == "." {
-					break
-				}
-				tmp := append([]*navigate{}, &navigate{
-					Name: name,
-					Path: dir,
-				})
-				tmp = append(tmp, ret...)
-				ret = tmp
-				dir = filepath.Dir(dir)
-			}
-			return ret
-		}(),
-		Files: func() []*fileItem {
-
-			items := make([]*fileItem, 0)
-			for _, item := range lst {
-				items = append(items, &fileItem{
-					Name:      item.Name,
-					Path:      item.Path,
-					Thumbnail: item.Preview,
-					Type:      string(item.Type),
-					Size:      libs.ReadableDataSize(item.Size),
-					ModTime:   item.ModTime.Format("2006-01-02 15:04"),
-					Ext:       item.Ext,
-				})
-			}
-			return items
-		}(),
+		Navigate: nav(request.Path),
+		Files:    files(lst),
+		Total:    total,
+		Page:     request.PageNo,
+		Current:  stop,
 	}, nil
+}
+
+func files(lst []*vfs.ObjectInfo) []*fileItem {
+	items := make([]*fileItem, 0)
+	for _, itm := range lst {
+		items = append(items, &fileItem{
+			Name:      itm.Name,
+			Path:      itm.Path,
+			Thumbnail: itm.Preview,
+			Type:      string(itm.Type),
+			Size:      libs.ReadableDataSize(itm.Size),
+			ModTime:   itm.ModTime.Format("2006-01-02 15:04"),
+			Ext:       itm.Ext,
+		})
+	}
+	return items
+}
+
+func nav(pathName string) []*navigate {
+	ret := make([]*navigate, 0)
+	pp := filepath.Clean(pathName)
+	dir := filepath.Dir(pp)
+	name := filepath.Base(pp)
+	if name == "/" || name == "." {
+		return ret
+	}
+	ret = append(ret, &navigate{
+		Name: name,
+		Path: "",
+	})
+	for {
+		name = filepath.Base(dir)
+		if name == "/" || name == "." {
+			break
+		}
+		tmp := append([]*navigate{}, &navigate{
+			Name: name,
+			Path: dir,
+		})
+		tmp = append(tmp, ret...)
+		ret = tmp
+		dir = filepath.Dir(dir)
+	}
+	return ret
 }

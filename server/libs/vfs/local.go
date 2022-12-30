@@ -32,6 +32,10 @@ func (l *Local) AbsVirtual(file string) string {
 	return p
 }
 
+func (l *Local) Name() string {
+	return l.bucket.name
+}
+
 func (l *Local) List(file string) ([]*ObjectInfo, error) {
 	info, err := l.Info(file)
 	if err != nil {

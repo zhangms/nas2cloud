@@ -37,7 +37,13 @@ class FileManager extends React.Component {
         this.dispatch(FileActions.showLoading({}))
         FileApi.list(path).then(resp => {
             console.log(resp)
-            this.dispatch(FileActions.onLoaded(resp.data))
+            if (resp.success) {
+                this.dispatch(FileActions.onLoaded(resp.data))
+            } else if (resp.message === "RetryLaterAgain") {
+                setTimeout(() => this.list(path), 200)
+            } else {
+                this.dispatch(FileActions.onLoaded({}))
+            }
         })
     }
 

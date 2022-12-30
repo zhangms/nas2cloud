@@ -2,15 +2,14 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/go-redis/redis/v9"
 	"time"
 )
 
-const defaultCacheDuration = time.Minute * 10
+const DefaultExpireTime = time.Minute * 10
 
 func Get(key string) (string, error) {
-	str, err := client.Get(context.Background(), key).Result()
+	str, err := DefaultClient().Get(context.Background(), key).Result()
 	if err == redis.Nil {
 		return "", nil
 	}
@@ -20,43 +19,52 @@ func Get(key string) (string, error) {
 	return str, nil
 }
 
-func ComputeIfAbsent(key string, f1 func(str string) (any, error), f2 func() (any, error)) (any, bool, error) {
-	str, err := Get(key)
-	if err != nil {
-		return nil, false, err
+func MGet(keys ...string) ([]any, error) {
+	if len(keys) == 0 {
+		return []any{}, nil
 	}
-	if len(str) > 0 {
-		r, e := f1(str)
-		return r, true, e
-	}
-	ret, err := f2()
-	if err != nil {
-		return nil, false, err
-	}
-	data, err := json.Marshal(ret)
-	if err != nil {
-		return nil, false, err
-	}
-	_, err = Set(key, string(data))
-	if err != nil {
-		return nil, false, err
-	}
-	return ret, false, nil
+	return DefaultClient().MGet(context.Background(), keys...).Result()
 }
 
-func Del(key ...string) (int64, error) {
-	return client.Del(context.Background(), key...).Result()
+func SetNX(key string, value string) (bool, error) {
+	return DefaultClient().SetNX(context.Background(), key, value, 0).Result()
 }
 
-func Set(key string, value any) (string, error) {
-	return client.Set(context.Background(), key, value, defaultCacheDuration).Result()
+func SetNXExpire(key string, value string, expiration time.Duration) (bool, error) {
+	return DefaultClient().SetNX(context.Background(), key, value, expiration).Result()
 }
 
-func Exists(key string) (bool, error) {
-	count, err := client.Exists(context.Background(), key).Result()
-	return count > 0, err
+func Set(key string, value string) (string, error) {
+	return DefaultClient().Set(context.Background(), key, value, 0).Result()
 }
 
-func RPush(key string, value ...any) (int64, error) {
-	return client.RPush(context.Background(), key, value...).Result()
+func Exists(key ...string) (int64, error) {
+	return DefaultClient().Exists(context.Background(), key...).Result()
+}
+
+func LLen(key string) (int64, error) {
+	return DefaultClient().LLen(context.Background(), key).Result()
+}
+
+func LRange(key string, start int64, stop int64) ([]string, error) {
+	return DefaultClient().LRange(context.Background(), key, start, stop).Result()
+}
+
+func ZCard(key string) (int64, error) {
+	return DefaultClient().ZCard(context.Background(), key).Result()
+}
+
+func ZRange(key string, start int64, stop int64) ([]string, error) {
+	return DefaultClient().ZRange(context.Background(), key, start, stop).Result()
+}
+
+func ZRevRange(key string, start int64, stop int64) ([]string, error) {
+	return DefaultClient().ZRevRange(context.Background(), key, start, stop).Result()
+}
+
+func ZAdd(key string, score float64, member string) (int64, error) {
+	return DefaultClient().ZAdd(context.Background(), key, redis.Z{
+		Score:  score,
+		Member: member,
+	}).Result()
 }

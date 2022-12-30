@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 )
@@ -20,3 +21,5 @@ func GetTokenDir() string {
 	_ = os.MkdirAll(dir, fs.ModePerm)
 	return dir
 }
+
+var RetryLaterAgain = errors.New("RetryLaterAgain")

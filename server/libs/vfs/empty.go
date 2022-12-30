@@ -5,6 +5,10 @@ import "errors"
 type empty struct {
 }
 
+func (e *empty) Name() string {
+	return "empty"
+}
+
 func (e *empty) List(file string) ([]*ObjectInfo, error) {
 	return nil, errors.New("cannot list")
 }

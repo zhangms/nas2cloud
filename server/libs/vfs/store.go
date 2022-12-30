@@ -23,6 +23,8 @@ type ObjectInfo struct {
 }
 
 type Store interface {
+	Name() string
+
 	List(file string) ([]*ObjectInfo, error)
 
 	Info(file string) (*ObjectInfo, error)
