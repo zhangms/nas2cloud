@@ -69,7 +69,7 @@ func list(username string, request *listRequest) (*listResult, error) {
 	pageSize := 10
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo + 1) * pageSize)
-	lst, total, err := storage.FileList().List(username, request.Path, request.OrderBy, start, stop)
+	lst, total, err := storage.FileWalk().List(username, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}

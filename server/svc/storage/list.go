@@ -15,10 +15,10 @@ import (
 	"time"
 )
 
-type FileListSvc struct {
+type FileWalkSvc struct {
 }
 
-func (fs *FileListSvc) List(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
+func (fs *FileWalkSvc) List(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
 	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
 	if vfs.IsRoot(path) {
@@ -44,7 +44,7 @@ func (fs *FileListSvc) List(username string, fullPath string, orderBy string, st
 	return ret, total, nil
 }
 
-func (fs *FileListSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
+func (fs *FileWalkSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 	ret := make([]*vfs.ObjectInfo, 0, len(arr))
 	for _, item := range arr {
 		if item == nil {
@@ -61,7 +61,7 @@ func (fs *FileListSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 	return ret
 }
 
-func (fs *FileListSvc) getFromCache(storeName string, path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
+func (fs *FileWalkSvc) getFromCache(storeName string, path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
 	sort := strings.SplitN(orderBy, "_", 2)
 	key := cache.Join(storeName, path, "order", sort[0])
 	total, err := cache.ZCard(key)
@@ -81,7 +81,7 @@ func (fs *FileListSvc) getFromCache(storeName string, path string, orderBy strin
 	return arr, total, nil
 }
 
-func (fs *FileListSvc) tryPostWalkPathEvent(storeName string, userGroup string, path string) (bool, error) {
+func (fs *FileWalkSvc) tryPostWalkPathEvent(storeName string, userGroup string, path string) (bool, error) {
 	keyInfo := cache.Join(storeName, path, "info")
 	ok, err := cache.SetNXExpire(keyInfo, time.Now().String(), cache.DefaultExpireTime)
 	if ok {
@@ -91,10 +91,10 @@ func (fs *FileListSvc) tryPostWalkPathEvent(storeName string, userGroup string, 
 	return ok, err
 }
 
-var fileListSvc = &FileListSvc{}
+var fileWalkSvc = &FileWalkSvc{}
 
-func FileList() *FileListSvc {
-	return fileListSvc
+func FileWalk() *FileWalkSvc {
+	return fileWalkSvc
 }
 
 var fileWalker *fileWalk
