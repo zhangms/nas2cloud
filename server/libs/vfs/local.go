@@ -26,7 +26,7 @@ func (l *Local) AbsLocal(file string) string {
 // AbsVirtual vfs中的绝对路径
 func (l *Local) AbsVirtual(file string) string {
 	if l.bucket != nil {
-		return path.Join(l.bucket.dir(), file)
+		return path.Join(l.bucket.Dir(), file)
 	}
 	p, _ := filepath.Abs(file)
 	return p
@@ -93,7 +93,7 @@ func (l *Local) Exists(file string) bool {
 func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
 	modTime := fi.ModTime()
 	return &ObjectInfo{
-		Name:    libs.If(fullPath == l.bucket.dir(), l.bucket.name, fi.Name()).(string),
+		Name:    libs.If(fullPath == l.bucket.Dir(), l.bucket.name, fi.Name()).(string),
 		Path:    fullPath,
 		Type:    libs.If(fi.IsDir(), ObjectTypeDir, ObjectTypeFile).(ObjectType),
 		Hidden:  strings.Index(fi.Name(), ".") == 0,

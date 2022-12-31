@@ -1,4 +1,4 @@
-package store
+package api
 
 import (
 	"encoding/json"
@@ -13,12 +13,31 @@ import (
 	"path/filepath"
 )
 
-type navigate struct {
+type fileWalk struct {
+}
+
+var fileWalkCtrl = &fileWalk{}
+
+type fileWalkRequest struct {
+	Path    string `json:"path"`
+	PageNo  int    `json:"pageNo"`
+	OrderBy string `json:"orderBy"`
+}
+
+type fileWalkResult struct {
+	Navigate []*fileWalkNav  `json:"navigate"`
+	Files    []*fileWalkItem `json:"files"`
+	Total    int64
+	Current  int64
+	Page     int
+}
+
+type fileWalkNav struct {
 	Path string `json:"path"`
 	Name string `json:"name"`
 }
 
-type fileItem struct {
+type fileWalkItem struct {
 	Name      string `json:"name"`
 	Path      string `json:"path"`
 	Thumbnail string `json:"thumbnail"`
@@ -28,24 +47,10 @@ type fileItem struct {
 	Ext       string `json:"ext"`
 }
 
-type walkResult struct {
-	Navigate []*navigate `json:"navigate"`
-	Files    []*fileItem `json:"files"`
-	Total    int64
-	Current  int64
-	Page     int
-}
-
-type walkRequest struct {
-	Path    string `json:"path"`
-	PageNo  int    `json:"pageNo"`
-	OrderBy string `json:"orderBy"`
-}
-
-func Walk(c *fiber.Ctx) error {
+func (f *fileWalk) Walk(c *fiber.Ctx) error {
 	u, _ := base.GetLoggedUser(c)
-	request := getRequest(c)
-	resp, err := walk(u.Name, request)
+	request := f.getRequest(c)
+	resp, err := f.walk(u.Name, request)
 	if err == svc.RetryLaterAgain {
 		return base.SendError(c, http.StatusCreated, err.Error())
 	}
@@ -56,8 +61,8 @@ func Walk(c *fiber.Ctx) error {
 	return base.SendOK(c, resp)
 }
 
-func getRequest(c *fiber.Ctx) *walkRequest {
-	req := &walkRequest{}
+func (f *fileWalk) getRequest(c *fiber.Ctx) *fileWalkRequest {
+	req := &fileWalkRequest{}
 	_ = json.Unmarshal(c.Body(), req)
 	if len(req.OrderBy) == 0 {
 		req.OrderBy = "fileName"
@@ -65,7 +70,7 @@ func getRequest(c *fiber.Ctx) *walkRequest {
 	return req
 }
 
-func walk(username string, request *walkRequest) (*walkResult, error) {
+func (f *fileWalk) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
 	pageSize := 10
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo + 1) * pageSize)
@@ -73,19 +78,19 @@ func walk(username string, request *walkRequest) (*walkResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &walkResult{
-		Navigate: nav(request.Path),
-		Files:    files(lst),
+	return &fileWalkResult{
+		Navigate: f.nav(request.Path),
+		Files:    f.files(lst),
 		Total:    total,
 		Page:     request.PageNo,
 		Current:  stop,
 	}, nil
 }
 
-func files(lst []*vfs.ObjectInfo) []*fileItem {
-	items := make([]*fileItem, 0)
+func (f *fileWalk) files(lst []*vfs.ObjectInfo) []*fileWalkItem {
+	items := make([]*fileWalkItem, 0)
 	for _, itm := range lst {
-		items = append(items, &fileItem{
+		items = append(items, &fileWalkItem{
 			Name:      itm.Name,
 			Path:      itm.Path,
 			Thumbnail: itm.Preview,
@@ -98,15 +103,15 @@ func files(lst []*vfs.ObjectInfo) []*fileItem {
 	return items
 }
 
-func nav(pathName string) []*navigate {
-	ret := make([]*navigate, 0)
+func (f *fileWalk) nav(pathName string) []*fileWalkNav {
+	ret := make([]*fileWalkNav, 0)
 	pp := filepath.Clean(pathName)
 	dir := filepath.Dir(pp)
 	name := filepath.Base(pp)
 	if name == "/" || name == "." {
 		return ret
 	}
-	ret = append(ret, &navigate{
+	ret = append(ret, &fileWalkNav{
 		Name: name,
 		Path: "",
 	})
@@ -115,7 +120,7 @@ func nav(pathName string) []*navigate {
 		if name == "/" || name == "." {
 			break
 		}
-		tmp := append([]*navigate{}, &navigate{
+		tmp := append([]*fileWalkNav{}, &fileWalkNav{
 			Name: name,
 			Path: dir,
 		})

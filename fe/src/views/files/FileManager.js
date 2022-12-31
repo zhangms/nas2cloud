@@ -1,5 +1,5 @@
 import React from 'react';
-import {Avatar, Breadcrumb, Layout, List} from "antd";
+import {Avatar, Breadcrumb, Image, Layout, List} from "antd";
 import {
     FileExcelOutlined,
     FileOutlined,
@@ -15,6 +15,7 @@ import {Content, Header} from "antd/es/layout/layout";
 import {connect} from "react-redux";
 import FileApi from "../../requests/api_file";
 import {FileActions} from "../../models/file";
+
 
 class FileManager extends React.Component {
 
@@ -133,6 +134,10 @@ class FileManager extends React.Component {
                             </div>
                         </List.Item>
                     )}
+                />
+                <Image
+                    width={200}
+                    src="https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp"
                 />
             </Content>
         </Layout>

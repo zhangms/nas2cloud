@@ -22,7 +22,7 @@ type FileWalkSvc struct {
 func (fs *FileWalkSvc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
 	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
-	if vfs.IsRoot(path) {
+	if vfs.IsRootDir(path) {
 		ls, er := vfs.List(userGroup, path)
 		return ls, int64(len(ls)), er
 	}

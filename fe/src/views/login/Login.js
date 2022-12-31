@@ -16,7 +16,7 @@ class Login extends React.Component {
             API.saveLoginState(resp.data)
             dispatch(AppActions.updateLoginState())
         } else {
-            API.saveLoginState(resp.data)
+            API.clearLoginState()
             dispatch(LoginActions.showError(resp))
             dispatch(AppActions.updateLoginState())
         }

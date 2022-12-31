@@ -19,6 +19,10 @@ func Get(key string) (string, error) {
 	return str, nil
 }
 
+func Del(key string) (int64, error) {
+	return DefaultClient().Del(context.Background(), key).Result()
+}
+
 func MGet(keys ...string) ([]any, error) {
 	if len(keys) == 0 {
 		return []any{}, nil

@@ -31,7 +31,11 @@ func (b *Bucket) authorized(user string) bool {
 	return false
 }
 
-func (b *Bucket) dir() string {
+func (b *Bucket) MountType() string {
+	return b.mountType
+}
+
+func (b *Bucket) Dir() string {
 	return path.Join("/", b.name)
 }
 
@@ -93,20 +97,20 @@ func GetStore(user string, file string) (Store, string, error) {
 	return &empty{}, f, nil
 }
 
-func IsRoot(p string) bool {
+func IsRootDir(p string) bool {
 	clean := filepath.Clean(p)
 	return clean == "" || clean == "." || clean == "/"
 }
 
 func List(user string, file string) ([]*ObjectInfo, error) {
-	if IsRoot(file) {
+	if IsRootDir(file) {
 		ret := make([]*ObjectInfo, 0)
 		for _, name := range bucketNames {
 			b := buckets[name]
 			if !b.authorized(user) {
 				continue
 			}
-			inf, err := Info(user, b.dir())
+			inf, err := Info(user, b.Dir())
 			if err != nil {
 				continue
 			}

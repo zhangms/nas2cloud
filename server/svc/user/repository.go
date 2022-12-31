@@ -5,7 +5,7 @@ import (
 	"errors"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
-	"nas2cloud/svc/db"
+	"nas2cloud/svc/cache"
 	"strings"
 	"time"
 )
@@ -57,47 +57,72 @@ func deviceType(device string) string {
 	return devType
 }
 
-func expireUserAuthToken(username string, device string) (int64, error) {
-	sqlDb := db.DB()
-	result, err := sqlDb.Exec("update user_auth_token set status=0, git_modified=now()"+
-		" where user_name=? and device_type=? and status=1",
-		username, deviceType(device))
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+func keyToken(username string, device string) string {
+	return cache.Join(username, "v1", "userLoginToken", deviceType(device))
 }
 
-func createNewUserAuthToken(userName string, token string, device string) (int64, error) {
-	sqlDb := db.DB()
-	result, err := sqlDb.Exec("insert into user_auth_token"+
-		"(gmt_create, git_modified, user_name, token, device_type, device, status)"+
-		" values (now(), now(), ?, ?, ?, ?, ?)",
-		userName, token, deviceType(device), device, 1)
-	if err != nil {
-		return -1, err
-	}
-	return result.LastInsertId()
+func expireUserAuthToken(username string, device string) error {
+	key := keyToken(username, device)
+	_, err := cache.Del(key)
+	return err
+
+	//sqlDb := db.DB()
+	//result, err := sqlDb.Exec("update user_auth_token set status=0, git_modified=now()"+
+	//	" where user_name=? and device_type=? and status=1",
+	//	username, deviceType(device))
+	//if err != nil {
+	//	return 0, err
+	//}
+	//return result.RowsAffected()
+}
+
+func createNewUserAuthToken(userName string, token string, device string) error {
+	key := keyToken(userName, device)
+	_, err := cache.Set(key, token)
+	return err
+	//sqlDb := db.DB()
+	//result, err := sqlDb.Exec("insert into user_auth_token"+
+	//	"(gmt_create, git_modified, user_name, token, device_type, device, status)"+
+	//	" values (now(), now(), ?, ?, ?, ?, ?)",
+	//	userName, token, deviceType(device), device, 1)
+	//if err != nil {
+	//	return -1, err
+	//}
+	//return result.LastInsertId()
 }
 
 func findUserByAuthToken(userName string, device string, token string) (*User, error) {
-	sqlDb := db.DB()
-	row := sqlDb.QueryRow("select count(1) from user_auth_token"+
-		" where token=? and user_name=? and status=1 and device_type=?",
-		token, userName, deviceType(device))
-	var count int
-	err := row.Scan(&count)
+	key := keyToken(userName, device)
+	value, err := cache.Get(key)
 	if err != nil {
 		return nil, err
 	}
-	if count == 0 {
-		return nil, nil
+	if value != token {
+		return nil, errors.New("user not login")
 	}
 	usr := findUserByName(userName)
 	if usr == nil {
 		return nil, errors.New("user not exists")
 	}
 	return usr.Clone(), nil
+
+	//sqlDb := db.DB()
+	//row := sqlDb.QueryRow("select count(1) from user_auth_token"+
+	//	" where token=? and user_name=? and status=1 and device_type=?",
+	//	token, userName, deviceType(device))
+	//var count int
+	//err := row.Scan(&count)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//if count == 0 {
+	//	return nil, nil
+	//}
+	//usr := findUserByName(userName)
+	//if usr == nil {
+	//	return nil, errors.New("user not exists")
+	//}
+	//return usr.Clone(), nil
 }
 
 func GetUserGroup(userName string) string {

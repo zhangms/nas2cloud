@@ -1,4 +1,4 @@
-package usr
+package api
 
 import (
 	"encoding/json"
@@ -10,7 +10,12 @@ import (
 	"time"
 )
 
-func Login(c *fiber.Ctx) error {
+type login struct {
+}
+
+var loginCtrl = &login{}
+
+func (l *login) Login(c *fiber.Ctx) error {
 	type loginRequest struct {
 		UserName string `json:"username"`
 		Password string `json:"password"`
@@ -28,8 +33,9 @@ func Login(c *fiber.Ctx) error {
 		logger.ErrorStacktrace(err, string(body))
 		return base.SendError(c, http.StatusBadRequest, "request error")
 	}
-	token, err := user.Login(request.UserName, request.Password, c.Get("device"))
+	token, err := user.Login(request.UserName, request.Password, c.Get("X-DEVICE"))
 	if err != nil {
+		c.ClearCookie("authToken")
 		return base.SendError(c, http.StatusForbidden, err.Error())
 	}
 	return base.SendOK(c, &loginResponse{

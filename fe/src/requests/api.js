@@ -14,11 +14,14 @@ const API = {
     },
 
     saveLoginState: function (state) {
-        if (state == null) {
-            localStorage.removeItem("loginState")
-        } else {
-            localStorage.setItem("loginState", JSON.stringify(state))
-        }
+        localStorage.setItem("loginState", JSON.stringify(state))
+        document.cookie = "X-DEVICE=web"
+        document.cookie = "X-AUTH-TOKEN=" + state.username + "-" + state.token
+    },
+
+    clearLoginState: function () {
+        localStorage.removeItem("loginState")
+        document.cookie = ""
     },
 
     isLogged: function () {
@@ -30,12 +33,12 @@ const API = {
         if (this.isLogged()) {
             const state = this.getLoginState()
             return {
-                "X-AUTH-TOKEN": state.username + " " + state.token,
+                "X-AUTH-TOKEN": state.username + "-" + state.token,
                 "X-DEVICE": "web"
             }
         }
         return {
-            "device": "web",
+            "X-DEVICE": "web",
         }
     },
 
@@ -44,11 +47,11 @@ const API = {
             method: "POST",
             body: JSON.stringify(body),
             headers: this.headers(),
+            credentials: "same-origin"
         })
         const ret = await resp.json()
         if (!ret.success && ret.message === "LOGIN_REQUIRED") {
-            this.saveLoginState(null)
-            console.log("需要登录")
+            this.clearLoginState()
         }
         return ret;
     },
