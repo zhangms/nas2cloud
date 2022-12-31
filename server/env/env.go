@@ -9,6 +9,7 @@ var profile string = "default"
 
 func init() {
 	flag.StringVar(&profile, "profile", "default", "")
+	flag.PrintDefaults()
 	flag.Parse()
 	logger.Info("profile active", profile)
 }
