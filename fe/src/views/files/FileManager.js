@@ -1,5 +1,5 @@
 import React from 'react';
-import {Avatar, Breadcrumb, Image, Layout, List} from "antd";
+import {Avatar, Breadcrumb, Button, Layout, List, Skeleton} from "antd";
 import {
     FileExcelOutlined,
     FileOutlined,
@@ -25,23 +25,27 @@ class FileManager extends React.Component {
     }
 
     componentDidMount() {
-        this.walk("/")
+        this.loadInit("/")
     }
 
-    onClickItem(item) {
+    onClickFileItem(item) {
         if (item.type === "DIR") {
-            this.walk(item.path)
+            this.loadInit(item.path)
         }
     }
 
-    walk(path) {
-        this.dispatch(FileActions.showLoading({}))
-        FileApi.walk(path).then(resp => {
+    loadInit(path) {
+        this.dispatch(FileActions.initLoading({}))
+        FileApi.walk({
+            "path": path,
+            "pageNo": 0,
+            "orderBy": "fileName_asc",
+        }).then(resp => {
             console.log(resp)
             if (resp.success) {
                 this.dispatch(FileActions.onLoaded(resp.data))
             } else if (resp.message === "RetryLaterAgain") {
-                setTimeout(() => this.walk(path), 200)
+                setTimeout(() => this.loadInit(path), 200)
             } else {
                 this.dispatch(FileActions.onLoaded({}))
             }
@@ -82,11 +86,50 @@ class FileManager extends React.Component {
                        icon={this.getIcon(item)}/>
     }
 
-    render() {
-        const {data, initLoading} = this.props;
-        const nav = data.navigate || []
-        const list = data.files || []
+    loadMoreBtn(initLoading, moreLoading, data) {
+        if (initLoading || moreLoading || data.total == null || data["total"] <= data["currentIndex"]) {
+            return null;
+        }
+        return <div
+            style={{
+                textAlign: 'center',
+                marginTop: 12,
+                height: 32,
+                lineHeight: '32px',
+            }}
+        >
+            <Button onClick={e => this.loadMore(data)}>loading more</Button>
+        </div>
+    }
 
+    loadMore(currentData) {
+
+        this.dispatch(FileActions.moreLoading({}))
+        FileApi.walk({
+            "path": currentData["currentPath"],
+            "pageNo": currentData["currentPage"] + 1,
+            "orderBy": "fileName_asc",
+        }).then(resp => {
+            console.log(resp)
+            if (resp.success) {
+                let list = [...(currentData.files || [])]
+                list.push(...(resp.data.files || []))
+                const ret = {...resp.data, files: list}
+                this.dispatch(FileActions.onLoaded(ret))
+            } else if (resp.message === "RetryLaterAgain") {
+                setTimeout(() => this.loadMore(currentData), 200)
+            } else {
+                this.dispatch(FileActions.onLoaded({}))
+            }
+        })
+    }
+
+    render() {
+        const {initLoading, moreLoading, data} = this.props;
+        let files = [...(data.files || [])]
+        if (moreLoading) {
+            files.push({"loading": true}, {"loading": true}, {"loading": true})
+        }
         return <Layout>
             <Header style={{
                 background: "#f5f5f5",
@@ -98,17 +141,17 @@ class FileManager extends React.Component {
                 <Breadcrumb style={{
                     margin: '20px -30px',
                 }}>
-                    <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.walk("/")}>
+                    <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.loadInit("/")}>
                         <HomeOutlined/>
                     </Breadcrumb.Item>
-                    {nav.map((item, index) => {
-                        return index === nav.length - 1 ?
+                    {data.nav?.map((item, index) => {
+                        return index === data.nav.length - 1 ?
                             <Breadcrumb.Item key={item.path}>
                                 {item.name}
                             </Breadcrumb.Item>
                             :
                             <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
-                                             onClick={e => this.walk(item.path)}>
+                                             onClick={e => this.loadInit(item.path)}>
                                 {item.name}
                             </Breadcrumb.Item>
                     })}
@@ -122,22 +165,22 @@ class FileManager extends React.Component {
                     loading={initLoading}
                     itemLayout="horizontal"
                     size={"small"}
-                    dataSource={list}
+                    loadMore={this.loadMoreBtn(initLoading, moreLoading, data)}
+                    dataSource={files}
                     renderItem={(item) => (
-                        <List.Item key={item.path} style={{cursor: "pointer"}} onClick={e => this.onClickItem(item)}>
-                            <div style={{display: "flex"}}>
-                                {this.fileThumb(item)}
-                                <div>
-                                    <div>{item.name}</div>
-                                    <div style={{color: "gray"}}>{item.modTime} {item.size}</div>
-                                </div>
-                            </div>
+                        <List.Item key={item.path} style={{cursor: "pointer"}}
+                                   onClick={e => this.onClickFileItem(item)}>
+                            {item.loading
+                                ? <Skeleton avatar title={false} loading={item.loading} active/>
+                                : <div style={{display: "flex"}}>
+                                    {this.fileThumb(item)}
+                                    <div>
+                                        <div>{item.name}</div>
+                                        <div style={{color: "gray"}}>{item.modTime} {item.size}</div>
+                                    </div>
+                                </div>}
                         </List.Item>
                     )}
-                />
-                <Image
-                    width={200}
-                    src="https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp"
                 />
             </Content>
         </Layout>

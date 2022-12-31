@@ -18,10 +18,7 @@ func Register(app *fiber.App) {
 }
 
 func registerStatic(app *fiber.App) {
-	root := "root"
-	infos, _ := vfs.List(root, "/")
-	for _, info := range infos {
-		b, _, _ := vfs.GetBucket(root, info.Path)
+	for _, b := range vfs.GetAllBucket() {
 		if b.MountType() == "local" {
 			app.Static(b.Dir(), b.Endpoint(), fiber.Static{
 				Next: noStaticPermission,

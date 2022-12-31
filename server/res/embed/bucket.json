@@ -3,30 +3,35 @@
     "name": "__thumb__",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Thumb",
-    "authorize": "root"
+    "authorize": "ALL",
+    "hidden": true
   },
   {
     "name": "Movies",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Movies",
-    "authorize": "admin,family"
+    "authorize": "admin,family",
+    "hidden": false
   },
   {
     "name": "Pic",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Pictures",
-    "authorize": "admin,family"
+    "authorize": "admin,family",
+    "hidden": false
   },
   {
     "name": "Downloads",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Downloads",
-    "authorize": "admin,family"
+    "authorize": "admin,family",
+    "hidden": false
   },
   {
     "name": "Docs",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Documents/",
-    "authorize": "admin,family"
+    "authorize": "admin,family",
+    "hidden": false
   }
 ]

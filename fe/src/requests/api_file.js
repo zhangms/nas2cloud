@@ -2,10 +2,8 @@ import API from "./api";
 
 const FileApi = {
 
-    walk: async function (path) {
-        return await API.POST("/store/walk", {
-            "path": path
-        })
+    walk: async function (body) {
+        return await API.POST("/store/walk", body)
     }
 
 }

@@ -16,6 +16,7 @@ type Bucket struct {
 	mountType string
 	endpoint  string
 	authorize string
+	hidden    bool
 }
 
 func (b *Bucket) authorized(user string) bool {
@@ -52,6 +53,7 @@ func init() {
 		MountType string `json:"mountType"`
 		Endpoint  string `json:"endpoint"`
 		Authorize string `json:"authorize"`
+		Hidden    bool   `json:"hidden"`
 	}
 	configs := make([]*config, 0)
 	data, _ := res.ReadData("bucket.json")
@@ -65,6 +67,7 @@ func init() {
 			mountType: conf.MountType,
 			endpoint:  path.Clean(conf.Endpoint),
 			authorize: conf.Authorize,
+			hidden:    conf.Hidden,
 		}
 	}
 	logger.Info("VFS initialized:", len(buckets))
@@ -102,12 +105,23 @@ func IsRootDir(p string) bool {
 	return clean == "" || clean == "." || clean == "/"
 }
 
+func GetAllBucket() []*Bucket {
+	ret := make([]*Bucket, 0)
+	for _, name := range bucketNames {
+		b := buckets[name]
+		ret = append(ret, b)
+	}
+	return ret
+}
+
 func List(user string, file string) ([]*ObjectInfo, error) {
 	if IsRootDir(file) {
 		ret := make([]*ObjectInfo, 0)
-		for _, name := range bucketNames {
-			b := buckets[name]
+		for _, b := range GetAllBucket() {
 			if !b.authorized(user) {
+				continue
+			}
+			if b.hidden {
 				continue
 			}
 			inf, err := Info(user, b.Dir())

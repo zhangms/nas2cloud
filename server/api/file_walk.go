@@ -25,11 +25,12 @@ type fileWalkRequest struct {
 }
 
 type fileWalkResult struct {
-	Navigate []*fileWalkNav  `json:"navigate"`
-	Files    []*fileWalkItem `json:"files"`
-	Total    int64
-	Current  int64
-	Page     int
+	Nav          []*fileWalkNav  `json:"nav"`
+	Files        []*fileWalkItem `json:"files"`
+	Total        int64           `json:"total"`
+	CurrentPath  string          `json:"currentPath"`
+	CurrentIndex int64           `json:"currentIndex"`
+	CurrentPage  int             `json:"currentPage"`
 }
 
 type fileWalkNav struct {
@@ -73,17 +74,18 @@ func (f *fileWalk) getRequest(c *fiber.Ctx) *fileWalkRequest {
 func (f *fileWalk) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
 	pageSize := 10
 	start := int64(request.PageNo * pageSize)
-	stop := int64((request.PageNo + 1) * pageSize)
+	stop := int64((request.PageNo+1)*pageSize - 1)
 	lst, total, err := storage.FileWalk().Walk(username, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}
 	return &fileWalkResult{
-		Navigate: f.nav(request.Path),
-		Files:    f.files(lst),
-		Total:    total,
-		Page:     request.PageNo,
-		Current:  stop,
+		Nav:          f.nav(request.Path),
+		Files:        f.files(lst),
+		Total:        total,
+		CurrentPage:  request.PageNo,
+		CurrentPath:  request.Path,
+		CurrentIndex: stop,
 	}, nil
 }
 

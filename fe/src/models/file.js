@@ -4,16 +4,22 @@ const fileSlice = createSlice({
     name: "fileSlice",
     initialState: {
         initLoading: true,
+        moreLoading: false,
         data: []
     },
     reducers: {
-        showLoading: function (state, action) {
+        initLoading: function (state, action) {
             return {...state, initLoading: true}
+        },
+
+        moreLoading: function (state, action) {
+            return {...state, moreLoading: true}
         },
 
         onLoaded: function (state, action) {
             return {
                 initLoading: false,
+                moreLoading: false,
                 data: action.payload
             }
         }
