@@ -3,6 +3,7 @@ package vfs
 import (
 	"encoding/json"
 	"errors"
+	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
@@ -56,7 +57,7 @@ func init() {
 		Hidden    bool   `json:"hidden"`
 	}
 	configs := make([]*config, 0)
-	data, _ := res.ReadData("bucket.json")
+	data, _ := res.ReadData(env.GetProfileActive() + "/bucket.json")
 	_ = json.Unmarshal(data, &configs)
 	buckets = make(map[string]*Bucket)
 	bucketNames = make([]string, 0)
@@ -70,7 +71,7 @@ func init() {
 			hidden:    conf.Hidden,
 		}
 	}
-	logger.Info("VFS initialized:", len(buckets))
+	logger.Info("VFS initialized", len(buckets))
 }
 
 func GetBucket(user string, file string) (*Bucket, string, error) {
