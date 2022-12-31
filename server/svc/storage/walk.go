@@ -63,15 +63,15 @@ func (fs *FileWalkSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 }
 
 func (fs *FileWalkSvc) keyRank(storeName string, path string, orderField string) string {
-	return cache.Join(storeName, "rank", path, "order", orderField, fs.version)
+	return cache.Join(storeName, fs.version, "rank", path, "order", orderField)
 }
 
 func (fs *FileWalkSvc) keyItem(storeName string, path string, name string) string {
-	return cache.Join(storeName, "file", filepath.Join(path, name), fs.version)
+	return cache.Join(storeName, fs.version, "file", filepath.Join(path, name))
 }
 
 func (fs *FileWalkSvc) keyWalkFlag(storeName string, path string) string {
-	return cache.Join(storeName, "flag", path, fs.version)
+	return cache.Join(storeName, fs.version, "flag", path)
 }
 
 func (fs *FileWalkSvc) getFromCache(storeName string, path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
