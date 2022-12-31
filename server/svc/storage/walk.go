@@ -16,6 +16,7 @@ import (
 )
 
 type FileWalkSvc struct {
+	version string
 }
 
 func (fs *FileWalkSvc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
@@ -61,9 +62,21 @@ func (fs *FileWalkSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 	return ret
 }
 
+func (fs *FileWalkSvc) keyRank(storeName string, path string, orderField string) string {
+	return cache.Join(storeName, "rank", path, "order", orderField, fs.version)
+}
+
+func (fs *FileWalkSvc) keyItem(storeName string, path string, name string) string {
+	return cache.Join(storeName, "file", filepath.Join(path, name), fs.version)
+}
+
+func (fs *FileWalkSvc) keyWalkFlag(storeName string, path string) string {
+	return cache.Join(storeName, "flag", path, fs.version)
+}
+
 func (fs *FileWalkSvc) getFromCache(storeName string, path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
 	sort := strings.SplitN(orderBy, "_", 2)
-	key := cache.Join(storeName, path, "order", sort[0])
+	key := fs.keyRank(storeName, path, sort[0])
 	total, err := cache.ZCard(key)
 	if err != nil {
 		return nil, 0, err
@@ -77,13 +90,17 @@ func (fs *FileWalkSvc) getFromCache(storeName string, path string, orderBy strin
 	if err != nil {
 		return nil, 0, err
 	}
-	arr, err := cache.MGet(list...)
+	keys := make([]string, 0, len(list))
+	for _, name := range list {
+		keys = append(keys, fs.keyItem(storeName, path, name))
+	}
+	arr, err := cache.MGet(keys...)
 	return arr, total, nil
 }
 
 func (fs *FileWalkSvc) tryPostWalkPathEvent(storeName string, userGroup string, path string) (bool, error) {
-	keyInfo := cache.Join(storeName, path, "info")
-	ok, err := cache.SetNXExpire(keyInfo, time.Now().String(), cache.DefaultExpireTime)
+	flag := fs.keyWalkFlag(storeName, path)
+	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
 	if ok {
 		fileWalker.postWalkEvent(userGroup, storeName, path)
 		return ok, nil
@@ -91,7 +108,9 @@ func (fs *FileWalkSvc) tryPostWalkPathEvent(storeName string, userGroup string, 
 	return ok, err
 }
 
-var fileWalkSvc = &FileWalkSvc{}
+var fileWalkSvc = &FileWalkSvc{
+	version: "v1",
+}
 
 func FileWalk() *FileWalkSvc {
 	return fileWalkSvc
@@ -144,48 +163,45 @@ func (fw *fileWalk) handle(event *walkEvent) {
 		if item.Hidden {
 			continue
 		}
-		fw.saveObjectInfo(event.storeName, item)
+		fw.saveObjectInfo(event.storeName, event.path, item)
 		fw.saveToNameRank(event.storeName, event.path, item)
 		fw.saveToSizeRank(event.storeName, event.path, item)
 		fw.saveToTimeRank(event.storeName, event.path, item)
 	}
 }
 
-func (fw *fileWalk) saveObjectInfo(storeName string, item *vfs.ObjectInfo) {
+func (fw *fileWalk) saveObjectInfo(storeName string, path string, item *vfs.ObjectInfo) {
 	data, er := json.Marshal(item)
 	if er != nil {
 		return
 	}
-	keyFile := cache.Join(storeName, item.Path)
-	state, er := cache.Set(keyFile, string(data))
+	key := fileWalkSvc.keyItem(storeName, path, item.Name)
+	state, er := cache.Set(key, string(data))
 	if er != nil {
-		logger.Error("SAVE_CACHE_ERROR", keyFile, string(data), state, er)
+		logger.Error("SAVE_CACHE_ERROR", key, string(data), state, er)
 	} else {
-		logger.Info("SAVE_CACHE", keyFile, state)
+		logger.Info("SAVE_CACHE", key, state)
 	}
 }
 
 func (fw *fileWalk) saveToNameRank(storeName string, path string, item *vfs.ObjectInfo) {
-	key := cache.Join(storeName, path, "order", "fileName")
-	keyInfo := cache.Join(storeName, item.Path)
-	_, err := cache.ZAdd(key, libs.If(item.Type == vfs.ObjectTypeDir, float64(50), float64(100)).(float64), keyInfo)
+	key := fileWalkSvc.keyRank(storeName, path, "fileName")
+	_, err := cache.ZAdd(key, libs.If(item.Type == vfs.ObjectTypeDir, float64(50), float64(100)).(float64), item.Name)
 	if err != nil {
-		logger.Error("saveToNameRank error", key, keyInfo, err)
+		logger.Error("saveToNameRank error", key, item.Name, err)
 	}
 }
 
 func (fw *fileWalk) saveToSizeRank(storeName string, path string, item *vfs.ObjectInfo) {
-	key := cache.Join(storeName, path, "order", "size")
-	keyInfo := cache.Join(storeName, item.Path)
-	_, err := cache.ZAdd(key, libs.If(item.Type == vfs.ObjectTypeDir, float64(0), float64(item.Size)).(float64), keyInfo)
+	key := fileWalkSvc.keyRank(storeName, path, "size")
+	_, err := cache.ZAdd(key, libs.If(item.Type == vfs.ObjectTypeDir, float64(0), float64(item.Size)).(float64), item.Name)
 	if err != nil {
-		logger.Error("saveToSizeRank error", key, keyInfo, err)
+		logger.Error("saveToSizeRank error", key, item.Name, err)
 	}
 }
 
 func (fw *fileWalk) saveToTimeRank(storeName string, path string, item *vfs.ObjectInfo) {
-	key := cache.Join(storeName, path, "order", "time")
-	keyInfo := cache.Join(storeName, item.Path)
+	key := fileWalkSvc.keyRank(storeName, path, "time")
 	var score float64 = 0
 	if item.CreTime != nil {
 		str := item.CreTime.Format("20060102150405")
@@ -196,8 +212,8 @@ func (fw *fileWalk) saveToTimeRank(storeName string, path string, item *vfs.Obje
 		val, _ := strconv.Atoi(str)
 		score = float64(val)
 	}
-	_, err := cache.ZAdd(key, score, keyInfo)
+	_, err := cache.ZAdd(key, score, item.Name)
 	if err != nil {
-		logger.Error("saveToTimeRank error", key, keyInfo, err)
+		logger.Error("saveToTimeRank error", key, item.Name, err)
 	}
 }
