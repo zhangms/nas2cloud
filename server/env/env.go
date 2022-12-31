@@ -5,7 +5,7 @@ import (
 	"nas2cloud/libs/logger"
 )
 
-var profile string = "default"
+var profile = "default"
 
 func init() {
 	flag.StringVar(&profile, "profile", "default", "")
