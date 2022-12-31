@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
-	"nas2cloud/api/base"
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/user"
 	"net/http"
@@ -31,14 +30,14 @@ func (l *login) Login(c *fiber.Ctx) error {
 	err := json.Unmarshal(body, request)
 	if err != nil {
 		logger.ErrorStacktrace(err, string(body))
-		return base.SendError(c, http.StatusBadRequest, "request error")
+		return SendError(c, http.StatusBadRequest, "request error")
 	}
 	token, err := user.Login(request.UserName, request.Password, c.Get("X-DEVICE"))
 	if err != nil {
 		c.ClearCookie("authToken")
-		return base.SendError(c, http.StatusForbidden, err.Error())
+		return SendError(c, http.StatusForbidden, err.Error())
 	}
-	return base.SendOK(c, &loginResponse{
+	return SendOK(c, &loginResponse{
 		UserName:   request.UserName,
 		Token:      token,
 		CreateTime: time.Now().Format(time.RFC3339),

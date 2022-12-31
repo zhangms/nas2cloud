@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
-	"nas2cloud/api/base"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -49,17 +48,17 @@ type fileWalkItem struct {
 }
 
 func (f *fileWalk) Walk(c *fiber.Ctx) error {
-	u, _ := base.GetLoggedUser(c)
+	u, _ := GetLoggedUser(c)
 	request := f.getRequest(c)
 	resp, err := f.walk(u.Name, request)
 	if err == svc.RetryLaterAgain {
-		return base.SendError(c, http.StatusCreated, err.Error())
+		return SendError(c, http.StatusCreated, err.Error())
 	}
 	if err != nil {
 		logger.ErrorStacktrace(err)
-		return base.SendError(c, http.StatusInternalServerError, "ERROR")
+		return SendError(c, http.StatusInternalServerError, "ERROR")
 	}
-	return base.SendOK(c, resp)
+	return SendOK(c, resp)
 }
 
 func (f *fileWalk) getRequest(c *fiber.Ctx) *fileWalkRequest {
