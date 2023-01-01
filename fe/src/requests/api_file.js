@@ -4,6 +4,10 @@ const FileApi = {
 
     walk: async function (body) {
         return await API.POST("/store/walk", body)
+    },
+
+    createFolder: async function (body) {
+        return await API.POST("/store/createFolder", body)
     }
 
 }

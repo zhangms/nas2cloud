@@ -28,3 +28,7 @@ func (e *empty) Write(file string, data []byte) error {
 func (e *empty) Exists(file string) bool {
 	return false
 }
+
+func (e *empty) CreateDirAll(file string) error {
+	return errors.New("not support operation")
+}

@@ -179,3 +179,11 @@ func Exists(user string, file string) bool {
 	}
 	return store.Exists(f)
 }
+
+func CreateDirAll(user string, path string) error {
+	store, f, err := GetStore(user, path)
+	if err != nil {
+		return err
+	}
+	return store.CreateDirAll(f)
+}

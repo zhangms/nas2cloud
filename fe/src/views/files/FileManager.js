@@ -6,7 +6,7 @@ import {FileActions} from "../../models/file";
 import FileApi from "../../requests/api_file";
 import API from "../../requests/api";
 import {
-    DownOutlined,
+    CloudUploadOutlined,
     FileExcelOutlined,
     FileOutlined,
     FilePdfOutlined,
@@ -15,33 +15,16 @@ import {
     FileWordOutlined,
     FileZipFilled,
     FolderOutlined,
-    HomeOutlined
+    HomeOutlined,
+    PlusOutlined
 } from "@ant-design/icons";
 
+import FolderCreateForm from "./CreateFolderModal";
 
 class FileManager extends React.Component {
 
     constructor(props) {
         super(props);
-        this.orderByMenus = [{
-            key: 'fileName_asc',
-            label: "file name asc",
-        }, {
-            key: 'fileName_desc',
-            label: "file name desc",
-        }, {
-            key: 'size_asc',
-            label: "file size asc",
-        }, {
-            key: 'size_desc',
-            label: "file size desc",
-        }, {
-            key: 'time_asc',
-            label: "file time asc",
-        }, {
-            key: 'time_desc',
-            label: "file time desc",
-        }];
     }
 
     componentDidMount() {
@@ -182,9 +165,12 @@ class FileManager extends React.Component {
     }
 
     breadcrumb() {
-        const {data} = this.props
+        const {data, orderBy} = this.props
         return <Breadcrumb style={{margin: '20px -30px'}}>
-            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={() => this.loading("/")}>
+            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={() => this.loading({
+                path: "/",
+                orderBy: orderBy
+            })}>
                 <HomeOutlined/>
             </Breadcrumb.Item>
             {data.nav?.map((item, index) => {
@@ -193,7 +179,10 @@ class FileManager extends React.Component {
                         {item.name}
                     </Breadcrumb.Item>
                     : <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
-                                       onClick={() => this.loading(item.path)}>
+                                       onClick={() => this.loading({
+                                           path: item.path,
+                                           orderBy: orderBy
+                                       })}>
                         {item.name}
                     </Breadcrumb.Item>
             })}
@@ -201,17 +190,34 @@ class FileManager extends React.Component {
     }
 
     orderByView() {
+        const orderByMenus = [{
+            key: 'fileName_asc',
+            label: "file name asc",
+        }, {
+            key: 'fileName_desc',
+            label: "file name desc",
+        }, {
+            key: 'size_asc',
+            label: "file size asc",
+        }, {
+            key: 'size_desc',
+            label: "file size desc",
+        }, {
+            key: 'time_asc',
+            label: "file time asc",
+        }, {
+            key: 'time_desc',
+            label: "file time desc",
+        }];
+
         const {orderBy} = this.props
         return <Dropdown menu={{
-            items: this.orderByMenus,
+            items: orderByMenus,
             onClick: (e) => this.onClickOrderBy(e),
             selectedKeys: [orderBy]
         }}>
             <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                    OrderBy
-                    <DownOutlined/>
-                </Space>
+                OrderBy
             </a>
         </Dropdown>
     }
@@ -224,8 +230,69 @@ class FileManager extends React.Component {
         })
     }
 
+    actionView() {
+        const actionMenus = [{
+            key: 'createFolder',
+            label: "create folder",
+            icon: <PlusOutlined/>
+        }, {
+            key: 'addFile',
+            label: "add file",
+            icon: <CloudUploadOutlined/>
+        }];
+        return <Dropdown menu={{
+            items: actionMenus,
+            onClick: e => this.onClickAction(e)
+        }}>
+            <a onClick={(e) => e.preventDefault()}>
+                Operation
+            </a>
+        </Dropdown>
+    }
+
+    onClickAction(e) {
+        if (e.key === "createFolder") {
+            this.setCreateFolderVisible(true)
+        } else if (e.key === "addFile") {
+            this.showAddFile()
+        }
+    }
+
+    setCreateFolderVisible(visible) {
+        const {dispatch} = this.props;
+        dispatch(FileActions.changeState({createFolder: visible, initLoading: false, moreLoading: false}))
+    }
+
+    showAddFile() {
+    }
+
+    createFolderModal() {
+        const {createFolder} = this.props;
+        return <FolderCreateForm
+            open={createFolder}
+            onCreate={(value) => this.createFolder(value)}
+            onCancel={() => this.setCreateFolderVisible(false)}
+        />
+    }
+
+    createFolder(value) {
+        const {dispatch, path} = this.props;
+        dispatch(FileActions.changeState({createFolder: false, initLoading: true}))
+        FileApi.createFolder({
+            path: path,
+            folderName: value["folderName"]
+        }).then(resp => {
+            if (resp.success) {
+                setTimeout(() => this.loading({path: path, orderBy: "time_desc"}), 1000)
+            } else {
+                alert(resp.message)
+                dispatch(FileActions.changeState({createFolder: false, initLoading: false}))
+            }
+        })
+    }
+
     render() {
-        const {data, moreLoading, initLoading} = this.props
+        const {data, moreLoading, initLoading} = this.props;
         let files = [...(data?.files || [])]
         if (moreLoading) {
             files.push({"loading": true}, {"loading": true}, {"loading": true})
@@ -242,8 +309,11 @@ class FileManager extends React.Component {
                     <Col span={16}>
                         {this.breadcrumb()}
                     </Col>
-                    <Col span={8}>
-                        {this.orderByView()}
+                    <Col span={4}>
+                        <Space size={"middle"}>
+                            {this.orderByView()}
+                            {this.actionView()}
+                        </Space>
                     </Col>
                 </Row>
             </Header>
@@ -263,6 +333,7 @@ class FileManager extends React.Component {
                         )}
                     />
                 </Image.PreviewGroup>
+                {this.createFolderModal()}
             </Content>
         </Layout>
     }

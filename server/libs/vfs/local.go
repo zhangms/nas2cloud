@@ -90,6 +90,10 @@ func (l *Local) Exists(file string) bool {
 	return true
 }
 
+func (l *Local) CreateDirAll(file string) error {
+	return os.MkdirAll(l.AbsLocal(file), fs.ModePerm)
+}
+
 func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
 	modTime := fi.ModTime()
 	return &ObjectInfo{

@@ -19,6 +19,14 @@ type FileWalkSvc struct {
 	version string
 }
 
+var fileWalkSvc = &FileWalkSvc{
+	version: "v1",
+}
+
+func FileWalk() *FileWalkSvc {
+	return fileWalkSvc
+}
+
 func (fs *FileWalkSvc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
 	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
@@ -108,12 +116,14 @@ func (fs *FileWalkSvc) tryPostWalkPathEvent(storeName string, userGroup string, 
 	return ok, err
 }
 
-var fileWalkSvc = &FileWalkSvc{
-	version: "v1",
-}
-
-func FileWalk() *FileWalkSvc {
-	return fileWalkSvc
+func (fs *FileWalkSvc) forcePostWalkPathEvent(storeName string, userGroup string, path string) error {
+	flag := fs.keyWalkFlag(storeName, path)
+	_, err := cache.SetExpire(flag, time.Now().String(), cache.DefaultExpireTime)
+	if err != nil {
+		return err
+	}
+	fileWalker.postWalkEvent(userGroup, storeName, path)
+	return nil
 }
 
 var fileWalker *fileWalk

@@ -85,7 +85,7 @@ func registerStatic(app *fiber.App) {
 }
 
 func noStaticPermission(c *fiber.Ctx) bool {
-	u, err := getLoggedUser(c)
+	u, err := getLoginUserFromHeaderOrCookie(c)
 	if err != nil {
 		return true
 	}
@@ -109,11 +109,12 @@ func registerHandler(app *fiber.App) {
 		AllowOrigins:     "*",
 		AllowHeaders:     "*",
 	}))
-	app.Post("/store/walk", loginRequestHandler(fileWalkCtrl.Walk))
 	app.Post("/user/login", handler(loginCtrl.Login))
+	app.Post("/store/walk", loginRequestHandler(fileWalkCtrl.Walk))
+	app.Post("/store/createFolder", loginRequestHandler(fileCreateCtl.CreateFolder))
 }
 
-func getLoggedUser(c *fiber.Ctx) (*user.User, error) {
+func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {
 	token := c.Get("X-AUTH-TOKEN", c.Cookies("X-AUTH-TOKEN", ""))
 	device := c.Get("X-DEVICE", c.Cookies("X-DEVICE", ""))
 	if len(token) == 0 || len(device) == 0 {
@@ -142,7 +143,7 @@ func loginRequestHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 		c.Set(fiber.HeaderAccessControlAllowCredentials, "true")
 		c.Set(fiber.HeaderAccessControlAllowOrigin, "*")
 		c.Set(fiber.HeaderAccessControlAllowHeaders, "*")
-		u, err := getLoggedUser(c)
+		u, err := getLoginUserFromHeaderOrCookie(c)
 		if err != nil {
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
 		}

@@ -42,6 +42,10 @@ func Set(key string, value string) (string, error) {
 	return DefaultClient().Set(context.Background(), key, value, 0).Result()
 }
 
+func SetExpire(key string, value string, expiration time.Duration) (string, error) {
+	return DefaultClient().Set(context.Background(), key, value, expiration).Result()
+}
+
 func Exists(key ...string) (int64, error) {
 	return DefaultClient().Exists(context.Background(), key...).Result()
 }

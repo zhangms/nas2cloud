@@ -34,4 +34,6 @@ type Store interface {
 	Write(file string, data []byte) error
 
 	Exists(file string) bool
+
+	CreateDirAll(file string) error
 }
