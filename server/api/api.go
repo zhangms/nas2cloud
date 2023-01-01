@@ -11,6 +11,7 @@ import (
 	"nas2cloud/res"
 	"nas2cloud/svc/user"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -88,7 +89,11 @@ func noStaticPermission(c *fiber.Ctx) bool {
 	if err != nil {
 		return true
 	}
-	inf, err := vfs.Info(u.Group, c.OriginalURL())
+	path, err := url.PathUnescape(c.OriginalURL())
+	if err != nil {
+		return true
+	}
+	inf, err := vfs.Info(u.Group, path)
 	if err != nil {
 		return true
 	}

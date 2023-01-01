@@ -1,5 +1,5 @@
 import React from 'react';
-import {Avatar, Breadcrumb, Button, Layout, List, Skeleton} from "antd";
+import {Avatar, Breadcrumb, Button, Image, Layout, List, Skeleton} from "antd";
 import {
     FileExcelOutlined,
     FileOutlined,
@@ -15,6 +15,7 @@ import {Content, Header} from "antd/es/layout/layout";
 import {connect} from "react-redux";
 import FileApi from "../../requests/api_file";
 import {FileActions} from "../../models/file";
+import API from "../../requests/api";
 
 
 class FileManager extends React.Component {
@@ -28,14 +29,14 @@ class FileManager extends React.Component {
         this.loadInit("/")
     }
 
-    onClickFileItem(item) {
+    onClickFileItem(item, e) {
         if (item.type === "DIR") {
             this.loadInit(item.path)
         }
     }
 
     loadInit(path) {
-        this.dispatch(FileActions.initLoading({}))
+        this.dispatch(FileActions.changeState({initLoading: true}))
         FileApi.walk({
             "path": path,
             "pageNo": 0,
@@ -77,17 +78,44 @@ class FileManager extends React.Component {
         return <FileOutlined/>
     }
 
-    fileThumb(item) {
-        if (item["thumbnail"].length > 0) {
-            return <Avatar style={{marginRight: 10}} shape={"square"}
-                           src={"http://localhost:8080" + item["thumbnail"]}/>
+    fileItemView(item) {
+        if (item["thumbnail"]?.length > 0) {
+            const src = API.fullUrl(encodeURI(item["thumbnail"]))
+            const preview = API.fullUrl(encodeURI(item["path"]))
+            return this.fileItemViewInner(item,
+                <Image style={{marginRight: 10, width: 30, height: 30}}
+                       src={src}
+                       preview={{
+                           src: preview,
+                       }}
+                />)
         }
-        return <Avatar style={{marginRight: 10}} shape={"square"}
-                       icon={this.getIcon(item)}/>
+        return this.fileItemViewInner(item,
+            <Avatar style={{marginRight: 10}} shape={"square"}
+                    icon={this.getIcon(item)}/>, 0)
     }
 
-    loadMoreBtn(initLoading, moreLoading, data) {
-        if (initLoading || moreLoading || data.total == null || data["total"] <= data["currentIndex"]) {
+    fileItemViewInner(item, avatarComp) {
+        return <List.Item key={item.path} style={{cursor: "pointer"}}
+                          onClick={e => this.onClickFileItem(item)}>
+            {item.loading
+                ? <Skeleton avatar title={false} loading={item.loading} active/>
+                : <div style={{display: "flex"}}>
+                    {avatarComp}
+                    <div>
+                        <div>{item.name}</div>
+                        <div style={{color: "gray"}}>{item.modTime} {item.size}</div>
+                    </div>
+                </div>
+            }
+        </List.Item>
+    }
+
+    loadMoreBtn(pageState, data) {
+        if (pageState.initLoading
+            || pageState.moreLoading
+            || data.total == null
+            || data["total"] <= data["currentIndex"]) {
             return null;
         }
         return <div
@@ -103,8 +131,7 @@ class FileManager extends React.Component {
     }
 
     loadMore(currentData) {
-
-        this.dispatch(FileActions.moreLoading({}))
+        this.dispatch(FileActions.changeState({moreLoading: true, initLoading: false}))
         FileApi.walk({
             "path": currentData["currentPath"],
             "pageNo": currentData["currentPage"] + 1,
@@ -124,10 +151,29 @@ class FileManager extends React.Component {
         })
     }
 
+    breadcrumb(nav) {
+        return <>
+            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.loadInit("/")}>
+                <HomeOutlined/>
+            </Breadcrumb.Item>
+            {nav?.map((item, index) => {
+                return index === nav.length - 1 ?
+                    <Breadcrumb.Item key={item.path}>
+                        {item.name}
+                    </Breadcrumb.Item>
+                    :
+                    <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
+                                     onClick={e => this.loadInit(item.path)}>
+                        {item.name}
+                    </Breadcrumb.Item>
+            })}
+        </>
+    }
+
     render() {
-        const {initLoading, moreLoading, data} = this.props;
+        const {pageState, data} = this.props;
         let files = [...(data.files || [])]
-        if (moreLoading) {
+        if (pageState.moreLoading) {
             files.push({"loading": true}, {"loading": true}, {"loading": true})
         }
         return <Layout>
@@ -141,47 +187,25 @@ class FileManager extends React.Component {
                 <Breadcrumb style={{
                     margin: '20px -30px',
                 }}>
-                    <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.loadInit("/")}>
-                        <HomeOutlined/>
-                    </Breadcrumb.Item>
-                    {data.nav?.map((item, index) => {
-                        return index === data.nav.length - 1 ?
-                            <Breadcrumb.Item key={item.path}>
-                                {item.name}
-                            </Breadcrumb.Item>
-                            :
-                            <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
-                                             onClick={e => this.loadInit(item.path)}>
-                                {item.name}
-                            </Breadcrumb.Item>
-                    })}
+                    {this.breadcrumb(data.nav)}
                 </Breadcrumb>
             </Header>
             <Content style={{
                 background: "white",
                 paddingTop: 10
             }}>
-                <List
-                    loading={initLoading}
-                    itemLayout="horizontal"
-                    size={"small"}
-                    loadMore={this.loadMoreBtn(initLoading, moreLoading, data)}
-                    dataSource={files}
-                    renderItem={(item) => (
-                        <List.Item key={item.path} style={{cursor: "pointer"}}
-                                   onClick={e => this.onClickFileItem(item)}>
-                            {item.loading
-                                ? <Skeleton avatar title={false} loading={item.loading} active/>
-                                : <div style={{display: "flex"}}>
-                                    {this.fileThumb(item)}
-                                    <div>
-                                        <div>{item.name}</div>
-                                        <div style={{color: "gray"}}>{item.modTime} {item.size}</div>
-                                    </div>
-                                </div>}
-                        </List.Item>
-                    )}
-                />
+                <Image.PreviewGroup>
+                    <List
+                        loading={pageState.initLoading}
+                        itemLayout="horizontal"
+                        size={"small"}
+                        loadMore={this.loadMoreBtn(pageState, data)}
+                        dataSource={files}
+                        renderItem={(item) => (
+                            this.fileItemView(item)
+                        )}
+                    />
+                </Image.PreviewGroup>
             </Content>
         </Layout>
     }

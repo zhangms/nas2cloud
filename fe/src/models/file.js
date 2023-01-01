@@ -3,23 +3,27 @@ import {createSlice} from "@reduxjs/toolkit";
 const fileSlice = createSlice({
     name: "fileSlice",
     initialState: {
-        initLoading: true,
-        moreLoading: false,
+        pageState: {
+            initLoading: true,
+            moreLoading: false,
+        },
         data: []
     },
     reducers: {
-        initLoading: function (state, action) {
-            return {...state, initLoading: true}
-        },
-
-        moreLoading: function (state, action) {
-            return {...state, moreLoading: true}
+        changeState: function (state, action) {
+            let pageState = {...state.pageState, ...action.payload}
+            return {
+                pageState: pageState,
+                data: state.data,
+            }
         },
 
         onLoaded: function (state, action) {
             return {
-                initLoading: false,
-                moreLoading: false,
+                pageState: {
+                    initLoading: false,
+                    moreLoading: false,
+                },
                 data: action.payload
             }
         }
