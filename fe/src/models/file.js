@@ -11,7 +11,7 @@ function loadInitState() {
         initLoading: true,
         moreLoading: false,
         orderBy: "fileName_asc",
-        currentPath: "/",
+        path: "/",
         data: {
             files: [],
             nav: [],
@@ -36,7 +36,7 @@ const fileSlice = createSlice({
             const ret = {...state, ...action.payload}
             saveCurrentState({
                 orderBy: ret.orderBy,
-                currentPath: ret.currentPath
+                path: ret.path
             })
             return ret
         },

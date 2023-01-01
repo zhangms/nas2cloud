@@ -45,23 +45,29 @@ class FileManager extends React.Component {
     }
 
     componentDidMount() {
-        this.loading(this.props.currentPath)
+        const {path, orderBy} = this.props
+        this.loading({
+            path, orderBy
+        })
     }
 
-    loading(path) {
-        this.props.dispatch(FileActions.changeState({initLoading: true, currentPath: path}))
+    loading(request) {
+        const {dispatch} = this.props
+        dispatch(FileActions.changeState({
+            initLoading: true,
+            ...request
+        }))
         FileApi.walk({
-            path: path,
             pageNo: 0,
-            orderBy: this.props.orderBy,
+            ...request
         }).then(resp => {
             console.log(resp)
             if (resp.success) {
-                this.props.dispatch(FileActions.onLoaded(resp.data))
+                dispatch(FileActions.onLoaded(resp.data))
             } else if (resp.message === "RetryLaterAgain") {
-                setTimeout(() => this.loading(path), 200)
+                setTimeout(() => this.loading(request), 200)
             } else {
-                this.props.dispatch(FileActions.onLoaded({}))
+                dispatch(FileActions.onLoaded({}))
             }
         })
     }
@@ -97,7 +103,7 @@ class FileManager extends React.Component {
     fileItemViewInner(item, avatarComp) {
         return <List.Item key={item.path}
                           style={{cursor: "pointer"}}
-                          onClick={e => this.onClickFileItem(item)}>
+                          onClick={() => this.onClickFileItem(item)}>
             {item.loading
                 ? <Skeleton avatar title={false} loading={item.loading} active/>
                 : <div style={{display: "flex"}}>
@@ -132,8 +138,12 @@ class FileManager extends React.Component {
     }
 
     onClickFileItem(item) {
+        const {orderBy} = this.props
         if (item.type === "DIR") {
-            this.loading(item.path)
+            this.loading({
+                path: item.path,
+                orderBy: orderBy
+            })
         }
     }
 
@@ -148,24 +158,25 @@ class FileManager extends React.Component {
             height: 32,
             lineHeight: '32px',
         }}>
-            <Button onClick={e => this.loadMore()}>loading more</Button>
+            <Button onClick={() => this.loadMore()}>loading more</Button>
         </div>
     }
 
     loadMore() {
-        this.props.dispatch(FileActions.changeState({moreLoading: true}))
+        const {dispatch, currentPath, data, orderBy} = this.props
+        dispatch(FileActions.changeState({moreLoading: true}))
         FileApi.walk({
-            path: this.props.currentPath,
-            pageNo: this.props.data.currentPage + 1,
-            orderBy: this.props.orderBy,
+            path: currentPath,
+            pageNo: data.currentPage + 1,
+            orderBy: orderBy,
         }).then(resp => {
             console.log(resp)
             if (resp.success) {
-                this.props.dispatch(FileActions.onLoadMore(resp.data))
+                dispatch(FileActions.onLoadMore(resp.data))
             } else if (resp.message === "RetryLaterAgain") {
                 setTimeout(() => this.loadMore(), 200)
             } else {
-                this.props.dispatch(FileActions.onLoadMore({}))
+                dispatch(FileActions.onLoadMore({}))
             }
         })
     }
@@ -173,7 +184,7 @@ class FileManager extends React.Component {
     breadcrumb() {
         const {data} = this.props
         return <Breadcrumb style={{margin: '20px -30px'}}>
-            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.loading("/")}>
+            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={() => this.loading("/")}>
                 <HomeOutlined/>
             </Breadcrumb.Item>
             {data.nav?.map((item, index) => {
@@ -182,7 +193,7 @@ class FileManager extends React.Component {
                         {item.name}
                     </Breadcrumb.Item>
                     : <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
-                                       onClick={e => this.loading(item.path)}>
+                                       onClick={() => this.loading(item.path)}>
                         {item.name}
                     </Breadcrumb.Item>
             })}
@@ -190,10 +201,11 @@ class FileManager extends React.Component {
     }
 
     orderByView() {
+        const {orderBy} = this.props
         return <Dropdown menu={{
             items: this.orderByMenus,
             onClick: (e) => this.onClickOrderBy(e),
-            selectedKeys: [this.props.orderBy]
+            selectedKeys: [orderBy]
         }}>
             <a onClick={(e) => e.preventDefault()}>
                 <Space>
@@ -205,13 +217,17 @@ class FileManager extends React.Component {
     }
 
     onClickOrderBy(e) {
-        this.props.dispatch(FileActions.changeState({orderBy: e.key}))
-        this.loading(this.props.currentPath)
+        const {path} = this.props
+        this.loading({
+            path: path,
+            orderBy: e.key
+        })
     }
 
     render() {
-        let files = [...(this.props.data?.files || [])]
-        if (this.props.moreLoading) {
+        const {data, moreLoading, initLoading} = this.props
+        let files = [...(data?.files || [])]
+        if (moreLoading) {
             files.push({"loading": true}, {"loading": true}, {"loading": true})
         }
         return <Layout>
@@ -237,7 +253,7 @@ class FileManager extends React.Component {
             }}>
                 <Image.PreviewGroup>
                     <List
-                        loading={this.props.initLoading}
+                        loading={initLoading}
                         itemLayout="horizontal"
                         size={"small"}
                         loadMore={this.loadMoreBtn()}
