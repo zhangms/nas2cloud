@@ -1,6 +1,12 @@
 import React from 'react';
-import {Avatar, Breadcrumb, Button, Image, Layout, List, Skeleton} from "antd";
+import {connect} from "react-redux";
+import {Avatar, Breadcrumb, Button, Col, Dropdown, Image, Layout, List, Row, Skeleton, Space} from "antd";
+import {Content, Header} from "antd/es/layout/layout";
+import {FileActions} from "../../models/file";
+import FileApi from "../../requests/api_file";
+import API from "../../requests/api";
 import {
+    DownOutlined,
     FileExcelOutlined,
     FileOutlined,
     FilePdfOutlined,
@@ -11,92 +17,86 @@ import {
     FolderOutlined,
     HomeOutlined
 } from "@ant-design/icons";
-import {Content, Header} from "antd/es/layout/layout";
-import {connect} from "react-redux";
-import FileApi from "../../requests/api_file";
-import {FileActions} from "../../models/file";
-import API from "../../requests/api";
 
 
 class FileManager extends React.Component {
 
     constructor(props) {
         super(props);
-        this.dispatch = props.dispatch
+        this.orderByMenus = [{
+            key: 'fileName_asc',
+            label: "file name asc",
+        }, {
+            key: 'fileName_desc',
+            label: "file name desc",
+        }, {
+            key: 'size_asc',
+            label: "file size asc",
+        }, {
+            key: 'size_desc',
+            label: "file size desc",
+        }, {
+            key: 'time_asc',
+            label: "file time asc",
+        }, {
+            key: 'time_desc',
+            label: "file time desc",
+        }];
     }
 
     componentDidMount() {
-        this.loadInit("/")
+        this.loading(this.props.currentPath)
     }
 
-    onClickFileItem(item, e) {
-        if (item.type === "DIR") {
-            this.loadInit(item.path)
-        }
-    }
-
-    loadInit(path) {
-        this.dispatch(FileActions.changeState({initLoading: true}))
+    loading(path) {
+        this.props.dispatch(FileActions.changeState({initLoading: true, currentPath: path}))
         FileApi.walk({
-            "path": path,
-            "pageNo": 0,
-            "orderBy": "fileName_asc",
+            path: path,
+            pageNo: 0,
+            orderBy: this.props.orderBy,
         }).then(resp => {
             console.log(resp)
             if (resp.success) {
-                this.dispatch(FileActions.onLoaded(resp.data))
+                this.props.dispatch(FileActions.onLoaded(resp.data))
             } else if (resp.message === "RetryLaterAgain") {
-                setTimeout(() => this.loadInit(path), 200)
+                setTimeout(() => this.loading(path), 200)
             } else {
-                this.dispatch(FileActions.onLoaded({}))
+                this.props.dispatch(FileActions.onLoaded({}))
             }
         })
     }
 
-    getIcon(item) {
-        if (item.type === "DIR") {
-            return <FolderOutlined/>
-        }
-        if (item.ext === ".PDF") {
-            return <FilePdfOutlined/>
-        }
-        if (item.ext === ".XLS" || item.ext === ".XLSX") {
-            return <FileExcelOutlined/>
-        }
-        if (item.ext === ".PPT" || item.ext === ".PPTX") {
-            return <FilePptOutlined/>
-        }
-        if (item.ext === ".DOC" || item.ext === ".DOCX") {
-            return <FileWordOutlined/>
-        }
-        if (item.ext === ".TXT") {
-            return <FileTextOutlined/>
-        }
-        if (item.ext === ".ZIP") {
-            return <FileZipFilled/>
-        }
-        return <FileOutlined/>
+    isPreviewAble(item) {
+        return item.type === "FILE" && item["thumbnail"]?.length > 0
     }
 
     fileItemView(item) {
-        if (item["thumbnail"]?.length > 0) {
-            const src = API.fullUrl(encodeURI(item["thumbnail"]))
-            const preview = API.fullUrl(encodeURI(item["path"]))
-            return this.fileItemViewInner(item,
-                <Image style={{marginRight: 10, width: 30, height: 30}}
-                       src={src}
-                       preview={{
-                           src: preview,
-                       }}
-                />)
-        }
+        return this.isPreviewAble(item)
+            ? this.fileItemViewWithPreview(item)
+            : this.fileItemWithoutPreview(item)
+    }
+
+    fileItemViewWithPreview(item) {
+        const src = API.fullUrl(encodeURI(item["thumbnail"]))
+        const preview = API.fullUrl(encodeURI(item["path"]))
+        return this.fileItemViewInner(item,
+            <Image style={{marginRight: 10, width: 30, height: 30}}
+                   src={src}
+                   preview={{
+                       src: preview,
+                   }}
+            />)
+    }
+
+    fileItemWithoutPreview(item) {
         return this.fileItemViewInner(item,
             <Avatar style={{marginRight: 10}} shape={"square"}
-                    icon={this.getIcon(item)}/>, 0)
+                    icon={this.getItemIcon(item)}/>, 0)
     }
 
     fileItemViewInner(item, avatarComp) {
-        return <List.Item key={item.path} style={{cursor: "pointer"}}
+        return <List.Item key={item.path}
+                          style={{cursor: "pointer"}}
                           onClick={e => this.onClickFileItem(item)}>
             {item.loading
                 ? <Skeleton avatar title={false} loading={item.loading} active/>
@@ -104,76 +104,114 @@ class FileManager extends React.Component {
                     {avatarComp}
                     <div>
                         <div>{item.name}</div>
-                        <div style={{color: "gray"}}>{item.modTime} {item.size}</div>
+                        <div style={{color: "gray"}}>{item["modTime"]} {item.size}</div>
                     </div>
                 </div>
             }
         </List.Item>
     }
 
-    loadMoreBtn(pageState, data) {
-        if (pageState.initLoading
-            || pageState.moreLoading
-            || data.total == null
-            || data["total"] <= data["currentIndex"]) {
-            return null;
+    getItemIcon(item) {
+        if (item.type === "DIR") {
+            return <FolderOutlined/>
+        } else if (item.ext === ".PDF") {
+            return <FilePdfOutlined/>
+        } else if (item.ext === ".XLS" || item.ext === ".XLSX") {
+            return <FileExcelOutlined/>
+        } else if (item.ext === ".PPT" || item.ext === ".PPTX") {
+            return <FilePptOutlined/>
+        } else if (item.ext === ".DOC" || item.ext === ".DOCX") {
+            return <FileWordOutlined/>
+        } else if (item.ext === ".TXT") {
+            return <FileTextOutlined/>
+        } else if (item.ext === ".ZIP") {
+            return <FileZipFilled/>
+        } else {
+            return <FileOutlined/>
         }
-        return <div
-            style={{
-                textAlign: 'center',
-                marginTop: 12,
-                height: 32,
-                lineHeight: '32px',
-            }}
-        >
-            <Button onClick={e => this.loadMore(data)}>loading more</Button>
+    }
+
+    onClickFileItem(item) {
+        if (item.type === "DIR") {
+            this.loading(item.path)
+        }
+    }
+
+    loadMoreBtn() {
+        const {initLoading, moreLoading, data} = this.props
+        if (initLoading || moreLoading || data.total <= data.currentIndex) {
+            return null
+        }
+        return <div style={{
+            textAlign: 'center',
+            marginTop: 12,
+            height: 32,
+            lineHeight: '32px',
+        }}>
+            <Button onClick={e => this.loadMore()}>loading more</Button>
         </div>
     }
 
-    loadMore(currentData) {
-        this.dispatch(FileActions.changeState({moreLoading: true, initLoading: false}))
+    loadMore() {
+        this.props.dispatch(FileActions.changeState({moreLoading: true}))
         FileApi.walk({
-            "path": currentData["currentPath"],
-            "pageNo": currentData["currentPage"] + 1,
-            "orderBy": "fileName_asc",
+            path: this.props.currentPath,
+            pageNo: this.props.data.currentPage + 1,
+            orderBy: this.props.orderBy,
         }).then(resp => {
             console.log(resp)
             if (resp.success) {
-                let list = [...(currentData.files || [])]
-                list.push(...(resp.data.files || []))
-                const ret = {...resp.data, files: list}
-                this.dispatch(FileActions.onLoaded(ret))
+                this.props.dispatch(FileActions.onLoadMore(resp.data))
             } else if (resp.message === "RetryLaterAgain") {
-                setTimeout(() => this.loadMore(currentData), 200)
+                setTimeout(() => this.loadMore(), 200)
             } else {
-                this.dispatch(FileActions.onLoaded({}))
+                this.props.dispatch(FileActions.onLoadMore({}))
             }
         })
     }
 
-    breadcrumb(nav) {
-        return <>
-            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.loadInit("/")}>
+    breadcrumb() {
+        const {data} = this.props
+        return <Breadcrumb style={{margin: '20px -30px'}}>
+            <Breadcrumb.Item key={"/"} style={{cursor: "pointer"}} onClick={e => this.loading("/")}>
                 <HomeOutlined/>
             </Breadcrumb.Item>
-            {nav?.map((item, index) => {
-                return index === nav.length - 1 ?
-                    <Breadcrumb.Item key={item.path}>
+            {data.nav?.map((item, index) => {
+                return index === data.nav.length - 1
+                    ? <Breadcrumb.Item key={item.path}>
                         {item.name}
                     </Breadcrumb.Item>
-                    :
-                    <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
-                                     onClick={e => this.loadInit(item.path)}>
+                    : <Breadcrumb.Item key={item.path} style={{cursor: "pointer"}}
+                                       onClick={e => this.loading(item.path)}>
                         {item.name}
                     </Breadcrumb.Item>
             })}
-        </>
+        </Breadcrumb>
+    }
+
+    orderByView() {
+        return <Dropdown menu={{
+            items: this.orderByMenus,
+            onClick: (e) => this.onClickOrderBy(e),
+            selectedKeys: [this.props.orderBy]
+        }}>
+            <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                    OrderBy
+                    <DownOutlined/>
+                </Space>
+            </a>
+        </Dropdown>
+    }
+
+    onClickOrderBy(e) {
+        this.props.dispatch(FileActions.changeState({orderBy: e.key}))
+        this.loading(this.props.currentPath)
     }
 
     render() {
-        const {pageState, data} = this.props;
-        let files = [...(data.files || [])]
-        if (pageState.moreLoading) {
+        let files = [...(this.props.data?.files || [])]
+        if (this.props.moreLoading) {
             files.push({"loading": true}, {"loading": true}, {"loading": true})
         }
         return <Layout>
@@ -184,11 +222,14 @@ class FileManager extends React.Component {
                 zIndex: 1,
                 width: '100%',
             }}>
-                <Breadcrumb style={{
-                    margin: '20px -30px',
-                }}>
-                    {this.breadcrumb(data.nav)}
-                </Breadcrumb>
+                <Row gutter={16}>
+                    <Col span={16}>
+                        {this.breadcrumb()}
+                    </Col>
+                    <Col span={8}>
+                        {this.orderByView()}
+                    </Col>
+                </Row>
             </Header>
             <Content style={{
                 background: "white",
@@ -196,10 +237,10 @@ class FileManager extends React.Component {
             }}>
                 <Image.PreviewGroup>
                     <List
-                        loading={pageState.initLoading}
+                        loading={this.props.initLoading}
                         itemLayout="horizontal"
                         size={"small"}
-                        loadMore={this.loadMoreBtn(pageState, data)}
+                        loadMore={this.loadMoreBtn()}
                         dataSource={files}
                         renderItem={(item) => (
                             this.fileItemView(item)
