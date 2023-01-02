@@ -1,6 +1,20 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {Avatar, Breadcrumb, Button, Col, Dropdown, Image, Layout, List, Popconfirm, Row, Skeleton, Space} from "antd";
+import {
+    Avatar,
+    Breadcrumb,
+    Button,
+    Col,
+    Dropdown,
+    Image,
+    Layout,
+    List,
+    message,
+    Popconfirm,
+    Row,
+    Skeleton,
+    Space
+} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {FileActions} from "../../models/file";
 import FileApi from "../../requests/api_file";
@@ -21,6 +35,7 @@ import {
 } from "@ant-design/icons";
 
 import FolderCreateForm from "./CreateFolderModal";
+import UploadFileModal from "./UploadFileModal";
 
 class FileManager extends React.Component {
 
@@ -130,7 +145,7 @@ class FileManager extends React.Component {
             if (resp.success) {
                 dispatch(FileActions.onDelete(item))
             } else {
-                alert(resp.message)
+                message.error(resp.message).then();
                 dispatch(FileActions.changeState({
                     initLoading: false,
                 }))
@@ -228,6 +243,10 @@ class FileManager extends React.Component {
     }
 
     orderByView() {
+        const {path} = this.props
+        if (path === "/") {
+            return null
+        }
         const orderByMenus = [{
             key: 'fileName_asc',
             label: "file name asc",
@@ -269,7 +288,11 @@ class FileManager extends React.Component {
     }
 
     actionView() {
-        const actionMenus = [{
+        const {path} = this.props
+        if (path === "/") {
+            return null
+        }
+        let actionMenus = [{
             key: 'createFolder',
             label: "create folder",
             icon: <PlusOutlined/>
@@ -292,22 +315,19 @@ class FileManager extends React.Component {
         if (e.key === "createFolder") {
             this.setCreateFolderVisible(true)
         } else if (e.key === "addFile") {
-            this.showAddFile()
+            this.setUpdateFileVisible(true)
         }
     }
 
     setCreateFolderVisible(visible) {
         const {dispatch} = this.props;
-        dispatch(FileActions.changeState({createFolder: visible, initLoading: false, moreLoading: false}))
-    }
-
-    showAddFile() {
+        dispatch(FileActions.changeState({createFolderVisible: visible}))
     }
 
     createFolderModal() {
-        const {createFolder} = this.props;
+        const {createFolderVisible} = this.props;
         return <FolderCreateForm
-            open={createFolder}
+            open={createFolderVisible}
             onCreate={(value) => this.createFolder(value)}
             onCancel={() => this.setCreateFolderVisible(false)}
         />
@@ -323,10 +343,44 @@ class FileManager extends React.Component {
             if (resp.success) {
                 setTimeout(() => this.loading({path: path, orderBy: "time_desc"}), 100)
             } else {
-                alert(resp.message)
+                message.error(resp.message).then();
                 dispatch(FileActions.changeState({createFolder: false, initLoading: false}))
             }
         })
+    }
+
+    setUpdateFileVisible(visible) {
+        const {dispatch} = this.props;
+        dispatch(FileActions.changeState({uploadFileVisible: visible}))
+    }
+
+    uploadFileModal() {
+        const {uploadFileVisible, path} = this.props;
+        if (!uploadFileVisible) {
+            return null
+        }
+        return <UploadFileModal
+            open={uploadFileVisible}
+            path={path}
+            onChange={(info) => this.onUploadChange(info)}
+            uploadUrl={API.fullUrl("/store/upload" + path)}
+            onClose={() => this.setUpdateFileVisible(false)}
+        />
+    }
+
+    onUploadChange(info) {
+        console.log("----->", info)
+        const {path} = this.props
+        const resp = info.file.response || {}
+        const status = info.file.status
+        if (status === "done") {
+            this.loading({
+                path: path,
+                orderBy: "time_desc"
+            })
+        } else if (status === "error") {
+            message.error(info.file.name + ":" + resp.message).then()
+        }
     }
 
     render() {
@@ -372,6 +426,7 @@ class FileManager extends React.Component {
                     />
                 </Image.PreviewGroup>
                 {this.createFolderModal()}
+                {this.uploadFileModal()}
             </Content>
         </Layout>
     }

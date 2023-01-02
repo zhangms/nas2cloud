@@ -2,7 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"nas2cloud/libs"
+	"nas2cloud/libs/logger"
 	"nas2cloud/svc/storage"
 	"net/http"
 	"path/filepath"
@@ -48,6 +51,41 @@ func (f *fileController) DeleteFiles(c *fiber.Ctx) error {
 	}
 	u, _ := GetLoggedUser(c)
 	err = storage.File().RemoveAll(u.Name, req.Path)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	return SendOK(c, "OK")
+}
+
+func (f *fileController) Upload(c *fiber.Ctx) error {
+	path := "/" + c.Params("*")
+	file, err := c.FormFile("file")
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	u, _ := GetLoggedUser(c)
+	fullPath := filepath.Join(path, file.Filename)
+	exists, err := storage.File().Exists(u.Name, fullPath)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	if exists {
+		return SendError(c, http.StatusBadRequest, "FileExistsAlready")
+	}
+	logger.Info("upload:", path, file.Filename, libs.ReadableDataSize(file.Size), file.Header)
+	stream, err := file.Open()
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	data := make([]byte, file.Size)
+	n, err := stream.Read(data)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	if int64(n) != file.Size {
+		return SendError(c, http.StatusInternalServerError, fmt.Sprintf("read file error, all:%d,readed:%d", file.Size, n))
+	}
+	err = storage.File().Create(u.Name, fullPath, data)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}

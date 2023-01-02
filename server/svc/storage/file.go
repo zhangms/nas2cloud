@@ -99,3 +99,32 @@ func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 	}
 	return nil
 }
+
+func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
+	userGroup := user.GetUserGroup(username)
+	err := vfs.Write(userGroup, fullPath, data)
+	if err != nil {
+		return err
+	}
+	info, err := vfs.Info(userGroup, fullPath)
+	if err != nil {
+		return err
+	}
+	thumbSvc.Thumbnail(info)
+	return fileRepo.save(info)
+}
+
+func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
+	if fileRepo.exists(fullPath) {
+		return true, nil
+	}
+	userGroup := user.GetUserGroup(username)
+	if vfs.Exists(userGroup, fullPath) {
+		info, err := vfs.Info(userGroup, fullPath)
+		if err != nil {
+			return false, err
+		}
+		return true, fileRepo.save(info)
+	}
+	return false, nil
+}

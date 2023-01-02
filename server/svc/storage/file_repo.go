@@ -25,7 +25,7 @@ func (r *fileRepository) exists(path string) bool {
 	bucketName, _ := vfs.GetBucketFile(path)
 	key := r.keyItem(bucketName, path)
 	count, err := cache.Exists(key)
-	return err != nil && count == 1
+	return err == nil && count == 1
 }
 
 func (r *fileRepository) save(item *vfs.ObjectInfo) error {

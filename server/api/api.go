@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -19,6 +21,26 @@ type Result struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
+}
+
+type apiConfig struct {
+	AllowCredentials bool
+	AllowOrigins     string
+	AllowHeaders     string
+}
+
+var config *apiConfig
+
+func init() {
+	data, err := res.ReadData(env.GetProfileActive() + "/web.json")
+	if err != nil {
+		panic(err)
+	}
+	config = &apiConfig{}
+	err = json.Unmarshal(data, config)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ResultError(message string) *Result {
@@ -105,14 +127,15 @@ func noStaticPermission(c *fiber.Ctx) bool {
 
 func registerHandler(app *fiber.App) {
 	app.Options("/*", cors.New(cors.Config{
-		AllowCredentials: true,
-		AllowOrigins:     "*",
-		AllowHeaders:     "*",
+		AllowCredentials: config.AllowCredentials,
+		AllowOrigins:     config.AllowOrigins,
+		AllowHeaders:     config.AllowHeaders,
 	}))
 	app.Post("/user/login", handler(loginCtrl.Login))
 	app.Post("/store/walk", loginRequestHandler(fileCtl.Walk))
 	app.Post("/store/createFolder", loginRequestHandler(fileCtl.CreateFolder))
 	app.Post("/store/deleteFiles", loginRequestHandler(fileCtl.DeleteFiles))
+	app.Post("/store/upload/*", loginRequestHandler(fileCtl.Upload))
 }
 
 func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {
@@ -141,9 +164,7 @@ func loginRequestHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 				_ = SendError(c, http.StatusInternalServerError, "error")
 			}
 		}()
-		c.Set(fiber.HeaderAccessControlAllowCredentials, "true")
-		c.Set(fiber.HeaderAccessControlAllowOrigin, "*")
-		c.Set(fiber.HeaderAccessControlAllowHeaders, "*")
+		setCorsHeader(c)
 		u, err := getLoginUserFromHeaderOrCookie(c)
 		if err != nil {
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
@@ -151,6 +172,12 @@ func loginRequestHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 		SetLoggedUser(c, u)
 		return impl(c)
 	}
+}
+
+func setCorsHeader(c *fiber.Ctx) {
+	c.Set(fiber.HeaderAccessControlAllowCredentials, libs.If(config.AllowCredentials, "true", "false").(string))
+	c.Set(fiber.HeaderAccessControlAllowOrigin, config.AllowOrigins)
+	c.Set(fiber.HeaderAccessControlAllowHeaders, config.AllowHeaders)
 }
 
 func handler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
@@ -162,9 +189,7 @@ func handler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 				_ = SendError(c, http.StatusInternalServerError, "error")
 			}
 		}()
-		c.Set(fiber.HeaderAccessControlAllowCredentials, "true")
-		c.Set(fiber.HeaderAccessControlAllowOrigin, "*")
-		c.Set(fiber.HeaderAccessControlAllowHeaders, "*")
+		setCorsHeader(c)
 		return impl(c)
 	}
 }

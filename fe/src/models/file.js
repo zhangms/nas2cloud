@@ -10,8 +10,9 @@ function loadInitState() {
     const defaultState = {
         initLoading: true,
         moreLoading: false,
+        createFolderVisible: false,
+        uploadFileVisible: false,
         orderBy: "fileName_asc",
-        createFolder: false,
         path: "/",
         data: {
             files: [],
@@ -52,7 +53,10 @@ const fileSlice = createSlice({
             }
             return {
                 ...state,
+                initLoading: false,
                 moreLoading: false,
+                createFolderVisible: false,
+                uploadFileVisible: false,
                 data: data,
             }
         },
@@ -62,7 +66,6 @@ const fileSlice = createSlice({
                 ...state,
                 initLoading: false,
                 moreLoading: false,
-                createFolder: false,
                 data: action.payload
             }
         },
@@ -86,7 +89,8 @@ const fileSlice = createSlice({
                 ...state,
                 initLoading: false,
                 moreLoading: false,
-                createFolder: false,
+                createFolderVisible: false,
+                uploadFileVisible: false,
                 data: data
             }
         }
