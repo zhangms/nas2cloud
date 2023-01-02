@@ -12,11 +12,6 @@ import (
 	"path/filepath"
 )
 
-type fileWalk struct {
-}
-
-var fileWalkCtrl = &fileWalk{}
-
 type fileWalkRequest struct {
 	Path    string `json:"path"`
 	PageNo  int    `json:"pageNo"`
@@ -47,9 +42,9 @@ type fileWalkItem struct {
 	Ext       string `json:"ext"`
 }
 
-func (f *fileWalk) Walk(c *fiber.Ctx) error {
+func (f *fileController) Walk(c *fiber.Ctx) error {
 	u, _ := GetLoggedUser(c)
-	request := f.getRequest(c)
+	request := f.walkRequest(c)
 	resp, err := f.walk(u.Name, request)
 	if err == svc.RetryLaterAgain {
 		return SendError(c, http.StatusCreated, err.Error())
@@ -61,7 +56,7 @@ func (f *fileWalk) Walk(c *fiber.Ctx) error {
 	return SendOK(c, resp)
 }
 
-func (f *fileWalk) getRequest(c *fiber.Ctx) *fileWalkRequest {
+func (f *fileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
 	req := &fileWalkRequest{}
 	_ = json.Unmarshal(c.Body(), req)
 	if len(req.OrderBy) == 0 {
@@ -70,17 +65,17 @@ func (f *fileWalk) getRequest(c *fiber.Ctx) *fileWalkRequest {
 	return req
 }
 
-func (f *fileWalk) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
+func (f *fileController) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
 	pageSize := 100
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
-	lst, total, err := storage.FileWalk().Walk(username, request.Path, request.OrderBy, start, stop)
+	lst, total, err := storage.File().Walk(username, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}
 	return &fileWalkResult{
-		Nav:          f.nav(request.Path),
-		Files:        f.files(lst),
+		Nav:          f.parseToNav(request.Path),
+		Files:        f.parseToFiles(lst),
 		Total:        total,
 		CurrentPage:  request.PageNo,
 		CurrentPath:  request.Path,
@@ -88,7 +83,7 @@ func (f *fileWalk) walk(username string, request *fileWalkRequest) (*fileWalkRes
 	}, nil
 }
 
-func (f *fileWalk) files(lst []*vfs.ObjectInfo) []*fileWalkItem {
+func (f *fileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
 	items := make([]*fileWalkItem, 0)
 	for _, itm := range lst {
 		items = append(items, &fileWalkItem{
@@ -104,7 +99,7 @@ func (f *fileWalk) files(lst []*vfs.ObjectInfo) []*fileWalkItem {
 	return items
 }
 
-func (f *fileWalk) nav(pathName string) []*fileWalkNav {
+func (f *fileController) parseToNav(pathName string) []*fileWalkNav {
 	ret := make([]*fileWalkNav, 0)
 	pp := filepath.Clean(pathName)
 	dir := filepath.Dir(pp)

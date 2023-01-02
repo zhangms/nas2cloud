@@ -283,7 +283,7 @@ class FileManager extends React.Component {
             folderName: value["folderName"]
         }).then(resp => {
             if (resp.success) {
-                setTimeout(() => this.loading({path: path, orderBy: "time_desc"}), 1000)
+                setTimeout(() => this.loading({path: path, orderBy: "time_desc"}), 100)
             } else {
                 alert(resp.message)
                 dispatch(FileActions.changeState({createFolder: false, initLoading: false}))

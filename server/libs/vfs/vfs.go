@@ -74,20 +74,25 @@ func init() {
 	logger.Info("VFS initialized", len(buckets))
 }
 
-func GetBucket(user string, file string) (*Bucket, string, error) {
+func GetBucketFile(file string) (string, string) {
 	pth := path.Clean(libs.If(path.IsAbs(file), file, "/"+file).(string))
 	arr := strings.SplitN(pth, "/", 3)
-	b := buckets[arr[1]]
+	if len(arr) == 3 {
+		return arr[1], arr[2]
+	}
+	return arr[1], ""
+}
+
+func GetBucket(user string, file string) (*Bucket, string, error) {
+	bucketName, fileName := GetBucketFile(file)
+	b := buckets[bucketName]
 	if b == nil {
-		return nil, "", errors.New("Bucket not exists :" + arr[1])
+		return nil, "", errors.New("Bucket not exists :" + bucketName)
 	}
 	if !b.authorized(user) {
 		return nil, "", errors.New("no authority")
 	}
-	if len(arr) == 3 {
-		return b, arr[2], nil
-	}
-	return b, "", nil
+	return b, fileName, nil
 }
 
 func GetStore(user string, file string) (Store, string, error) {

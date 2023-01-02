@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-type fileCreate struct {
+type fileController struct {
 }
 
-var fileCreateCtl = &fileCreate{}
+var fileCtl = &fileController{}
 
-func (f *fileCreate) CreateFolder(c *fiber.Ctx) error {
+func (f *fileController) CreateFolder(c *fiber.Ctx) error {
 	type request struct {
 		Path       string `json:"path"`
 		FolderName string `json:"folderName"`
