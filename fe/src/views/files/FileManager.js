@@ -1,12 +1,13 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {Avatar, Breadcrumb, Button, Col, Dropdown, Image, Layout, List, Row, Skeleton, Space} from "antd";
+import {Avatar, Breadcrumb, Button, Col, Dropdown, Image, Layout, List, Popconfirm, Row, Skeleton, Space} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {FileActions} from "../../models/file";
 import FileApi from "../../requests/api_file";
 import API from "../../requests/api";
 import {
     CloudUploadOutlined,
+    DeleteOutlined,
     FileExcelOutlined,
     FileOutlined,
     FilePdfOutlined,
@@ -85,11 +86,11 @@ class FileManager extends React.Component {
 
     fileItemViewInner(item, avatarComp) {
         return <List.Item key={item.path}
-                          style={{cursor: "pointer"}}
-                          onClick={() => this.onClickFileItem(item)}>
+                          actions={this.itemActions(item)}
+                          style={{cursor: "pointer"}}>
             {item.loading
                 ? <Skeleton avatar title={false} loading={item.loading} active/>
-                : <div style={{display: "flex"}}>
+                : <div style={{display: "flex"}} onClick={() => this.onClickFileItem(item)}>
                     {avatarComp}
                     <div>
                         <div>{item.name}</div>
@@ -98,6 +99,36 @@ class FileManager extends React.Component {
                 </div>
             }
         </List.Item>
+    }
+
+    itemActions(item) {
+        const {path} = this.props
+        if (path === "/") {
+            return null
+        }
+        return [
+            <Popconfirm
+                title="Delete"
+                description={"sure to delete 【" + item.name + "】"}
+                onConfirm={() => this.deleteItem(item)}
+                okText="Yes"
+                cancelText="No"
+            >
+                <DeleteOutlined/>
+            </Popconfirm>
+        ]
+    }
+
+    deleteItem(item) {
+        const {dispatch} = this.props
+        dispatch(FileActions.changeState({
+            initLoading: true,
+        }))
+        FileApi.delete({
+            path: item.path
+        }).then(resp => {
+            console.log("delete:", resp)
+        })
     }
 
     getItemIcon(item) {

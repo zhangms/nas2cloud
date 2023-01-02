@@ -8,6 +8,10 @@ const FileApi = {
 
     createFolder: async function (body) {
         return await API.POST("/store/createFolder", body)
+    },
+
+    delete: async function (body) {
+        return await API.POST("/store/deleteFile", body)
     }
 
 }

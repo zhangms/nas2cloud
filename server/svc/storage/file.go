@@ -67,18 +67,23 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 	return ret
 }
 
-func (fs *FileSvc) CreateDirAll(u *user.User, fullPath string) error {
+func (fs *FileSvc) CreateDirAll(username, fullPath string) error {
+	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
-	if vfs.Exists(u.Group, path) {
+	if vfs.Exists(userGroup, path) {
 		return errors.New("file exists already")
 	}
-	err := vfs.CreateDirAll(u.Group, path)
+	err := vfs.CreateDirAll(userGroup, path)
 	if err != nil {
 		return err
 	}
-	info, err := vfs.Info(u.Group, path)
+	info, err := vfs.Info(userGroup, path)
 	if err != nil {
 		return err
 	}
 	return fileRepo.save(info)
+}
+
+func (fs *FileSvc) DeleteFile(username string, fullPath string) error {
+	return nil
 }
