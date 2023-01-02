@@ -1,6 +1,9 @@
 package vfs
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
 type ObjectType string
 
@@ -38,4 +41,6 @@ type Store interface {
 	MkdirAll(file string) error
 
 	RemoveAll(file string) error
+
+	Upload(file string, reader io.Reader) (int64, error)
 }

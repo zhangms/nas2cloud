@@ -1,9 +1,11 @@
 package vfs
 
 import (
+	"io"
 	"io/fs"
 	"io/ioutil"
 	"nas2cloud/libs"
+	"nas2cloud/libs/errs"
 	"os"
 	"path"
 	"path/filepath"
@@ -96,6 +98,37 @@ func (l *Local) MkdirAll(file string) error {
 
 func (l *Local) RemoveAll(file string) error {
 	return os.RemoveAll(l.AbsLocal(file))
+}
+
+func (l *Local) Upload(file string, reader io.Reader) (int64, error) {
+	f, err := os.OpenFile(l.AbsLocal(file), os.O_CREATE|os.O_WRONLY|os.O_SYNC, fs.ModePerm)
+	defer func() {
+		_ = f.Close()
+	}()
+	if err != nil {
+		return 0, err
+	}
+	var read int64 = 0
+	for {
+		buffer := make([]byte, 4096)
+		n, readErr := reader.Read(buffer)
+		read += int64(n)
+		if n > 0 {
+			_, writeErr := f.Write(buffer[0:n])
+			if writeErr != nil {
+				return read, errs.Wrap(writeErr, "write error:"+file)
+			}
+		} else {
+			break
+		}
+		if readErr == io.EOF {
+			return read, nil
+		}
+		if readErr != nil {
+			return read, errs.Wrap(readErr, "read error")
+		}
+	}
+	return read, nil
 }
 
 func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {

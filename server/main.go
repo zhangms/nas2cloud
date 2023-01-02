@@ -12,7 +12,9 @@ import (
 
 func main() {
 	logger2.Info("profile.active", env.GetProfileActive())
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 1024 * 1024 * 1024, //1G
+	})
 	app.Use(logger.New())
 	api.Register(app)
 	err := app.Listen(":8080")

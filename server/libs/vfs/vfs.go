@@ -3,6 +3,7 @@ package vfs
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -199,4 +200,12 @@ func RemoveAll(user string, path string) error {
 		return err
 	}
 	return store.RemoveAll(f)
+}
+
+func Upload(user string, path string, reader io.Reader) (int64, error) {
+	store, f, err := GetStore(user, path)
+	if err != nil {
+		return 0, err
+	}
+	return store.Upload(f, reader)
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -77,15 +76,7 @@ func (f *fileController) Upload(c *fiber.Ctx) error {
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
-	data := make([]byte, file.Size)
-	n, err := stream.Read(data)
-	if err != nil {
-		return SendError(c, http.StatusBadRequest, err.Error())
-	}
-	if int64(n) != file.Size {
-		return SendError(c, http.StatusInternalServerError, fmt.Sprintf("read file error, all:%d,readed:%d", file.Size, n))
-	}
-	err = storage.File().Create(u.Name, fullPath, data)
+	err = storage.File().Upload(u.Name, fullPath, stream)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}

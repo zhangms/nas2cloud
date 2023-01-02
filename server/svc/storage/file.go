@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/svc"
 	"nas2cloud/svc/user"
@@ -103,6 +104,20 @@ func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 	userGroup := user.GetUserGroup(username)
 	err := vfs.Write(userGroup, fullPath, data)
+	if err != nil {
+		return err
+	}
+	info, err := vfs.Info(userGroup, fullPath)
+	if err != nil {
+		return err
+	}
+	thumbSvc.Thumbnail(info)
+	return fileRepo.save(info)
+}
+
+func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader) error {
+	userGroup := user.GetUserGroup(username)
+	_, err := vfs.Upload(userGroup, fullPath, reader)
 	if err != nil {
 		return err
 	}
