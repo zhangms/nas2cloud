@@ -35,5 +35,7 @@ type Store interface {
 
 	Exists(file string) bool
 
-	CreateDirAll(file string) error
+	MkdirAll(file string) error
+
+	RemoveAll(file string) error
 }

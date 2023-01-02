@@ -30,7 +30,7 @@ func (f *fileController) CreateFolder(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, "name cant empty")
 	}
 	fullPath := filepath.Join(req.Path, folderName)
-	err = storage.File().CreateDirAll(u.Name, fullPath)
+	err = storage.File().MkdirAll(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
@@ -47,7 +47,7 @@ func (f *fileController) DeleteFile(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
 	u, _ := GetLoggedUser(c)
-	err = storage.File().DeleteFile(u.Name, req.Path)
+	err = storage.File().RemoveAll(u.Name, req.Path)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}

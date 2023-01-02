@@ -12,11 +12,20 @@ import (
 )
 
 type fileRepository struct {
-	version string
+	version     string
+	orderFields []string
 }
 
 var fileRepo = &fileRepository{
-	version: "v1",
+	version:     "v1",
+	orderFields: []string{"fileName", "time", "size"},
+}
+
+func (r *fileRepository) exists(path string) bool {
+	bucketName, _ := vfs.GetBucketFile(path)
+	key := r.keyItem(bucketName, path)
+	count, err := cache.Exists(key)
+	return err != nil && count == 1
 }
 
 func (r *fileRepository) save(item *vfs.ObjectInfo) error {
@@ -39,8 +48,7 @@ func (r *fileRepository) save(item *vfs.ObjectInfo) error {
 	}
 	//更新在父目录中的位置
 	parent := filepath.Dir(item.Path)
-	orderFields := []string{"fileName", "time", "size"}
-	for _, orderField := range orderFields {
+	for _, orderField := range r.orderFields {
 		rank := r.keyRankInParent(bucketName, parent, orderField)
 		_, err = cache.ZAdd(rank, r.getRankScore(item, orderField), item.Name)
 		if err != nil {
@@ -113,4 +121,21 @@ func (r *fileRepository) Range(path string, orderBy string, start int64, stop in
 	}
 	ret, err := cache.MGet(keys...)
 	return ret, total, err
+}
+
+func (r *fileRepository) delete(path string) error {
+	bucketName, _ := vfs.GetBucketFile(path)
+	_, err := cache.Del(r.keyItem(bucketName, path))
+	if err != nil {
+		return err
+	}
+	dir, name := filepath.Split(path)
+	for _, orderField := range r.orderFields {
+		rank := r.keyRankInParent(bucketName, dir, orderField)
+		_, err = cache.ZRem(rank, name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

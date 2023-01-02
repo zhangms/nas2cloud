@@ -65,6 +65,30 @@ const fileSlice = createSlice({
                 createFolder: false,
                 data: action.payload
             }
+        },
+
+        onDelete: function (state, action) {
+            const item = action.payload;
+            let files = [...state.data.files];
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                if (f.path === item.path) {
+                    files.splice(i, 1)
+                    break;
+                }
+            }
+            let data = {
+                ...state.data,
+                files: files,
+                total: state.data.total - 1
+            }
+            return {
+                ...state,
+                initLoading: false,
+                moreLoading: false,
+                createFolder: false,
+                data: data
+            }
         }
     }
 })

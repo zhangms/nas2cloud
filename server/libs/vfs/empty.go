@@ -29,6 +29,10 @@ func (e *empty) Exists(file string) bool {
 	return false
 }
 
-func (e *empty) CreateDirAll(file string) error {
+func (e *empty) MkdirAll(file string) error {
+	return errors.New("not support operation")
+}
+
+func (e *empty) RemoveAll(file string) error {
 	return errors.New("not support operation")
 }

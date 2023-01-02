@@ -76,3 +76,7 @@ func ZAdd(key string, score float64, member string) (int64, error) {
 		Member: member,
 	}).Result()
 }
+
+func ZRem(key string, members ...any) (int64, error) {
+	return DefaultClient().ZRem(context.Background(), key, members...).Result()
+}

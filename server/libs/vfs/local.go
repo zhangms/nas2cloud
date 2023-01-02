@@ -90,8 +90,12 @@ func (l *Local) Exists(file string) bool {
 	return true
 }
 
-func (l *Local) CreateDirAll(file string) error {
+func (l *Local) MkdirAll(file string) error {
 	return os.MkdirAll(l.AbsLocal(file), fs.ModePerm)
+}
+
+func (l *Local) RemoveAll(file string) error {
+	return os.RemoveAll(l.AbsLocal(file))
 }
 
 func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
