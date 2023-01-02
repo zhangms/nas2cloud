@@ -1,0 +1,16 @@
+[
+  {
+    "name": "__thumb__",
+    "mountType": "local",
+    "endpoint": "/Users/pmz/NAS/nas2cloud/thumb",
+    "authorize": "ALL",
+    "hidden": true
+  },
+  {
+    "name": "Family",
+    "mountType": "local",
+    "endpoint": "/Volumes/X/Mount",
+    "authorize": "admin,family",
+    "hidden": false
+  }
+]
