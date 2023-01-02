@@ -125,7 +125,7 @@ class FileManager extends React.Component {
             initLoading: true,
         }))
         FileApi.delete({
-            path: item.path
+            paths: [item.path]
         }).then(resp => {
             if (resp.success) {
                 dispatch(FileActions.onDelete(item))

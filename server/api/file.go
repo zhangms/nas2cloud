@@ -37,9 +37,9 @@ func (f *fileController) CreateFolder(c *fiber.Ctx) error {
 	return SendOK(c, "OK")
 }
 
-func (f *fileController) DeleteFile(c *fiber.Ctx) error {
+func (f *fileController) DeleteFiles(c *fiber.Ctx) error {
 	type request struct {
-		Path string `json:"path"`
+		Path []string `json:"paths"`
 	}
 	req := &request{}
 	err := json.Unmarshal(c.Body(), req)

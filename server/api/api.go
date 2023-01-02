@@ -112,7 +112,7 @@ func registerHandler(app *fiber.App) {
 	app.Post("/user/login", handler(loginCtrl.Login))
 	app.Post("/store/walk", loginRequestHandler(fileCtl.Walk))
 	app.Post("/store/createFolder", loginRequestHandler(fileCtl.CreateFolder))
-	app.Post("/store/deleteFile", loginRequestHandler(fileCtl.DeleteFile))
+	app.Post("/store/deleteFiles", loginRequestHandler(fileCtl.DeleteFiles))
 }
 
 func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {

@@ -84,15 +84,18 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	return fileRepo.save(info)
 }
 
-func (fs *FileSvc) RemoveAll(username string, fullPath string) error {
+func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 	userGroup := user.GetUserGroup(username)
-	path := filepath.Clean(fullPath)
-	if !vfs.Exists(userGroup, path) {
-		return errors.New("file not exists")
+	for _, p := range fullPath {
+		path := filepath.Clean(p)
+		err := vfs.RemoveAll(userGroup, path)
+		if err != nil {
+			return err
+		}
+		err = fileRepo.delete(path)
+		if err != nil {
+			return err
+		}
 	}
-	err := vfs.RemoveAll(userGroup, path)
-	if err != nil {
-		return err
-	}
-	return fileRepo.delete(path)
+	return nil
 }

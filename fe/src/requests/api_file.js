@@ -11,7 +11,7 @@ const FileApi = {
     },
 
     delete: async function (body) {
-        return await API.POST("/store/deleteFile", body)
+        return await API.POST("/store/deleteFiles", body)
     }
 
 }
