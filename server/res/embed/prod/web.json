@@ -1,5 +1,5 @@
 {
   "AllowCredentials": true,
-  "AllowOrigins": "http://localhost:3000",
+  "AllowOrigins": "http://mini:8080,http://192.168.31.99:8080",
   "AllowHeaders": "x-requested-with,content-type,X-AUTH-TOKEN,X-DEVICE"
 }

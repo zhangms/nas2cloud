@@ -1,6 +1,5 @@
 package storage
 
-import "C"
 import (
 	"encoding/json"
 	"nas2cloud/libs"
