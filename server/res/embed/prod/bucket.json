@@ -1,15 +1,24 @@
 [
   {
-    "name": "__thumb__",
+    "name": "thumb",
     "mountType": "local",
-    "endpoint": "/Users/pmz/NAS/nas2cloud/thumb",
+    "endpoint": "/nas2cloud/thumb",
     "authorize": "ALL",
-    "hidden": true
+    "hidden": true,
+    "comment": "缩略图"
+  },
+  {
+    "name": "console",
+    "mountType": "local",
+    "endpoint": "/nas2cloud/console",
+    "authorize": "ALL",
+    "hidden": true,
+    "comment": "前端"
   },
   {
     "name": "Family",
     "mountType": "local",
-    "endpoint": "/Volumes/X/Mount",
+    "endpoint": "/nas2cloud/Family",
     "authorize": "admin,family",
     "hidden": false
   }
