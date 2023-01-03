@@ -249,22 +249,19 @@ class FileManager extends React.Component {
         }
         const orderByMenus = [{
             key: 'fileName_asc',
-            label: "file name asc",
-        }, {
-            key: 'fileName_desc',
-            label: "file name desc",
+            label: "名称排序",
         }, {
             key: 'size_asc',
-            label: "file size asc",
+            label: "最小在前",
         }, {
             key: 'size_desc',
-            label: "file size desc",
+            label: "最大在前",
         }, {
-            key: 'time_asc',
-            label: "file time asc",
+            key: 'modTime_desc',
+            label: "最新修改",
         }, {
-            key: 'time_desc',
-            label: "file time desc",
+            key: 'creTime_desc',
+            label: "最新添加",
         }];
 
         const {orderBy} = this.props
@@ -341,7 +338,7 @@ class FileManager extends React.Component {
             folderName: value["folderName"]
         }).then(resp => {
             if (resp.success) {
-                setTimeout(() => this.loading({path: path, orderBy: "time_desc"}), 100)
+                setTimeout(() => this.loading({path: path, orderBy: "creTime_desc"}), 100)
             } else {
                 message.error(resp.message).then();
                 dispatch(FileActions.changeState({createFolder: false, initLoading: false}))
@@ -376,7 +373,7 @@ class FileManager extends React.Component {
         if (status === "done") {
             this.loading({
                 path: path,
-                orderBy: "time_desc"
+                orderBy: "creTime_desc"
             })
         } else if (status === "error") {
             message.error(info.file.name + ":" + resp.message).then()

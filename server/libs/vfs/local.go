@@ -5,11 +5,11 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"nas2cloud/libs"
-	"nas2cloud/libs/errs"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Local struct {
@@ -100,35 +100,20 @@ func (l *Local) RemoveAll(file string) error {
 	return os.RemoveAll(l.AbsLocal(file))
 }
 
-func (l *Local) Upload(file string, reader io.Reader) (int64, error) {
-	f, err := os.OpenFile(l.AbsLocal(file), os.O_CREATE|os.O_WRONLY|os.O_SYNC, fs.ModePerm)
-	defer func() {
-		_ = f.Close()
-	}()
+func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
+	writer, err := os.OpenFile(l.AbsLocal(file), os.O_CREATE|os.O_WRONLY, fs.ModePerm)
 	if err != nil {
 		return 0, err
 	}
-	var read int64 = 0
-	for {
-		buffer := make([]byte, 4096)
-		n, readErr := reader.Read(buffer)
-		read += int64(n)
-		if n > 0 {
-			_, writeErr := f.Write(buffer[0:n])
-			if writeErr != nil {
-				return read, errs.Wrap(writeErr, "write error:"+file)
-			}
-		} else {
-			break
-		}
-		if readErr == io.EOF {
-			return read, nil
-		}
-		if readErr != nil {
-			return read, errs.Wrap(readErr, "read error")
-		}
+	defer func() {
+		_ = writer.Close()
+	}()
+	written, err := io.Copy(writer, reader)
+	if err != nil {
+		return written, err
 	}
-	return read, nil
+	_ = os.Chtimes(l.AbsLocal(file), time.Now(), modTime)
+	return written, nil
 }
 
 func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
@@ -138,7 +123,8 @@ func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
 		Path:    fullPath,
 		Type:    libs.If(fi.IsDir(), ObjectTypeDir, ObjectTypeFile).(ObjectType),
 		Hidden:  strings.Index(fi.Name(), ".") == 0,
-		ModTime: &modTime,
+		ModTime: modTime,
+		CreTime: modTime,
 		Size:    fi.Size(),
 		Ext:     strings.ToUpper(filepath.Ext(fi.Name())),
 	}, nil

@@ -3,6 +3,7 @@ package vfs
 import (
 	"errors"
 	"io"
+	"time"
 )
 
 type empty struct {
@@ -40,6 +41,6 @@ func (e *empty) RemoveAll(file string) error {
 	return errors.New("not support operation")
 }
 
-func (e *empty) Upload(file string, reader io.Reader) (int64, error) {
+func (e *empty) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
 	return 0, errors.New("not support operation")
 }

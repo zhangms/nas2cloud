@@ -1,5 +1,6 @@
 package storage
 
+import "C"
 import (
 	"encoding/json"
 	"nas2cloud/libs"
@@ -18,7 +19,7 @@ type fileRepository struct {
 
 var fileRepo = &fileRepository{
 	version:     "v1",
-	orderFields: []string{"fileName", "time", "size"},
+	orderFields: []string{"fileName", "modTime", "creTime", "size"},
 }
 
 func (r *fileRepository) exists(path string) bool {
@@ -77,11 +78,12 @@ func (r *fileRepository) getRankScore(item *vfs.ObjectInfo, field string) float6
 		}
 	case "size":
 		return float64(item.Size)
-	case "time":
-		if item.ModTime == nil {
-			return float64(0)
-		}
+	case "modTime":
 		str := item.ModTime.Format("20060102150405")
+		val, _ := strconv.Atoi(str)
+		return float64(val)
+	case "creTime":
+		str := item.CreTime.Format("20060102150405")
 		val, _ := strconv.Atoi(str)
 		return float64(val)
 	default:

@@ -2,13 +2,16 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/storage"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type fileController struct {
@@ -76,7 +79,13 @@ func (f *fileController) Upload(c *fiber.Ctx) error {
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
-	err = storage.File().Upload(u.Name, fullPath, stream)
+
+	lastModified, err := strconv.ParseInt(c.FormValue("lastModified",
+		fmt.Sprintf("%d", time.Now().UnixMilli())), 10, 64)
+	if err != nil {
+		lastModified = time.Now().UnixMilli()
+	}
+	err = storage.File().Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}

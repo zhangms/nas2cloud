@@ -17,8 +17,8 @@ type ObjectInfo struct {
 	Path    string
 	Type    ObjectType
 	Hidden  bool
-	CreTime *time.Time
-	ModTime *time.Time
+	CreTime time.Time
+	ModTime time.Time
 	MD5Sum  string
 	Preview string
 	Size    int64
@@ -42,5 +42,5 @@ type Store interface {
 
 	RemoveAll(file string) error
 
-	Upload(file string, reader io.Reader) (int64, error)
+	Upload(file string, reader io.Reader, modTime time.Time) (int64, error)
 }

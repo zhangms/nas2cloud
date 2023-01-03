@@ -9,6 +9,7 @@ import (
 	"nas2cloud/svc"
 	"nas2cloud/svc/user"
 	"path/filepath"
+	"time"
 )
 
 type FileSvc struct {
@@ -115,9 +116,9 @@ func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 	return fileRepo.save(info)
 }
 
-func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader) error {
+func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) error {
 	userGroup := user.GetUserGroup(username)
-	_, err := vfs.Upload(userGroup, fullPath, reader)
+	_, err := vfs.Upload(userGroup, fullPath, reader, modTime)
 	if err != nil {
 		return err
 	}
@@ -125,6 +126,7 @@ func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader) er
 	if err != nil {
 		return err
 	}
+	info.CreTime = time.Now()
 	thumbSvc.Thumbnail(info)
 	return fileRepo.save(info)
 }
@@ -134,12 +136,12 @@ func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
 		return true, nil
 	}
 	userGroup := user.GetUserGroup(username)
-	if vfs.Exists(userGroup, fullPath) {
-		info, err := vfs.Info(userGroup, fullPath)
-		if err != nil {
-			return false, err
-		}
-		return true, fileRepo.save(info)
+	if !vfs.Exists(userGroup, fullPath) {
+		return false, nil
 	}
-	return false, nil
+	info, err := vfs.Info(userGroup, fullPath)
+	if err != nil {
+		return false, err
+	}
+	return true, fileRepo.save(info)
 }

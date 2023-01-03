@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Bucket struct {
@@ -149,10 +150,12 @@ func List(user string, file string) ([]*ObjectInfo, error) {
 func Info(user string, file string) (*ObjectInfo, error) {
 	if file == "" || file == "/" {
 		return &ObjectInfo{
-			Name:   "/",
-			Path:   "/",
-			Hidden: false,
-			Type:   ObjectTypeDir,
+			Name:    "/",
+			Path:    "/",
+			Hidden:  false,
+			Type:    ObjectTypeDir,
+			ModTime: time.Now(),
+			CreTime: time.Now(),
 		}, nil
 	}
 	store, f, err := GetStore(user, file)
@@ -202,10 +205,10 @@ func RemoveAll(user string, path string) error {
 	return store.RemoveAll(f)
 }
 
-func Upload(user string, path string, reader io.Reader) (int64, error) {
+func Upload(user string, path string, reader io.Reader, modTime time.Time) (int64, error) {
 	store, f, err := GetStore(user, path)
 	if err != nil {
 		return 0, err
 	}
-	return store.Upload(f, reader)
+	return store.Upload(f, reader, modTime)
 }

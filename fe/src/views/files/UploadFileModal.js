@@ -19,6 +19,12 @@ class UploadFileModal extends React.Component {
                 onChange={onChange}
                 crossOrigin={"use-credentials"}
                 withCredentials={true}
+                data={file => {
+                    return {
+                        lastModified: file.lastModified,
+                        lastModifiedDate: file.lastModifiedDate,
+                    }
+                }}
             >
                 <p className="ant-upload-drag-icon">
                     <InboxOutlined/>
