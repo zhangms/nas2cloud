@@ -36,7 +36,7 @@ func init() {
 			".MOV":  &ffmpegThumbnail{thumbUser: "root"},
 		},
 		queue:       make(chan string, 1024),
-		thumbDir:    "/__thumb__",
+		thumbDir:    "/thumb",
 		thumbWidth:  100,
 		thumbHeight: 100,
 	}

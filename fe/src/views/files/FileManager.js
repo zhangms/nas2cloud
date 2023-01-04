@@ -39,10 +39,6 @@ import UploadFileModal from "./UploadFileModal";
 
 class FileManager extends React.Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     componentDidMount() {
         const {path, orderBy} = this.props
         this.loading({
@@ -270,7 +266,7 @@ class FileManager extends React.Component {
             onClick: (e) => this.onClickOrderBy(e),
             selectedKeys: [orderBy]
         }}>
-            <a onClick={(e) => e.preventDefault()}>
+            <a href={"#"} onClick={(e) => e.preventDefault()}>
                 OrderBy
             </a>
         </Dropdown>
@@ -302,7 +298,7 @@ class FileManager extends React.Component {
             items: actionMenus,
             onClick: e => this.onClickAction(e)
         }}>
-            <a onClick={(e) => e.preventDefault()}>
+            <a href={"#"} onClick={(e) => e.preventDefault()}>
                 Operation
             </a>
         </Dropdown>

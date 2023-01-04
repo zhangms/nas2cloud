@@ -1,8 +1,15 @@
 [
   {
-    "name": "__thumb__",
+    "name": "thumb",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Thumb",
+    "authorize": "ALL",
+    "hidden": true
+  },
+  {
+    "name": "console",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Documents/ProjectBase/github/zhangms/nas2cloud/build/console",
     "authorize": "ALL",
     "hidden": true
   },

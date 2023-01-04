@@ -2,6 +2,7 @@
   "name": "fe",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/console",
   "dependencies": {
     "@ant-design/icons": "^4.8.0",
     "@reduxjs/toolkit": "^1.9.1",

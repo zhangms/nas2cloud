@@ -13,7 +13,6 @@ import (
 	"nas2cloud/res"
 	"nas2cloud/svc/user"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -107,21 +106,21 @@ func registerStatic(app *fiber.App) {
 }
 
 func noStaticPermission(c *fiber.Ctx) bool {
-	u, err := getLoginUserFromHeaderOrCookie(c)
-	if err != nil {
-		return true
-	}
-	path, err := url.PathUnescape(c.OriginalURL())
-	if err != nil {
-		return true
-	}
-	inf, err := vfs.Info(u.Group, path)
-	if err != nil {
-		return true
-	}
-	if inf.Hidden || inf.Type == vfs.ObjectTypeDir {
-		return true
-	}
+	//u, err := getLoginUserFromHeaderOrCookie(c)
+	//if err != nil {
+	//	return true
+	//}
+	//path, err := url.PathUnescape(c.OriginalURL())
+	//if err != nil {
+	//	return true
+	//}
+	//inf, err := vfs.Info(u.Group, path)
+	//if err != nil {
+	//	return true
+	//}
+	//if inf.Hidden || inf.Type == vfs.ObjectTypeDir {
+	//	return true
+	//}
 	return false
 }
 
@@ -131,11 +130,11 @@ func registerHandler(app *fiber.App) {
 		AllowOrigins:     config.AllowOrigins,
 		AllowHeaders:     config.AllowHeaders,
 	}))
-	app.Post("/user/login", handler(loginCtrl.Login))
-	app.Post("/store/walk", loginRequestHandler(fileCtl.Walk))
-	app.Post("/store/createFolder", loginRequestHandler(fileCtl.CreateFolder))
-	app.Post("/store/deleteFiles", loginRequestHandler(fileCtl.DeleteFiles))
-	app.Post("/store/upload/*", loginRequestHandler(fileCtl.Upload))
+	app.Post("/api/user/login", handler(loginCtrl.Login))
+	app.Post("/api/store/walk", loginRequestHandler(fileCtl.Walk))
+	app.Post("/api/store/createFolder", loginRequestHandler(fileCtl.CreateFolder))
+	app.Post("/api/store/deleteFiles", loginRequestHandler(fileCtl.DeleteFiles))
+	app.Post("/api/store/upload/*", loginRequestHandler(fileCtl.Upload))
 }
 
 func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {

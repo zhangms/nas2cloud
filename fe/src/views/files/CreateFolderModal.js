@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form, Input, message, Modal} from "antd";
+import {Form, Input, Modal} from "antd";
 
 const FolderCreateForm = ({open, onCreate, onCancel}) => {
     const [form] = Form.useForm();

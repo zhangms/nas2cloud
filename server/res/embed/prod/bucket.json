@@ -2,7 +2,7 @@
   {
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/nas2cloud/thumb",
+    "endpoint": "/nas2cloud/console/thumb",
     "authorize": "ALL",
     "hidden": true,
     "comment": "缩略图"
