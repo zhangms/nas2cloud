@@ -356,13 +356,12 @@ class FileManager extends React.Component {
             open={uploadFileVisible}
             path={path}
             onChange={(info) => this.onUploadChange(info)}
-            uploadUrl={API.fullUrl("/store/upload" + path)}
+            uploadUrl={API.fullUrl("/api/store/upload" + path)}
             onClose={() => this.setUpdateFileVisible(false)}
         />
     }
 
     onUploadChange(info) {
-        console.log("----->", info)
         const {path} = this.props
         const resp = info.file.response || {}
         const status = info.file.status

@@ -23,7 +23,7 @@ type Bucket struct {
 }
 
 func (b *Bucket) authorized(user string) bool {
-	if b.authorize == "ALL" || user == "root" {
+	if b.authorize == "ALL" || b.authorize == "PUBLIC" || user == "root" {
 		return true
 	}
 	arr := strings.Split(b.authorize, ",")
@@ -45,6 +45,10 @@ func (b *Bucket) Dir() string {
 
 func (b *Bucket) Endpoint() string {
 	return b.endpoint
+}
+
+func (b *Bucket) Authorize() string {
+	return b.authorize
 }
 
 var buckets map[string]*Bucket

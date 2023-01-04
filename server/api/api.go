@@ -13,6 +13,7 @@ import (
 	"nas2cloud/res"
 	"nas2cloud/svc/user"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -98,29 +99,35 @@ func Register(app *fiber.App) {
 func registerStatic(app *fiber.App) {
 	for _, b := range vfs.GetAllBucket() {
 		if b.MountType() == "local" {
-			app.Static(b.Dir(), b.Endpoint(), fiber.Static{
-				Next: noStaticPermission,
-			})
+			if b.Authorize() == "PUBLIC" {
+				logger.Info("register static public", b.Dir(), b.Endpoint())
+				app.Static(b.Dir(), b.Endpoint())
+			} else {
+				logger.Info("register static login required", b.Dir(), b.Endpoint())
+				app.Static(b.Dir(), b.Endpoint(), fiber.Static{
+					Next: staticLoginRequired,
+				})
+			}
 		}
 	}
 }
 
-func noStaticPermission(c *fiber.Ctx) bool {
-	//u, err := getLoginUserFromHeaderOrCookie(c)
-	//if err != nil {
-	//	return true
-	//}
-	//path, err := url.PathUnescape(c.OriginalURL())
-	//if err != nil {
-	//	return true
-	//}
-	//inf, err := vfs.Info(u.Group, path)
-	//if err != nil {
-	//	return true
-	//}
-	//if inf.Hidden || inf.Type == vfs.ObjectTypeDir {
-	//	return true
-	//}
+func staticLoginRequired(c *fiber.Ctx) bool {
+	u, err := getLoginUserFromHeaderOrCookie(c)
+	if err != nil {
+		return true
+	}
+	path, err := url.PathUnescape(c.OriginalURL())
+	if err != nil {
+		return true
+	}
+	inf, err := vfs.Info(u.Group, path)
+	if err != nil {
+		return true
+	}
+	if inf.Hidden || inf.Type == vfs.ObjectTypeDir {
+		return true
+	}
 	return false
 }
 

@@ -1,24 +1,24 @@
 [
   {
+    "name": "/",
+    "mountType": "local",
+    "endpoint": "/nas2cloud/console",
+    "authorize": "PUBLIC",
+    "hidden": true,
+    "comment": "前端"
+  },
+  {
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/nas2cloud/console/thumb",
+    "endpoint": "/nas2cloud/thumb",
     "authorize": "ALL",
     "hidden": true,
     "comment": "缩略图"
   },
   {
-    "name": "console",
-    "mountType": "local",
-    "endpoint": "/nas2cloud/console",
-    "authorize": "ALL",
-    "hidden": true,
-    "comment": "前端"
-  },
-  {
     "name": "Family",
     "mountType": "local",
-    "endpoint": "/nas2cloud/Family",
+    "endpoint": "/nas2cloud/Volumes/Family",
     "authorize": "admin,family",
     "hidden": false
   }

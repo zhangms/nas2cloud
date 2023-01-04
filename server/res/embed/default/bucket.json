@@ -9,8 +9,8 @@
   {
     "name": "console",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/Documents/ProjectBase/github/zhangms/nas2cloud/build/console",
-    "authorize": "ALL",
+    "endpoint": "/Users/ZMS/Documents/ProjectBase/github/zhangms/nas2cloud/target/console",
+    "authorize": "PUBLIC",
     "hidden": true
   },
   {

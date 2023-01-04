@@ -38,6 +38,9 @@ func init() {
 		Address  string `json:"address"`
 	}
 	conf := &defaultDbConfig{}
+	if len(conf.Address) == 0 {
+		return
+	}
 	_ = json.Unmarshal(data, conf)
 	_, err = OpenDB(&Config{
 		Id:       defaultDatabaseId,

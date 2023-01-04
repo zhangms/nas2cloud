@@ -66,6 +66,7 @@ const fileSlice = createSlice({
                 ...state,
                 initLoading: false,
                 moreLoading: false,
+                createFolderVisible: false,
                 data: action.payload
             }
         },
