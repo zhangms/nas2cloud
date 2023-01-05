@@ -44,7 +44,7 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	if eventFired {
 		return nil, 0, svc.RetryLaterAgain
 	}
-	arr, total, err := fileRepo.Range(path, orderBy, start, stop)
+	arr, total, err := fileCache.zRange(path, orderBy, start, stop)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -72,7 +72,7 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
-	if fileRepo.exists(path) {
+	if fileCache.exists(path) {
 		return errors.New("file exists already")
 	}
 	err := vfs.MkdirAll(userGroup, path)
@@ -83,7 +83,7 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	if err != nil {
 		return err
 	}
-	return fileRepo.save(info)
+	return fileCache.save(info)
 }
 
 func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
@@ -94,7 +94,7 @@ func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 		if err != nil {
 			return err
 		}
-		err = fileRepo.delete(path)
+		err = fileCache.delete(path)
 		if err != nil {
 			return err
 		}
@@ -113,7 +113,7 @@ func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 		return err
 	}
 	thumbSvc.Thumbnail(info)
-	return fileRepo.save(info)
+	return fileCache.save(info)
 }
 
 func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) error {
@@ -128,11 +128,11 @@ func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, mo
 	}
 	info.CreTime = time.Now()
 	thumbSvc.Thumbnail(info)
-	return fileRepo.save(info)
+	return fileCache.save(info)
 }
 
 func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
-	if fileRepo.exists(fullPath) {
+	if fileCache.exists(fullPath) {
 		return true, nil
 	}
 	userGroup := user.GetUserGroup(username)
@@ -143,5 +143,5 @@ func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return true, fileRepo.save(info)
+	return true, fileCache.save(info)
 }

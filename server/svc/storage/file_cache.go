@@ -11,26 +11,24 @@ import (
 	"strings"
 )
 
-type fileRepository struct {
+type fileCacheMgr struct {
 	version     string
 	orderFields []string
 }
 
-var fileRepo = &fileRepository{
+var fileCache = &fileCacheMgr{
 	version:     "v1",
 	orderFields: []string{"fileName", "modTime", "creTime", "size"},
 }
 
-func (r *fileRepository) exists(path string) bool {
-	bucketName, _ := vfs.GetBucketFile(path)
-	key := r.keyItem(bucketName, path)
+func (r *fileCacheMgr) exists(path string) bool {
+	key := r.keyItem(path)
 	count, err := cache.Exists(key)
 	return err == nil && count == 1
 }
 
-func (r *fileRepository) save(item *vfs.ObjectInfo) error {
-	bucketName, _ := vfs.GetBucketFile(item.Path)
-	key := r.keyItem(bucketName, item.Path)
+func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
+	key := r.keyItem(item.Path)
 	count, err := cache.Exists(key)
 	if err != nil {
 		return err
@@ -49,7 +47,7 @@ func (r *fileRepository) save(item *vfs.ObjectInfo) error {
 	//更新在父目录中的位置
 	parent := filepath.Dir(item.Path)
 	for _, orderField := range r.orderFields {
-		rank := r.keyRankInParent(bucketName, parent, orderField)
+		rank := r.keyRankInParent(parent, orderField)
 		_, err = cache.ZAdd(rank, r.getRankScore(item, orderField), item.Name)
 		if err != nil {
 			return err
@@ -59,15 +57,17 @@ func (r *fileRepository) save(item *vfs.ObjectInfo) error {
 	return nil
 }
 
-func (r *fileRepository) keyItem(bucketName string, path string) string {
-	return cache.Join(bucketName, r.version, "file", path)
+func (r *fileCacheMgr) keyItem(path string) string {
+	bucket, _ := vfs.GetBucketFile(path)
+	return cache.Join(bucket, r.version, "file", path)
 }
 
-func (r *fileRepository) keyRankInParent(bucketName string, parent string, orderField string) string {
-	return cache.Join(bucketName, r.version, "rank", orderField, parent)
+func (r *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
+	bucket, _ := vfs.GetBucketFile(parent)
+	return cache.Join(bucket, r.version, "rank", orderField, parent)
 }
 
-func (r *fileRepository) getRankScore(item *vfs.ObjectInfo, field string) float64 {
+func (r *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
 		if item.Type == vfs.ObjectTypeDir {
@@ -90,7 +90,7 @@ func (r *fileRepository) getRankScore(item *vfs.ObjectInfo, field string) float6
 	}
 }
 
-func (r *fileRepository) Range(path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
+func (r *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
 	arr := strings.Split(orderBy, "_")
 	fieldName := arr[0]
 	sort := libs.IF(len(arr) > 1, func() any {
@@ -98,8 +98,7 @@ func (r *fileRepository) Range(path string, orderBy string, start int64, stop in
 	}, func() any {
 		return "asc"
 	}).(string)
-	bucketName, _ := vfs.GetBucketFile(path)
-	key := r.keyRankInParent(bucketName, path, fieldName)
+	key := r.keyRankInParent(path, fieldName)
 	total, err := cache.ZCard(key)
 	if err != nil {
 		return nil, 0, err
@@ -118,21 +117,39 @@ func (r *fileRepository) Range(path string, orderBy string, start int64, stop in
 	}
 	keys := make([]string, 0, len(list))
 	for _, name := range list {
-		keys = append(keys, r.keyItem(bucketName, filepath.Join(path, name)))
+		keys = append(keys, r.keyItem(filepath.Join(path, name)))
 	}
 	ret, err := cache.MGet(keys...)
 	return ret, total, err
 }
 
-func (r *fileRepository) delete(path string) error {
-	bucketName, _ := vfs.GetBucketFile(path)
-	_, err := cache.Del(r.keyItem(bucketName, path))
+func (r *fileCacheMgr) delete(path string) error {
+	//删除子文件
+	children, err := cache.ZRange(r.keyRankInParent(path, "fileName"), 0, -1)
 	if err != nil {
 		return err
 	}
+	for _, child := range children {
+		_, err = cache.Del(r.keyItem(filepath.Join(path, child)))
+		if err != nil {
+			return err
+		}
+	}
+	//删除自己
+	_, err = cache.Del(r.keyItem(path))
+	if err != nil {
+		return err
+	}
+	for _, field := range r.orderFields {
+		_, err = cache.Del(r.keyRankInParent(path, field))
+		if err != nil {
+			return err
+		}
+	}
+	//删除父目录中的引用
 	dir, name := filepath.Split(path)
 	for _, orderField := range r.orderFields {
-		rank := r.keyRankInParent(bucketName, dir, orderField)
+		rank := r.keyRankInParent(dir, orderField)
 		_, err = cache.ZRem(rank, name)
 		if err != nil {
 			return err

@@ -85,7 +85,7 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 		if item.Hidden {
 			continue
 		}
-		err = fileRepo.save(item)
+		err = fileCache.save(item)
 		if err != nil {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
@@ -112,5 +112,5 @@ func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
 }
 
 func (fw *fileWatchSvc) keyWalkFlag(storeName string, path string) string {
-	return cache.Join(storeName, fileRepo.version, "walk_flag", path)
+	return cache.Join(storeName, fileCache.version, "walk_flag", path)
 }

@@ -55,3 +55,9 @@ func TestList(t *testing.T) {
 		time.Sleep(time.Second)
 	}
 }
+
+func TestName2(t *testing.T) {
+	str := "abc/def"
+	arr := filepath.SplitList(str)
+	fmt.Println(arr)
+}
