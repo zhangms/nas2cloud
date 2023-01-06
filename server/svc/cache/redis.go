@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
-	"nas2cloud/env"
 	"nas2cloud/res"
 	"strings"
 )
@@ -18,7 +17,7 @@ type Config struct {
 }
 
 func init() {
-	data, _ := res.ReadData(env.GetProfileActive() + "/redis.json")
+	data, _ := res.ReadEnvConfig("redis.json")
 	conf := &Config{}
 	_ = json.Unmarshal(data, conf)
 	defaultClient = redis.NewClient(&redis.Options{

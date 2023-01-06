@@ -3,7 +3,6 @@ package user
 import (
 	"encoding/json"
 	"errors"
-	"nas2cloud/env"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"nas2cloud/svc/cache"
@@ -14,7 +13,7 @@ import (
 var users = make(map[string]*User)
 
 func init() {
-	data, err := res.ReadData(env.GetProfileActive() + "/users.json")
+	data, err := res.ReadEnvConfig("bucket.json")
 	if err != nil {
 		logger.ErrorStacktrace(err, "read User conf error")
 		return

@@ -1,0 +1,5 @@
+{
+  "AllowCredentials": true,
+  "AllowOrigins": "",
+  "AllowHeaders": "x-requested-with,content-type,X-AUTH-TOKEN,X-DEVICE"
+}

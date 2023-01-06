@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
@@ -67,7 +66,7 @@ func init() {
 		Hidden    bool   `json:"hidden"`
 	}
 	configs := make([]*config, 0)
-	data, _ := res.ReadData(env.GetProfileActive() + "/bucket.json")
+	data, _ := res.ReadEnvConfig("bucket.json")
 	_ = json.Unmarshal(data, &configs)
 	buckets = make(map[string]*Bucket)
 	bucketNames = make([]string, 0)

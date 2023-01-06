@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-var profile = "default"
+var profile = "dev"
 
 func init() {
 	args := os.Args[1:]

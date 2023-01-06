@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"nas2cloud/env"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"sync"
@@ -26,7 +25,7 @@ type Config struct {
 }
 
 func init() {
-	data, err := res.ReadData(env.GetProfileActive() + "/db.json")
+	data, err := res.ReadEnvConfig("db.json")
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		panic(err)

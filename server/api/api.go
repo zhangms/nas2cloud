@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -32,7 +31,7 @@ type apiConfig struct {
 var config *apiConfig
 
 func init() {
-	data, err := res.ReadData(env.GetProfileActive() + "/web.json")
+	data, err := res.ReadEnvConfig("web.json")
 	if err != nil {
 		panic(err)
 	}
