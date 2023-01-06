@@ -86,7 +86,6 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 	if err != nil {
 		return err
 	}
-	thumbSvc.BatchThumbnail(files)
 	for _, item := range files {
 		if item.Hidden {
 			continue

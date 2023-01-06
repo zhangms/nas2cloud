@@ -195,10 +195,10 @@ class FileManager extends React.Component {
     }
 
     loadMore() {
-        const {dispatch, currentPath, data, orderBy} = this.props
+        const {dispatch, path, data, orderBy} = this.props
         dispatch(FileActions.changeState({moreLoading: true}))
         FileApi.walk({
-            path: currentPath,
+            path: path,
             pageNo: data.currentPage + 1,
             orderBy: orderBy,
         }).then(resp => {

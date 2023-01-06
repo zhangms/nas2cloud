@@ -12,8 +12,9 @@ echo "run nas2cloud"
 docker run \
     --name nas2cloud \
     --network=nas \
+    --cpus=2 \
     -p 7001:8080 \
-    -v /Users/ZMS/Pictures:/nas2cloud/Volumes/Family \
+    -v /Volumes/Y/Mount:/nas2cloud/Volumes/Family \
     -v /Users/ZMS/Thumb:/nas2cloud/thumb \
     --restart=always \
     -d nas2cloud:v1

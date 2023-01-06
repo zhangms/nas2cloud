@@ -112,7 +112,8 @@ func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64,
 	if err != nil {
 		return written, err
 	}
-	_ = os.Chtimes(l.AbsLocal(file), time.Now(), modTime)
+	_ = writer.Close()
+	_ = os.Chtimes(l.AbsLocal(file), modTime, modTime)
 	return written, nil
 }
 

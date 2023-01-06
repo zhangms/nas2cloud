@@ -49,6 +49,7 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 		return nil, 0, err
 	}
 	ret := fs.unmarshal(arr)
+	thumbSvc.BatchThumbnail(ret)
 	return ret, total, nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"os"
 	"path/filepath"
 	"strconv"
 	"testing"
@@ -57,6 +58,8 @@ func TestList(t *testing.T) {
 }
 
 func TestName2(t *testing.T) {
-	boo, err := fileCache.exists("/Pic/Photo Booth 图库/Contents/PkgInfo")
-	fmt.Println(boo, err)
+	tt := time.UnixMilli(1247728606000)
+	fmt.Println(tt)
+
+	os.Chtimes("/Users/ZMS/Downloads/BaiduNetdisk_mac_4.15.0_x64.dmg", tt, tt)
 }
