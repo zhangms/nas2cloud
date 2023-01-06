@@ -13,7 +13,7 @@ import (
 var users = make(map[string]*User)
 
 func init() {
-	data, err := res.ReadEnvConfig("bucket.json")
+	data, err := res.ReadEnvConfig("users.json")
 	if err != nil {
 		logger.ErrorStacktrace(err, "read User conf error")
 		return

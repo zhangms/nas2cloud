@@ -7,6 +7,7 @@ import (
 )
 
 var profile = "dev"
+var port = 7001
 
 func init() {
 	args := os.Args[1:]
@@ -14,6 +15,7 @@ func init() {
 		return
 	}
 	flag.StringVar(&profile, "profile", "default", "")
+	flag.IntVar(&port, "port", 8080, "")
 	flag.PrintDefaults()
 	flag.Parse()
 	logger.Info("profile active", profile)
@@ -21,4 +23,8 @@ func init() {
 
 func GetProfileActive() string {
 	return profile
+}
+
+func GetPort() int {
+	return port
 }

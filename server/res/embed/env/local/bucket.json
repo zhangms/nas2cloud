@@ -2,7 +2,7 @@
   {
     "name": "/",
     "mountType": "local",
-    "endpoint": "/nas2cloud/console",
+    "endpoint": "/Users/ZMS/NAS/local/console",
     "authorize": "PUBLIC",
     "hidden": true,
     "comment": "前端"
@@ -10,7 +10,7 @@
   {
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/nas2cloud/thumb",
+    "endpoint": "/Users/ZMS/NAS/Thumb",
     "authorize": "ALL",
     "hidden": true,
     "comment": "缩略图"
@@ -18,7 +18,7 @@
   {
     "name": "Family",
     "mountType": "local",
-    "endpoint": "/nas2cloud/Volumes/Family",
+    "endpoint": "/Volumes/Y/Mount",
     "authorize": "admin,family",
     "hidden": false
   }
