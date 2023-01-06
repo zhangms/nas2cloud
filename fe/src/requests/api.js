@@ -1,5 +1,5 @@
 const API = {
-    host: "http://localhost:8080",
+    host: "",
 
     fullUrl: function (requestURI) {
         return this.host + requestURI
