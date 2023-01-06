@@ -19,6 +19,7 @@ class UploadFileModal extends React.Component {
                 onChange={onChange}
                 crossOrigin={"use-credentials"}
                 withCredentials={true}
+                directory={true}
                 data={file => {
                     return {
                         lastModified: file.lastModified,
