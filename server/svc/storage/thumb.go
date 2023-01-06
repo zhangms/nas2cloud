@@ -26,14 +26,13 @@ func Thumbnail() *ThumbnailSvc {
 
 func init() {
 	thumbSvc = &ThumbnailSvc{
-		thumbUser: "root",
 		supportType: map[string]thumbnail{
-			".JPG":  &ffmpegThumbnail{thumbUser: "root"},
-			".JPEG": &ffmpegThumbnail{thumbUser: "root"},
-			".PNG":  &ffmpegThumbnail{thumbUser: "root"},
-			".GIF":  &ffmpegThumbnail{thumbUser: "root"},
-			".MP4":  &ffmpegThumbnail{thumbUser: "root"},
-			".MOV":  &ffmpegThumbnail{thumbUser: "root"},
+			".JPG":  &ffmpegThumbnail{},
+			".JPEG": &ffmpegThumbnail{},
+			".PNG":  &ffmpegThumbnail{},
+			".GIF":  &ffmpegThumbnail{},
+			".MP4":  &ffmpegThumbnail{},
+			".MOV":  &ffmpegThumbnail{},
 		},
 		queue:       make(chan string, 1024),
 		thumbDir:    "/thumb",
@@ -132,7 +131,6 @@ func (i *imgThumbnail) exec(from string, to string, width int, height int) error
 }
 
 type ffmpegThumbnail struct {
-	thumbUser string
 }
 
 func (f *ffmpegThumbnail) exec(from string, to string, width int, height int) error {
@@ -145,7 +143,7 @@ func (f *ffmpegThumbnail) exec(from string, to string, width int, height int) er
 }
 
 func (f *ffmpegThumbnail) execHighPerformance(from string, to string, width int, height int) (err error, tryLowPerformance bool) {
-	storeFrom, fromName, err := vfs.GetStore(f.thumbUser, from)
+	storeFrom, fromName, err := vfs.GetStore(sysUser, from)
 	if err != nil {
 		return err, false
 	}
@@ -154,7 +152,7 @@ func (f *ffmpegThumbnail) execHighPerformance(from string, to string, width int,
 	default:
 		return errors.New("from not support high performance"), true
 	}
-	storeTo, toName, err := vfs.GetStore(f.thumbUser, to)
+	storeTo, toName, err := vfs.GetStore(sysUser, to)
 	if err != nil {
 		return err, false
 	}
@@ -171,7 +169,7 @@ func (f *ffmpegThumbnail) execHighPerformance(from string, to string, width int,
 }
 
 func (f *ffmpegThumbnail) execLowPerformance(from string, to string, width int, height int) error {
-	data, err := vfs.Read(f.thumbUser, from)
+	data, err := vfs.Read(sysUser, from)
 	if err != nil {
 		return err
 	}
@@ -194,7 +192,7 @@ func (f *ffmpegThumbnail) execLowPerformance(from string, to string, width int, 
 	if err != nil {
 		return err
 	}
-	err = vfs.Write(f.thumbUser, to, thumbData)
+	err = vfs.Write(sysUser, to, thumbData)
 	if err != nil {
 		return err
 	}

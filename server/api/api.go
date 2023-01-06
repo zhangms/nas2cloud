@@ -98,7 +98,7 @@ func Register(app *fiber.App) {
 
 func registerStatic(app *fiber.App) {
 	for _, b := range vfs.GetAllBucket() {
-		if b.MountType() == "local" {
+		if b.MountTypeLocal() {
 			if b.Authorize() == "PUBLIC" {
 				logger.Info("register static public", b.Dir(), b.Endpoint())
 				app.Static(b.Dir(), b.Endpoint())

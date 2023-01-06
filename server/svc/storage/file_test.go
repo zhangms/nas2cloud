@@ -57,7 +57,6 @@ func TestList(t *testing.T) {
 }
 
 func TestName2(t *testing.T) {
-	str := "abc/def"
-	arr := filepath.SplitList(str)
-	fmt.Println(arr)
+	boo, err := fileCache.exists("/Pic/Photo Booth 图库/Contents/PkgInfo")
+	fmt.Println(boo, err)
 }

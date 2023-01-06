@@ -2,11 +2,10 @@ package storage
 
 import (
 	"errors"
+	"nas2cloud/libs"
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
-	"nas2cloud/svc/cache"
-	"time"
 )
 
 type fileWatchSvc struct {
@@ -26,7 +25,6 @@ const (
 type fileEvent struct {
 	eventType fileEventType
 	userGroup string
-	storeName string
 	path      string
 }
 
@@ -76,6 +74,14 @@ func (fw *fileWatchSvc) processEvent(event *fileEvent) error {
 }
 
 func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
+	info, err := vfs.Info(event.userGroup, event.path)
+	if err != nil {
+		return err
+	}
+	err = fileCache.saveIfAbsent(info)
+	if err != nil {
+		return err
+	}
 	files, err := vfs.List(event.userGroup, event.path)
 	if err != nil {
 		return err
@@ -85,25 +91,27 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 		if item.Hidden {
 			continue
 		}
-		err = fileCache.save(item)
+		err = fileCache.saveIfAbsent(item)
 		if err != nil {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
+	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processCreate(event *fileEvent) error {
+	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processDelete(event *fileEvent) error {
+	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
-	flag := fw.keyWalkFlag(event.storeName, event.path)
-	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
+	ok, err := fileCache.walkFlag(event.path)
 	if ok {
 		fw.fireEvent(event)
 		return ok, nil
@@ -111,6 +119,18 @@ func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
 	return ok, err
 }
 
-func (fw *fileWatchSvc) keyWalkFlag(storeName string, path string) string {
-	return cache.Join(storeName, fileCache.version, "walk_flag", path)
+func (fw *fileWatchSvc) diskUsage(path string) {
+	usage, err := disk.duAllParent(path)
+	if err != nil {
+		logger.Error("DU_EXEC_ERROR", path, err)
+		return
+	}
+	for _, du := range usage {
+		err = fileCache.updateSize(du.path, du.size)
+		if err != nil {
+			logger.Error("DU_UPDATE_FILE_SIZE_ERROR", du.path, err)
+		} else {
+			logger.Info("DU_UPDATE_FILE_SIZE", du.path, libs.ReadableDataSize(du.size))
+		}
+	}
 }

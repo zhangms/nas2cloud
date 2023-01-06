@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type fileCacheMgr struct {
@@ -21,25 +22,43 @@ var fileCache = &fileCacheMgr{
 	orderFields: []string{"fileName", "modTime", "creTime", "size"},
 }
 
-func (r *fileCacheMgr) exists(path string) bool {
+func (r *fileCacheMgr) exists(path string) (bool, error) {
 	key := r.keyItem(path)
 	count, err := cache.Exists(key)
-	return err == nil && count == 1
+	if err != nil {
+		return false, err
+	}
+	return count == 1, nil
+}
+
+func (r *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
+	key := r.keyItem(path)
+	str, err := cache.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	obj := &vfs.ObjectInfo{}
+	err = json.Unmarshal([]byte(str), obj)
+	if err != nil {
+		return nil, err
+	}
+	return obj, nil
+}
+
+func (r *fileCacheMgr) saveIfAbsent(item *vfs.ObjectInfo) error {
+	exists, _ := r.exists(item.Path)
+	if exists {
+		return nil
+	}
+	return r.save(item)
 }
 
 func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
-	key := r.keyItem(item.Path)
-	count, err := cache.Exists(key)
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return nil
-	}
 	data, err := json.Marshal(item)
 	if err != nil {
 		return err
 	}
+	key := r.keyItem(item.Path)
 	_, err = cache.Set(key, string(data))
 	if err != nil {
 		return err
@@ -65,6 +84,17 @@ func (r *fileCacheMgr) keyItem(path string) string {
 func (r *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
 	bucket, _ := vfs.GetBucketFile(parent)
 	return cache.Join(bucket, r.version, "rank", orderField, parent)
+}
+
+func (r *fileCacheMgr) keyWalkFlag(path string) string {
+	bucket, _ := vfs.GetBucketFile(path)
+	return cache.Join(bucket, fileCache.version, "walk_flag", path)
+}
+
+func (r *fileCacheMgr) walkFlag(path string) (bool, error) {
+	flag := r.keyWalkFlag(path)
+	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
+	return ok, err
 }
 
 func (r *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
@@ -156,4 +186,25 @@ func (r *fileCacheMgr) delete(path string) error {
 		}
 	}
 	return nil
+}
+
+func (r *fileCacheMgr) updateSize(file string, size int64) error {
+	exists, err := r.exists(file)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return nil
+	}
+	data, err := cache.Get(r.keyItem(file))
+	if err != nil {
+		return err
+	}
+	info := &vfs.ObjectInfo{}
+	err = json.Unmarshal([]byte(data), info)
+	if err != nil {
+		return err
+	}
+	info.Size = size
+	return r.save(info)
 }

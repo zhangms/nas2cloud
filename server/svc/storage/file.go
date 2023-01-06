@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const sysUser = "root"
+
 type FileSvc struct {
 }
 
@@ -25,17 +27,15 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
 	if vfs.IsRootDir(path) {
-		ls, er := vfs.List(userGroup, path)
-		return ls, int64(len(ls)), er
+		return fs.walkRoot(userGroup)
 	}
-	store, _, err := vfs.GetStore(userGroup, path)
+	_, _, err = vfs.GetStore(userGroup, path)
 	if err != nil {
 		return nil, 0, err
 	}
 	eventFired, err := fileWatcher.tryFireWalkEvent(&fileEvent{
 		eventType: eventWalk,
 		userGroup: userGroup,
-		storeName: store.Name(),
 		path:      path,
 	})
 	if err != nil {
@@ -50,6 +50,22 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	}
 	ret := fs.unmarshal(arr)
 	return ret, total, nil
+}
+
+func (fs *FileSvc) walkRoot(userGroup string) ([]*vfs.ObjectInfo, int64, error) {
+	list, er := vfs.List(userGroup, "/")
+	if er != nil {
+		return nil, 0, er
+	}
+	files := make([]*vfs.ObjectInfo, 0)
+	for _, d := range list {
+		_ = fileCache.saveIfAbsent(d)
+		inf, _ := fileCache.get(d.Path)
+		if inf != nil {
+			files = append(files, inf)
+		}
+	}
+	return files, int64(len(files)), nil
 }
 
 func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
@@ -72,10 +88,14 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	userGroup := user.GetUserGroup(username)
 	path := filepath.Clean(fullPath)
-	if fileCache.exists(path) {
+	exi, err := fileCache.exists(path)
+	if err != nil {
+		return err
+	}
+	if exi {
 		return errors.New("file exists already")
 	}
-	err := vfs.MkdirAll(userGroup, path)
+	err = vfs.MkdirAll(userGroup, path)
 	if err != nil {
 		return err
 	}
@@ -98,6 +118,11 @@ func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 		if err != nil {
 			return err
 		}
+		fileWatcher.fireEvent(&fileEvent{
+			eventType: eventDelete,
+			userGroup: userGroup,
+			path:      path,
+		})
 	}
 	return nil
 }
@@ -113,7 +138,16 @@ func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 		return err
 	}
 	thumbSvc.Thumbnail(info)
-	return fileCache.save(info)
+	err = fileCache.save(info)
+	if err != nil {
+		return err
+	}
+	fileWatcher.fireEvent(&fileEvent{
+		eventType: eventCreate,
+		userGroup: userGroup,
+		path:      fullPath,
+	})
+	return nil
 }
 
 func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) error {
@@ -128,11 +162,24 @@ func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, mo
 	}
 	info.CreTime = time.Now()
 	thumbSvc.Thumbnail(info)
-	return fileCache.save(info)
+	err = fileCache.save(info)
+	if err != nil {
+		return err
+	}
+	fileWatcher.fireEvent(&fileEvent{
+		eventType: eventCreate,
+		userGroup: userGroup,
+		path:      fullPath,
+	})
+	return nil
 }
 
 func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
-	if fileCache.exists(fullPath) {
+	exists, err := fileCache.exists(fullPath)
+	if err != nil {
+		return false, err
+	}
+	if exists {
 		return true, nil
 	}
 	userGroup := user.GetUserGroup(username)

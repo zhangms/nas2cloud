@@ -39,6 +39,10 @@ func (b *Bucket) MountType() string {
 	return b.mountType
 }
 
+func (b *Bucket) MountTypeLocal() bool {
+	return b.mountType == "local"
+}
+
 func (b *Bucket) Dir() string {
 	return path.Join("/", b.name)
 }
@@ -106,7 +110,7 @@ func GetStore(user string, file string) (Store, string, error) {
 	if err != nil {
 		return nil, f, err
 	}
-	if b.mountType == "local" {
+	if b.MountTypeLocal() {
 		return &Local{bucket: b}, f, nil
 	}
 	return &empty{}, f, nil
