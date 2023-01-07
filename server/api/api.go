@@ -4,8 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -14,6 +13,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type Result struct {
@@ -31,6 +33,9 @@ type apiConfig struct {
 var config *apiConfig
 
 func init() {
+	if !env.IsActionStart() {
+		return
+	}
 	data, err := res.ReadEnvConfig("web.json")
 	if err != nil {
 		panic(err)

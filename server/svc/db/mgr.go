@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	"nas2cloud/env"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"sync"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const defaultDatabaseId = "default"
@@ -25,6 +27,10 @@ type Config struct {
 }
 
 func init() {
+	if !env.IsActionStart() {
+		return
+	}
+
 	data, err := res.ReadEnvConfig("db.json")
 	if err != nil {
 		logger.ErrorStacktrace(err)

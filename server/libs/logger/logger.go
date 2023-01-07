@@ -19,6 +19,10 @@ func Info(v ...any) {
 	inner.Println(msg("[INFO ] "+caller(2), v...))
 }
 
+func Warn(v ...any) {
+	inner.Println(msg("[WARN ] "+caller(2), v...))
+}
+
 func Error(v ...any) {
 	printError(3, v...)
 }

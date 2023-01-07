@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
@@ -58,6 +59,9 @@ var buckets map[string]*Bucket
 var bucketNames []string
 
 func init() {
+	if !env.IsActionStart() {
+		return
+	}
 	type config struct {
 		Name      string `json:"name"`
 		MountType string `json:"mountType"`

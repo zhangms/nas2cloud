@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
@@ -29,6 +30,9 @@ type fileEvent struct {
 }
 
 func init() {
+	if !env.IsActionStart() {
+		return
+	}
 	fileWatcher = &fileWatchSvc{
 		eventQueue: make(chan *fileEvent, 1024),
 	}

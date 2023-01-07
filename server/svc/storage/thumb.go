@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io/fs"
+	"nas2cloud/env"
 	"nas2cloud/libs/img"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -16,6 +16,8 @@ import (
 	"path"
 	"reflect"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 var thumbSvc *ThumbnailSvc
@@ -25,6 +27,9 @@ func Thumbnail() *ThumbnailSvc {
 }
 
 func init() {
+	if !env.IsActionStart() {
+		return
+	}
 	thumbSvc = &ThumbnailSvc{
 		supportType: map[string]thumbnail{
 			".JPG":  &ffmpegThumbnail{},

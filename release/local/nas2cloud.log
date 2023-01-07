@@ -1,0 +1,53 @@
+  -action string
+    	 (default "start")
+  -port int
+    	 (default 8080)
+  -profile string
+    	 (default "dev")
+2023/01/08 01:34:53.688323 [INFO ] env.go:24 |profile active|local
+2023/01/08 01:34:53.688768 [INFO ] vfs.go:87 |VFS initialized|3
+2023/01/08 01:34:53.689976 [INFO ] file_watch.go:51 |start file watch processor|3
+2023/01/08 01:34:53.690029 [INFO ] file_watch.go:51 |start file watch processor|0
+2023/01/08 01:34:53.690046 [INFO ] file_watch.go:51 |start file watch processor|1
+2023/01/08 01:34:53.690061 [INFO ] file_watch.go:51 |start file watch processor|2
+2023/01/08 01:34:53.690078 [INFO ] thumb.go:93 |start thumbnail process|6
+2023/01/08 01:34:53.690079 [INFO ] thumb.go:93 |start thumbnail process|3
+2023/01/08 01:34:53.690110 [INFO ] thumb.go:93 |start thumbnail process|7
+2023/01/08 01:34:53.690122 [INFO ] file_watch.go:51 |start file watch processor|4
+2023/01/08 01:34:53.690097 [INFO ] thumb.go:93 |start thumbnail process|4
+2023/01/08 01:34:53.690142 [INFO ] thumb.go:93 |start thumbnail process|11
+2023/01/08 01:34:53.690150 [INFO ] thumb.go:93 |start thumbnail process|8
+2023/01/08 01:34:53.690103 [INFO ] thumb.go:93 |start thumbnail process|5
+2023/01/08 01:34:53.690131 [INFO ] thumb.go:93 |start thumbnail process|14
+2023/01/08 01:34:53.690137 [INFO ] thumb.go:93 |start thumbnail process|10
+2023/01/08 01:34:53.690208 [INFO ] thumb.go:93 |start thumbnail process|18
+2023/01/08 01:34:53.690218 [INFO ] thumb.go:93 |start thumbnail process|15
+2023/01/08 01:34:53.690151 [INFO ] file_watch.go:51 |start file watch processor|5
+2023/01/08 01:34:53.690158 [INFO ] file_watch.go:51 |start file watch processor|6
+2023/01/08 01:34:53.690189 [INFO ] thumb.go:93 |start thumbnail process|12
+2023/01/08 01:34:53.690195 [INFO ] thumb.go:93 |start thumbnail process|13
+2023/01/08 01:34:53.690202 [INFO ] thumb.go:93 |start thumbnail process|17
+2023/01/08 01:34:53.690137 [INFO ] thumb.go:93 |start thumbnail process|9
+2023/01/08 01:34:53.690227 [INFO ] thumb.go:93 |start thumbnail process|0
+2023/01/08 01:34:53.690233 [INFO ] file_watch.go:51 |start file watch processor|8
+2023/01/08 01:34:53.690239 [INFO ] file_watch.go:51 |start file watch processor|9
+2023/01/08 01:34:53.690249 [INFO ] thumb.go:93 |start thumbnail process|1
+2023/01/08 01:34:53.690271 [INFO ] file_watch.go:51 |start file watch processor|7
+2023/01/08 01:34:53.690279 [INFO ] thumb.go:93 |start thumbnail process|19
+2023/01/08 01:34:53.690328 [INFO ] thumb.go:93 |start thumbnail process|16
+2023/01/08 01:34:53.690334 [INFO ] thumb.go:93 |start thumbnail process|2
+2023/01/08 01:34:53.690433 [INFO ] api.go:107 |register static public|/|/Users/ZMS/NAS/local/console
+2023/01/08 01:34:53.690488 [INFO ] api.go:110 |register static login required|/thumb|/Users/ZMS/NAS/Thumb
+2023/01/08 01:34:53.690508 [INFO ] api.go:110 |register static login required|/Family|/Volumes/Y/Mount
+
+ ┌───────────────────────────────────────────────────┐ 
+ │                   Fiber v2.40.1                   │ 
+ │               http://127.0.0.1:7001               │ 
+ │       (bound on host 0.0.0.0 and port 7001)       │ 
+ │                                                   │ 
+ │ Handlers ............ 10  Processes ........... 1 │ 
+ │ Prefork ....... Disabled  PID ............. 63496 │ 
+ └───────────────────────────────────────────────────┘ 
+
+2023/01/08 01:35:11.701252 [WARN ] main.go:57 |RECEIVE_TERM_SIGNAL|system will shutdown...
+2023/01/08 01:35:11.701532 [WARN ] main.go:59 |shutdown end
