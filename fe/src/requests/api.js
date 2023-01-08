@@ -1,5 +1,13 @@
+function getApiHost() {
+    const href = document.location.href
+    if (href.startsWith("http://localhost:3000")) {
+        return "http://localhost:8080";
+    }
+    return "";
+}
+
 const API = {
-    host: "",
+    host: getApiHost(),
 
     fullUrl: function (requestURI) {
         return this.host + requestURI

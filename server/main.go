@@ -50,13 +50,13 @@ func start() {
 
 func waitingSignal(app *fiber.App) {
 	sig := make(chan os.Signal, 2)
-	signal.Notify(sig, syscall.SIGTERM)
+	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		select {
 		case <-sig:
 			logger.Warn("RECEIVE_TERM_SIGNAL", "system will shutdown...")
-			app.Shutdown()
-			logger.Warn("shutdown end")
+			err := app.Shutdown()
+			logger.Warn("shutdown end", err)
 		default:
 			time.Sleep(time.Second)
 		}
