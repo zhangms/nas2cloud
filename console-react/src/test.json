@@ -1,0 +1,21 @@
+{
+  "navigate": [
+    {
+      "path": "/Documents",
+      "name": "Documents"
+    },
+    {
+      "path": "/Documents/ProjectBase",
+      "name": "ProjectBase"
+    },
+    {
+      "path": "/Documents/ProjectBase/2020",
+      "name": "2020"
+    },
+    {
+      "path": "",
+      "name": "aa.txt"
+    }
+  ],
+  "files": null
+}
