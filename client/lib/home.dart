@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/page_login.dart';
+import 'package:nas2cloud/login.dart';
 
-class MainPage extends StatelessWidget {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

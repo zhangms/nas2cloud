@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/app_state.dart';
-import 'package:nas2cloud/page_main.dart';
+import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/home.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MainPage(),
+        home: HomePage(),
       ),
     );
   }
