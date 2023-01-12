@@ -18,7 +18,6 @@ double desktopLoginScreenMainAreaWidth({required BuildContext context}) {
 
 class _LoginPageState extends State<LoginPage> {
   var obscurePassword = true;
-  var eyeColor = Colors.red;
 
   @override
   Widget build(BuildContext context) {
@@ -80,17 +79,13 @@ class _LoginPageState extends State<LoginPage> {
           labelText: "密码",
           suffixIcon: IconButton(
             icon: Icon(
-              Icons.remove_red_eye_outlined,
-              color: eyeColor,
+              obscurePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
             ),
             onPressed: () {
               setState(() {
                 obscurePassword = !obscurePassword;
-                if (obscurePassword) {
-                  eyeColor = Colors.red;
-                } else {
-                  eyeColor = Colors.grey;
-                }
               });
             },
           )),
