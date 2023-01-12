@@ -49,10 +49,15 @@ class _LoginPageState extends State<LoginPage> {
       width: 200,
       height: 45,
       child: ElevatedButton(
+          style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.blue)),
           onPressed: (() {
             print("object");
           }),
-          child: Text("登录")),
+          child: Text(
+            "登录",
+            style: Theme.of(context).primaryTextTheme.headline6,
+          )),
     );
   }
 
