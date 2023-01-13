@@ -1,19 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+
+import 'layout/adaptive.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   State<LoginPage> createState() => _LoginPageState();
-}
-
-const _horizontalPadding = 24.0;
-
-double desktopLoginScreenMainAreaWidth({required BuildContext context}) {
-  return min(
-    360,
-    MediaQuery.of(context).size.width - 2 * _horizontalPadding,
-  );
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -25,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
       return SafeArea(
         child: Center(
           child: SizedBox(
-            width: desktopLoginScreenMainAreaWidth(context: context),
+            width: screenMainAreaWidth(context: context),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -55,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
           }),
           child: Text(
             "登录",
-            style: Theme.of(context).primaryTextTheme.headline6,
+            style: Theme.of(context).primaryTextTheme.headlineSmall,
           )),
     );
   }
@@ -63,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
   TextField usernameTextField() {
     return TextField(
       textInputAction: TextInputAction.next,
-      restorationId: 'username_text_field',
       cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(labelText: "用户名"),
     );
@@ -73,7 +63,6 @@ class _LoginPageState extends State<LoginPage> {
     return TextField(
       obscureText: obscurePassword,
       textInputAction: TextInputAction.next,
-      restorationId: 'password_text_field',
       cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(
           labelText: "密码",
