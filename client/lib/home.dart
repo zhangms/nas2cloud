@@ -11,11 +11,10 @@ class HomePage extends StatelessWidget {
     if (!appState.preferenceComplete) {
       return Text("loading...");
     }
-    if (appState.isHostAddressConfiged()) {
-      return LoginPage();
-    } else {
+    if (!appState.isHostAddressConfiged()) {
       return ConfigPage();
     }
+    return LoginPage();
   }
 
   @override
