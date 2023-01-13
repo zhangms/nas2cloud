@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/storage"
@@ -12,14 +11,16 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-type fileController struct {
+type FileController struct {
 }
 
-var fileCtl = &fileController{}
+var fileController = &FileController{}
 
-func (f *fileController) CreateFolder(c *fiber.Ctx) error {
+func (f *FileController) CreateFolder(c *fiber.Ctx) error {
 	type request struct {
 		Path       string `json:"path"`
 		FolderName string `json:"folderName"`
@@ -42,7 +43,7 @@ func (f *fileController) CreateFolder(c *fiber.Ctx) error {
 	return SendOK(c, "OK")
 }
 
-func (f *fileController) DeleteFiles(c *fiber.Ctx) error {
+func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	type request struct {
 		Path []string `json:"paths"`
 	}
@@ -59,7 +60,7 @@ func (f *fileController) DeleteFiles(c *fiber.Ctx) error {
 	return SendOK(c, "OK")
 }
 
-func (f *fileController) Upload(c *fiber.Ctx) error {
+func (f *FileController) Upload(c *fiber.Ctx) error {
 	path := "/" + c.Params("*")
 	file, err := c.FormFile("file")
 	if err != nil {

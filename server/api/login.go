@@ -2,19 +2,20 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/user"
 	"net/http"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-type login struct {
+type LoginController struct {
 }
 
-var loginCtrl = &login{}
+var loginController = &LoginController{}
 
-func (l *login) Login(c *fiber.Ctx) error {
+func (l *LoginController) Login(c *fiber.Ctx) error {
 	type loginRequest struct {
 		UserName string `json:"username"`
 		Password string `json:"password"`

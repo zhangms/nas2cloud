@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -10,6 +9,8 @@ import (
 	"nas2cloud/svc/storage"
 	"net/http"
 	"path/filepath"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type fileWalkRequest struct {
@@ -42,7 +43,7 @@ type fileWalkItem struct {
 	Ext       string `json:"ext"`
 }
 
-func (f *fileController) Walk(c *fiber.Ctx) error {
+func (f *FileController) Walk(c *fiber.Ctx) error {
 	u, _ := GetLoggedUser(c)
 	request := f.walkRequest(c)
 	resp, err := f.walk(u.Name, request)
@@ -56,7 +57,7 @@ func (f *fileController) Walk(c *fiber.Ctx) error {
 	return SendOK(c, resp)
 }
 
-func (f *fileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
+func (f *FileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
 	req := &fileWalkRequest{}
 	_ = json.Unmarshal(c.Body(), req)
 	if len(req.OrderBy) == 0 {
@@ -65,7 +66,7 @@ func (f *fileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
 	return req
 }
 
-func (f *fileController) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
+func (f *FileController) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
 	pageSize := 100
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
@@ -83,7 +84,7 @@ func (f *fileController) walk(username string, request *fileWalkRequest) (*fileW
 	}, nil
 }
 
-func (f *fileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
+func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
 	items := make([]*fileWalkItem, 0)
 	for _, itm := range lst {
 		items = append(items, &fileWalkItem{
@@ -99,7 +100,7 @@ func (f *fileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
 	return items
 }
 
-func (f *fileController) parseToNav(pathName string) []*fileWalkNav {
+func (f *FileController) parseToNav(pathName string) []*fileWalkNav {
 	ret := make([]*fileWalkNav, 0)
 	pp := filepath.Clean(pathName)
 	dir := filepath.Dir(pp)

@@ -141,11 +141,12 @@ func registerHandler(app *fiber.App) {
 		AllowOrigins:     config.AllowOrigins,
 		AllowHeaders:     config.AllowHeaders,
 	}))
-	app.Post("/api/user/login", handler(loginCtrl.Login))
-	app.Post("/api/store/walk", loginRequestHandler(fileCtl.Walk))
-	app.Post("/api/store/createFolder", loginRequestHandler(fileCtl.CreateFolder))
-	app.Post("/api/store/deleteFiles", loginRequestHandler(fileCtl.DeleteFiles))
-	app.Post("/api/store/upload/*", loginRequestHandler(fileCtl.Upload))
+	app.All("/api/state", handle(stateController.State))
+	app.Post("/api/user/login", handle(loginController.Login))
+	app.Post("/api/store/walk", handleLoginRequired(fileController.Walk))
+	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))
+	app.Post("/api/store/deleteFiles", handleLoginRequired(fileController.DeleteFiles))
+	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
 }
 
 func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {
@@ -165,7 +166,13 @@ func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {
 	return u, nil
 }
 
-func loginRequestHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
+func setCorsHeader(c *fiber.Ctx) {
+	c.Set(fiber.HeaderAccessControlAllowCredentials, libs.If(config.AllowCredentials, "true", "false").(string))
+	c.Set(fiber.HeaderAccessControlAllowOrigin, config.AllowOrigins)
+	c.Set(fiber.HeaderAccessControlAllowHeaders, config.AllowHeaders)
+}
+
+func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		defer func() {
 			err := recover()
@@ -184,13 +191,7 @@ func loginRequestHandler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 	}
 }
 
-func setCorsHeader(c *fiber.Ctx) {
-	c.Set(fiber.HeaderAccessControlAllowCredentials, libs.If(config.AllowCredentials, "true", "false").(string))
-	c.Set(fiber.HeaderAccessControlAllowOrigin, config.AllowOrigins)
-	c.Set(fiber.HeaderAccessControlAllowHeaders, config.AllowHeaders)
-}
-
-func handler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
+func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		defer func() {
 			err := recover()
@@ -200,6 +201,10 @@ func handler(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 			}
 		}()
 		setCorsHeader(c)
+		u, err := getLoginUserFromHeaderOrCookie(c)
+		if err != nil && u != nil {
+			SetLoggedUser(c, u)
+		}
 		return impl(c)
 	}
 }
