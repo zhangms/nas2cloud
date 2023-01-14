@@ -6,7 +6,7 @@ import '../app.dart';
 import 'config.dart';
 import 'login.dart';
 
-class MainPage extends StatelessWidget {
+class ScaffoldPage extends StatelessWidget {
   getPage(AppState appState) {
     appState.init();
     if (!spu.isComplete()) {
