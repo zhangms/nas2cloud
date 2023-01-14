@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/config.dart';
-import 'package:nas2cloud/login.dart';
 import 'package:nas2cloud/utils/spu.dart';
 import 'package:provider/provider.dart';
 
-import 'app.dart';
+import '../app.dart';
+import 'config.dart';
+import 'login.dart';
+
 
 class HomePage extends StatelessWidget {
   getPage(AppState appState) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/app.dart';
-import 'package:nas2cloud/home.dart';
+import 'package:nas2cloud/pages/home.dart';
 import 'package:provider/provider.dart';
 
 void main() {

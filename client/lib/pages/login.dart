@@ -3,7 +3,7 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:provider/provider.dart';
 
-import 'layout/adaptive.dart';
+import '../utils/adaptive.dart';
 
 class LoginPage extends StatefulWidget {
   @override

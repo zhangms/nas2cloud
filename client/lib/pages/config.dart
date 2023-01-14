@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/app.dart';
-import 'package:nas2cloud/layout/adaptive.dart';
+import 'package:nas2cloud/utils/adaptive.dart';
 import 'package:provider/provider.dart';
 
 class ConfigPage extends StatefulWidget {
