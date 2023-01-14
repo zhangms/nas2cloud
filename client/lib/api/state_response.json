@@ -2,6 +2,7 @@
   "r@success": true,
   "message": "OK",
   "data": {
+    "r@appName": "xx",
     "userName": "zms"
   }
 }

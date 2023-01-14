@@ -1,18 +1,21 @@
 import 'dart:convert';
 
 class Data {
+  String appName;
   String? userName;
 
-  Data({this.userName});
+  Data({required this.appName, this.userName});
 
   @override
-  String toString() => 'Data(userName: $userName)';
+  String toString() => 'Data(appName: $appName, userName: $userName)';
 
   factory Data.fromMap(Map<String, dynamic> data) => Data(
+        appName: data['appName'] as String,
         userName: data['userName'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
+        'appName': appName,
         'userName': userName,
       };
 

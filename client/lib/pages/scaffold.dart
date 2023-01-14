@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/utils/spu.dart';
+import 'package:nas2cloud/pages/app/app.dart';
 import 'package:provider/provider.dart';
 
 import '../app.dart';
@@ -8,25 +8,23 @@ import 'login.dart';
 
 class ScaffoldPage extends StatelessWidget {
   getPage(AppState appState) {
-    appState.init();
-    if (!spu.isComplete()) {
-      return Text("loading...");
+    if (!appState.isInited()) {
+      return Text("");
     }
-    if (!spu.isHostAddressConfiged()) {
+    if (!appStorage.isHostAddressConfiged()) {
       return ConfigPage();
     }
-    if (!spu.isUserLogged()) {
+
+    if (!appStorage.isUserLogged()) {
       return LoginPage();
     }
-    return Placeholder();
+    return AppPage();
   }
 
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     appState.init();
-    return Scaffold(
-      body: getPage(appState),
-    );
+    return getPage(appState);
   }
 }

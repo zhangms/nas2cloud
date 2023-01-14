@@ -16,25 +16,27 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    return Center(
-      child: SizedBox(
-        width: screenMainAreaWidth(context: context),
-        child: TextField(
-          controller: addressTextController,
-          decoration: InputDecoration(
-              errorText: errorMessage,
-              labelText: "服务器地址",
-              suffixIcon: IconButton(
-                  onPressed: (() {
-                    onNext(appState);
-                  }),
-                  icon: Icon(Icons.arrow_forward))),
-          onSubmitted: (value) {
-            onNext(appState);
-          },
-          onChanged: (value) {
-            clearError();
-          },
+    return Scaffold(
+      body: Center(
+        child: SizedBox(
+          width: screenMainAreaWidth(context: context),
+          child: TextField(
+            controller: addressTextController,
+            decoration: InputDecoration(
+                errorText: errorMessage,
+                labelText: "服务器地址",
+                suffixIcon: IconButton(
+                    onPressed: (() {
+                      onNext(appState);
+                    }),
+                    icon: Icon(Icons.arrow_forward))),
+            onSubmitted: (value) {
+              onNext(appState);
+            },
+            onChanged: (value) {
+              clearError();
+            },
+          ),
         ),
       ),
     );
@@ -58,7 +60,7 @@ class _ConfigPageState extends State<ConfigPage> {
       address = address.substring("http://".length);
     }
     print("address:$address");
-    var response = await api.stateByHost(address);
+    var response = await api.getHostState(address);
     if (response.success) {
       clearError();
       appState.saveHostAddress(address);

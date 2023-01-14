@@ -19,33 +19,35 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return SafeArea(
-        child: Center(
-          child: SizedBox(
-            width: screenMainAreaWidth(context: context),
-            child: Form(
-              key: _loginFormKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: () {
-                setErrorMsg("");
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  textFieldUsername(),
-                  textFieldPassword(),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  buttonLogin(),
-                ],
+    return Scaffold(
+      body: LayoutBuilder(builder: (context, constraints) {
+        return SafeArea(
+          child: Center(
+            child: SizedBox(
+              width: screenMainAreaWidth(context: context),
+              child: Form(
+                key: _loginFormKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: () {
+                  setErrorMsg("");
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    textFieldUsername(),
+                    textFieldPassword(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    buttonLogin(),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 
   setErrorMsg(String message) {
