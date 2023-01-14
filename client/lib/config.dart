@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/layout/adaptive.dart';
 import 'package:provider/provider.dart';
@@ -58,17 +58,12 @@ class _ConfigPageState extends State<ConfigPage> {
       address = address.substring("http://".length);
     }
     print("address:$address");
-    try {
-      var url = Uri.http(address, "api/state");
-      var response = await http.get(url);
-      if (response.statusCode != 200) {
-        error(message: "服务器状态错误:${response.statusCode}");
-        return;
-      }
+    var response = await api.stateByHost(address);
+    if (response.success) {
       clearError();
-      appState.setHostAddress("http://$address");
-    } catch (e) {
-      error(message: "无法连接");
+      appState.saveHostAddress(address);
+    } else {
+      error(message: response.errorMessage);
     }
   }
 }

@@ -9,6 +9,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   var obscurePassword = true;
+  final _loginFormKey = GlobalKey<FormState>();
+  var username = TextEditingController();
+  var password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +20,20 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: SizedBox(
             width: screenMainAreaWidth(context: context),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                usernameTextField(),
-                passwordTextField(),
-                SizedBox(
-                  height: 20,
-                ),
-                loginButton(),
-              ],
+            child: Form(
+              key: _loginFormKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  textFieldUsername(),
+                  textFieldPassword(),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  buttonLogin(),
+                ],
+              ),
             ),
           ),
         ),
@@ -34,7 +41,17 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  Widget loginButton() {
+  login() {
+    if (!_loginFormKey.currentState!.validate()) {
+      return;
+    }
+    _loginFormKey.currentState!.save();
+    var uname = username.text.trim();
+    var pwd = password.text;
+    print("$uname, $pwd");
+  }
+
+  Widget buttonLogin() {
     return SizedBox(
       width: 200,
       height: 45,
@@ -42,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
           style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.blue)),
           onPressed: (() {
-            print("object");
+            login();
           }),
           child: Text(
             "登录",
@@ -51,18 +68,30 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  TextField usernameTextField() {
-    return TextField(
+  TextFormField textFieldUsername() {
+    return TextFormField(
       textInputAction: TextInputAction.next,
+      controller: username,
+      validator: ((value) {
+        if (value!.trim().isEmpty) {
+          return "请输入用户名";
+        }
+      }),
       cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(labelText: "用户名"),
     );
   }
 
-  TextField passwordTextField() {
-    return TextField(
+  TextFormField textFieldPassword() {
+    return TextFormField(
       obscureText: obscurePassword,
-      textInputAction: TextInputAction.next,
+      controller: password,
+      textInputAction: TextInputAction.go,
+      validator: ((value) {
+        if (value!.isEmpty) {
+          return "请输入密码";
+        }
+      }),
       cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(
           labelText: "密码",
