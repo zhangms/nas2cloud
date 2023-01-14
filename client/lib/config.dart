@@ -63,7 +63,7 @@ class _ConfigPageState extends State<ConfigPage> {
       clearError();
       appState.saveHostAddress(address);
     } else {
-      error(message: response.errorMessage);
+      error(message: response.message ?? "ERROR");
     }
   }
 }

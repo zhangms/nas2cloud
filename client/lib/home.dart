@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/utils/spu.dart';
 import 'package:nas2cloud/config.dart';
 import 'package:nas2cloud/login.dart';
+import 'package:nas2cloud/utils/spu.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
@@ -15,7 +15,10 @@ class HomePage extends StatelessWidget {
     if (!spu.isHostAddressConfiged()) {
       return ConfigPage();
     }
-    return LoginPage();
+    if (!spu.isUserLogged()) {
+      return LoginPage();
+    }
+    return Placeholder();
   }
 
   @override

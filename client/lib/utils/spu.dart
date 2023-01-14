@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _Spu {
   static const _hostAddressKey = "hostAddress";
+  static const _loginTokenKey = "loginToken";
 
   late SharedPreferences _prefs;
   bool _complete = false;
@@ -27,6 +28,15 @@ class _Spu {
 
   String? getHostAddress() {
     return _prefs.getString(_hostAddressKey);
+  }
+
+  Future<bool> saveLoginToken(String data) {
+    return _prefs.setString(_loginTokenKey, data);
+  }
+
+  bool isUserLogged() {
+    final String? tokenData = _prefs.getString(_loginTokenKey);
+    return tokenData != null;
   }
 }
 
