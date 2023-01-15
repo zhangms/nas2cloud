@@ -6,12 +6,12 @@ import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/state_response/data.dart' as state;
 import 'package:nas2cloud/app.dart';
 
-class HomePage extends StatefulWidget {
+class FileHomePage extends StatefulWidget {
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<FileHomePage> createState() => _FileHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _FileHomePageState extends State<FileHomePage> {
   filewk.Data? walkData;
 
   @override

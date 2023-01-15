@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/pages/app/home.dart';
+import 'package:nas2cloud/pages/app/file_home.dart';
 import 'package:provider/provider.dart';
 
 import '../app.dart';
@@ -23,6 +23,6 @@ class ScaffoldPage extends StatelessWidget {
     if (!appStorage.isUserLogged()) {
       return LoginPage();
     }
-    return HomePage();
+    return FileHomePage();
   }
 }
