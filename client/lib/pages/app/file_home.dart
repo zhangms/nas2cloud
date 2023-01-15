@@ -30,8 +30,18 @@ class _FileHomePageState extends State<FileHomePage> {
     );
   }
 
-  ListView buildFileListView() {
-    int len = walkData?.files?.length ?? 0;
+  Widget buildFileListView() {
+    if (walkData?.files == null) {
+      return ListView(
+        children: [],
+      );
+    }
+    int len = walkData!.files!.length;
+    if (len == 0) {
+      return Center(
+        child: Text("NO DATA"),
+      );
+    }
     return ListView(
       children: [
         for (int i = 0; i < len; i++) buildListItem(walkData!.files![i])
@@ -45,11 +55,13 @@ class _FileHomePageState extends State<FileHomePage> {
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => FileListPage(item.path),
-          ),
-        );
+        if (item.type == "DIR") {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => FileListPage(item.path),
+            ),
+          );
+        }
       },
     );
   }

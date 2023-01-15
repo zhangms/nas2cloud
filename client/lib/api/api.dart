@@ -19,7 +19,7 @@ const _defaultHttpHeaders = {
 class _Api {
   const _Api();
 
-  Map<String, String> _httpHeaders() {
+  Map<String, String> httpHeaders() {
     var header = {..._defaultHttpHeaders};
     if (appStorage.isUserLogged()) {
       var data = appStorage.getUserInfo()!;
@@ -31,7 +31,7 @@ class _Api {
   Future<StateResponse> getHostState(String address) async {
     try {
       var url = Uri.http(address, "api/state");
-      Response resp = await http.get(url, headers: _httpHeaders());
+      Response resp = await http.get(url, headers: httpHeaders());
       return StateResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
@@ -60,7 +60,7 @@ class _Api {
     try {
       var url = Uri.http(appStorage.getHostAddress(), "/api/store/walk");
       Response resp =
-          await http.post(url, headers: _httpHeaders(), body: reqeust.toJson());
+          await http.post(url, headers: httpHeaders(), body: reqeust.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);

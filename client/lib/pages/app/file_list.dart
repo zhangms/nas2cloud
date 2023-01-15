@@ -6,6 +6,7 @@ import 'package:nas2cloud/api/file_walk_response/file.dart';
 import '../../api/api.dart';
 import '../../api/file_walk_reqeust.dart';
 import '../../api/file_walk_response/data.dart' as filewk;
+import '../../app.dart';
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -64,7 +65,7 @@ class _FileListPageState extends State<FileListPage> {
     var resp = await api.postFileWalk(reqeust);
     if (!resp.success) {
       if (resp.message == "RetryLaterAgain") {
-        Timer(Duration(seconds: 1), () {
+        Timer(Duration(milliseconds: 100), () {
           walk(path);
         });
       }
@@ -82,7 +83,13 @@ class _FileListPageState extends State<FileListPage> {
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
       onTap: () {
-        print("F");
+        if (item.type == "DIR") {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => FileListPage(item.path),
+            ),
+          );
+        }
       },
     );
   }
@@ -90,6 +97,18 @@ class _FileListPageState extends State<FileListPage> {
   buildItemIcon(File item) {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
+    }
+    if (item.thumbnail != null && item.thumbnail!.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 5, bottom: 5),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: Image.network(
+            appStorage.getStaticFileUrl(item.thumbnail!),
+            headers: api.httpHeaders(),
+          ),
+        ),
+      );
     }
     return Icon(Icons.insert_drive_file);
   }

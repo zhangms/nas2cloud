@@ -14,7 +14,9 @@ class ScaffoldPage extends StatelessWidget {
 
     if (!appStorage.isInitComplete()) {
       return Scaffold(
-        body: Text("Loading..."),
+        body: Center(
+          child: Text("Loading..."),
+        ),
       );
     }
     if (!appStorage.isHostAddressConfiged()) {

@@ -3,20 +3,25 @@ import 'dart:convert';
 class Data {
   String appName;
   String? userName;
+  String? staticAddress;
 
-  Data({required this.appName, this.userName});
+  Data({required this.appName, this.userName, this.staticAddress});
 
   @override
-  String toString() => 'Data(appName: $appName, userName: $userName)';
+  String toString() {
+    return 'Data(appName: $appName, userName: $userName, staticAddress: $staticAddress)';
+  }
 
   factory Data.fromMap(Map<String, dynamic> data) => Data(
         appName: data['appName'] as String,
         userName: data['userName'] as String?,
+        staticAddress: data['staticAddress'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
         'appName': appName,
         'userName': userName,
+        'staticAddress': staticAddress,
       };
 
   /// `dart:convert`

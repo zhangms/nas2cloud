@@ -136,6 +136,7 @@ func staticLoginRequired(c *fiber.Ctx) bool {
 	if inf.Hidden || inf.Type == vfs.ObjectTypeDir {
 		return true
 	}
+	setCorsHeader(c)
 	return false
 }
 

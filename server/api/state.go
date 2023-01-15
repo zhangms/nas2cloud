@@ -15,12 +15,14 @@ func (*StateController) State(c *fiber.Ctx) error {
 	u, _ := GetLoggedUser(c)
 
 	type Response struct {
-		AppName  string `json:"appName,omitempty"`
-		UserName string `json:"userName,omitempty"`
+		AppName       string `json:"appName,omitempty"`
+		UserName      string `json:"userName,omitempty"`
+		StaticAddress string `json:"staticAddress,omitempty"`
 	}
 
 	resp := &Response{
-		AppName: "平淼淼和大树的Family",
+		AppName:       "平淼淼和大树的Family",
+		StaticAddress: "",
 		UserName: libs.IF(u != nil, func() any {
 			return u.Name
 		}, func() any {

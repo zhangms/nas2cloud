@@ -3,6 +3,7 @@
   "message": "OK",
   "data": {
     "r@appName": "xx",
-    "userName": "zms"
+    "userName": "zms",
+    "staticAddress": "xxx"
   }
 }
