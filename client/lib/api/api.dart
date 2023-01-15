@@ -59,8 +59,8 @@ class _Api {
   Future<FileWalkResponse> postFileWalk(FileWalkReqeust reqeust) async {
     try {
       var url = Uri.http(appStorage.getHostAddress(), "/api/store/walk");
-      Response resp = await http.post(url,
-          headers: _httpHeaders(), body: jsonEncode(reqeust));
+      Response resp =
+          await http.post(url, headers: _httpHeaders(), body: reqeust.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);

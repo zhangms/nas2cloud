@@ -5,6 +5,7 @@ import 'package:nas2cloud/api/file_walk_response/data.dart' as filewk;
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/state_response/data.dart' as state;
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/pages/app/file_list.dart';
 
 class FileHomePage extends StatefulWidget {
   @override
@@ -46,7 +47,7 @@ class _FileHomePageState extends State<FileHomePage> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => Text(item.name),
+            builder: (context) => FileListPage(item.path),
           ),
         );
       },
