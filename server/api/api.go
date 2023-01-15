@@ -82,13 +82,17 @@ func SendPage(c *fiber.Ctx, data []byte) error {
 	return c.Send(data)
 }
 
+type ContextKey string
+
+const loginUserKey ContextKey = "loggedUser"
+
 func SetLoggedUser(c *fiber.Ctx, usr *user.User) {
-	ctx := context.WithValue(context.Background(), "loggedUser", usr)
+	ctx := context.WithValue(context.Background(), loginUserKey, usr)
 	c.SetUserContext(ctx)
 }
 
 func GetLoggedUser(c *fiber.Ctx) (*user.User, error) {
-	u := c.UserContext().Value("loggedUser")
+	u := c.UserContext().Value(loginUserKey)
 	if u == nil {
 		return nil, errors.New("NOT_LOGIN")
 	}
