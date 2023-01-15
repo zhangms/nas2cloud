@@ -3,15 +3,15 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_reqeust.dart';
 import 'package:nas2cloud/api/file_walk_response/data.dart' as filewk;
 import 'package:nas2cloud/api/file_walk_response/file.dart';
-import 'package:nas2cloud/api/state_response/data.dart';
+import 'package:nas2cloud/api/state_response/data.dart' as state;
 import 'package:nas2cloud/app.dart';
 
-class AppPage extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  State<AppPage> createState() => _AppPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _AppPageState extends State<AppPage> {
+class _HomePageState extends State<HomePage> {
   filewk.Data? walkData;
 
   @override
@@ -39,12 +39,19 @@ class _AppPageState extends State<AppPage> {
             title: Text(walkData!.files![i].name),
             subtitle: Text(
                 "${walkData!.files![i].modTime}  ${walkData!.files![i].size}"),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Text(walkData!.files![i].name),
+                ),
+              );
+            },
           )
       ],
     );
   }
 
-  AppBar buildAppBar(Data? hostState) {
+  AppBar buildAppBar(state.Data? hostState) {
     var theme = Theme.of(context);
     return AppBar(
       backgroundColor: theme.primaryColor,
