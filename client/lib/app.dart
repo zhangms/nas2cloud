@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/login_response/data.dart' as logintoken;
-import 'package:nas2cloud/api/state_response/data.dart' as hoststate;
+import 'package:nas2cloud/api/login_response/data.dart' as logindto;
+import 'package:nas2cloud/api/state_response/data.dart' as statedto;
 import 'package:nas2cloud/api/state_response/state_response.dart';
 
 import 'utils/spu.dart';
@@ -11,6 +11,20 @@ class _AppStorage {
   static const _hostStateKey = "hostState";
   static const _loginTokenKey = "loginToken";
 
+  Future<void> init() async {
+    if (!spu.isComplete()) {
+      await spu.initSharedPreferences();
+    }
+  }
+
+  bool isInitComplete() {
+    return spu.isComplete();
+  }
+
+  Future<bool> saveHostAddress(String address) async {
+    return await spu.get().setString(_hostAddressKey, address);
+  }
+
   String getHostAddress() {
     return spu.get().getString(_hostAddressKey) ?? "";
   }
@@ -19,57 +33,50 @@ class _AppStorage {
     return spu.get().getString(_hostAddressKey) != null;
   }
 
-  bool isUserLogged() {
-    final String? tokenData = spu.get().getString(_loginTokenKey);
-    return tokenData != null;
+  Future<bool> saveHostState(statedto.Data state) async {
+    return await spu.get().setString(_hostStateKey, state.toJson());
   }
 
-  Future<bool> saveHostAddress(String address) async {
-    return await spu.get().setString(_hostAddressKey, address);
+  statedto.Data? getHostState() {
+    final String? str = spu.get().getString(_hostStateKey);
+    return str == null ? null : statedto.Data.fromJson(str);
   }
 
-  Future<bool> saveLoginData(logintoken.Data data) async {
+  Future<bool> saveUserLoginInfo(logindto.Data data) async {
     return await spu.get().setString(_loginTokenKey, data.toJson());
   }
 
-  Future<bool> updateHostState(StateResponse state) async {
-    if (state.success && state.data != null) {
-      return await spu.get().setString(_hostStateKey, state.data!.toJson());
-    }
-    return false;
-  }
-
-  hoststate.Data? getHostState() {
-    final String? str = spu.get().getString(_hostStateKey);
-    return str == null ? null : hoststate.Data.fromJson(str);
+  bool isUserLogged() {
+    final String? tokenData = spu.get().getString(_loginTokenKey);
+    return tokenData != null;
   }
 }
 
 var appStorage = _AppStorage();
 
 class AppState extends ChangeNotifier {
-  init() async {
-    if (!spu.isComplete()) {
-      await spu.initSharedPreferences();
-      if (appStorage.isHostAddressConfiged()) {
-        var state = await api.getHostState(appStorage.getHostAddress());
-        await appStorage.updateHostState(state);
-      }
-      notifyListeners();
+  Future<void> init() async {
+    if (appStorage.isInitComplete()) {
+      return;
     }
-  }
-
-  bool isInited() {
-    return spu.isComplete();
-  }
-
-  void saveHostAddress(String address) async {
-    await appStorage.saveHostAddress(address);
+    await appStorage.init();
+    if (appStorage.isHostAddressConfiged()) {
+      StateResponse resp = await api.getHostState(appStorage.getHostAddress());
+      if (resp.success) {
+        appStorage.saveHostState(resp.data!);
+      }
+    }
     notifyListeners();
   }
 
-  void onLoginSuccess(logintoken.Data data) async {
-    await appStorage.saveLoginData(data);
+  void updateHostState(String address, statedto.Data data) async {
+    await appStorage.saveHostAddress(address);
+    await appStorage.saveHostState(data);
+    notifyListeners();
+  }
+
+  void updateLoginInfo(logindto.Data data) async {
+    await appStorage.saveUserLoginInfo(data);
     notifyListeners();
   }
 }

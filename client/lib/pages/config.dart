@@ -63,7 +63,7 @@ class _ConfigPageState extends State<ConfigPage> {
     var response = await api.getHostState(address);
     if (response.success) {
       clearError();
-      appState.saveHostAddress(address);
+      appState.updateHostState(address, response.data!);
     } else {
       error(message: response.message ?? "ERROR");
     }

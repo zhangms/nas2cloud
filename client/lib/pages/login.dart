@@ -64,12 +64,12 @@ class _LoginPageState extends State<LoginPage> {
     _loginFormKey.currentState!.save();
     var uname = username.text.trim();
     var pwd = password.text;
-    var response = await api.login(username: uname, password: pwd);
+    var response = await api.postLogin(username: uname, password: pwd);
     if (!response.success) {
       setErrorMsg(response.message ?? "Error");
       return;
     }
-    appState.onLoginSuccess(response.data!);
+    appState.updateLoginInfo(response.data!);
   }
 
   Widget buttonLogin() {

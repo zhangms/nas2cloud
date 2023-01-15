@@ -28,7 +28,7 @@ class _Api {
     }
   }
 
-  Future<LoginResponse> login(
+  Future<LoginResponse> postLogin(
       {required String username, required String password}) async {
     try {
       var url = Uri.http(appStorage.getHostAddress(), "/api/user/login");
