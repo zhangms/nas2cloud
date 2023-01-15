@@ -33,21 +33,23 @@ class _HomePageState extends State<HomePage> {
     int len = walkData?.files?.length ?? 0;
     return ListView(
       children: [
-        for (int i = 0; i < len; i++)
-          ListTile(
-            leading: buildItemIcon(walkData!.files![i]),
-            title: Text(walkData!.files![i].name),
-            subtitle: Text(
-                "${walkData!.files![i].modTime}  ${walkData!.files![i].size}"),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => Text(walkData!.files![i].name),
-                ),
-              );
-            },
-          )
+        for (int i = 0; i < len; i++) buildListItem(walkData!.files![i])
       ],
+    );
+  }
+
+  ListTile buildListItem(File item) {
+    return ListTile(
+      leading: buildItemIcon(item),
+      title: Text(item.name),
+      subtitle: Text("${item.modTime}  ${item.size}"),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => Text(item.name),
+          ),
+        );
+      },
     );
   }
 
