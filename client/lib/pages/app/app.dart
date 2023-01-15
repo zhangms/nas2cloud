@@ -14,7 +14,7 @@ class _AppPageState extends State<AppPage> {
 
     return Scaffold(
       appBar: buildAppBar(hostState),
-      body: Text("hello world"),
+      body: SafeArea(child: Text("hello world")),
     );
   }
 
