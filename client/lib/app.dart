@@ -50,6 +50,14 @@ class _AppStorage {
     final String? tokenData = spu.get().getString(_loginTokenKey);
     return tokenData != null;
   }
+
+  logindto.Data? getUserInfo() {
+    final String? tokenData = spu.get().getString(_loginTokenKey);
+    if (tokenData != null) {
+      return logindto.Data.fromJson(tokenData);
+    }
+    return null;
+  }
 }
 
 var appStorage = _AppStorage();

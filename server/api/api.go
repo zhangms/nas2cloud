@@ -202,7 +202,7 @@ func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 		}()
 		setCorsHeader(c)
 		u, err := getLoginUserFromHeaderOrCookie(c)
-		if err != nil && u != nil {
+		if err == nil && u != nil {
 			SetLoggedUser(c, u)
 		}
 		return impl(c)
