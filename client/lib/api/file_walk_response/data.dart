@@ -4,7 +4,8 @@ import 'file.dart';
 import 'nav.dart';
 
 class Data {
-  int currentIndex;
+  int currentStart;
+  int currentStop;
   int currentPage;
   String currentPath;
   int total;
@@ -12,7 +13,8 @@ class Data {
   List<File>? files;
 
   Data({
-    required this.currentIndex,
+    required this.currentStart,
+    required this.currentStop,
     required this.currentPage,
     required this.currentPath,
     required this.total,
@@ -22,11 +24,12 @@ class Data {
 
   @override
   String toString() {
-    return 'Data(currentIndex: $currentIndex, currentPage: $currentPage, currentPath: $currentPath, total: $total, nav: $nav, files: $files)';
+    return 'Data(currentStart: $currentStart, currentStop: $currentStop, currentPage: $currentPage, currentPath: $currentPath, total: $total, nav: $nav, files: $files)';
   }
 
   factory Data.fromMap(Map<String, dynamic> data) => Data(
-        currentIndex: data['currentIndex'] as int,
+        currentStart: data['currentStart'] as int,
+        currentStop: data['currentStop'] as int,
         currentPage: data['currentPage'] as int,
         currentPath: data['currentPath'] as String,
         total: data['total'] as int,
@@ -39,7 +42,8 @@ class Data {
       );
 
   Map<String, dynamic> toMap() => {
-        'currentIndex': currentIndex,
+        'currentStart': currentStart,
+        'currentStop': currentStop,
         'currentPage': currentPage,
         'currentPath': currentPath,
         'total': total,

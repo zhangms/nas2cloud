@@ -1,5 +1,6 @@
 {
     "r@path": "/",
     "r@pageNo": 1,
+    "r@pageSize": 40,
     "r@orderBy": "fileName"
 }

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:nas2cloud/api/file_walk_reqeust.dart';
+import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/login_response/login_response.dart';
 import 'package:nas2cloud/api/state_response/state_response.dart';
@@ -56,7 +56,7 @@ class _Api {
     }
   }
 
-  Future<FileWalkResponse> postFileWalk(FileWalkReqeust reqeust) async {
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
     try {
       var url = Uri.http(appStorage.getHostAddress(), "/api/store/walk");
       Response resp =

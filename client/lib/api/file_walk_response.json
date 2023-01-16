@@ -1,49 +1,28 @@
 {
-    "success": true,
+    "r@success": true,
     "message": "OK",
     "data": {
-        "nav": [],
-        "files": [
+        "r@currentStart": 10,
+        "r@currentStop": 10,
+        "r@currentPage": 2,
+        "r@currentPath": "/A/B",
+        "r@total": 200,
+        "nav": [
             {
-                "name": "Movies",
-                "path": "/Movies",
-                "thumbnail": "",
-                "type": "DIR",
-                "size": "1.36GB",
-                "modTime": "2022-06-13 23:25",
-                "ext": ""
-            },
-            {
-                "name": "Pic",
-                "path": "/Pic",
-                "thumbnail": "",
-                "type": "DIR",
-                "size": "\u003c1KB",
-                "modTime": "2023-01-07 03:22",
-                "ext": ""
-            },
-            {
-                "name": "Downloads",
-                "path": "/Downloads",
-                "thumbnail": "",
-                "type": "DIR",
-                "size": "\u003c1KB",
-                "modTime": "2023-01-08 01:51",
-                "ext": ""
-            },
-            {
-                "name": "Docs",
-                "path": "/Docs",
-                "thumbnail": "",
-                "type": "DIR",
-                "size": "\u003c1KB",
-                "modTime": "2022-10-18 21:02",
-                "ext": ""
+                "r@path": "xx",
+                "r@name": "xx"
             }
         ],
-        "total": 4,
-        "currentPath": "",
-        "currentIndex": 99,
-        "currentPage": 0
+        "files": [
+            {
+                "r@name": "a.jpg",
+                "r@path": "/A/B/a.jpg",
+                "r@type": "DIR",
+                "thumbnail": "thumbnail",
+                "size": "128GB",
+                "modTime": "2023-12-22",
+                "ext": ".jpg"
+            }
+        ]
     }
 }

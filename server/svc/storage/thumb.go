@@ -41,8 +41,8 @@ func init() {
 		},
 		queue:       make(chan string, 1024),
 		thumbDir:    "/thumb",
-		thumbWidth:  100,
-		thumbHeight: 100,
+		thumbWidth:  50,
+		thumbHeight: 50,
 	}
 	for i := 0; i < 20; i++ {
 		go thumbSvc.process(i)
@@ -91,7 +91,7 @@ func (t *ThumbnailSvc) getThumbName(file string) string {
 
 func (t *ThumbnailSvc) process(index int) {
 	logger.Info("start thumbnail process", index)
-	for true {
+	for {
 		file := <-t.queue
 		thumbName := t.getThumbName(file)
 		if vfs.Exists(t.thumbUser, thumbName) {

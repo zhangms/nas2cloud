@@ -52,7 +52,7 @@ func TestList(t *testing.T) {
 		data, _ := json.Marshal(item)
 		fmt.Println(string(data))
 	}
-	for true {
+	for {
 		time.Sleep(time.Second)
 	}
 }

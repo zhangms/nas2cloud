@@ -49,7 +49,7 @@ func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
 
 func (fw *fileWatchSvc) process(index int) {
 	logger.Info("start file watch processor", index)
-	for true {
+	for {
 		event := <-fw.eventQueue
 		err := fw.processEvent(event)
 		if err != nil {

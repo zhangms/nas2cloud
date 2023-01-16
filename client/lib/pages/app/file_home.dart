@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/file_walk_reqeust.dart';
+import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/data.dart' as filewk;
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/state_response/data.dart' as state;
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_list.dart';
+
+const _pageSize = 50;
 
 class FileHomePage extends StatefulWidget {
   @override
@@ -85,9 +87,9 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   Future<void> initWalk() async {
-    FileWalkReqeust reqeust =
-        FileWalkReqeust(path: "/", pageNo: 0, orderBy: "fileName");
-    var resp = await api.postFileWalk(reqeust);
+    FileWalkRequest request = FileWalkRequest(
+        path: "/", pageNo: 0, pageSize: _pageSize, orderBy: "fileName");
+    var resp = await api.postFileWalk(request);
     if (!resp.success || resp.data == null) {
       print("walk file error:${resp.toString()}");
       return;

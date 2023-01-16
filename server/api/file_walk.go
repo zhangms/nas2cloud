@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"math"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -14,9 +15,10 @@ import (
 )
 
 type fileWalkRequest struct {
-	Path    string `json:"path"`
-	PageNo  int    `json:"pageNo"`
-	OrderBy string `json:"orderBy"`
+	Path     string `json:"path,omitempty"`
+	PageNo   int    `json:"pageNo,omitempty"`
+	PageSize int    `json:"pageSize,omitempty"`
+	OrderBy  string `json:"orderBy,omitempty"`
 }
 
 type fileWalkResult struct {
@@ -24,7 +26,8 @@ type fileWalkResult struct {
 	Files        []*fileWalkItem `json:"files"`
 	Total        int64           `json:"total"`
 	CurrentPath  string          `json:"currentPath"`
-	CurrentIndex int64           `json:"currentIndex"`
+	CurrentStart int64           `json:"currentStart"`
+	CurrentStop  int64           `json:"currentStop"`
 	CurrentPage  int             `json:"currentPage"`
 }
 
@@ -67,7 +70,7 @@ func (f *FileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
 }
 
 func (f *FileController) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
-	pageSize := 100
+	pageSize := int(math.Min(math.Max(0, float64(request.PageSize)), 100))
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
 	lst, total, err := storage.File().Walk(username, request.Path, request.OrderBy, start, stop)
@@ -80,7 +83,8 @@ func (f *FileController) walk(username string, request *fileWalkRequest) (*fileW
 		Total:        total,
 		CurrentPage:  request.PageNo,
 		CurrentPath:  request.Path,
-		CurrentIndex: stop,
+		CurrentStart: start,
+		CurrentStop:  stop,
 	}, nil
 }
 

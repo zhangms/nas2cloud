@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 
 import '../../api/api.dart';
-import '../../api/file_walk_reqeust.dart';
-import '../../api/file_walk_response/data.dart' as filewk;
 import '../../app.dart';
+
+const _pageSize = 50;
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -18,20 +19,36 @@ class FileListPage extends StatefulWidget {
 }
 
 class _FileListPageState extends State<FileListPage> {
-  filewk.Data? walkData;
+  int? total;
+  int currentStop = 0;
+  int currentPage = -1;
+  List<File> items = [];
+  bool fetching = false;
 
   @override
   void initState() {
     super.initState();
-    walk(widget.path);
+    fetchNext(widget.path);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      body: SafeArea(child: Scrollbar(child: buildFileListView())),
+      body: SafeArea(child: buildScrollbar()),
     );
+  }
+
+  Widget buildScrollbar() {
+    return NotificationListener<ScrollNotification>(
+        onNotification: ((ScrollNotification notification) {
+          if (notification.metrics.pixels ==
+              notification.metrics.maxScrollExtent) {
+            print("max");
+          }
+          return true;
+        }),
+        child: buildFileListView());
   }
 
   buildAppBar() {
@@ -51,33 +68,57 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   buildFileListView() {
-    int len = walkData?.files?.length ?? 0;
-    return ListView(
-      children: [
-        for (int i = 0; i < len; i++) buildListItem(walkData!.files![i])
-      ],
-    );
+    return ListView.builder(
+        itemCount: total ?? 0,
+        itemBuilder: ((context, index) {
+          return buildListItem(index);
+        }));
   }
 
-  Future<void> walk(String path) async {
-    FileWalkReqeust reqeust =
-        FileWalkReqeust(path: path, pageNo: 0, orderBy: "fileName");
-    var resp = await api.postFileWalk(reqeust);
+  fetchNext(String path) async {
+    if (total != null && currentStop >= total!) {
+      return;
+    }
+    if (fetching) {
+      return;
+    }
+    fetching = true;
+    FileWalkRequest request = FileWalkRequest(
+        path: path,
+        pageNo: currentPage + 1,
+        pageSize: _pageSize,
+        orderBy: "fileName");
+    var resp = await api.postFileWalk(request);
+    fetching = false;
     if (!resp.success) {
       if (resp.message == "RetryLaterAgain") {
         Timer(Duration(milliseconds: 100), () {
-          walk(path);
+          fetchNext(path);
         });
+        print("fetchNext RetryLaterAgain");
+        return;
       }
-      print("walk file error:${resp.toString()}");
+      print("fetchNext error:${resp.toString()}");
       return;
     }
+    var data = resp.data!;
+    var stop = data.currentStop;
+    items.addAll(data.files ?? []);
     setState(() {
-      walkData = resp.data;
+      total = data.total;
+      currentPage = currentPage + 1;
+      currentStop = stop;
     });
   }
 
-  buildListItem(File item) {
+  buildListItem(int index) {
+    if (items.length - index < 20) {
+      fetchNext(widget.path);
+    }
+    if (items.length <= index) {
+      return Text("");
+    }
+    var item = items[index];
     return ListTile(
       leading: buildItemIcon(item),
       title: Text(item.name),
@@ -101,11 +142,15 @@ class _FileListPageState extends State<FileListPage> {
     if (item.thumbnail != null && item.thumbnail!.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.only(top: 5, bottom: 5),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: Image.network(
-            appStorage.getStaticFileUrl(item.thumbnail!),
-            headers: api.httpHeaders(),
+        child: SizedBox(
+          height: 50,
+          width: 50,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Image.network(
+              appStorage.getStaticFileUrl(item.thumbnail!),
+              headers: api.httpHeaders(),
+            ),
           ),
         ),
       );

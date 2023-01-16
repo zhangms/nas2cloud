@@ -1,17 +1,17 @@
 import 'dart:convert';
 
 class Nav {
-  String? path;
-  String? name;
+  String path;
+  String name;
 
-  Nav({this.path, this.name});
+  Nav({required this.path, required this.name});
 
   @override
   String toString() => 'Nav(path: $path, name: $name)';
 
   factory Nav.fromMap(Map<String, dynamic> data) => Nav(
-        path: data['path'] as String?,
-        name: data['name'] as String?,
+        path: data['path'] as String,
+        name: data['name'] as String,
       );
 
   Map<String, dynamic> toMap() => {
