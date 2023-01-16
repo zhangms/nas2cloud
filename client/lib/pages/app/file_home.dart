@@ -60,7 +60,7 @@ class _FileHomePageState extends State<FileHomePage> {
         if (item.type == "DIR") {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => FileListPage(item.path),
+              builder: (context) => FileListPage(item.path, item.name),
             ),
           );
         }

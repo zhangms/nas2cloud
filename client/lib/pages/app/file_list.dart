@@ -11,8 +11,9 @@ const _pageSize = 50;
 
 class FileListPage extends StatefulWidget {
   final String path;
+  final String name;
 
-  FileListPage(this.path);
+  FileListPage(this.path, this.name);
 
   @override
   State<FileListPage> createState() => _FileListPageState();
@@ -40,34 +41,39 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   Widget buildScrollbar() {
-    return NotificationListener<ScrollNotification>(
-        onNotification: ((ScrollNotification notification) {
-          if (notification.metrics.pixels ==
-              notification.metrics.maxScrollExtent) {
-            print("max");
-          }
-          return true;
-        }),
-        child: buildFileListView());
+    return Scrollbar(child: buildFileView());
   }
 
   buildAppBar() {
     var theme = Theme.of(context);
     return AppBar(
-      backgroundColor: theme.primaryColor,
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-          color: theme.primaryIconTheme.color,
+        backgroundColor: theme.primaryColor,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: theme.primaryIconTheme.color,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-    );
+        title: Text(
+          widget.name,
+          style: theme.primaryTextTheme.titleMedium,
+        ));
   }
 
-  buildFileListView() {
+  Widget buildFileView() {
+    if (total == null) {
+      return Center(
+        child: Text("Loading..."),
+      );
+    }
+    if (total == 0) {
+      return Center(
+        child: Text("Empty"),
+      );
+    }
     return ListView.builder(
         itemCount: total ?? 0,
         itemBuilder: ((context, index) {
@@ -102,12 +108,11 @@ class _FileListPageState extends State<FileListPage> {
       return;
     }
     var data = resp.data!;
-    var stop = data.currentStop;
+    currentStop = data.currentStop;
+    currentPage++;
     items.addAll(data.files ?? []);
     setState(() {
       total = data.total;
-      currentPage = currentPage + 1;
-      currentStop = stop;
     });
   }
 
@@ -116,7 +121,9 @@ class _FileListPageState extends State<FileListPage> {
       fetchNext(widget.path);
     }
     if (items.length <= index) {
-      return Text("");
+      return ListTile(
+        leading: Icon(Icons.hourglass_empty),
+      );
     }
     var item = items[index];
     return ListTile(
@@ -127,7 +134,7 @@ class _FileListPageState extends State<FileListPage> {
         if (item.type == "DIR") {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => FileListPage(item.path),
+              builder: (context) => FileListPage(item.path, item.name),
             ),
           );
         }
@@ -143,8 +150,8 @@ class _FileListPageState extends State<FileListPage> {
       return Padding(
         padding: const EdgeInsets.only(top: 5, bottom: 5),
         child: SizedBox(
-          height: 50,
-          width: 50,
+          height: 40,
+          width: 40,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: Image.network(
