@@ -85,7 +85,7 @@ class AppState extends ChangeNotifier {
     if (appStorage.isHostAddressConfiged()) {
       StateResponse resp = await api.getHostState(appStorage.getHostAddress());
       if (resp.success) {
-        appStorage.saveHostState(resp.data!);
+        await appStorage.saveHostState(resp.data!);
       }
     }
     notifyListeners();
