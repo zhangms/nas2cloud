@@ -3,8 +3,7 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/login_response/data.dart' as logindto;
 import 'package:nas2cloud/api/state_response/data.dart' as statedto;
 import 'package:nas2cloud/api/state_response/state_response.dart';
-
-import 'utils/spu.dart';
+import 'package:nas2cloud/utils/spu.dart';
 
 class _AppStorage {
   static const _hostAddressKey = "hostAddress";

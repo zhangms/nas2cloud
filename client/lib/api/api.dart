@@ -6,8 +6,7 @@ import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/login_response/login_response.dart';
 import 'package:nas2cloud/api/state_response/state_response.dart';
-
-import '../app.dart';
+import 'package:nas2cloud/app.dart';
 
 const _exception = {"success": false, "message": "服务器不可用"};
 

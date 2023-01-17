@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
-
-import '../../api/api.dart';
-import '../../app.dart';
+import 'package:nas2cloud/app.dart';
 
 const _pageSize = 50;
 
@@ -36,12 +35,8 @@ class _FileListPageState extends State<FileListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      body: SafeArea(child: buildScrollbar()),
+      body: SafeArea(child: Scrollbar(child: buildBodyView())),
     );
-  }
-
-  Widget buildScrollbar() {
-    return Scrollbar(child: buildFileView());
   }
 
   buildAppBar() {
@@ -63,60 +58,52 @@ class _FileListPageState extends State<FileListPage> {
         ));
   }
 
-  Widget buildFileView() {
-    if (total == null) {
+  Widget buildBodyView() {
+    if (total == null || total == 0) {
       return Center(
-        child: Text("Loading..."),
-      );
-    }
-    if (total == 0) {
-      return Center(
-        child: Text("Empty"),
+        child: Text(total == null ? "Loading" : "Empty"),
       );
     }
     return ListView.builder(
-        itemCount: total ?? 0,
+        itemCount: total!,
         itemBuilder: ((context, index) {
-          return buildListItem(index);
+          return buildItemView(index);
         }));
   }
 
   fetchNext(String path) async {
-    if (total != null && currentStop >= total!) {
+    if (fetching || (total != null && currentStop >= total!)) {
       return;
     }
-    if (fetching) {
-      return;
-    }
-    fetching = true;
-    FileWalkRequest request = FileWalkRequest(
-        path: path,
-        pageNo: currentPage + 1,
-        pageSize: _pageSize,
-        orderBy: "fileName");
-    var resp = await api.postFileWalk(request);
-    fetching = false;
-    if (!resp.success) {
-      if (resp.message == "RetryLaterAgain") {
-        Timer(Duration(milliseconds: 100), () {
-          fetchNext(path);
-        });
+    try {
+      fetching = true;
+      FileWalkRequest request = FileWalkRequest(
+          path: path,
+          pageNo: currentPage + 1,
+          pageSize: _pageSize,
+          orderBy: "fileName");
+      var resp = await api.postFileWalk(request);
+      if (!resp.success && resp.message == "RetryLaterAgain") {
+        Timer(Duration(milliseconds: 100), () => fetchNext(path));
         print("fetchNext RetryLaterAgain");
         return;
+      } else if (!resp.success) {
+        print("fetchNext error:${resp.toString()}");
+        return;
       }
-      print("fetchNext error:${resp.toString()}");
-      return;
+      var data = resp.data!;
+      currentStop = data.currentStop;
+      currentPage++;
+      items.addAll(data.files ?? []);
+      setState(() {
+        total = data.total;
+      });
+    } finally {
+      fetching = false;
     }
-    var data = resp.data!;
-    currentStop = data.currentStop;
-    currentPage++;
-    items.addAll(data.files ?? []);
-    setState(() {
-      total = data.total;
-    });
   }
 
-  buildListItem(int index) {
+  buildItemView(int index) {
     if (items.length - index < 20) {
       fetchNext(widget.path);
     }
@@ -131,13 +118,7 @@ class _FileListPageState extends State<FileListPage> {
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
       onTap: () {
-        if (item.type == "DIR") {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => FileListPage(item.path, item.name),
-            ),
-          );
-        }
+        onItemTap(item);
       },
     );
   }
@@ -163,5 +144,19 @@ class _FileListPageState extends State<FileListPage> {
       );
     }
     return Icon(Icons.insert_drive_file);
+  }
+
+  void onItemTap(File item) {
+    if (item.type == "DIR") {
+      openNewFileListPage(item.path, item.name);
+    }
+  }
+
+  void openNewFileListPage(String path, String name) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FileListPage(path, name),
+      ),
+    );
   }
 }
