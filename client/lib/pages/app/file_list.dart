@@ -78,6 +78,27 @@ class _FileListPageState extends State<FileListPage> {
       ),
       actions: [
         PopupMenuButton<Text>(
+          icon: Icon(
+            Icons.add,
+            color: theme.primaryIconTheme.color,
+          ),
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                child: Text("添加文件"),
+              ),
+              PopupMenuItem(
+                child: Text("创建文件夹"),
+              )
+            ];
+          },
+        ),
+        PopupMenuButton<Text>(
+          icon: Icon(
+            Icons.more_horiz,
+            color: theme.primaryIconTheme.color,
+          ),
+          color: theme.primaryIconTheme.color,
           itemBuilder: (context) {
             return [
               PopupMenuItem(
