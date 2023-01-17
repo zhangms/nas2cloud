@@ -8,7 +8,7 @@ import 'package:nas2cloud/app.dart';
 
 const _pageSize = 50;
 
-const orderByOptions = [
+const _orderByOptions = [
   {"orderBy": "fileName", "name": "文件名排序"},
   {"orderBy": "size_asc", "name": "文件大小正序"},
   {"orderBy": "size_desc", "name": "文件大小倒序"},
@@ -48,7 +48,7 @@ class _FileListPageState extends State<FileListPage> {
     currentPage = -1;
     fetching = false;
     items = [];
-    orderBy = orderByOptions[0]["orderBy"]!;
+    orderBy = _orderByOptions[0]["orderBy"]!;
   }
 
   @override
@@ -106,11 +106,11 @@ class _FileListPageState extends State<FileListPage> {
                 child: Text("排序方式"),
               ),
               PopupMenuDivider(),
-              for (var i = 0; i < orderByOptions.length; i++)
+              for (var i = 0; i < _orderByOptions.length; i++)
                 PopupMenuItem(
-                  enabled: orderByOptions[i]["orderBy"]! != orderBy,
-                  child: Text(orderByOptions[i]["name"]!),
-                  onTap: () => changeOrderBy(orderByOptions[i]["orderBy"]!),
+                  enabled: _orderByOptions[i]["orderBy"]! != orderBy,
+                  child: Text(_orderByOptions[i]["name"]!),
+                  onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
                 )
             ];
           },
