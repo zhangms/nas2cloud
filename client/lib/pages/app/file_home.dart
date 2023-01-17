@@ -28,7 +28,7 @@ class _FileHomePageState extends State<FileHomePage> {
     var hostState = appStorage.getHostState();
     return Scaffold(
       appBar: buildAppBar(hostState),
-      body: SafeArea(child: Scrollbar(child: buildFileListView())),
+      body: SafeArea(child: buildFileListView()),
     );
   }
 
