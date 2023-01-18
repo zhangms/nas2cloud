@@ -110,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
         if (value!.trim().isEmpty) {
           return "请输入用户名";
         }
+        return null;
       }),
       cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(labelText: "用户名"),
@@ -125,6 +126,7 @@ class _LoginPageState extends State<LoginPage> {
         if (value!.isEmpty) {
           return "请输入密码";
         }
+        return null;
       }),
       cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(

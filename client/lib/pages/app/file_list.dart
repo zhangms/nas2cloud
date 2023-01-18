@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
+import 'package:nas2cloud/api/result.dart';
 import 'package:nas2cloud/app.dart';
 
 const _pageSize = 50;
 
 const _orderByOptions = [
   {"orderBy": "fileName", "name": "文件名排序"},
-  {"orderBy": "size_asc", "name": "文件大小正序"},
-  {"orderBy": "size_desc", "name": "文件大小倒序"},
-  {"orderBy": "modTime_asc", "name": "修改时间正序"},
-  {"orderBy": "modTime_desc", "name": "修改时间倒序"},
+  {"orderBy": "size_asc", "name": "文件从小到大"},
+  {"orderBy": "size_desc", "name": "文件从大到小"},
+  {"orderBy": "modTime_asc", "name": "最早修改在前"},
+  {"orderBy": "modTime_desc", "name": "最早修改在后"},
   {"orderBy": "creTime_desc", "name": "最新添加"},
 ];
 
@@ -69,53 +70,60 @@ class _FileListPageState extends State<FileListPage> {
           color: theme.primaryIconTheme.color,
         ),
         onPressed: () {
-          Navigator.of(context).pop();
+          pop();
         },
       ),
       title: Text(
         widget.name,
         style: theme.primaryTextTheme.titleMedium,
       ),
-      actions: [
-        PopupMenuButton<Text>(
-          icon: Icon(
-            Icons.add,
-            color: theme.primaryIconTheme.color,
+      actions: [buildAddMenu(theme), buildMoreMenu(theme)],
+    );
+  }
+
+  PopupMenuButton<Text> buildMoreMenu(ThemeData theme) {
+    return PopupMenuButton<Text>(
+      icon: Icon(
+        Icons.more_horiz,
+        color: theme.primaryIconTheme.color,
+      ),
+      color: theme.primaryIconTheme.color,
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            enabled: false,
+            child: Text("排序方式"),
           ),
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                child: Text("添加文件"),
-              ),
-              PopupMenuItem(
-                child: Text("创建文件夹"),
-              )
-            ];
-          },
-        ),
-        PopupMenuButton<Text>(
-          icon: Icon(
-            Icons.more_horiz,
-            color: theme.primaryIconTheme.color,
+          PopupMenuDivider(),
+          for (var i = 0; i < _orderByOptions.length; i++)
+            PopupMenuItem(
+              enabled: _orderByOptions[i]["orderBy"]! != orderBy,
+              child: Text(_orderByOptions[i]["name"]!),
+              onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
+            )
+        ];
+      },
+    );
+  }
+
+  PopupMenuButton<Text> buildAddMenu(ThemeData theme) {
+    return PopupMenuButton<Text>(
+      icon: Icon(
+        Icons.add,
+        color: theme.primaryIconTheme.color,
+      ),
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            child: Text("添加文件"),
+            onTap: () => onAddFile(),
           ),
-          color: theme.primaryIconTheme.color,
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                enabled: false,
-                child: Text("排序方式"),
-              ),
-              PopupMenuDivider(),
-              for (var i = 0; i < _orderByOptions.length; i++)
-                PopupMenuItem(
-                  enabled: _orderByOptions[i]["orderBy"]! != orderBy,
-                  child: Text(_orderByOptions[i]["name"]!),
-                  onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
-                )
-            ];
-          },
-        )
-      ],
+          PopupMenuItem(
+            child: Text("创建文件夹"),
+            onTap: () => onCreateFolder(),
+          )
+        ];
+      },
     );
   }
 
@@ -192,6 +200,9 @@ class _FileListPageState extends State<FileListPage> {
       onTap: () {
         onItemTap(item);
       },
+      onLongPress: () {
+        showItemOperationMenu(item);
+      },
     );
   }
 
@@ -220,15 +231,123 @@ class _FileListPageState extends State<FileListPage> {
 
   void onItemTap(File item) {
     if (item.type == "DIR") {
-      openNewFileListPage(item.path, item.name);
+      openNewPage(FileListPage(item.path, item.name));
     }
   }
 
-  void openNewFileListPage(String path, String name) {
+  void openNewPage(Widget widget) {
+    clearMessage();
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => FileListPage(path, name),
+        builder: (context) => widget,
       ),
     );
+  }
+
+  void pop() {
+    clearMessage();
+    Navigator.of(context).pop();
+  }
+
+  void clearMessage() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+  }
+
+  void showMessage(String message) {
+    clearMessage();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
+  onCreateFolder() async {
+    Future.delayed(const Duration(milliseconds: 100), (() {
+      showDialog(
+          context: context,
+          builder: ((context) => buildCreateFolderDialog(context)));
+    }));
+  }
+
+  onAddFile() {}
+
+  buildCreateFolderDialog(BuildContext context) {
+    var input = TextEditingController();
+    return AlertDialog(
+      title: Text("创建文件夹"),
+      content: TextField(
+        controller: input,
+        decoration: InputDecoration(
+          labelText: "请输入文件夹名称",
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: (() {
+              pop();
+            }),
+            child: Text("取消")),
+        TextButton(
+            onPressed: (() {
+              createFolder(input.text);
+              pop();
+            }),
+            child: Text("确定"))
+      ],
+    );
+  }
+
+  Future<void> createFolder(String floderName) async {
+    if (floderName.trim().isEmpty) {
+      return;
+    }
+    Result result = await api.postCreateFolder(widget.path, floderName);
+    if (!result.success) {
+      setState(() {
+        showMessage(result.message!);
+      });
+      return;
+    }
+    setInitState();
+    orderBy = "creTime_desc";
+    fetchNext(widget.path);
+  }
+
+  void showItemOperationMenu(File item) {
+    showDialog(
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            title: Text("删除文件"),
+            content: Text("确认删除 ${item.name} ？"),
+            actions: [
+              TextButton(
+                  onPressed: (() {
+                    pop();
+                  }),
+                  child: Text("取消")),
+              TextButton(
+                  onPressed: (() {
+                    deleteFile(item.path);
+                    pop();
+                  }),
+                  child: Text("确定"))
+            ],
+          );
+        }));
+  }
+
+  Future<void> deleteFile(String path) async {
+    print("delete $path");
+    Result result = await api.postDeleteFile(path);
+    if (!result.success) {
+      setState(() {
+        showMessage(result.message!);
+      });
+      return;
+    }
+    items.removeWhere((element) => element.path == path);
+    setState(() {
+      showMessage("删除成功");
+    });
   }
 }
