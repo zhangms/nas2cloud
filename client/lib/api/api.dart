@@ -28,6 +28,28 @@ class _Api {
     return header;
   }
 
+  String getStaticFileUrl(String path) {
+    if (!appStorage.isHostAddressConfiged()) {
+      return path;
+    }
+    String address =
+        appStorage.getHostState()?.staticAddress ?? appStorage.getHostAddress();
+    if (address.endsWith("/")) {
+      address = address.substring(0, address.length - 1);
+    }
+    if (path.startsWith("/")) {
+      return "http://$address$path";
+    }
+    return "http://$address/$path";
+  }
+
+  String signUrl(String url) {
+    String str =
+        "${DateTime.now().millisecondsSinceEpoch}|${jsonEncode(httpHeaders())}";
+    var sign = Base64Encoder.urlSafe().convert(str.codeUnits);
+    return "$url?_sign=$sign";
+  }
+
   Future<StateResponse> getHostState(String address) async {
     try {
       var url = Uri.http(address, "api/state");

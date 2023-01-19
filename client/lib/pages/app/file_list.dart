@@ -6,6 +6,7 @@ import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/result.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/pages/app/file_helper.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
 
 const _pageSize = 50;
@@ -211,29 +212,49 @@ class _FileListPageState extends State<FileListPage> {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
     }
-    if (item.thumbnail != null && item.thumbnail!.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 5, bottom: 5),
-        child: SizedBox(
-          height: 40,
-          width: 40,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child: Image.network(
-              appStorage.getStaticFileUrl(item.thumbnail!),
-              headers: api.httpHeaders(),
-            ),
-          ),
+    if (item.thumbnail == null && item.thumbnail!.isEmpty) {
+      return Icon(Icons.insert_drive_file);
+    }
+    if (fileHelper.isVideoFile(item.ext)) {
+      return SizedBox(
+        height: 40,
+        width: 40,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            thumbnail(item),
+            Icon(
+              Icons.play_arrow,
+            )
+          ],
         ),
       );
     }
-    return Icon(Icons.insert_drive_file);
+    return thumbnail(item);
+  }
+
+  Padding thumbnail(File item) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5, bottom: 5),
+      child: SizedBox(
+        height: 40,
+        width: 40,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: Image.network(
+            api.getStaticFileUrl(item.thumbnail!),
+            headers: api.httpHeaders(),
+          ),
+        ),
+      ),
+    );
   }
 
   void onItemTap(File item) {
     if (item.type == "DIR") {
       openNewPage(FileListPage(item.path, item.name));
-    } else if (isImageFile(item.ext)) {
+    } else if (fileHelper.isImageFile(item.ext) ||
+        fileHelper.isVideoFile(item.ext)) {
       openGallery(item);
     }
   }
@@ -354,26 +375,12 @@ class _FileListPageState extends State<FileListPage> {
     });
   }
 
-  bool isImageFile(String? ext) {
-    if (ext == null) {
-      return false;
-    }
-    switch (ext) {
-      case ".JPG":
-      case ".JPEG":
-      case ".PNG":
-        return true;
-      default:
-        return false;
-    }
-  }
-
   void openGallery(File item) {
     List<File> images = [];
     int index = 0;
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
-      if (isImageFile(it.ext)) {
+      if (fileHelper.isImageFile(it.ext) || fileHelper.isVideoFile(it.ext)) {
         images.add(it);
         if (it.path == item.path) {
           index = images.length - 1;

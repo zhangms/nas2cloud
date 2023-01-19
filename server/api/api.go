@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"nas2cloud/env"
@@ -12,7 +13,9 @@ import (
 	"nas2cloud/svc/user"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -121,11 +124,11 @@ func registerStatic(app *fiber.App) {
 }
 
 func staticLoginRequired(c *fiber.Ctx) bool {
-	u, err := getLoginUserFromHeaderOrCookie(c)
+	u, err := getLoginUserFromSign(c)
 	if err != nil {
 		return true
 	}
-	path, err := url.PathUnescape(c.OriginalURL())
+	path, err := url.PathUnescape(c.Path())
 	if err != nil {
 		return true
 	}
@@ -154,9 +157,45 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
 }
 
-func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {
-	token := c.Get("X-AUTH-TOKEN", c.Cookies("X-AUTH-TOKEN", ""))
-	device := c.Get("X-DEVICE", c.Cookies("X-DEVICE", ""))
+func getRequestSign(c *fiber.Ctx) (token, device, mode string) {
+	token = c.Get("X-AUTH-TOKEN", c.Cookies("X-AUTH-TOKEN", ""))
+	device = c.Get("X-DEVICE", c.Cookies("X-DEVICE", ""))
+	mode = "rw"
+	if len(token) > 0 && len(device) > 0 {
+		return
+	}
+	var sign = c.Query("_sign")
+	if len(sign) == 0 {
+		return
+	}
+	data, err := base64.URLEncoding.DecodeString(sign)
+	if err != nil {
+		return
+	}
+	var decode = string(data)
+	arr := strings.SplitN(decode, "|", 2)
+	if len(arr) != 2 {
+		return
+	}
+	mills, err := strconv.ParseInt(arr[0], 10, 64)
+	if err != nil {
+		return
+	}
+	signTime := time.UnixMilli(mills)
+	now := time.Now()
+	if now.Sub(signTime) > time.Minute*20 || now.Sub(signTime) < time.Minute*-20 {
+		return
+	}
+	headers := make(map[string]string)
+	err = json.Unmarshal([]byte(arr[1]), &headers)
+	if err != nil {
+		return
+	}
+	return headers["X-AUTH-TOKEN"], headers["X-DEVICE"], "r"
+}
+
+func getLoginUserFromSign(c *fiber.Ctx) (*user.User, error) {
+	token, device, mode := getRequestSign(c)
 	if len(token) == 0 || len(device) == 0 {
 		return nil, errors.New("token not exists")
 	}
@@ -168,6 +207,7 @@ func getLoginUserFromHeaderOrCookie(c *fiber.Ctx) (*user.User, error) {
 	if u == nil {
 		return nil, errors.New("login expired")
 	}
+	u.Mode = mode
 	return u, nil
 }
 
@@ -187,7 +227,7 @@ func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 			}
 		}()
 		setCorsHeader(c)
-		u, err := getLoginUserFromHeaderOrCookie(c)
+		u, err := getLoginUserFromSign(c)
 		if err != nil {
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
 		}
@@ -206,7 +246,7 @@ func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 			}
 		}()
 		setCorsHeader(c)
-		u, err := getLoginUserFromHeaderOrCookie(c)
+		u, err := getLoginUserFromSign(c)
 		if err == nil && u != nil {
 			SetLoggedUser(c, u)
 		}

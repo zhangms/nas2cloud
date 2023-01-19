@@ -57,20 +57,6 @@ class _AppStorage {
     }
     return null;
   }
-
-  String getStaticFileUrl(String path) {
-    if (!isHostAddressConfiged()) {
-      return path;
-    }
-    String address = getHostState()?.staticAddress ?? getHostAddress();
-    if (address.endsWith("/")) {
-      address = address.substring(0, address.length - 1);
-    }
-    if (path.startsWith("/")) {
-      return "http://$address$path";
-    }
-    return "http://$address/$path";
-  }
 }
 
 var appStorage = _AppStorage();

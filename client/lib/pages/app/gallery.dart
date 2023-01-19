@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
-import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/pages/app/file_helper.dart';
+import 'package:nas2cloud/pages/app/video_player.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -49,37 +50,36 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           constraints: BoxConstraints.expand(
             height: MediaQuery.of(context).size.height,
           ),
-          child: Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              PhotoViewGallery.builder(
-                scrollPhysics: const BouncingScrollPhysics(),
-                pageController: widget.pageController,
-                itemCount: widget.images.length,
-                scrollDirection: Axis.horizontal,
-                builder: buildImage,
-                onPageChanged: (index) {
-                  setState(() {
-                    currentIndex = index;
-                  });
-                },
-              )
-            ],
+          child: PhotoViewGallery.builder(
+            scrollPhysics: const BouncingScrollPhysics(),
+            pageController: widget.pageController,
+            itemCount: widget.images.length,
+            scrollDirection: Axis.horizontal,
+            builder: buildImage,
+            onPageChanged: (index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
           ),
         ));
   }
 
   PhotoViewGalleryPageOptions buildImage(BuildContext context, int idx) {
     File item = widget.images[idx];
-    return PhotoViewGalleryPageOptions(
-        imageProvider: NetworkImage(appStorage.getStaticFileUrl(item.path),
-            headers: api.httpHeaders()),
-        initialScale: PhotoViewComputedScale.contained,
-        minScale: PhotoViewComputedScale.contained * 0.5,
-        maxScale: PhotoViewComputedScale.covered * 4.1,
-        heroAttributes: PhotoViewHeroAttributes(tag: item.path),
-        controller: controller,
-        scaleStateController: scaleStateController);
+    if (fileHelper.isImageFile(item.ext)) {
+      return PhotoViewGalleryPageOptions(
+          imageProvider: NetworkImage(api.getStaticFileUrl(item.path),
+              headers: api.httpHeaders()),
+          initialScale: PhotoViewComputedScale.contained,
+          minScale: PhotoViewComputedScale.contained * 0.5,
+          maxScale: PhotoViewComputedScale.covered * 4.1,
+          heroAttributes: PhotoViewHeroAttributes(tag: item.path),
+          controller: controller,
+          scaleStateController: scaleStateController);
+    }
+    return PhotoViewGalleryPageOptions.customChild(
+        child: VideoPlayerWapper(api.getStaticFileUrl(item.path)));
   }
 
   buildAppBar() {

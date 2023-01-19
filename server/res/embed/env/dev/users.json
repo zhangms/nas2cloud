@@ -2,16 +2,19 @@
   {
     "name": "dioscoreae",
     "password": "baobao1234",
-    "group": "admin"
+    "group": "admin",
+    "mode": "rw"
   },
   {
     "name": "zms",
     "password": "baobao4321x",
-    "group": "family"
+    "group": "family",
+    "mode": "rw"
   },
   {
     "name": "pmz",
     "password": "baobao123678",
-    "group": "family"
+    "group": "family",
+    "mode": "rw"
   }
 ]
