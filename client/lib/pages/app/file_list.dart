@@ -5,7 +5,6 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/result.dart';
-import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_helper.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
 
@@ -212,7 +211,7 @@ class _FileListPageState extends State<FileListPage> {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
     }
-    if (item.thumbnail == null && item.thumbnail!.isEmpty) {
+    if (item.thumbnail == null || item.thumbnail!.isEmpty) {
       return Icon(Icons.insert_drive_file);
     }
     if (fileHelper.isVideoFile(item.ext)) {
