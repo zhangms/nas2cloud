@@ -183,7 +183,7 @@ func getRequestSign(c *fiber.Ctx) (token, device, mode string) {
 	}
 	signTime := time.UnixMilli(mills)
 	now := time.Now()
-	if now.Sub(signTime) > time.Minute*20 || now.Sub(signTime) < time.Minute*-20 {
+	if now.Sub(signTime) > time.Minute*60 || now.Sub(signTime) < time.Minute*-60 {
 		return
 	}
 	headers := make(map[string]string)
