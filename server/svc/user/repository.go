@@ -7,7 +7,6 @@ import (
 	"nas2cloud/res"
 	"nas2cloud/svc/cache"
 	"strings"
-	"time"
 )
 
 var users = make(map[string]*User)
@@ -40,12 +39,6 @@ func findUser(name string, password string) *User {
 
 func findUserByName(name string) *User {
 	return users[name]
-}
-
-type authToken struct {
-	UserName   string
-	Token      string
-	CreateTime time.Time
 }
 
 func deviceType(device string) string {

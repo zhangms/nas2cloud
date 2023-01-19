@@ -31,6 +31,9 @@ func (f *FileController) CreateFolder(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
 	u, _ := GetLoggedUser(c)
+	if !u.WriteMode() {
+		return SendError(c, http.StatusBadRequest, "no auth")
+	}
 	folderName := strings.TrimSpace(req.FolderName)
 	if len(folderName) == 0 {
 		return SendError(c, http.StatusBadRequest, "name cant empty")
@@ -53,6 +56,9 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
 	u, _ := GetLoggedUser(c)
+	if !u.WriteMode() {
+		return SendError(c, http.StatusBadRequest, "no auth")
+	}
 	err = storage.File().RemoveAll(u.Name, req.Path)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
@@ -67,6 +73,9 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
 	u, _ := GetLoggedUser(c)
+	if !u.WriteMode() {
+		return SendError(c, http.StatusBadRequest, "no auth")
+	}
 	fullPath := filepath.Join(path, file.Filename)
 	exists, err := storage.File().Exists(u.Name, fullPath)
 	if err != nil {

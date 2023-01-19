@@ -1,5 +1,7 @@
 package user
 
+import "strings"
+
 type User struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
@@ -14,3 +16,9 @@ func (u *User) Clone() *User {
 		Mode:  u.Mode,
 	}
 }
+
+func (u *User) WriteMode() bool {
+	return strings.Contains(u.Mode, "w")
+}
+
+
