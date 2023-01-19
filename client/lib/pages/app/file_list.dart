@@ -6,6 +6,7 @@ import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/result.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/pages/app/gallery.dart';
 
 const _pageSize = 50;
 
@@ -232,6 +233,8 @@ class _FileListPageState extends State<FileListPage> {
   void onItemTap(File item) {
     if (item.type == "DIR") {
       openNewPage(FileListPage(item.path, item.name));
+    } else if (isImageFile(item.ext)) {
+      openGallery(item);
     }
   }
 
@@ -349,5 +352,34 @@ class _FileListPageState extends State<FileListPage> {
     setState(() {
       showMessage("删除成功");
     });
+  }
+
+  bool isImageFile(String? ext) {
+    if (ext == null) {
+      return false;
+    }
+    switch (ext) {
+      case ".JPG":
+      case ".JPEG":
+      case ".PNG":
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  void openGallery(File item) {
+    List<File> images = [];
+    int index = 0;
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (isImageFile(it.ext)) {
+        images.add(it);
+        if (it.path == item.path) {
+          index = images.length - 1;
+        }
+      }
+    }
+    openNewPage(GalleryPhotoViewPage(images, index));
   }
 }
