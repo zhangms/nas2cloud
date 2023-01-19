@@ -5,7 +5,7 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/result.dart';
-import 'package:nas2cloud/pages/app/file_helper.dart';
+import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
 
 const _pageSize = 50;
@@ -195,7 +195,7 @@ class _FileListPageState extends State<FileListPage> {
     }
     var item = items[index];
     return ListTile(
-      leading: buildItemIcon(item),
+      leading: fileExt.getItemIcon(item),
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
       onTap: () {
@@ -207,53 +207,10 @@ class _FileListPageState extends State<FileListPage> {
     );
   }
 
-  buildItemIcon(File item) {
-    if (item.type == "DIR") {
-      return Icon(Icons.folder);
-    }
-    if (item.thumbnail == null || item.thumbnail!.isEmpty) {
-      return Icon(Icons.insert_drive_file);
-    }
-    if (fileHelper.isVideoFile(item.ext)) {
-      return SizedBox(
-        height: 40,
-        width: 40,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            thumbnail(item),
-            Icon(
-              Icons.play_arrow,
-            )
-          ],
-        ),
-      );
-    }
-    return thumbnail(item);
-  }
-
-  Padding thumbnail(File item) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 5, bottom: 5),
-      child: SizedBox(
-        height: 40,
-        width: 40,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
-          child: Image.network(
-            api.getStaticFileUrl(item.thumbnail!),
-            headers: api.httpHeaders(),
-          ),
-        ),
-      ),
-    );
-  }
-
   void onItemTap(File item) {
     if (item.type == "DIR") {
       openNewPage(FileListPage(item.path, item.name));
-    } else if (fileHelper.isImageFile(item.ext) ||
-        fileHelper.isVideoFile(item.ext)) {
+    } else if (fileExt.isImage(item.ext) || fileExt.isVideo(item.ext)) {
       openGallery(item);
     }
   }
@@ -341,7 +298,7 @@ class _FileListPageState extends State<FileListPage> {
         builder: ((context) {
           return AlertDialog(
             title: Text("删除文件"),
-            content: Text("确认删除 ${item.name} ？"),
+            content: Text("确认删除 ${item.name} ?"),
             actions: [
               TextButton(
                   onPressed: (() {
@@ -379,7 +336,7 @@ class _FileListPageState extends State<FileListPage> {
     int index = 0;
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
-      if (fileHelper.isImageFile(it.ext) || fileHelper.isVideoFile(it.ext)) {
+      if (fileExt.isImage(it.ext) || fileExt.isVideo(it.ext)) {
         images.add(it);
         if (it.path == item.path) {
           index = images.length - 1;
