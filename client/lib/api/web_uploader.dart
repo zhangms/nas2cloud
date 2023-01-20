@@ -1,10 +1,10 @@
 class _WebUploader {
   addToUpload(
-      {required String path,
+      {required String dest,
       required int size,
       required String name,
       Stream<List<int>>? readStream}) {
-    if (readStream == null || size <= 0 || path == "/" || path.isEmpty) {
+    if (readStream == null || size <= 0 || dest == "/" || dest.isEmpty) {
       return;
     }
   }

@@ -264,7 +264,7 @@ class _FileListPageState extends State<FileListPage> {
     }
     result.files.forEach(((element) {
       webUploader.addToUpload(
-          path: widget.path,
+          dest: widget.path,
           size: element.size,
           name: element.name,
           readStream: element.readStream);

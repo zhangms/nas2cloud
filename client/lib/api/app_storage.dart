@@ -3,9 +3,9 @@ import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
 import 'package:nas2cloud/utils/spu.dart';
 
 class _AppStorage {
-  static const _hostAddressKey = "hostAddress";
-  static const _hostStateKey = "hostState";
-  static const _loginTokenKey = "loginToken";
+  static const _hostAddressKey = "app.host.address";
+  static const _hostStateKey = "app.host.state";
+  static const _loginTokenKey = "app.login.token";
 
   Future<bool> init() async {
     return await spu.initSharedPreferences();
