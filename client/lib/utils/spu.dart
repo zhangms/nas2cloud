@@ -4,10 +4,16 @@ class _Spu {
   late SharedPreferences _prefs;
   bool _complete = false;
 
-  initSharedPreferences() async {
-    if (!_complete) {
-      _prefs = await SharedPreferences.getInstance();
-      _complete = true;
+  Future<bool> initSharedPreferences() async {
+    try {
+      if (!_complete) {
+        _prefs = await SharedPreferences.getInstance();
+        _complete = true;
+      }
+      return _complete;
+    } catch (e) {
+      print(e);
+      return false;
     }
   }
 

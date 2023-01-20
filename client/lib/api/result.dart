@@ -3,25 +3,20 @@ import 'dart:convert';
 class Result {
   bool success;
   String? message;
-  String? data;
 
-  Result({required this.success, this.message, this.data});
+  Result({required this.success, this.message});
 
   @override
-  String toString() {
-    return 'Result(success: $success, message: $message, data: $data)';
-  }
+  String toString() => 'Result(success: $success, message: $message)';
 
   factory Result.fromMap(Map<String, dynamic> data) => Result(
         success: data['success'] as bool,
         message: data['message'] as String?,
-        data: data['data'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
         'success': success,
         'message': message,
-        'data': data,
       };
 
   /// `dart:convert`

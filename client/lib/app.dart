@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/login_response/data.dart' as logindto;
 import 'package:nas2cloud/api/state_response/data.dart' as statedto;
-import 'package:nas2cloud/api/state_response/state_response.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
 class _AppStorage {
@@ -10,14 +8,8 @@ class _AppStorage {
   static const _hostStateKey = "hostState";
   static const _loginTokenKey = "loginToken";
 
-  Future<void> init() async {
-    if (!spu.isComplete()) {
-      await spu.initSharedPreferences();
-    }
-  }
-
-  bool isInitComplete() {
-    return spu.isComplete();
+  Future<bool> init() async {
+    return await spu.initSharedPreferences();
   }
 
   Future<bool> saveHostAddress(String address) async {
@@ -45,6 +37,10 @@ class _AppStorage {
     return await spu.get().setString(_loginTokenKey, data.toJson());
   }
 
+  Future<bool> deleteUserLoginInfo() async {
+    return await spu.get().remove(_loginTokenKey);
+  }
+
   bool isUserLogged() {
     final String? tokenData = spu.get().getString(_loginTokenKey);
     return tokenData != null;
@@ -62,27 +58,13 @@ class _AppStorage {
 var appStorage = _AppStorage();
 
 class AppState extends ChangeNotifier {
-  Future<void> init() async {
-    if (appStorage.isInitComplete()) {
-      return;
-    }
-    await appStorage.init();
-    if (appStorage.isHostAddressConfiged()) {
-      StateResponse resp = await api.getHostState(appStorage.getHostAddress());
-      if (resp.success) {
-        await appStorage.saveHostState(resp.data!);
-      }
-    }
-    notifyListeners();
-  }
-
-  void updateHostState(String address, statedto.Data data) async {
+  updateHostState(String address, statedto.Data data) async {
     await appStorage.saveHostAddress(address);
     await appStorage.saveHostState(data);
     notifyListeners();
   }
 
-  void updateLoginInfo(logindto.Data data) async {
+  updateLoginInfo(logindto.Data data) async {
     await appStorage.saveUserLoginInfo(data);
     notifyListeners();
   }

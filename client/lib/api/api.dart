@@ -108,7 +108,8 @@ class _Api {
         body: jsonEncode({
           "paths": [fullPath],
         }));
-    return Result.fromJson(utf8.decode(resp.bodyBytes));
+    Result result = Result.fromJson(utf8.decode(resp.bodyBytes));
+    return result;
   }
 }
 
