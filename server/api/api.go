@@ -112,11 +112,14 @@ func registerStatic(app *fiber.App) {
 		if b.MountTypeLocal() {
 			if b.Authorize() == "PUBLIC" {
 				logger.Info("register static public", b.Dir(), b.Endpoint())
-				app.Static(b.Dir(), b.Endpoint())
+				app.Static(b.Dir(), b.Endpoint(), fiber.Static{
+					ByteRange: true,
+				})
 			} else {
 				logger.Info("register static login required", b.Dir(), b.Endpoint())
 				app.Static(b.Dir(), b.Endpoint(), fiber.Static{
-					Next: staticLoginRequired,
+					Next:      staticLoginRequired,
+					ByteRange: true,
 				})
 			}
 		}

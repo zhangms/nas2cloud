@@ -14,6 +14,8 @@ class VideoPlayerWapper extends StatefulWidget {
 class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
   late VideoPlayerController _controller;
 
+  bool isPlaying = false;
+
   @override
   void initState() {
     super.initState();
@@ -23,8 +25,16 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
         .initialize()
         .onError((error, stackTrace) => print(error))
         .then((_) {
-      setState(() {});
-      _controller.play();
+      setState(() {
+        _controller.play();
+      });
+      _controller.addListener(() {
+        if (isPlaying != _controller.value.isPlaying) {
+          setState(() {
+            isPlaying = _controller.value.isPlaying;
+          });
+        }
+      });
     });
   }
 
@@ -62,7 +72,7 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
           });
         },
         child: Icon(
-          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+          isPlaying ? Icons.pause : Icons.play_arrow,
         ),
       ),
     );
