@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
@@ -257,18 +258,9 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   onAddFile() async {
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(allowMultiple: true, withData: false, withReadStream: true);
-    if (result == null) {
-      return;
+    if (kIsWeb) {
+      webUpload();
     }
-    result.files.forEach(((element) {
-      webUploader.addToUpload(
-          dest: widget.path,
-          size: element.size,
-          name: element.name,
-          readStream: element.readStream);
-    }));
     openNewPage(FileUploadingPage());
   }
 
@@ -372,5 +364,20 @@ class _FileListPageState extends State<FileListPage> {
       }
     }
     openNewPage(GalleryPhotoViewPage(images, index));
+  }
+
+  Future<void> webUpload() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(allowMultiple: true, withData: false, withReadStream: true);
+    if (result == null) {
+      return;
+    }
+    result.files.forEach(((element) {
+      webUploader.addToUpload(
+          dest: widget.path,
+          size: element.size,
+          name: element.name,
+          readStream: element.readStream);
+    }));
   }
 }

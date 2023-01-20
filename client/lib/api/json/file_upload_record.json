@@ -6,5 +6,6 @@
     "r@uploadTime": 1234567890,
     "r@fileLastModTime": 1234567890,
     "r@dest": "/Pic/test",
-    "r@status": "uploading"
+    "r@status": "uploading",
+    "r@progress": 40
 }
