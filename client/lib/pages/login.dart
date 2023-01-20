@@ -33,12 +33,20 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    textFieldUsername(),
-                    textFieldPassword(),
+                    buildTitle(),
+                    SizedBox(
+                      height: 60,
+                    ),
+                    buildUsernameTextField(),
+                    buildPasswordTextField(),
                     SizedBox(
                       height: 20,
                     ),
-                    buttonLogin(),
+                    buildLoginButton(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    buildResetHostButton(),
                   ],
                 ),
               ),
@@ -71,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
     appState.updateLoginInfo(response.data!);
   }
 
-  Widget buttonLogin() {
+  Widget buildLoginButton() {
     var appState = context.watch<AppState>();
     return Column(
       children: [
@@ -102,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  TextFormField textFieldUsername() {
+  TextFormField buildUsernameTextField() {
     return TextFormField(
       textInputAction: TextInputAction.next,
       controller: username,
@@ -117,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  TextFormField textFieldPassword() {
+  TextFormField buildPasswordTextField() {
     return TextFormField(
       obscureText: obscurePassword,
       controller: password,
@@ -144,5 +152,21 @@ class _LoginPageState extends State<LoginPage> {
             },
           )),
     );
+  }
+
+  buildTitle() {
+    return Text(
+      appStorage.getHostState()?.appName ?? "Nas2cloud",
+      style: Theme.of(context).textTheme.bodyLarge,
+    );
+  }
+
+  buildResetHostButton() {
+    var appState = context.watch<AppState>();
+    return TextButton(
+        onPressed: (() {
+          appState.clearHostState();
+        }),
+        child: Text("重设服务器地址"));
   }
 }
