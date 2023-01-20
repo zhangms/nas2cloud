@@ -184,11 +184,10 @@ func (r *fileCacheMgr) delete(path string) error {
 	dir, name := filepath.Split(path)
 	for _, orderField := range r.orderFields {
 		rank := r.keyRankInParent(dir, orderField)
-		count, err := cache.ZRem(rank, name)
+		_, err := cache.ZRem(rank, name)
 		if err != nil {
 			return err
 		}
-		fmt.Println("---->", count)
 	}
 	return nil
 }
