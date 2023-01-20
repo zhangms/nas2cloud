@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/app_storage.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/data.dart' as filewk;
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/state_response/data.dart' as state;
-import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_list.dart';
 
 const _pageSize = 50;

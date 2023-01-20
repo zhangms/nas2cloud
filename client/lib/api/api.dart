@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:nas2cloud/api/app_storage.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/login_response/login_response.dart';
 import 'package:nas2cloud/api/result.dart';
 import 'package:nas2cloud/api/state_response/state_response.dart';
-import 'package:nas2cloud/app.dart';
 
 const _exception = {"success": false, "message": "服务器不可用"};
 
@@ -110,6 +110,15 @@ class _Api {
         }));
     Result result = Result.fromJson(utf8.decode(resp.bodyBytes));
     return result;
+  }
+
+  upload() {
+    // var uri =
+    //     Uri.https(appStorage.getHostAddress(), '/api/store/upload/Pic/test');
+
+    // var request = http.MultipartRequest("POST", uri)
+    //   ..fields["lastModified"] = "${DateTime.now().millisecondsSinceEpoch}"
+    //   ..files.add(Multi)
   }
 }
 

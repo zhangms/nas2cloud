@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/file_walk_request.dart';
 import 'package:nas2cloud/api/file_walk_response/file.dart';
 import 'package:nas2cloud/api/result.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
+import 'package:nas2cloud/pages/app/file_uploading.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
 
 const _pageSize = 50;
@@ -122,7 +124,12 @@ class _FileListPageState extends State<FileListPage> {
           PopupMenuItem(
             child: Text("创建文件夹"),
             onTap: () => onCreateFolder(),
-          )
+          ),
+          PopupMenuDivider(),
+          PopupMenuItem(
+            child: Text("文件上传列表"),
+            onTap: () => onViewUploading(),
+          ),
         ];
       },
     );
@@ -248,7 +255,20 @@ class _FileListPageState extends State<FileListPage> {
     }));
   }
 
-  onAddFile() {}
+  onAddFile() async {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(allowMultiple: true, withData: false, withReadStream: true);
+    if (result == null) {
+      return;
+    }
+    openNewPage(FileUploadingPage());
+  }
+
+  onViewUploading() {
+    Future.delayed(const Duration(milliseconds: 100), (() {
+      openNewPage(FileUploadingPage());
+    }));
+  }
 
   buildCreateFolderDialog(BuildContext context) {
     var input = TextEditingController();
