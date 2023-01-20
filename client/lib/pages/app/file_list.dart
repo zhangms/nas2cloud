@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/file_walk_request.dart';
-import 'package:nas2cloud/api/file_walk_response/file.dart';
-import 'package:nas2cloud/api/result.dart';
+import 'package:nas2cloud/api/dto/file_walk_request.dart';
+import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
+import 'package:nas2cloud/api/dto/result.dart';
+import 'package:nas2cloud/api/web_uploader.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_uploading.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
@@ -261,6 +262,13 @@ class _FileListPageState extends State<FileListPage> {
     if (result == null) {
       return;
     }
+    result.files.forEach(((element) {
+      webUploader.addToUpload(
+          path: widget.path,
+          size: element.size,
+          name: element.name,
+          readStream: element.readStream);
+    }));
     openNewPage(FileUploadingPage());
   }
 

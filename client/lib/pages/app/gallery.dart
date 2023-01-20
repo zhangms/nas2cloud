@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/file_walk_response/file.dart';
+import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/video_player.dart';
 import 'package:photo_view/photo_view.dart';

@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:nas2cloud/api/app_storage.dart';
-import 'package:nas2cloud/api/file_walk_request.dart';
-import 'package:nas2cloud/api/file_walk_response/file_walk_response.dart';
-import 'package:nas2cloud/api/login_response/login_response.dart';
-import 'package:nas2cloud/api/result.dart';
-import 'package:nas2cloud/api/state_response/state_response.dart';
+import 'package:nas2cloud/api/dto/file_walk_request.dart';
+import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
+import 'package:nas2cloud/api/dto/login_response/login_response.dart';
+import 'package:nas2cloud/api/dto/result.dart';
+import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 
 const _exception = {"success": false, "message": "服务器不可用"};
 
@@ -91,34 +91,54 @@ class _Api {
   }
 
   Future<Result> postCreateFolder(String path, String folderName) async {
-    var url = Uri.http(appStorage.getHostAddress(), "/api/store/createFolder");
-    Response resp = await http.post(url,
-        headers: httpHeaders(),
-        body: jsonEncode({
-          "path": path,
-          "folderName": folderName,
-        }));
-    return Result.fromJson(utf8.decode(resp.bodyBytes));
+    try {
+      var url =
+          Uri.http(appStorage.getHostAddress(), "/api/store/createFolder");
+      Response resp = await http.post(url,
+          headers: httpHeaders(),
+          body: jsonEncode({
+            "path": path,
+            "folderName": folderName,
+          }));
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
   }
 
   Future<Result> postDeleteFile(String fullPath) async {
-    var url = Uri.http(appStorage.getHostAddress(), "/api/store/deleteFiles");
-    Response resp = await http.post(url,
-        headers: httpHeaders(),
-        body: jsonEncode({
-          "paths": [fullPath],
-        }));
-    Result result = Result.fromJson(utf8.decode(resp.bodyBytes));
-    return result;
+    try {
+      var url = Uri.http(appStorage.getHostAddress(), "/api/store/deleteFiles");
+      Response resp = await http.post(url,
+          headers: httpHeaders(),
+          body: jsonEncode({
+            "paths": [fullPath],
+          }));
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
   }
 
-  upload() {
-    // var uri =
-    //     Uri.https(appStorage.getHostAddress(), '/api/store/upload/Pic/test');
-
-    // var request = http.MultipartRequest("POST", uri)
-    //   ..fields["lastModified"] = "${DateTime.now().millisecondsSinceEpoch}"
-    //   ..files.add(Multi)
+  //web 平台下的上传
+  webUpload(String path, Stream<List<int>> stream, int contentLength) async {
+    try {
+      var uri =
+          Uri.https(appStorage.getHostAddress(), "/api/store/upload/$path");
+      var request = http.MultipartRequest("POST", uri)
+        ..fields["lastModified"] = "${DateTime.now().millisecondsSinceEpoch}"
+        ..files.add(MultipartFile("file", stream, contentLength));
+      var resp = await request.send();
+      if (resp.statusCode == 200) {
+        return Result(success: true, message: "OK");
+      }
+      return Result(success: false, message: "Upload Error:${resp.statusCode}");
+    } catch (e) {
+      print(e);
+      return FileWalkResponse.fromMap(_exception);
+    }
   }
 }
 

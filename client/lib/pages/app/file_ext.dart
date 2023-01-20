@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/file_walk_response/file.dart';
+import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 
 class _FileExt {
   bool isImage(String? ext) {

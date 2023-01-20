@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/app_storage.dart';
-import 'package:nas2cloud/api/login_response/data.dart' as logindto;
-import 'package:nas2cloud/api/state_response/data.dart' as statedto;
+import 'package:nas2cloud/api/dto/login_response/data.dart' as logindto;
+import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
 
 class AppState extends ChangeNotifier {
   updateHostState(String address, statedto.Data data) async {
