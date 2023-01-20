@@ -4,3 +4,4 @@
 .DS_Store
 server/nas2cloud.pid
 release/local/nas2cloud.log
+server/__debug_bin

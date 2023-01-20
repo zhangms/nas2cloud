@@ -20,7 +20,7 @@ type fileEventType string
 const (
 	eventWalk   fileEventType = "walk"
 	eventCreate fileEventType = "create"
-	eventDelete fileEventType = "createDelete"
+	eventDelete fileEventType = "delete"
 )
 
 type fileEvent struct {

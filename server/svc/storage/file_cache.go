@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -77,18 +78,21 @@ func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 }
 
 func (r *fileCacheMgr) keyItem(path string) string {
-	bucket, _ := vfs.GetBucketFile(path)
-	return cache.Join(bucket, r.version, "file", path)
+	cp := filepath.Clean(path)
+	bucket, _ := vfs.GetBucketFile(cp)
+	return cache.Join(bucket, r.version, "file", cp)
 }
 
 func (r *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
-	bucket, _ := vfs.GetBucketFile(parent)
-	return cache.Join(bucket, r.version, "rank", orderField, parent)
+	cp := filepath.Clean(parent)
+	bucket, _ := vfs.GetBucketFile(cp)
+	return cache.Join(bucket, r.version, "rank", orderField, cp)
 }
 
 func (r *fileCacheMgr) keyWalkFlag(path string) string {
-	bucket, _ := vfs.GetBucketFile(path)
-	return cache.Join(bucket, fileCache.version, "walk_flag", path)
+	cp := filepath.Clean(path)
+	bucket, _ := vfs.GetBucketFile(cp)
+	return cache.Join(bucket, fileCache.version, "walk_flag", cp)
 }
 
 func (r *fileCacheMgr) walkFlag(path string) (bool, error) {
@@ -96,7 +100,7 @@ func (r *fileCacheMgr) walkFlag(path string) (bool, error) {
 	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
 	return ok, err
 }
-
+~
 func (r *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
@@ -180,10 +184,11 @@ func (r *fileCacheMgr) delete(path string) error {
 	dir, name := filepath.Split(path)
 	for _, orderField := range r.orderFields {
 		rank := r.keyRankInParent(dir, orderField)
-		_, err = cache.ZRem(rank, name)
+		count, err := cache.ZRem(rank, name)
 		if err != nil {
 			return err
 		}
+		fmt.Println("---->", count)
 	}
 	return nil
 }
