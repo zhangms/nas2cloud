@@ -100,7 +100,7 @@ func (r *fileCacheMgr) walkFlag(path string) (bool, error) {
 	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
 	return ok, err
 }
-~
+
 func (r *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
