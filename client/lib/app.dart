@@ -54,7 +54,7 @@ class _AppStorage {
     return null;
   }
 
-  Future<void> clearHostState() async {
+  Future<void> clearHostAddress() async {
     await spu.remove(_hostStateKey);
     await spu.remove(_hostAddressKey);
   }
@@ -69,8 +69,8 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  clearHostState() async {
-    appStorage.clearHostState();
+  clearHostAddress() async {
+    appStorage.clearHostAddress();
     notifyListeners();
   }
 

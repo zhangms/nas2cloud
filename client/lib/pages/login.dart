@@ -165,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
     var appState = context.watch<AppState>();
     return TextButton(
         onPressed: (() {
-          appState.clearHostState();
+          appState.clearHostAddress();
         }),
         child: Text("重设服务器地址"));
   }
