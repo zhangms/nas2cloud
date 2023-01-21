@@ -40,7 +40,7 @@ class WebUploader extends FileUploader {
       return false;
     }
     if (record.size / 1024 / 1024 >= 500) {
-      await _chgState(record, FileUploadStatus.reject, "文件大小不能超过500MB");
+      await _chgState(record, FileUploadStatus.error, "文件大小不能超过500MB");
       return false;
     }
     api
@@ -68,7 +68,6 @@ class WebUploader extends FileUploader {
     record.message = message;
     switch (status) {
       case FileUploadStatus.error:
-      case FileUploadStatus.reject:
       case FileUploadStatus.success:
         record.endUploadTime = DateTime.now().millisecondsSinceEpoch;
         break;
@@ -136,7 +135,7 @@ class WebUploader extends FileUploader {
   void clearRecordByState(List<FileUploadStatus> filters) {
     var records = _loadRecordCache();
     for (var record in records) {
-      if (filters.isEmpty || FileUploadStatus.isAny(record.status, filters)) {
+      if (FileUploadStatus.isAny(record.status, filters)) {
         var uploadKey = "$_keyPrefix${record.id}";
         spu.remove(uploadKey);
       }

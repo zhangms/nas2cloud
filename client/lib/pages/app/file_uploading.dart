@@ -53,7 +53,7 @@ class _FileUploadingPageState extends State<FileUploadingPage>
         },
       ),
       title: Text(
-        "上传列表",
+        "文件上传任务",
         style: theme.primaryTextTheme.titleMedium,
       ),
       actions: [buildMoreMenu(theme)],
@@ -74,12 +74,15 @@ class _FileUploadingPageState extends State<FileUploadingPage>
           ),
           PopupMenuItem(
             child: Text("清空出错任务"),
-            onTap: () =>
-                clearTask([FileUploadStatus.error, FileUploadStatus.reject]),
+            onTap: () => clearTask([FileUploadStatus.error]),
           ),
           PopupMenuItem(
             child: Text("清空所有任务"),
-            onTap: () => clearTask([]),
+            onTap: () => clearTask([
+              FileUploadStatus.success,
+              FileUploadStatus.error,
+              FileUploadStatus.waiting
+            ]),
           ),
         ];
       },
@@ -141,7 +144,6 @@ class _FileUploadingPageState extends State<FileUploadingPage>
     }
     switch (status) {
       case FileUploadStatus.error:
-      case FileUploadStatus.reject:
         return Icon(
           Icons.error_outline,
           color: Colors.red,
