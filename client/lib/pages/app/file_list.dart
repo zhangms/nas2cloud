@@ -4,10 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/dto/file_upload_record.dart';
+import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/api/web_uploader.dart';
+import 'package:nas2cloud/api/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_uploading.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
@@ -40,12 +42,21 @@ class _FileListPageState extends State<FileListPage> {
   late List<File> items;
   late bool fetching;
   late String orderBy;
+  late FileUploadListener _fileUploadListener;
 
   @override
   void initState() {
     super.initState();
+    _fileUploadListener = onUploadChange;
+    FileUploader.getInstance().addListener(_fileUploadListener);
     setInitState();
     fetchNext(widget.path);
+  }
+
+  @override
+  void dispose() {
+    FileUploader.getInstance().removeListener(_fileUploadListener);
+    super.dispose();
   }
 
   void setInitState() {
@@ -348,6 +359,7 @@ class _FileListPageState extends State<FileListPage> {
     }
     items.removeWhere((element) => element.path == path);
     setState(() {
+      total -= 1;
       showMessage("删除成功");
     });
   }
@@ -373,20 +385,29 @@ class _FileListPageState extends State<FileListPage> {
     if (result == null) {
       return;
     }
-    var addCount = 0;
     for (var i = 0; i < result.files.length; i++) {
       var e = result.files[i];
       print(e);
-      addCount += await webUploader.addToUpload(
-              dest: widget.path,
-              size: e.size,
-              name: e.name,
-              readStream: e.readStream)
-          ? 1
-          : 0;
+      if (e.readStream == null) {
+        continue;
+      }
+      FileUploader.getInstance().fireStreamUploadEvent(
+        dest: widget.path,
+        fileName: e.name,
+        size: e.size,
+        stream: e.readStream!,
+      );
     }
-    if (addCount > 0) {
-      openNewPage(FileUploadingPage());
+    openNewPage(FileUploadingPage());
+  }
+
+  void onUploadChange(FileUploadRecord record) {
+    if (record.dest == widget.path) {
+      if (record.status == FileUploadStatus.success.name) {
+        setInitState();
+        orderBy = "creTime_desc";
+        fetchNext(widget.path);
+      }
     }
   }
 }

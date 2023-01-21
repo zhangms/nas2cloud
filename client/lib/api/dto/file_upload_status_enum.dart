@@ -1,6 +1,8 @@
 enum FileUploadStatus {
+  waiting,
   uploading,
   success,
+  reject,
   error;
 
   static bool isAny(String stateName, List<FileUploadStatus> status) {
@@ -10,5 +12,14 @@ enum FileUploadStatus {
       }
     }
     return false;
+  }
+
+  static FileUploadStatus? valueOf(String stateName) {
+    for (var e in FileUploadStatus.values) {
+      if (e.name == stateName) {
+        return e;
+      }
+    }
+    return null;
   }
 }

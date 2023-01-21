@@ -151,28 +151,28 @@ func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 	return nil
 }
 
-func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) error {
+func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) (*vfs.ObjectInfo, error) {
 	userGroup := user.GetUserGroup(username)
 	_, err := vfs.Upload(userGroup, fullPath, reader, modTime)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	info, err := vfs.Info(userGroup, fullPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	info.CreTime = time.Now()
 	thumbSvc.Thumbnail(info)
 	err = fileCache.save(info)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	fileWatcher.fireEvent(&fileEvent{
 		eventType: eventCreate,
 		userGroup: userGroup,
 		path:      fullPath,
 	})
-	return nil
+	return info, err
 }
 
 func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {

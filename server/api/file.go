@@ -95,9 +95,9 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 	if err != nil {
 		lastModified = time.Now().UnixMilli()
 	}
-	err = storage.File().Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
+	info, err := storage.File().Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
-	return SendOK(c, "OK")
+	return SendOK(c, info)
 }

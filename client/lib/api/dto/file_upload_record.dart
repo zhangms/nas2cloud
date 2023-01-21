@@ -5,7 +5,8 @@ class FileUploadRecord {
   String fileName;
   String filePath;
   int size;
-  int uploadTime;
+  int beginUploadTime;
+  int endUploadTime;
   int fileLastModTime;
   String dest;
   String status;
@@ -17,7 +18,8 @@ class FileUploadRecord {
     required this.fileName,
     required this.filePath,
     required this.size,
-    required this.uploadTime,
+    required this.beginUploadTime,
+    required this.endUploadTime,
     required this.fileLastModTime,
     required this.dest,
     required this.status,
@@ -27,7 +29,7 @@ class FileUploadRecord {
 
   @override
   String toString() {
-    return 'FileUploadRecord(id: $id, fileName: $fileName, filePath: $filePath, size: $size, uploadTime: $uploadTime, fileLastModTime: $fileLastModTime, dest: $dest, status: $status, progress: $progress, message: $message)';
+    return 'FileUploadRecord(id: $id, fileName: $fileName, filePath: $filePath, size: $size, beginUploadTime: $beginUploadTime, endUploadTime: $endUploadTime, fileLastModTime: $fileLastModTime, dest: $dest, status: $status, progress: $progress, message: $message)';
   }
 
   factory FileUploadRecord.fromMap(Map<String, dynamic> data) {
@@ -36,7 +38,8 @@ class FileUploadRecord {
       fileName: data['fileName'] as String,
       filePath: data['filePath'] as String,
       size: data['size'] as int,
-      uploadTime: data['uploadTime'] as int,
+      beginUploadTime: data['beginUploadTime'] as int,
+      endUploadTime: data['endUploadTime'] as int,
       fileLastModTime: data['fileLastModTime'] as int,
       dest: data['dest'] as String,
       status: data['status'] as String,
@@ -50,7 +53,8 @@ class FileUploadRecord {
         'fileName': fileName,
         'filePath': filePath,
         'size': size,
-        'uploadTime': uploadTime,
+        'beginUploadTime': beginUploadTime,
+        'endUploadTime': endUploadTime,
         'fileLastModTime': fileLastModTime,
         'dest': dest,
         'status': status,
