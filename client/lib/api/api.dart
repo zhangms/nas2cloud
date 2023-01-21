@@ -123,11 +123,15 @@ class _Api {
   }
 
   //web 平台下的上传
-  webUpload(String path, Stream<List<int>> stream, int contentLength) async {
+  Future<Result> webUpload(
+      {required String path,
+      required Stream<List<int>> stream,
+      required int contentLength}) async {
     try {
       var uri =
           Uri.https(appStorage.getHostAddress(), "/api/store/upload/$path");
       var request = http.MultipartRequest("POST", uri)
+        ..headers.addAll(httpHeaders())
         ..fields["lastModified"] = "${DateTime.now().millisecondsSinceEpoch}"
         ..files.add(MultipartFile("file", stream, contentLength));
       var resp = await request.send();
@@ -137,7 +141,7 @@ class _Api {
       return Result(success: false, message: "Upload Error:${resp.statusCode}");
     } catch (e) {
       print(e);
-      return FileWalkResponse.fromMap(_exception);
+      return Result.fromMap(_exception);
     }
   }
 }

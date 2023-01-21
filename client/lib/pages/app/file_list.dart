@@ -258,10 +258,11 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   onAddFile() async {
-    if (kIsWeb) {
-      webUpload();
-    }
-    openNewPage(FileUploadingPage());
+    Future.delayed(const Duration(milliseconds: 100), (() {
+      if (kIsWeb) {
+        webUpload();
+      }
+    }));
   }
 
   onViewUploading() {
@@ -372,12 +373,19 @@ class _FileListPageState extends State<FileListPage> {
     if (result == null) {
       return;
     }
+    var addCount = 0;
     result.files.forEach(((element) {
-      webUploader.addToUpload(
-          dest: widget.path,
-          size: element.size,
-          name: element.name,
-          readStream: element.readStream);
+      print(element);
+      addCount += webUploader.addToUpload(
+              dest: widget.path,
+              size: element.size,
+              name: element.name,
+              readStream: element.readStream)
+          ? 1
+          : 0;
     }));
+    if (addCount > 0) {
+      openNewPage(FileUploadingPage());
+    }
   }
 }

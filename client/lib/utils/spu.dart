@@ -21,6 +21,10 @@ class _Spu {
     return _prefs?.getString(key);
   }
 
+  bool? containsKey(String key) {
+    return _prefs?.containsKey(key);
+  }
+
   Future<bool> setString(String key, String value) async {
     return await _prefs?.setString(key, value) ?? false;
   }
