@@ -374,16 +374,17 @@ class _FileListPageState extends State<FileListPage> {
       return;
     }
     var addCount = 0;
-    result.files.forEach(((element) {
-      print(element);
-      addCount += webUploader.addToUpload(
+    for (var i = 0; i < result.files.length; i++) {
+      var e = result.files[i];
+      print(e);
+      addCount += await webUploader.addToUpload(
               dest: widget.path,
-              size: element.size,
-              name: element.name,
-              readStream: element.readStream)
+              size: e.size,
+              name: e.name,
+              readStream: e.readStream)
           ? 1
           : 0;
-    }));
+    }
     if (addCount > 0) {
       openNewPage(FileUploadingPage());
     }

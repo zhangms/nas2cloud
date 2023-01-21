@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/app_storage.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/scaffold.dart';
 import 'package:provider/provider.dart';
@@ -13,11 +12,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appName = appStorage.getHostState()?.appName ?? "Nas2cloud";
     return ChangeNotifierProvider(
       create: (context) => AppState(),
       child: MaterialApp(
-        title: appName,
+        title: "Nas2cloud",
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),

@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _Spu {
-  SharedPreferences? _prefs;
+  late final SharedPreferences _prefs;
   bool _complete = false;
 
   Future<bool> initSharedPreferences() async {
@@ -18,19 +18,23 @@ class _Spu {
   }
 
   String? getString(String key) {
-    return _prefs?.getString(key);
+    return _prefs.getString(key);
   }
 
-  bool? containsKey(String key) {
-    return _prefs?.containsKey(key);
+  bool containsKey(String key) {
+    return _prefs.containsKey(key);
+  }
+
+  Set<String> getKeys() {
+    return _prefs.getKeys();
   }
 
   Future<bool> setString(String key, String value) async {
-    return await _prefs?.setString(key, value) ?? false;
+    return await _prefs.setString(key, value);
   }
 
   Future<bool> remove(String key) async {
-    return await _prefs?.remove(key) ?? false;
+    return await _prefs.remove(key);
   }
 
   isComplete() {

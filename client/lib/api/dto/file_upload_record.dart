@@ -10,6 +10,7 @@ class FileUploadRecord {
   String dest;
   String status;
   int progress;
+  String message;
 
   FileUploadRecord({
     required this.id,
@@ -21,11 +22,12 @@ class FileUploadRecord {
     required this.dest,
     required this.status,
     required this.progress,
+    required this.message,
   });
 
   @override
   String toString() {
-    return 'FileUploadRecord(id: $id, fileName: $fileName, filePath: $filePath, size: $size, uploadTime: $uploadTime, fileLastModTime: $fileLastModTime, dest: $dest, status: $status, progress: $progress)';
+    return 'FileUploadRecord(id: $id, fileName: $fileName, filePath: $filePath, size: $size, uploadTime: $uploadTime, fileLastModTime: $fileLastModTime, dest: $dest, status: $status, progress: $progress, message: $message)';
   }
 
   factory FileUploadRecord.fromMap(Map<String, dynamic> data) {
@@ -39,6 +41,7 @@ class FileUploadRecord {
       dest: data['dest'] as String,
       status: data['status'] as String,
       progress: data['progress'] as int,
+      message: data['message'] as String,
     );
   }
 
@@ -52,6 +55,7 @@ class FileUploadRecord {
         'dest': dest,
         'status': status,
         'progress': progress,
+        'message': message,
       };
 
   /// `dart:convert`

@@ -124,16 +124,21 @@ class _Api {
 
   //web 平台下的上传
   Future<Result> webUpload(
-      {required String path,
+      {required String dest,
+      required String fileName,
       required Stream<List<int>> stream,
       required int contentLength}) async {
     try {
-      var uri =
-          Uri.https(appStorage.getHostAddress(), "/api/store/upload/$path");
+      var url = "/api/store/upload/$dest";
+      if (dest.startsWith("/")) {
+        url = "/api/store/upload$dest";
+      }
+      var uri = Uri.http(appStorage.getHostAddress(), url);
       var request = http.MultipartRequest("POST", uri)
         ..headers.addAll(httpHeaders())
         ..fields["lastModified"] = "${DateTime.now().millisecondsSinceEpoch}"
-        ..files.add(MultipartFile("file", stream, contentLength));
+        ..files.add(
+            MultipartFile("file", stream, contentLength, filename: fileName));
       var resp = await request.send();
       if (resp.statusCode == 200) {
         return Result(success: true, message: "OK");
