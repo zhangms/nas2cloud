@@ -29,11 +29,11 @@ class _ScaffoldPageState extends State<ScaffoldPage> {
       return hostStatus.message ?? "ERROR";
     }
     appStorage.saveHostState(hostStatus.data!);
-    var userInfo = appStorage.getUserInfo();
-    if (userInfo == null) {
+    var loginInfo = appStorage.getUserLoginInfo();
+    if (loginInfo == null) {
       return "OK";
     }
-    if (userInfo.username == hostStatus.data!.userName) {
+    if (loginInfo.username == hostStatus.data!.userName) {
       return "OK";
     }
     appStorage.deleteUserLoginInfo();

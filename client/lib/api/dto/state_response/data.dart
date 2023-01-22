@@ -4,24 +4,32 @@ class Data {
   String appName;
   String? userName;
   String? staticAddress;
+  String? userAvatar;
 
-  Data({required this.appName, this.userName, this.staticAddress});
+  Data({
+    required this.appName,
+    this.userName,
+    this.staticAddress,
+    this.userAvatar,
+  });
 
   @override
   String toString() {
-    return 'Data(appName: $appName, userName: $userName, staticAddress: $staticAddress)';
+    return 'Data(appName: $appName, userName: $userName, staticAddress: $staticAddress, userAvatar: $userAvatar)';
   }
 
   factory Data.fromMap(Map<String, dynamic> data) => Data(
         appName: data['appName'] as String,
         userName: data['userName'] as String?,
         staticAddress: data['staticAddress'] as String?,
+        userAvatar: data['userAvatar'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
         'appName': appName,
         'userName': userName,
         'staticAddress': staticAddress,
+        'userAvatar': userAvatar,
       };
 
   /// `dart:convert`

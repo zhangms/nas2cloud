@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_storage.dart';
@@ -116,6 +114,43 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   Widget buildDrawer() {
-    return Text("F");
+    var hostState = appStorage.getHostState();
+
+    Widget avatar = CircleAvatar(
+      child: FlutterLogo(),
+    );
+
+    if (hostState?.userAvatar != null) {
+      avatar = CircleAvatar(
+        backgroundImage: NetworkImage(
+            api.getStaticFileUrl(hostState!.userAvatar!),
+            headers: api.httpHeaders()),
+      );
+    }
+
+    return ListView(
+      children: [
+        UserAccountsDrawerHeader(
+          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+          accountName: Text((hostState?.userName ?? "").toUpperCase()),
+          accountEmail: Text(hostState?.appName ?? ""),
+          currentAccountPicture: avatar,
+        ),
+        ListTile(
+          title: Text("照片"),
+          leading: const Icon(Icons.image),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: Text("自动上传"),
+          leading: const Icon(Icons.cloud_upload),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
   }
 }

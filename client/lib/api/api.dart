@@ -22,7 +22,7 @@ class _Api {
   Map<String, String> httpHeaders() {
     var header = {..._defaultHttpHeaders};
     if (appStorage.isUserLogged()) {
-      var data = appStorage.getUserInfo()!;
+      var data = appStorage.getUserLoginInfo()!;
       header["X-AUTH-TOKEN"] = "${data.username}-${data.token}";
     }
     return header;

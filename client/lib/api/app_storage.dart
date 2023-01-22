@@ -45,7 +45,7 @@ class _AppStorage {
     return tokenData != null;
   }
 
-  logindto.Data? getUserInfo() {
+  logindto.Data? getUserLoginInfo() {
     final String? tokenData = spu.getString(_loginTokenKey);
     if (tokenData != null) {
       return logindto.Data.fromJson(tokenData);

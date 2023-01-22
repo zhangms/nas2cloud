@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -20,6 +20,19 @@ func TestName(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	err := ioutil.WriteFile("/Users/ZMS/Downloads/TESTXX/zz.txt", []byte("hello"), fs.ModePerm)
+	err := os.WriteFile("/Users/ZMS/Downloads/TESTXX/zz.txt", []byte("hello"), fs.ModePerm)
 	fmt.Println(err)
+}
+
+func TestState(t *testing.T) {
+	file, err := os.Stat("/Users/ZMS/Thumb/favorite.jpg")
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(file)
+	}
+
+	// info, err := Info("family", "/thumb/favorite.jpg")
+	// fmt.Println(info, err)
+
 }

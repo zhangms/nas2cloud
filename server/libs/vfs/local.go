@@ -3,7 +3,6 @@ package vfs
 import (
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"nas2cloud/libs"
 	"os"
 	"path"
@@ -77,11 +76,11 @@ func (l *Local) Info(file string) (*ObjectInfo, error) {
 }
 
 func (l *Local) Read(file string) ([]byte, error) {
-	return ioutil.ReadFile(l.AbsLocal(file))
+	return os.ReadFile(l.AbsLocal(file))
 }
 
 func (l *Local) Write(file string, data []byte) error {
-	return ioutil.WriteFile(l.AbsLocal(file), data, fs.ModePerm)
+	return os.WriteFile(l.AbsLocal(file), data, fs.ModePerm)
 }
 
 func (l *Local) Exists(file string) bool {
