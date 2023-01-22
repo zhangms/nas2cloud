@@ -141,6 +141,9 @@ class _FileHomePageState extends State<FileHomePage> {
           leading: const Icon(Icons.image),
           onTap: () {
             Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("尚未支持"),
+            ));
           },
         ),
         ListTile(
@@ -148,6 +151,9 @@ class _FileHomePageState extends State<FileHomePage> {
           leading: const Icon(Icons.cloud_upload),
           onTap: () {
             Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("尚未支持"),
+            ));
           },
         ),
       ],
