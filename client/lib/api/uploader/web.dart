@@ -44,7 +44,7 @@ class WebUploader extends FileUploader {
       return false;
     }
     api
-        .uploadStream(
+        .postUploadStream(
             dest: record.dest,
             fileName: record.fileName,
             fileLastModified: record.fileLastModTime,

@@ -11,7 +11,7 @@ import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
-import 'package:nas2cloud/pages/app/file_uploading.dart';
+import 'package:nas2cloud/pages/app/file_upload_task.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
 
 const _pageSize = 50;
@@ -278,7 +278,7 @@ class _FileListPageState extends State<FileListPage> {
 
   onViewUploading() {
     Future.delayed(const Duration(milliseconds: 100), (() {
-      openNewPage(FileUploadingPage());
+      openNewPage(FileUploadTaskPage());
     }));
   }
 
@@ -398,7 +398,7 @@ class _FileListPageState extends State<FileListPage> {
         stream: e.readStream!,
       );
     }
-    openNewPage(FileUploadingPage());
+    openNewPage(FileUploadTaskPage());
   }
 
   void onUploadChange(FileUploadRecord record) {

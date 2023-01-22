@@ -5,12 +5,12 @@ import 'package:nas2cloud/api/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/data_size.dart';
 import 'package:nas2cloud/utils/time.dart';
 
-class FileUploadingPage extends StatefulWidget {
+class FileUploadTaskPage extends StatefulWidget {
   @override
-  State<FileUploadingPage> createState() => _FileUploadingPageState();
+  State<FileUploadTaskPage> createState() => _FileUploadTaskPageState();
 }
 
-class _FileUploadingPageState extends State<FileUploadingPage>
+class _FileUploadTaskPageState extends State<FileUploadTaskPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _repeatAniController;
 
@@ -125,9 +125,9 @@ class _FileUploadingPageState extends State<FileUploadingPage>
     var time = formDateTime(
         DateTime.fromMillisecondsSinceEpoch(record.beginUploadTime));
     return ListTile(
-      leading: buildLeadingIcon(record.status),
-      title: Text(record.fileName),
-      subtitle: Text("$time $size ${record.message}"),
+      leading: buildLeadingIcon(record.status, record.message),
+      title: Text("${record.dest}/\n${record.fileName}"),
+      subtitle: Text("$time $size"),
     );
   }
 
@@ -135,7 +135,7 @@ class _FileUploadingPageState extends State<FileUploadingPage>
     setState(() {});
   }
 
-  buildLeadingIcon(String stateName) {
+  buildLeadingIcon(String stateName, String message) {
     var status = FileUploadStatus.valueOf(stateName);
     if (status == null) {
       return Icon(
@@ -144,9 +144,12 @@ class _FileUploadingPageState extends State<FileUploadingPage>
     }
     switch (status) {
       case FileUploadStatus.error:
-        return Icon(
-          Icons.error_outline,
-          color: Colors.red,
+        return Tooltip(
+          message: message,
+          child: Icon(
+            Icons.error_outline,
+            color: Colors.red,
+          ),
         );
       case FileUploadStatus.waiting:
       case FileUploadStatus.uploading:

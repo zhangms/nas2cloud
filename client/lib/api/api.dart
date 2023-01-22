@@ -122,7 +122,7 @@ class _Api {
     }
   }
 
-  Future<Result> uploadStream({
+  Future<Result> postUploadStream({
     required String dest,
     required String fileName,
     required int fileLastModified,

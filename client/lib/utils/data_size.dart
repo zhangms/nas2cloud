@@ -1,4 +1,4 @@
-const _k = 1000.0;
+const _k = 1024.0;
 
 String readableDataSize(double size) {
   var value = size / _k;
