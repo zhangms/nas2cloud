@@ -77,9 +77,15 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           heroAttributes: PhotoViewHeroAttributes(tag: item.path),
           controller: controller,
           scaleStateController: scaleStateController);
+    } else if (fileExt.isVideo(item.ext)) {
+      return PhotoViewGalleryPageOptions.customChild(
+          child: VideoPlayerWapper(api.getStaticFileUrl(item.path)));
+    } else {
+      return PhotoViewGalleryPageOptions.customChild(
+          child: Center(
+        child: Text("UNSUPPORT"),
+      ));
     }
-    return PhotoViewGalleryPageOptions.customChild(
-        child: VideoPlayerWapper(api.getStaticFileUrl(item.path)));
   }
 
   buildAppBar() {

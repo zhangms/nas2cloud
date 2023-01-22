@@ -21,6 +21,13 @@
     "hidden": false
   },
   {
+    "name": "Music",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Music",
+    "authorize": "admin,family",
+    "hidden": false
+  },
+  {
     "name": "Pic",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Pictures",
