@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_storage.dart';
@@ -29,6 +31,9 @@ class _FileHomePageState extends State<FileHomePage> {
     return Scaffold(
       appBar: buildAppBar(hostState),
       body: SafeArea(child: buildFileListView()),
+      drawer: Drawer(
+        child: buildDrawer(),
+      ),
     );
   }
 
@@ -72,13 +77,17 @@ class _FileHomePageState extends State<FileHomePage> {
     var theme = Theme.of(context);
     return AppBar(
       backgroundColor: theme.primaryColor,
-      leading: IconButton(
-        icon: Icon(
-          Icons.menu,
-          color: theme.primaryIconTheme.color,
-        ),
-        onPressed: () {},
-      ),
+      leading: Builder(builder: (context) {
+        return IconButton(
+          icon: Icon(
+            Icons.menu,
+            color: theme.primaryIconTheme.color,
+          ),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        );
+      }),
       title: Text(
         hostState?.appName ?? "Nas2cloud",
         style: theme.primaryTextTheme.titleMedium,
@@ -104,5 +113,9 @@ class _FileHomePageState extends State<FileHomePage> {
       return Icon(Icons.folder);
     }
     return Icon(Icons.insert_drive_file);
+  }
+
+  Widget buildDrawer() {
+    return Text("F");
   }
 }
