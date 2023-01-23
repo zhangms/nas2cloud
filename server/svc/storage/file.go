@@ -54,8 +54,8 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	return ret, total, nil
 }
 
-func (fs *FileSvc) walkRoot(userGroup string) ([]*vfs.ObjectInfo, int64, error) {
-	list, er := vfs.List(userGroup, "/")
+func (fs *FileSvc) walkRoot(userRoles string) ([]*vfs.ObjectInfo, int64, error) {
+	list, er := vfs.List(userRoles, "/")
 	if er != nil {
 		return nil, 0, er
 	}
@@ -88,7 +88,7 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 }
 
 func (fs *FileSvc) MkdirAll(username, fullPath string) error {
-	userGroup := user.GetUserRoles(username)
+	userRoles := user.GetUserRoles(username)
 	path := filepath.Clean(fullPath)
 	exi, err := fileCache.exists(path)
 	if err != nil {
@@ -97,11 +97,11 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	if exi {
 		return errors.New("file exists already")
 	}
-	err = vfs.MkdirAll(userGroup, path)
+	err = vfs.MkdirAll(userRoles, path)
 	if err != nil {
 		return err
 	}
-	info, err := vfs.Info(userGroup, path)
+	info, err := vfs.Info(userRoles, path)
 	if err != nil {
 		return err
 	}
