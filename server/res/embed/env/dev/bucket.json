@@ -1,5 +1,6 @@
 [
   {
+    "id": "thumb",
     "name": "thumb",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Thumb",
@@ -7,6 +8,7 @@
     "hidden": true
   },
   {
+    "id": "console",
     "name": "console",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Documents/ProjectBase/github/zhangms/nas2cloud/target/console",
@@ -14,6 +16,7 @@
     "hidden": true
   },
   {
+    "id": "Movies",
     "name": "Movies",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Movies",
@@ -21,6 +24,7 @@
     "hidden": false
   },
   {
+    "id": "Music",
     "name": "Music",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Music",
@@ -28,6 +32,7 @@
     "hidden": false
   },
   {
+    "id": "Pic",
     "name": "Pic",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Pictures",
@@ -35,6 +40,7 @@
     "hidden": false
   },
   {
+    "id": "Downloads",
     "name": "Downloads",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Downloads",
@@ -42,6 +48,7 @@
     "hidden": false
   },
   {
+    "id": "Docs",
     "name": "Docs",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Documents/",
@@ -49,6 +56,7 @@
     "hidden": false
   },
   {
+    "id": "user_zms_dir",
     "name": "ZMS的文件夹",
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Users/zms",
@@ -56,6 +64,7 @@
     "hidden": false
   },
   {
+    "id": "user_pmz_dir",
     "name": "PMZ的文件夹",
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Users/pmz",

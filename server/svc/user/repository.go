@@ -38,7 +38,11 @@ func findUser(name string, password string) *User {
 }
 
 func findUserByName(name string) *User {
-	return users[name]
+	u := users[name]
+	if u != nil {
+		return u.Clone()
+	}
+	return u
 }
 
 func deviceType(device string) string {
@@ -97,7 +101,7 @@ func findUserByAuthToken(userName string, device string, token string) (*User, e
 	if usr == nil {
 		return nil, errors.New("user not exists")
 	}
-	return usr.Clone(), nil
+	return usr, nil
 
 	//sqlDb := db.DB()
 	//row := sqlDb.QueryRow("select count(1) from user_auth_token"+
@@ -119,7 +123,7 @@ func findUserByAuthToken(userName string, device string, token string) (*User, e
 }
 
 func GetUserRoles(userName string) string {
-	usr := users[userName]
+	usr := findUserByName(userName)
 	if usr != nil {
 		return usr.Roles
 	}

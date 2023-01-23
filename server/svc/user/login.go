@@ -2,8 +2,9 @@ package user
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"nas2cloud/libs/logger"
+
+	"github.com/google/uuid"
 )
 
 func Login(name string, password string, device string) (string, error) {
@@ -33,4 +34,8 @@ func GetLoggedUser(name string, device string, token string) *User {
 		return nil
 	}
 	return usr
+}
+
+func GetUserByName(name string) *User {
+	return findUserByName(name)
 }

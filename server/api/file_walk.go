@@ -8,6 +8,7 @@ import (
 	"nas2cloud/libs/vfs"
 	"nas2cloud/svc"
 	"nas2cloud/svc/storage"
+	"nas2cloud/svc/user"
 	"net/http"
 	"path/filepath"
 
@@ -49,7 +50,7 @@ type fileWalkItem struct {
 func (f *FileController) Walk(c *fiber.Ctx) error {
 	u, _ := GetLoggedUser(c)
 	request := f.walkRequest(c)
-	resp, err := f.walk(u.Name, request)
+	resp, err := f.walk(u, request)
 	if err == svc.RetryLaterAgain {
 		return SendError(c, http.StatusCreated, err.Error())
 	}
@@ -69,16 +70,16 @@ func (f *FileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
 	return req
 }
 
-func (f *FileController) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
+func (f *FileController) walk(u *user.User, request *fileWalkRequest) (*fileWalkResult, error) {
 	pageSize := int(math.Min(100, float64(libs.If(request.PageSize <= 0, 50, request.PageSize).(int))))
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
-	lst, total, err := storage.File().Walk(username, request.Path, request.OrderBy, start, stop)
+	lst, total, err := storage.File().Walk(u.Name, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}
 	return &fileWalkResult{
-		Nav:          f.parseToNav(request.Path),
+		Nav:          f.parseToNav(u, request.Path),
 		Files:        f.parseToFiles(lst),
 		Total:        total,
 		CurrentPage:  request.PageNo,
@@ -104,7 +105,7 @@ func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
 	return items
 }
 
-func (f *FileController) parseToNav(pathName string) []*fileWalkNav {
+func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNav {
 	ret := make([]*fileWalkNav, 0)
 	pp := filepath.Clean(pathName)
 	dir := filepath.Dir(pp)
@@ -128,6 +129,11 @@ func (f *FileController) parseToNav(pathName string) []*fileWalkNav {
 		tmp = append(tmp, ret...)
 		ret = tmp
 		dir = filepath.Dir(dir)
+	}
+	base := ret[0]
+	baseInfo, _ := vfs.Info(u.Roles, base.Name)
+	if baseInfo != nil {
+		base.Name = baseInfo.Name
 	}
 	return ret
 }
