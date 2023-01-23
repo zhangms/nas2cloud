@@ -15,8 +15,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateLoginInfo(logindto.Data data) async {
+  login(logindto.Data data) async {
     await appStorage.saveUserLoginInfo(data);
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await appStorage.clearUserLogin();
     notifyListeners();
   }
 }

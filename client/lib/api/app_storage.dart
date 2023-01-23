@@ -57,6 +57,16 @@ class _AppStorage {
     await spu.remove(_hostStateKey);
     await spu.remove(_hostAddressKey);
   }
+
+  clearUserLogin() async {
+    await spu.remove(_loginTokenKey);
+    var keys = spu.getKeys();
+    for (var key in keys) {
+      if (key != _hostAddressKey) {
+        await spu.remove(key);
+      }
+    }
+  }
 }
 
 var appStorage = _AppStorage();

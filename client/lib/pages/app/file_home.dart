@@ -5,7 +5,9 @@ import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/data.dart' as filewk;
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/state_response/data.dart' as state;
+import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_list.dart';
+import 'package:provider/provider.dart';
 
 const _pageSize = 50;
 
@@ -115,6 +117,7 @@ class _FileHomePageState extends State<FileHomePage> {
 
   Widget buildDrawer() {
     var hostState = appStorage.getHostState();
+    var appState = context.watch<AppState>();
 
     Widget avatar = CircleAvatar(
       child: FlutterLogo(),
@@ -150,6 +153,35 @@ class _FileHomePageState extends State<FileHomePage> {
           onTap: () {
             Navigator.pop(context);
             showMessage("尚未支持");
+          },
+        ),
+        Divider(),
+        ListTile(
+          title: Text("退出登录"),
+          leading: const Icon(Icons.logout),
+          onTap: () {
+            Navigator.pop(context);
+            showDialog(
+                context: context,
+                builder: ((context) {
+                  return AlertDialog(
+                    title: Text("退出登录"),
+                    content: Text("确认退出？"),
+                    actions: [
+                      TextButton(
+                          onPressed: (() {
+                            Navigator.of(context).pop();
+                          }),
+                          child: Text("取消")),
+                      TextButton(
+                          onPressed: (() {
+                            Navigator.of(context).pop();
+                            appState.logout();
+                          }),
+                          child: Text("确定")),
+                    ],
+                  );
+                }));
           },
         ),
       ],
