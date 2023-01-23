@@ -1,11 +1,19 @@
 [
   {
-    "name": "/",
+    "name": "console",
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/local/console",
     "authorize": "PUBLIC",
     "hidden": true,
-    "comment": "前端"
+    "comment": "react前端"
+  },
+  {
+    "name": "app",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/local/app",
+    "authorize": "PUBLIC",
+    "hidden": true,
+    "comment": "flutter app"
   },
   {
     "name": "thumb",
@@ -20,6 +28,20 @@
     "mountType": "local",
     "endpoint": "/Volumes/Y/Mount",
     "authorize": "admin,family",
+    "hidden": false
+  },
+  {
+    "name": "ZMS的文件夹",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/Users/zms",
+    "authorize": "zms",
+    "hidden": false
+  },
+  {
+    "name": "PMZ的文件夹",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/Users/pmz",
+    "authorize": "pmz",
     "hidden": false
   }
 ]

@@ -70,7 +70,7 @@ func (f *FileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
 }
 
 func (f *FileController) walk(username string, request *fileWalkRequest) (*fileWalkResult, error) {
-	pageSize := int(math.Min(math.Max(0, float64(request.PageSize)), 100))
+	pageSize := int(math.Min(100, float64(libs.If(request.PageSize <= 0, 50, request.PageSize).(int))))
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
 	lst, total, err := storage.File().Walk(username, request.Path, request.OrderBy, start, stop)

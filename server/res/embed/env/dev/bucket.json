@@ -47,5 +47,19 @@
     "endpoint": "/Users/ZMS/Documents/",
     "authorize": "admin,family",
     "hidden": false
+  },
+  {
+    "name": "ZMS的文件夹",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/Users/zms",
+    "authorize": "zms",
+    "hidden": false
+  },
+  {
+    "name": "PMZ的文件夹",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/Users/pmz",
+    "authorize": "pmz",
+    "hidden": false
   }
 ]

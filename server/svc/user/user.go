@@ -5,7 +5,7 @@ import "strings"
 type User struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
-	Roles    string `json:"role"`
+	Roles    string `json:"roles"`
 	Mode     string `json:"mode"`
 	Avatar   string `json:"avatar"`
 }

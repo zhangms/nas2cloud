@@ -25,7 +25,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	infos, err := List("zms,family", "/")
+	infos, err := List("pmz", "/")
 	if err != nil {
 		t.Error(err)
 	} else {
