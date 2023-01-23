@@ -6,6 +6,8 @@ function getApiHost() {
     return "";
 }
 
+const _loginStateKey = "react.nas2cloud.login.state";
+
 const API = {
     host: getApiHost(),
 
@@ -14,7 +16,7 @@ const API = {
     },
 
     getLoginState: function () {
-        const state = localStorage.getItem("loginState")
+        const state = localStorage.getItem(_loginStateKey)
         if (state == null) {
             return null
         }
@@ -22,13 +24,13 @@ const API = {
     },
 
     saveLoginState: function (state) {
-        localStorage.setItem("loginState", JSON.stringify(state))
+        localStorage.setItem(_loginStateKey, JSON.stringify(state))
         document.cookie = "X-DEVICE=react-console; path=/"
         document.cookie = "X-AUTH-TOKEN=" + state.username + "-" + state.token + "; path=/"
     },
 
     clearLoginState: function () {
-        localStorage.removeItem("loginState")
+        localStorage.removeItem(_loginStateKey)
         document.cookie = ""
     },
 

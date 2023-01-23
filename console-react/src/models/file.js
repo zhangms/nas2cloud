@@ -1,9 +1,9 @@
-import {createSlice} from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-const stateKey = "_file_current_state_"
+const _stateKey = "react.nas2cloud.file.current.state"
 
 function saveCurrentState(state) {
-    localStorage.setItem(stateKey, JSON.stringify(state))
+    localStorage.setItem(_stateKey, JSON.stringify(state))
 }
 
 function loadInitState() {
@@ -22,12 +22,12 @@ function loadInitState() {
             currentPage: 0,
         }
     }
-    const value = localStorage.getItem(stateKey)
+    const value = localStorage.getItem(_stateKey)
     if (value == null) {
         return defaultState
     }
     const state = JSON.parse(value)
-    return {...defaultState, ...state}
+    return { ...defaultState, ...state }
 }
 
 const fileSlice = createSlice({
@@ -35,7 +35,7 @@ const fileSlice = createSlice({
     initialState: loadInitState(),
     reducers: {
         changeState: function (state, action) {
-            const ret = {...state, ...action.payload}
+            const ret = { ...state, ...action.payload }
             saveCurrentState({
                 orderBy: ret.orderBy,
                 path: ret.path

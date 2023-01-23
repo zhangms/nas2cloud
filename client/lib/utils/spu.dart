@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _namespace = "nas2cloud.";
+
 class _Spu {
   late final SharedPreferences _prefs;
   bool _complete = false;
@@ -17,24 +19,35 @@ class _Spu {
     }
   }
 
+  String _wrap(String key) {
+    return "$_namespace$key";
+  }
+
   String? getString(String key) {
-    return _prefs.getString(key);
+    return _prefs.getString(_wrap(key));
   }
 
   bool containsKey(String key) {
-    return _prefs.containsKey(key);
+    return _prefs.containsKey(_wrap(key));
   }
 
   Set<String> getKeys() {
-    return _prefs.getKeys();
+    Set<String> ret = {};
+    var keys = _prefs.getKeys();
+    for (var key in keys) {
+      if (key.startsWith(_namespace)) {
+        ret.add(key.substring(_namespace.length));
+      }
+    }
+    return ret;
   }
 
   Future<bool> setString(String key, String value) async {
-    return await _prefs.setString(key, value);
+    return await _prefs.setString(_wrap(key), value);
   }
 
   Future<bool> remove(String key) async {
-    return await _prefs.remove(key);
+    return await _prefs.remove(_wrap(key));
   }
 
   isComplete() {
