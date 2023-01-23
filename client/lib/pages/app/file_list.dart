@@ -42,20 +42,18 @@ class _FileListPageState extends State<FileListPage> {
   late List<File> items;
   late bool fetching;
   late String orderBy;
-  late FileUploadListener _fileUploadListener;
 
   @override
   void initState() {
     super.initState();
-    _fileUploadListener = onUploadChange;
-    FileUploader.getInstance().addListener(_fileUploadListener);
+    FileUploader.getInstance().addListener(onUploadChange);
     setInitState();
     fetchNext(widget.path);
   }
 
   @override
   void dispose() {
-    FileUploader.getInstance().removeListener(_fileUploadListener);
+    FileUploader.getInstance().removeListener(onUploadChange);
     super.dispose();
   }
 
@@ -272,6 +270,8 @@ class _FileListPageState extends State<FileListPage> {
     Future.delayed(const Duration(milliseconds: 100), (() {
       if (kIsWeb) {
         webUpload();
+      } else {
+        nativeUpload();
       }
     }));
   }
@@ -379,6 +379,16 @@ class _FileListPageState extends State<FileListPage> {
     openNewPage(GalleryPhotoViewPage(images, index));
   }
 
+  void onUploadChange(FileUploadRecord record) {
+    if (record.dest == widget.path) {
+      if (record.status == FileUploadStatus.success.name) {
+        setInitState();
+        orderBy = "creTime_desc";
+        fetchNext(widget.path);
+      }
+    }
+  }
+
   Future<void> webUpload() async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(allowMultiple: true, withData: false, withReadStream: true);
@@ -401,13 +411,16 @@ class _FileListPageState extends State<FileListPage> {
     openNewPage(FileUploadTaskPage());
   }
 
-  void onUploadChange(FileUploadRecord record) {
-    if (record.dest == widget.path) {
-      if (record.status == FileUploadStatus.success.name) {
-        setInitState();
-        orderBy = "creTime_desc";
-        fetchNext(widget.path);
-      }
+  Future<void> nativeUpload() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
+    if (result == null) {
+      return;
+    }
+    for (var i = 0; i < result.paths.length; i++) {
+      var e = result.paths[i];
+      print("hell world---------");
+      print(e);
     }
   }
 }
