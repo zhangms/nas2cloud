@@ -24,18 +24,19 @@ func File() *FileSvc {
 }
 
 func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
-	userGroup := user.GetUserGroup(username)
+	userRoles := user.GetUserRoles(username)
 	path := filepath.Clean(fullPath)
 	if vfs.IsRootDir(path) {
-		return fs.walkRoot(userGroup)
+		return fs.walkRoot(userRoles)
 	}
-	_, _, err = vfs.GetStore(userGroup, path)
+	_, _, err = vfs.GetStore(userRoles, path)
 	if err != nil {
 		return nil, 0, err
 	}
 	eventFired, err := fileWatcher.tryFireWalkEvent(&fileEvent{
 		eventType: eventWalk,
-		userGroup: userGroup,
+		userName:  username,
+		userRoles: userRoles,
 		path:      path,
 	})
 	if err != nil {
@@ -87,7 +88,7 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 }
 
 func (fs *FileSvc) MkdirAll(username, fullPath string) error {
-	userGroup := user.GetUserGroup(username)
+	userGroup := user.GetUserRoles(username)
 	path := filepath.Clean(fullPath)
 	exi, err := fileCache.exists(path)
 	if err != nil {
@@ -108,10 +109,10 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 }
 
 func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
-	userGroup := user.GetUserGroup(username)
+	userRoles := user.GetUserRoles(username)
 	for _, p := range fullPath {
 		path := filepath.Clean(p)
-		err := vfs.RemoveAll(userGroup, path)
+		err := vfs.RemoveAll(userRoles, path)
 		if err != nil {
 			return err
 		}
@@ -121,7 +122,8 @@ func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 		}
 		fileWatcher.fireEvent(&fileEvent{
 			eventType: eventDelete,
-			userGroup: userGroup,
+			userName:  username,
+			userRoles: userRoles,
 			path:      path,
 		})
 	}
@@ -129,12 +131,12 @@ func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
 }
 
 func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
-	userGroup := user.GetUserGroup(username)
-	err := vfs.Write(userGroup, fullPath, data)
+	userRoles := user.GetUserRoles(username)
+	err := vfs.Write(userRoles, fullPath, data)
 	if err != nil {
 		return err
 	}
-	info, err := vfs.Info(userGroup, fullPath)
+	info, err := vfs.Info(userRoles, fullPath)
 	if err != nil {
 		return err
 	}
@@ -145,19 +147,20 @@ func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 	}
 	fileWatcher.fireEvent(&fileEvent{
 		eventType: eventCreate,
-		userGroup: userGroup,
+		userName:  username,
+		userRoles: userRoles,
 		path:      fullPath,
 	})
 	return nil
 }
 
 func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) (*vfs.ObjectInfo, error) {
-	userGroup := user.GetUserGroup(username)
-	_, err := vfs.Upload(userGroup, fullPath, reader, modTime)
+	userRoles := user.GetUserRoles(username)
+	_, err := vfs.Upload(userRoles, fullPath, reader, modTime)
 	if err != nil {
 		return nil, err
 	}
-	info, err := vfs.Info(userGroup, fullPath)
+	info, err := vfs.Info(userRoles, fullPath)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +172,8 @@ func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, mo
 	}
 	fileWatcher.fireEvent(&fileEvent{
 		eventType: eventCreate,
-		userGroup: userGroup,
+		userName:  username,
+		userRoles: userRoles,
 		path:      fullPath,
 	})
 	return info, err
@@ -183,11 +187,11 @@ func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
 	if exists {
 		return true, nil
 	}
-	userGroup := user.GetUserGroup(username)
-	if !vfs.Exists(userGroup, fullPath) {
+	userRoles := user.GetUserRoles(username)
+	if !vfs.Exists(userRoles, fullPath) {
 		return false, nil
 	}
-	info, err := vfs.Info(userGroup, fullPath)
+	info, err := vfs.Info(userRoles, fullPath)
 	if err != nil {
 		return false, err
 	}

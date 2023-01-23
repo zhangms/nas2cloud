@@ -24,15 +24,12 @@ func TestWrite(t *testing.T) {
 	fmt.Println(err)
 }
 
-func TestState(t *testing.T) {
-	file, err := os.Stat("/Users/ZMS/Thumb/favorite.jpg")
+func TestList(t *testing.T) {
+	infos, err := List("zms,family", "/")
 	if err != nil {
 		t.Error(err)
 	} else {
-		fmt.Println(file)
+		data, _ := json.Marshal(infos)
+		fmt.Println(string(data))
 	}
-
-	// info, err := Info("family", "/thumb/favorite.jpg")
-	// fmt.Println(info, err)
-
 }

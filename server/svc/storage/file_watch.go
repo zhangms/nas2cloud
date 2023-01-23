@@ -25,7 +25,8 @@ const (
 
 type fileEvent struct {
 	eventType fileEventType
-	userGroup string
+	userName  string
+	userRoles string
 	path      string
 }
 
@@ -78,7 +79,7 @@ func (fw *fileWatchSvc) processEvent(event *fileEvent) error {
 }
 
 func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
-	info, err := vfs.Info(event.userGroup, event.path)
+	info, err := vfs.Info(event.userRoles, event.path)
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 	if err != nil {
 		return err
 	}
-	files, err := vfs.List(event.userGroup, event.path)
+	files, err := vfs.List(event.userRoles, event.path)
 	if err != nil {
 		return err
 	}

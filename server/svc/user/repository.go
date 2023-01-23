@@ -118,10 +118,10 @@ func findUserByAuthToken(userName string, device string, token string) (*User, e
 	//return usr.Clone(), nil
 }
 
-func GetUserGroup(userName string) string {
+func GetUserRoles(userName string) string {
 	usr := users[userName]
 	if usr != nil {
-		return usr.Group
+		return usr.Roles
 	}
 	return ""
 }

@@ -5,7 +5,7 @@ import "strings"
 type User struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
-	Group    string `json:"group"`
+	Roles    string `json:"role"`
 	Mode     string `json:"mode"`
 	Avatar   string `json:"avatar"`
 }
@@ -13,7 +13,7 @@ type User struct {
 func (u *User) Clone() *User {
 	return &User{
 		Name:   u.Name,
-		Group:  u.Group,
+		Roles:  u.Roles,
 		Mode:   u.Mode,
 		Avatar: u.Avatar,
 	}

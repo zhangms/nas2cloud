@@ -2,20 +2,20 @@
   {
     "name": "dioscoreae",
     "password": "baobao1234",
-    "group": "admin",
+    "roles": "admin",
     "mode": "rw"
   },
   {
     "name": "zms",
     "password": "baobao4321x",
-    "group": "family",
+    "roles": "zms,family",
     "avatar": "/thumb/favorite.jpg",
     "mode": "rw"
   },
   {
     "name": "pmz",
     "password": "baobao123678",
-    "group": "family",
+    "roles": "pmz,family",
     "mode": "rw"
   }
 ]

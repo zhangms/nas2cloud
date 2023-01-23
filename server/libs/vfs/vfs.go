@@ -21,14 +21,21 @@ type Bucket struct {
 	hidden    bool
 }
 
-func (b *Bucket) authorized(user string) bool {
-	if b.authorize == "ALL" || b.authorize == "PUBLIC" || user == "root" {
+func (b *Bucket) authorized(role string) bool {
+	if b.authorize == "ALL" || b.authorize == "PUBLIC" {
 		return true
 	}
-	arr := strings.Split(b.authorize, ",")
-	for _, v := range arr {
-		if strings.TrimSpace(v) == user {
+	auths := strings.Split(b.authorize, ",")
+	roles := strings.Split(role, ",")
+	for _, r := range roles {
+		ro := strings.TrimSpace(r)
+		if ro == "root" {
 			return true
+		}
+		for _, auth := range auths {
+			if strings.TrimSpace(auth) == ro {
+				return true
+			}
 		}
 	}
 	return false
@@ -92,20 +99,20 @@ func GetBucketFile(file string) (string, string) {
 	return arr[1], ""
 }
 
-func GetBucket(user string, file string) (*Bucket, string, error) {
+func GetBucket(role string, file string) (*Bucket, string, error) {
 	bucketName, fileName := GetBucketFile(file)
 	b := buckets[bucketName]
 	if b == nil {
 		return nil, "", errors.New("Bucket not exists :" + bucketName)
 	}
-	if !b.authorized(user) {
+	if !b.authorized(role) {
 		return nil, "", errors.New("no authority")
 	}
 	return b, fileName, nil
 }
 
-func GetStore(user string, file string) (Store, string, error) {
-	b, f, err := GetBucket(user, file)
+func GetStore(role string, file string) (Store, string, error) {
+	b, f, err := GetBucket(role, file)
 	if err != nil {
 		return nil, f, err
 	}
@@ -129,17 +136,17 @@ func GetAllBucket() []*Bucket {
 	return ret
 }
 
-func List(user string, file string) ([]*ObjectInfo, error) {
+func List(role string, file string) ([]*ObjectInfo, error) {
 	if IsRootDir(file) {
 		ret := make([]*ObjectInfo, 0)
 		for _, b := range GetAllBucket() {
-			if !b.authorized(user) {
+			if !b.authorized(role) {
 				continue
 			}
 			if b.hidden {
 				continue
 			}
-			inf, err := Info(user, b.Dir())
+			inf, err := Info(role, b.Dir())
 			if err != nil {
 				continue
 			}
@@ -147,14 +154,14 @@ func List(user string, file string) ([]*ObjectInfo, error) {
 		}
 		return ret, nil
 	}
-	store, f, err := GetStore(user, file)
+	store, f, err := GetStore(role, file)
 	if err != nil {
 		return nil, err
 	}
 	return store.List(f)
 }
 
-func Info(user string, file string) (*ObjectInfo, error) {
+func Info(role string, file string) (*ObjectInfo, error) {
 	if file == "" || file == "/" {
 		return &ObjectInfo{
 			Name:    "/",
@@ -165,55 +172,55 @@ func Info(user string, file string) (*ObjectInfo, error) {
 			CreTime: time.Now(),
 		}, nil
 	}
-	store, f, err := GetStore(user, file)
+	store, f, err := GetStore(role, file)
 	if err != nil {
 		return nil, err
 	}
 	return store.Info(f)
 }
 
-func Read(user string, file string) ([]byte, error) {
-	store, f, err := GetStore(user, file)
+func Read(role string, file string) ([]byte, error) {
+	store, f, err := GetStore(role, file)
 	if err != nil {
 		return nil, err
 	}
 	return store.Read(f)
 }
 
-func Write(user string, file string, data []byte) error {
-	store, f, err := GetStore(user, file)
+func Write(role string, file string, data []byte) error {
+	store, f, err := GetStore(role, file)
 	if err != nil {
 		return err
 	}
 	return store.Write(f, data)
 }
 
-func Exists(user string, file string) bool {
-	store, f, err := GetStore(user, file)
+func Exists(role string, file string) bool {
+	store, f, err := GetStore(role, file)
 	if err != nil {
 		return false
 	}
 	return store.Exists(f)
 }
 
-func MkdirAll(user string, path string) error {
-	store, f, err := GetStore(user, path)
+func MkdirAll(role string, path string) error {
+	store, f, err := GetStore(role, path)
 	if err != nil {
 		return err
 	}
 	return store.MkdirAll(f)
 }
 
-func RemoveAll(user string, path string) error {
-	store, f, err := GetStore(user, path)
+func RemoveAll(role string, path string) error {
+	store, f, err := GetStore(role, path)
 	if err != nil {
 		return err
 	}
 	return store.RemoveAll(f)
 }
 
-func Upload(user string, path string, reader io.Reader, modTime time.Time) (int64, error) {
-	store, f, err := GetStore(user, path)
+func Upload(role string, path string, reader io.Reader, modTime time.Time) (int64, error) {
+	store, f, err := GetStore(role, path)
 	if err != nil {
 		return 0, err
 	}

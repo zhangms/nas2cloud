@@ -135,7 +135,7 @@ func staticLoginRequired(c *fiber.Ctx) bool {
 	if err != nil {
 		return true
 	}
-	inf, err := vfs.Info(u.Group, path)
+	inf, err := vfs.Info(u.Roles, path)
 	if err != nil {
 		return true
 	}
