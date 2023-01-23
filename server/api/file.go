@@ -7,6 +7,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/storage"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -67,7 +68,8 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 }
 
 func (f *FileController) Upload(c *fiber.Ctx) error {
-	path := "/" + c.Params("*")
+	p, _ := url.PathUnescape(c.Params("*"))
+	path := "/" + p
 	file, err := c.FormFile("file")
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())

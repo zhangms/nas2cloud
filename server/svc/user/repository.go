@@ -42,9 +42,9 @@ func findUserByName(name string) *User {
 }
 
 func deviceType(device string) string {
-	lower := strings.ToLower(device)
-	devType := "web"
-	if strings.Contains(lower, "android") || strings.Contains(lower, "ios") {
+	arr := strings.Split(strings.ToLower(device), ",")
+	devType := arr[0]
+	if strings.Contains(devType, "android") || strings.Contains(devType, "ios") {
 		devType = "mobile"
 	}
 	return devType

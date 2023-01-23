@@ -104,9 +104,9 @@ func (t *ThumbnailSvc) process(index int) {
 		}
 		err := thumb.exec(file, thumbName, t.thumbWidth, t.thumbHeight)
 		if err != nil {
-			logger.Error("image thumb error", reflect.TypeOf(thumb), file, err)
+			logger.Error("image thumb error", reflect.TypeOf(thumb), file, thumbName, err)
 		} else {
-			logger.Info("image thumb", file)
+			logger.Info("image thumb", file, thumbName)
 		}
 	}
 }

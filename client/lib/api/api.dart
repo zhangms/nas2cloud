@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:nas2cloud/api/app_storage.dart';
@@ -11,8 +13,10 @@ import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 
 const _exception = {"success": false, "message": "服务器不可用"};
 
-const _defaultHttpHeaders = {
-  "X-DEVICE": "web",
+var _defaultHttpHeaders = {
+  "X-DEVICE": kIsWeb
+      ? "flutter-app-web"
+      : "${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version}",
   "Content-Type": "application/json;charset=UTF-8",
 };
 

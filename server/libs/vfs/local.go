@@ -34,7 +34,7 @@ func (l *Local) AbsVirtual(file string) string {
 }
 
 func (l *Local) Name() string {
-	return l.bucket.name
+	return l.bucket.id
 }
 
 func (l *Local) List(file string) ([]*ObjectInfo, error) {

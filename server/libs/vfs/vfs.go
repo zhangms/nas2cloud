@@ -14,6 +14,7 @@ import (
 )
 
 type Bucket struct {
+	id        string
 	name      string
 	mountType string
 	endpoint  string
@@ -50,7 +51,7 @@ func (b *Bucket) MountTypeLocal() bool {
 }
 
 func (b *Bucket) Dir() string {
-	return path.Join("/", b.name)
+	return path.Join("/", b.id)
 }
 
 func (b *Bucket) Endpoint() string {
@@ -62,10 +63,11 @@ func (b *Bucket) Authorize() string {
 }
 
 var buckets map[string]*Bucket
-var bucketNames []string
+var bucketIds []string
 
 func init() {
 	type config struct {
+		Id        string `json:"id"`
 		Name      string `json:"name"`
 		MountType string `json:"mountType"`
 		Endpoint  string `json:"endpoint"`
@@ -76,10 +78,11 @@ func init() {
 	data, _ := res.ReadEnvConfig("bucket.json")
 	_ = json.Unmarshal(data, &configs)
 	buckets = make(map[string]*Bucket)
-	bucketNames = make([]string, 0)
+	bucketIds = make([]string, 0)
 	for _, conf := range configs {
-		bucketNames = append(bucketNames, conf.Name)
-		buckets[conf.Name] = &Bucket{
+		bucketIds = append(bucketIds, conf.Id)
+		buckets[conf.Id] = &Bucket{
+			id:        conf.Id,
 			name:      conf.Name,
 			mountType: conf.MountType,
 			endpoint:  path.Clean(conf.Endpoint),
@@ -100,10 +103,10 @@ func GetBucketFile(file string) (string, string) {
 }
 
 func GetBucket(role string, file string) (*Bucket, string, error) {
-	bucketName, fileName := GetBucketFile(file)
-	b := buckets[bucketName]
+	bucketId, fileName := GetBucketFile(file)
+	b := buckets[bucketId]
 	if b == nil {
-		return nil, "", errors.New("Bucket not exists :" + bucketName)
+		return nil, "", errors.New("Bucket not exists :" + bucketId)
 	}
 	if !b.authorized(role) {
 		return nil, "", errors.New("no authority")
@@ -129,7 +132,7 @@ func IsRootDir(p string) bool {
 
 func GetAllBucket() []*Bucket {
 	ret := make([]*Bucket, 0)
-	for _, name := range bucketNames {
+	for _, name := range bucketIds {
 		b := buckets[name]
 		ret = append(ret, b)
 	}

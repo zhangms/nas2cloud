@@ -23,8 +23,8 @@ const API = {
 
     saveLoginState: function (state) {
         localStorage.setItem("loginState", JSON.stringify(state))
-        document.cookie = "X-DEVICE=web"
-        document.cookie = "X-AUTH-TOKEN=" + state.username + "-" + state.token
+        document.cookie = "X-DEVICE=react-console; path=/"
+        document.cookie = "X-AUTH-TOKEN=" + state.username + "-" + state.token + "; path=/"
     },
 
     clearLoginState: function () {
@@ -42,11 +42,11 @@ const API = {
             const state = this.getLoginState()
             return {
                 "X-AUTH-TOKEN": state.username + "-" + state.token,
-                "X-DEVICE": "web"
+                "X-DEVICE": "react-console"
             }
         }
         return {
-            "X-DEVICE": "web",
+            "X-DEVICE": "react-console",
         }
     },
 

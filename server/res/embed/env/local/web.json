@@ -1,5 +1,5 @@
 {
   "AllowCredentials": true,
-  "AllowOrigins": "",
+  "AllowOrigins": "http://127.0.0.1:7001",
   "AllowHeaders": "x-requested-with,content-type,X-AUTH-TOKEN,X-DEVICE"
 }

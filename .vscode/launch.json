@@ -5,11 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "nas2cloudServer",
+            "name": "server",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "server/main.go"
+        }
+        {
+            "name": "server_local",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "server/main.go",
+            "args": [
+                "-port=7001",
+                "-profile=local"
+            ]
         }
     ]
 }

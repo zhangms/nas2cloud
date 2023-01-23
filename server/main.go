@@ -57,6 +57,7 @@ func waitingSignal(app *fiber.App) {
 			logger.Warn("RECEIVE_TERM_SIGNAL", "system will shutdown...")
 			err := app.Shutdown()
 			logger.Warn("shutdown end", err)
+			os.Exit(0)
 		default:
 			time.Sleep(time.Second)
 		}
