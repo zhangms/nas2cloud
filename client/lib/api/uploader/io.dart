@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
 import 'package:nas2cloud/api/uploader/file_uploder.dart';
@@ -15,11 +14,10 @@ class IOUploader extends FileUploader {
   }
 
   @override
-  Future<bool> uploadPath({required String src, required String dest}) {
-    var file = File(src);
-    print(file.lastModifiedSync());
-    print(file.path);
-    return Future.value(false);
+  Future<bool> uploadPath({required String src, required String dest}) async {
+    var ret = await api.uploadPath(src: src, dest: dest);
+    print("-------->${ret.toJson()}");
+    return true;
   }
 
   @override
