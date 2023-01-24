@@ -10,7 +10,7 @@ const String _keyPrefix = "app.fileupload.";
 
 class WebUploader extends FileUploader {
   @override
-  Future<bool> fireStreamUploadEvent(
+  Future<bool> uploadStream(
       {required String dest,
       required String fileName,
       required int size,
@@ -144,8 +144,7 @@ class WebUploader extends FileUploader {
   }
 
   @override
-  Future<bool> firePathUploadEvent(
-      {required String dest, required String src}) {
-    throw UnsupportedError("error");
+  Future<bool> uploadPath({required String dest, required String src}) {
+    throw UnsupportedError("unsupported");
   }
 }

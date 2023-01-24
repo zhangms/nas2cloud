@@ -11,50 +11,60 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var obscurePassword = true;
   final _loginFormKey = GlobalKey<FormState>();
+  var obscurePassword = true;
   var username = TextEditingController();
   var password = TextEditingController();
   var errorMessage = "";
+  late AppState appState;
 
   @override
   Widget build(BuildContext context) {
+    appState = context.watch<AppState>();
     return Scaffold(
-      body: LayoutBuilder(builder: (context, constraints) {
-        return SafeArea(
-          child: Center(
-            child: SizedBox(
-              width: screenMainAreaWidth(context: context),
-              child: Form(
-                key: _loginFormKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: () {
-                  setErrorMsg("");
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    buildTitle(),
-                    SizedBox(
-                      height: 60,
-                    ),
-                    buildUsernameTextField(),
-                    buildPasswordTextField(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    buildLoginButton(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    buildResetHostButton(),
-                  ],
-                ),
+      appBar: buildAppBar(),
+      body: buildBody(),
+    );
+  }
+
+  LayoutBuilder buildBody() {
+    return LayoutBuilder(builder: (context, constraints) {
+      return SafeArea(
+        child: Center(
+          child: SizedBox(
+            width: screenMainAreaWidth(context: context),
+            child: Form(
+              key: _loginFormKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: () {
+                setErrorMsg("");
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildUsernameTextField(),
+                  buildPasswordTextField(),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  buildLoginButton(),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  buildResetHostButton(),
+                ],
               ),
             ),
           ),
-        );
-      }),
+        ),
+      );
+    });
+  }
+
+  buildAppBar() {
+    var title = appStorage.getHostState()?.appName ?? "Nas2cloud";
+    return AppBar(
+      title: Text(title),
     );
   }
 
@@ -84,12 +94,7 @@ class _LoginPageState extends State<LoginPage> {
     var appState = context.watch<AppState>();
     return Column(
       children: [
-        Text(
-          errorMessage,
-          style: TextStyle(
-            color: Colors.red,
-          ),
-        ),
+        Text(errorMessage),
         SizedBox(
           height: 20,
         ),
@@ -97,15 +102,10 @@ class _LoginPageState extends State<LoginPage> {
           width: 200,
           height: 45,
           child: ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.blue)),
               onPressed: (() {
                 login(appState);
               }),
-              child: Text(
-                "登录",
-                style: Theme.of(context).primaryTextTheme.headlineSmall,
-              )),
+              child: Text("登录")),
         ),
       ],
     );
@@ -121,7 +121,6 @@ class _LoginPageState extends State<LoginPage> {
         }
         return null;
       }),
-      cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(labelText: "用户名"),
     );
   }
@@ -137,7 +136,6 @@ class _LoginPageState extends State<LoginPage> {
         }
         return null;
       }),
-      cursorColor: Theme.of(context).colorScheme.onSurface,
       decoration: InputDecoration(
           labelText: "密码",
           suffixIcon: IconButton(
@@ -155,15 +153,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  buildTitle() {
-    return Text(
-      appStorage.getHostState()?.appName ?? "Nas2cloud",
-      style: Theme.of(context).textTheme.bodyLarge,
-    );
-  }
-
   buildResetHostButton() {
-    var appState = context.watch<AppState>();
     return TextButton(
         onPressed: (() {
           appState.clearHostAddress();

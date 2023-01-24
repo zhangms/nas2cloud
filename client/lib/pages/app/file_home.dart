@@ -32,7 +32,7 @@ class _FileHomePageState extends State<FileHomePage> {
       appBar: buildAppBar(hostState),
       body: SafeArea(child: buildFileListView()),
       drawer: Drawer(
-        child: buildDrawer(),
+        child: SafeArea(child: buildDrawer()),
       ),
     );
   }
@@ -74,14 +74,11 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   AppBar buildAppBar(state.Data? hostState) {
-    var theme = Theme.of(context);
     return AppBar(
-      backgroundColor: theme.primaryColor,
       leading: Builder(builder: (context) {
         return IconButton(
           icon: Icon(
             Icons.menu,
-            color: theme.primaryIconTheme.color,
           ),
           onPressed: () {
             Scaffold.of(context).openDrawer();
@@ -90,7 +87,6 @@ class _FileHomePageState extends State<FileHomePage> {
       }),
       title: Text(
         hostState?.appName ?? "Nas2cloud",
-        style: theme.primaryTextTheme.titleMedium,
       ),
     );
   }
@@ -134,7 +130,6 @@ class _FileHomePageState extends State<FileHomePage> {
     return ListView(
       children: [
         UserAccountsDrawerHeader(
-          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           accountName: Text((hostState?.userName ?? "").toUpperCase()),
           accountEmail: Text(hostState?.appName ?? ""),
           currentAccountPicture: avatar,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/scaffold.dart';
+import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -16,10 +17,7 @@ class MyApp extends StatelessWidget {
       create: (context) => AppState(),
       child: MaterialApp(
         title: "Nas2cloud",
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        ),
+        theme: AppLightTheme.themeData,
         home: ScaffoldPage(),
       ),
     );

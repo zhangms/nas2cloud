@@ -75,13 +75,10 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   buildAppBar() {
-    var theme = Theme.of(context);
     return AppBar(
-      backgroundColor: theme.primaryColor,
       leading: IconButton(
         icon: Icon(
           Icons.arrow_back,
-          color: theme.primaryIconTheme.color,
         ),
         onPressed: () {
           pop();
@@ -89,19 +86,16 @@ class _FileListPageState extends State<FileListPage> {
       ),
       title: Text(
         widget.name,
-        style: theme.primaryTextTheme.titleMedium,
       ),
-      actions: [buildAddMenu(theme), buildMoreMenu(theme)],
+      actions: [buildAddMenu(), buildMoreMenu()],
     );
   }
 
-  PopupMenuButton<Text> buildMoreMenu(ThemeData theme) {
+  PopupMenuButton<Text> buildMoreMenu() {
     return PopupMenuButton<Text>(
       icon: Icon(
         Icons.more_horiz,
-        color: theme.primaryIconTheme.color,
       ),
-      color: theme.primaryIconTheme.color,
       itemBuilder: (context) {
         return [
           PopupMenuItem(
@@ -120,11 +114,10 @@ class _FileListPageState extends State<FileListPage> {
     );
   }
 
-  PopupMenuButton<Text> buildAddMenu(ThemeData theme) {
+  PopupMenuButton<Text> buildAddMenu() {
     return PopupMenuButton<Text>(
       icon: Icon(
         Icons.add,
-        color: theme.primaryIconTheme.color,
       ),
       itemBuilder: (context) {
         return [
@@ -401,7 +394,7 @@ class _FileListPageState extends State<FileListPage> {
       if (e.readStream == null) {
         continue;
       }
-      FileUploader.getInstance().fireStreamUploadEvent(
+      FileUploader.getInstance().uploadStream(
         dest: widget.path,
         fileName: e.name,
         size: e.size,
@@ -420,10 +413,7 @@ class _FileListPageState extends State<FileListPage> {
     for (var i = 0; i < result.paths.length; i++) {
       var path = result.paths[i];
       print(path);
-      FileUploader.getInstance().firePathUploadEvent(
-        dest: widget.path,
-        src: path!,
-      );
+      FileUploader.getInstance().uploadPath(src: path!, dest: widget.path);
     }
   }
 }

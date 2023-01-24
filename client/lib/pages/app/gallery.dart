@@ -89,26 +89,18 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
   }
 
   buildAppBar() {
-    var theme = Theme.of(context);
     var index = currentIndex + 1;
     var item = widget.images[currentIndex];
     return AppBar(
-      backgroundColor: theme.primaryColor,
       leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-          color: theme.primaryIconTheme.color,
-        ),
+        icon: Icon(Icons.arrow_back),
         onPressed: () {
           Navigator.of(context).pop();
         },
       ),
       title: SizedBox(
         width: MediaQuery.of(context).size.width * 0.66,
-        child: Text(
-          "($index/${widget.images.length})${item.name}",
-          style: theme.primaryTextTheme.titleMedium,
-        ),
+        child: Text("($index/${widget.images.length})${item.name}"),
       ),
     );
   }

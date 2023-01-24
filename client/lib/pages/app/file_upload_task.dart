@@ -40,32 +40,23 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
   }
 
   buildAppBar() {
-    var theme = Theme.of(context);
     return AppBar(
-      backgroundColor: theme.primaryColor,
       leading: IconButton(
         icon: Icon(
           Icons.arrow_back,
-          color: theme.primaryIconTheme.color,
         ),
         onPressed: () {
           Navigator.of(context).pop();
         },
       ),
-      title: Text(
-        "文件上传任务",
-        style: theme.primaryTextTheme.titleMedium,
-      ),
-      actions: [buildMoreMenu(theme)],
+      title: Text("文件上传任务"),
+      actions: [buildMoreMenu()],
     );
   }
 
-  buildMoreMenu(ThemeData theme) {
+  buildMoreMenu() {
     return PopupMenuButton<Text>(
-      icon: Icon(
-        Icons.more_horiz,
-        color: theme.primaryIconTheme.color,
-      ),
+      icon: Icon(Icons.more_horiz),
       itemBuilder: (context) {
         return [
           PopupMenuItem(

@@ -25,7 +25,7 @@ abstract class FileUploader {
 
   FileUploader();
 
-  Future<bool> fireStreamUploadEvent(
+  Future<bool> uploadStream(
       {required String dest,
       required String fileName,
       required int size,
@@ -33,7 +33,7 @@ abstract class FileUploader {
 
   int getCount();
 
-  Future<bool> firePathUploadEvent({required String dest, required String src});
+  Future<bool> uploadPath({required String src, required String dest});
 
   FileUploadRecord? getRecord(int index);
 

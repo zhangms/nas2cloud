@@ -17,6 +17,9 @@ class _ConfigPageState extends State<ConfigPage> {
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Nas2cloud"),
+      ),
       body: Center(
         child: SizedBox(
           width: screenMainAreaWidth(context: context),

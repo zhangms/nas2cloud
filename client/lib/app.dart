@@ -11,7 +11,7 @@ class AppState extends ChangeNotifier {
   }
 
   clearHostAddress() async {
-    appStorage.clearHostAddress();
+    await appStorage.clearHostAddress();
     notifyListeners();
   }
 
