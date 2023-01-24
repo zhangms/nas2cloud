@@ -222,6 +222,14 @@ func RemoveAll(role string, path string) error {
 	return store.RemoveAll(f)
 }
 
+func Remove(role string, path string) error {
+	store, f, err := GetStore(role, path)
+	if err != nil {
+		return err
+	}
+	return store.Remove(f)
+}
+
 func Upload(role string, path string, reader io.Reader, modTime time.Time) (int64, error) {
 	store, f, err := GetStore(role, path)
 	if err != nil {

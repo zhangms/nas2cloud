@@ -41,6 +41,10 @@ func (e *empty) RemoveAll(file string) error {
 	return errors.New("not support operation")
 }
 
+func (e *empty) Remove(file string) error {
+	return errors.New("not support operation")
+}
+
 func (e *empty) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
 	return 0, errors.New("not support operation")
 }

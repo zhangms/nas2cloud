@@ -108,11 +108,11 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	return fileCache.save(info)
 }
 
-func (fs *FileSvc) RemoveAll(username string, fullPath []string) error {
+func (fs *FileSvc) Remove(username string, fullPath []string) error {
 	userRoles := user.GetUserRoles(username)
 	for _, p := range fullPath {
 		path := filepath.Clean(p)
-		err := vfs.RemoveAll(userRoles, path)
+		err := vfs.Remove(userRoles, path)
 		if err != nil {
 			return err
 		}

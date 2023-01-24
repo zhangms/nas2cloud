@@ -42,5 +42,7 @@ type Store interface {
 
 	RemoveAll(file string) error
 
+	Remove(file string) error
+
 	Upload(file string, reader io.Reader, modTime time.Time) (int64, error)
 }

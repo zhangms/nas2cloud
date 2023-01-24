@@ -60,7 +60,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
-	err = storage.File().RemoveAll(u.Name, req.Path)
+	err = storage.File().Remove(u.Name, req.Path)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}

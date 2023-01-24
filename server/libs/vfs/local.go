@@ -99,6 +99,10 @@ func (l *Local) RemoveAll(file string) error {
 	return os.RemoveAll(l.AbsLocal(file))
 }
 
+func (l *Local) Remove(file string) error {
+	return os.Remove(l.AbsLocal(file))
+}
+
 func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
 	writer, err := os.OpenFile(l.AbsLocal(file), os.O_CREATE|os.O_WRONLY, fs.ModePerm)
 	if err != nil {
