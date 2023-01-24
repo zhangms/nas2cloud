@@ -142,4 +142,10 @@ class WebUploader extends FileUploader {
     }
     _clearRecordCache();
   }
+
+  @override
+  Future<bool> firePathUploadEvent(
+      {required String dest, required String src}) {
+    throw UnsupportedError("error");
+  }
 }

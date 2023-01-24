@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
-import 'package:nas2cloud/api/uploader/unsupport.dart';
+import 'package:nas2cloud/api/uploader/io.dart';
 import 'package:nas2cloud/api/uploader/web.dart';
 
 typedef FileUploadListener = void Function(FileUploadRecord record);
@@ -16,7 +16,7 @@ abstract class FileUploader {
     if (kIsWeb) {
       _uploader = WebUploader();
     } else {
-      _uploader = UnsupportUploader();
+      _uploader = IOUploader();
     }
     return _uploader!;
   }
@@ -32,6 +32,8 @@ abstract class FileUploader {
       required Stream<List<int>> stream});
 
   int getCount();
+
+  Future<bool> firePathUploadEvent({required String dest, required String src});
 
   FileUploadRecord? getRecord(int index);
 

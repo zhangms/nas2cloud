@@ -418,9 +418,12 @@ class _FileListPageState extends State<FileListPage> {
       return;
     }
     for (var i = 0; i < result.paths.length; i++) {
-      var e = result.paths[i];
-      print("hell world---------");
-      print(e);
+      var path = result.paths[i];
+      print(path);
+      FileUploader.getInstance().firePathUploadEvent(
+        dest: widget.path,
+        src: path!,
+      );
     }
   }
 }
