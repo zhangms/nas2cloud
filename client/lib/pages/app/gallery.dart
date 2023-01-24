@@ -1,12 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
+import 'package:nas2cloud/pages/app/pdf_viewer.dart';
 import 'package:nas2cloud/pages/app/video_player.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class GalleryPhotoViewPage extends StatefulWidget {
+  static bool isSupportFileExt(String? ext) {
+    if (FileExt.isImage(ext) || FileExt.isVideo(ext)) {
+      return true;
+    }
+    if (!kIsWeb && FileExt.isPDF(ext)) {
+      return true;
+    }
+    return false;
+  }
+
   final List<File> images;
   final int index;
   final PageController pageController;
@@ -67,7 +79,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
 
   PhotoViewGalleryPageOptions buildImage(BuildContext context, int idx) {
     File item = widget.images[idx];
-    if (fileExt.isImage(item.ext)) {
+    if (FileExt.isImage(item.ext)) {
       return PhotoViewGalleryPageOptions(
           imageProvider: NetworkImage(api.getStaticFileUrl(item.path),
               headers: api.httpHeaders()),
@@ -77,9 +89,12 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           heroAttributes: PhotoViewHeroAttributes(tag: item.path),
           controller: controller,
           scaleStateController: scaleStateController);
-    } else if (fileExt.isVideo(item.ext)) {
+    } else if (FileExt.isVideo(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: VideoPlayerWapper(api.getStaticFileUrl(item.path)));
+    } else if (FileExt.isPDF(item.ext)) {
+      return PhotoViewGalleryPageOptions.customChild(
+          child: PDFViewer(api.getStaticFileUrl(item.path)));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
           child: Center(
@@ -98,10 +113,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           Navigator.of(context).pop();
         },
       ),
-      title: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.66,
-        child: Text("($index/${widget.images.length})${item.name}"),
-      ),
+      title: Text("($index/${widget.images.length})${item.name}"),
     );
   }
 }

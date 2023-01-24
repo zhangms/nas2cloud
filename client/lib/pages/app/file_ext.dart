@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 
-class _FileExt {
-  bool isImage(String? ext) {
-    if (ext == null) {
-      return false;
-    }
+class FileExt {
+  static bool isImage(String? ext) {
     switch (ext) {
       case ".JPG":
       case ".JPEG":
@@ -17,10 +14,7 @@ class _FileExt {
     }
   }
 
-  bool isMusic(String? ext) {
-    if (ext == null) {
-      return false;
-    }
+  static bool isMusic(String? ext) {
     switch (ext) {
       case ".MP3":
       case ".WAV":
@@ -30,10 +24,7 @@ class _FileExt {
     }
   }
 
-  bool isVideo(String? ext) {
-    if (ext == null) {
-      return false;
-    }
+  static bool isVideo(String? ext) {
     switch (ext) {
       case ".MP4":
       case ".MOV":
@@ -43,7 +34,11 @@ class _FileExt {
     }
   }
 
-  Widget getItemIcon(File item) {
+  static bool isPDF(String? ext) {
+    return ext == ".PDF";
+  }
+
+  static Widget getItemIcon(File item) {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
     }
@@ -56,7 +51,7 @@ class _FileExt {
     return _getItemThumbnail(item);
   }
 
-  Widget _getItemIconByExt(String? ext) {
+  static Widget _getItemIconByExt(String? ext) {
     if (isImage(ext)) {
       return Icon(Icons.image);
     }
@@ -66,10 +61,18 @@ class _FileExt {
     if (isVideo(ext)) {
       return Icon(Icons.video_file);
     }
-    return Icon(Icons.insert_drive_file);
+    if (isPDF(ext)) {
+      return Icon(Icons.picture_as_pdf);
+    }
+    switch (ext) {
+      case ".TXT":
+        return Icon(Icons.text_snippet);
+      default:
+        return Icon(Icons.insert_drive_file);
+    }
   }
 
-  Widget _getItemThumbnailVideo(File item) {
+  static Widget _getItemThumbnailVideo(File item) {
     return SizedBox(
       height: 40,
       width: 40,
@@ -85,7 +88,7 @@ class _FileExt {
     );
   }
 
-  Padding _getItemThumbnail(File item) {
+  static Widget _getItemThumbnail(File item) {
     return Padding(
       padding: const EdgeInsets.only(top: 5, bottom: 5),
       child: SizedBox(
@@ -102,5 +105,3 @@ class _FileExt {
     );
   }
 }
-
-var fileExt = _FileExt();

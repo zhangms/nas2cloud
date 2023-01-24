@@ -87,22 +87,17 @@ class _FileListPageState extends State<FileListPage> {
       title: Text(
         widget.name,
       ),
-      actions: [buildAddMenu(), buildMoreMenu()],
+      actions: [buildAddMenu(), buildSortMenu()],
     );
   }
 
-  PopupMenuButton<Text> buildMoreMenu() {
+  PopupMenuButton<Text> buildSortMenu() {
     return PopupMenuButton<Text>(
       icon: Icon(
-        Icons.more_horiz,
+        Icons.sort,
       ),
       itemBuilder: (context) {
         return [
-          PopupMenuItem(
-            enabled: false,
-            child: Text("排序方式"),
-          ),
-          PopupMenuDivider(),
           for (var i = 0; i < _orderByOptions.length; i++)
             PopupMenuItem(
               enabled: _orderByOptions[i]["orderBy"]! != orderBy,
@@ -206,7 +201,7 @@ class _FileListPageState extends State<FileListPage> {
     }
     var item = items[index];
     return ListTile(
-      leading: fileExt.getItemIcon(item),
+      leading: FileExt.getItemIcon(item),
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
       onTap: () {
@@ -221,7 +216,7 @@ class _FileListPageState extends State<FileListPage> {
   void onItemTap(File item) {
     if (item.type == "DIR") {
       openNewPage(FileListPage(item.path, item.name));
-    } else if (fileExt.isImage(item.ext) || fileExt.isVideo(item.ext)) {
+    } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(item);
     }
   }
@@ -362,7 +357,7 @@ class _FileListPageState extends State<FileListPage> {
     int index = 0;
     for (var i = 0; i < items.length; i++) {
       var it = items[i];
-      if (fileExt.isImage(it.ext) || fileExt.isVideo(it.ext)) {
+      if (GalleryPhotoViewPage.isSupportFileExt(it.ext)) {
         images.add(it);
         if (it.path == item.path) {
           index = images.length - 1;
