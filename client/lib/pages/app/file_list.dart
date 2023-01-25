@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
@@ -43,6 +44,36 @@ class _FileListPageState extends State<FileListPage> {
   late List<File> items;
   late bool fetching;
   late String orderBy;
+
+  @pragma('vm:entry-point')
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    print("downloadCallback $id, $status, $progress");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FileUploader.getInstance().addListener(onUploadChange);
+    FlutterDownloader.registerCallback(downloadCallback);
+    _setInitState();
+    fetchNext(widget.path);
+  }
+
+  void _setInitState() {
+    total = -1;
+    currentStop = -1;
+    currentPage = -1;
+    fetching = false;
+    items = [];
+    orderBy = _orderByOptions[0]["orderBy"]!;
+  }
+
+  @override
+  void dispose() {
+    FileUploader.getInstance().removeListener(onUploadChange);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +234,7 @@ class _FileListPageState extends State<FileListPage> {
     if (orderBy == order) {
       return;
     }
-    setInitState();
+    _setInitState();
     setState(() {
       orderBy = order;
     });
@@ -225,7 +256,7 @@ class _FileListPageState extends State<FileListPage> {
       });
       return;
     }
-    setInitState();
+    _setInitState();
     orderBy = "creTime_desc";
     fetchNext(widget.path);
   }
@@ -246,17 +277,23 @@ class _FileListPageState extends State<FileListPage> {
     });
   }
 
-  @override
-  void dispose() {
-    FileUploader.getInstance().removeListener(onUploadChange);
-    super.dispose();
-  }
-
   void download(File item) {
     if (item.type == "DIR") {
       return;
     }
-    launchUrl(Uri.parse(api.signUrl(api.getStaticFileUrl(item.path))));
+    if (kIsWeb) {
+      launchUrl(Uri.parse(api.signUrl(api.getStaticFileUrl(item.path))));
+    } else {
+      FlutterDownloader.enqueue(
+        url: api.getStaticFileUrl(item.path),
+        headers: api.httpHeaders(),
+        savedDir: "./",
+        saveInPublicStorage: true,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+      showMessage("${item.name} 已开始下载, 请从状态栏查看下载进度");
+    }
   }
 
   fetchNext(String path) async {
@@ -289,14 +326,6 @@ class _FileListPageState extends State<FileListPage> {
     } finally {
       fetching = false;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    FileUploader.getInstance().addListener(onUploadChange);
-    setInitState();
-    fetchNext(widget.path);
   }
 
   Future<void> nativeUpload() async {
@@ -341,7 +370,7 @@ class _FileListPageState extends State<FileListPage> {
   void onUploadChange(FileUploadRecord record) {
     if (record.dest == widget.path) {
       if (record.status == FileUploadStatus.success.name) {
-        setInitState();
+        _setInitState();
         orderBy = "creTime_desc";
         fetchNext(widget.path);
       }
@@ -381,15 +410,6 @@ class _FileListPageState extends State<FileListPage> {
   void pop() {
     clearMessage();
     Navigator.of(context).pop();
-  }
-
-  void setInitState() {
-    total = -1;
-    currentStop = -1;
-    currentPage = -1;
-    fetching = false;
-    items = [];
-    orderBy = _orderByOptions[0]["orderBy"]!;
   }
 
   void showItemDeleteConfirm(File item) {
