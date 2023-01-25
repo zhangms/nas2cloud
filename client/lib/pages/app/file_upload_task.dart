@@ -65,13 +65,13 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
           ),
           PopupMenuItem(
             child: Text("清空出错任务"),
-            onTap: () => clearTask([FileUploadStatus.error]),
+            onTap: () => clearTask([FileUploadStatus.failed]),
           ),
           PopupMenuItem(
             child: Text("清空所有任务"),
             onTap: () => clearTask([
               FileUploadStatus.success,
-              FileUploadStatus.error,
+              FileUploadStatus.failed,
               FileUploadStatus.waiting
             ]),
           ),
@@ -117,7 +117,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
         DateTime.fromMillisecondsSinceEpoch(record.beginUploadTime));
     return ListTile(
       leading: buildLeadingIcon(record.status, record.message),
-      title: Text("${record.dest}/\n${record.fileName}"),
+      title: Text(record.fileName),
       subtitle: Text("$time $size"),
     );
   }
@@ -134,7 +134,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
       );
     }
     switch (status) {
-      case FileUploadStatus.error:
+      case FileUploadStatus.failed:
         return Tooltip(
           message: message,
           child: Icon(

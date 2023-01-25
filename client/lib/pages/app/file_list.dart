@@ -320,7 +320,7 @@ class _FileListPageState extends State<FileListPage> {
       print(path);
       FileUploader.get().uploadPath(src: path!, dest: widget.path);
     }
-    showMessage("已开始上传, 请从状态栏查看上传进度");
+    openNewPage(FileUploadTaskPage());
   }
 
   onAddFile() async {

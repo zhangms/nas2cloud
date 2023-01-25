@@ -40,7 +40,7 @@ class WebUploader extends FileUploader {
       return false;
     }
     if (record.size / 1024 / 1024 >= 500) {
-      await _chgState(record, FileUploadStatus.error, "文件大小不能超过500MB");
+      await _chgState(record, FileUploadStatus.failed, "文件大小不能超过500MB");
       return false;
     }
     Api.uploadStream(
@@ -53,10 +53,10 @@ class WebUploader extends FileUploader {
       if (value.success) {
         _chgState(record, FileUploadStatus.success, "OK");
       } else {
-        _chgState(record, FileUploadStatus.error, value.message ?? "ERROR");
+        _chgState(record, FileUploadStatus.failed, value.message ?? "ERROR");
       }
     }).onError(((error, stackTrace) {
-      _chgState(record, FileUploadStatus.error, error.toString());
+      _chgState(record, FileUploadStatus.failed, error.toString());
     }));
     return true;
   }
@@ -66,7 +66,7 @@ class WebUploader extends FileUploader {
     record.status = status.name;
     record.message = message;
     switch (status) {
-      case FileUploadStatus.error:
+      case FileUploadStatus.failed:
       case FileUploadStatus.success:
         record.endUploadTime = DateTime.now().millisecondsSinceEpoch;
         break;

@@ -2,7 +2,7 @@ enum FileUploadStatus {
   waiting,
   uploading,
   success,
-  error;
+  failed;
 
   static bool isAny(String stateName, List<FileUploadStatus> status) {
     for (var e in status) {

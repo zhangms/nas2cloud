@@ -12,77 +12,87 @@ import 'package:nas2cloud/utils/spu.dart';
 import 'package:path/path.dart' as p;
 
 const String _uploadKeyPrefix = "app.upload.task";
+const String _uploadCounterKey = "app.upload._task_counter_";
 
 String _uploadKey(String taskId) {
   return "$_uploadKeyPrefix$taskId";
 }
 
 Future<int> _uploadCounter() async {
-  var key = _uploadKey("_id_counter_");
-  var count = spu.getInt(key) ?? 0;
+  var count = spu.getInt(_uploadCounterKey) ?? 0;
   count++;
-  await spu.setInt(key, count);
+  await spu.setInt(_uploadCounterKey, count);
   return count;
 }
 
 void flutterUploaderBackgroudHandler() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Needed so that plugin communication works.
-  // This uploader instance works within the isolate only.
   FlutterUploader uploader = FlutterUploader();
+  uploader.progress.listen(onUploadTaskProgress);
+  uploader.result.listen(onUploadTaskResponse);
+}
 
-  // You have now access to:
-  uploader.progress.listen((UploadTaskProgress progress) {
-    print("upload progress : $progress");
-    if (!spu.isComplete()) {
-      return;
+void onUploadTaskResponse(UploadTaskResponse result) {
+  print("upload result : $result");
+  var record = getUploadRecord(result.taskId);
+  if (record == null || record.endUploadTime > 0) {
+    return;
+  }
+  if (result.status == null) {
+    LocalNotification.get().clear(id: int.parse(record.id));
+    return;
+  }
+  if (result.status!.description == "Failed") {
+    String errMsg = "ERROR";
+    if (result.response != null) {
+      var ret = Result.fromJson(result.response!);
+      errMsg = ret.message ?? "ERROR";
     }
-    var content = spu.getString(_uploadKey(progress.taskId));
-    if (content == null) {
-      return;
-    }
-    var record = FileUploadRecord.fromJson(content);
-    LocalNotification.get().progress(
-        id: int.parse(record.id),
-        title: record.fileName,
-        body: "上传中：${progress.progress}%",
-        progress: progress.progress ?? 0);
-  });
+    record.message = errMsg;
+    record.endUploadTime = DateTime.now().millisecondsSinceEpoch;
+    record.status = FileUploadStatus.failed.name;
+    spu.setString(_uploadKey(result.taskId), record.toJson());
+    FileUploader.get().notifyListeners(record);
+    LocalNotification.get().send(
+        id: int.parse(record.id), title: record.fileName, body: "上传失败：$errMsg");
+    return;
+  }
+  if (result.status!.description == "Completed") {
+    record.message = "Completed";
+    record.endUploadTime = DateTime.now().millisecondsSinceEpoch;
+    record.status = FileUploadStatus.success.name;
+    spu.setString(_uploadKey(result.taskId), record.toJson());
+    FileUploader.get().notifyListeners(record);
+    LocalNotification.get()
+        .send(id: int.parse(record.id), title: record.fileName, body: "上传完成");
+    return;
+  }
+}
 
-  uploader.result.listen((UploadTaskResponse result) {
-    print("upload result : $result");
-    if (!spu.isComplete()) {
-      return;
-    }
-    var content = spu.getString(_uploadKey(result.taskId));
-    if (content == null) {
-      return;
-    }
-    var record = FileUploadRecord.fromJson(content);
-    spu.remove(_uploadKey(result.taskId));
-    if (result.status == null) {
-      LocalNotification.get().clear(id: int.parse(record.id));
-      return;
-    }
-    if (result.status!.description == "Failed") {
-      String errMsg = "ERROR";
-      if (result.response != null) {
-        var ret = Result.fromJson(result.response!);
-        errMsg = ret.message ?? "ERROR";
-      }
-      LocalNotification.get().send(
-        id: int.parse(record.id),
-        title: record.fileName,
-        body: "上传失败：$errMsg",
-      );
-    } else if (result.status!.description == "Completed") {
-      LocalNotification.get().send(
-        id: int.parse(record.id),
-        title: record.fileName,
-        body: "上传完成",
-      );
-    }
-  });
+void onUploadTaskProgress(UploadTaskProgress progress) {
+  print("upload progress : $progress");
+  var record = getUploadRecord(progress.taskId);
+  if (record == null || record.endUploadTime > 0) {
+    return;
+  }
+  record.progress = progress.progress ?? 0;
+  spu.setString(_uploadKey(progress.taskId), record.toJson());
+  LocalNotification.get().progress(
+      id: int.parse(record.id),
+      title: record.fileName,
+      body: "上传中：${progress.progress}%",
+      progress: progress.progress ?? 0);
+}
+
+FileUploadRecord? getUploadRecord(String taskId) {
+  if (!spu.isComplete()) {
+    return null;
+  }
+  var content = spu.getString(_uploadKey(taskId));
+  if (content == null) {
+    return null;
+  }
+  return FileUploadRecord.fromJson(content);
 }
 
 class PathUploader extends FileUploader {
@@ -110,43 +120,57 @@ class PathUploader extends FileUploader {
   @override
   Future<bool> uploadPath({required String src, required String dest}) async {
     FlutterUploader().clearUploads();
-    var file = File(src);
     var fileName = p.basename(src);
     var counter = await _uploadCounter();
+    if (!await _checkAndNotifyUploadAble(dest, fileName, counter)) {
+      return false;
+    }
+    var file = File(src);
+    var taskId = await _enqueue(file, dest);
+    var record = await saveUploadRecord(file, dest, taskId, counter);
+    notifyListeners(record);
+    return true;
+  }
+
+  Future<bool> _checkAndNotifyUploadAble(
+      String dest, String fileName, int counter) async {
     Result exists = await Api.getFileExists(Api.paths(dest, fileName));
     if (!exists.success) {
-      LocalNotification.get().send(
-        id: counter,
-        title: fileName,
-        body: "上传错误：${exists.message}",
-      );
+      LocalNotification.get()
+          .send(id: counter, title: fileName, body: "上传错误：${exists.message}");
       return false;
     }
     if (exists.message == "true") {
-      LocalNotification.get().send(
-        id: counter,
-        title: fileName,
-        body: "文件已存在",
-      );
+      LocalNotification.get().send(id: counter, title: fileName, body: "文件已存在");
       return false;
     }
+    return true;
+  }
 
-    var lastModified = await file.lastModified();
-    final taskId = await FlutterUploader().enqueue(
+  Future<String> _enqueue(File src, String dest) async {
+    var fileName = p.basename(src.path);
+    var lastModified = await src.lastModified();
+    return await FlutterUploader().enqueue(
       MultipartFormDataUpload(
         url: Api.getApiUrl(Api.paths("/api/store/upload", dest)),
-        files: [FileItem(path: src, field: "file")],
+        files: [FileItem(path: src.path, field: "file")],
         method: UploadMethod.POST,
         headers: Api.httpHeaders(),
         data: {"lastModified": "${lastModified.millisecondsSinceEpoch}"},
         tag: fileName,
       ),
     );
+  }
+
+  Future<FileUploadRecord> saveUploadRecord(
+      File src, String dest, String taskId, int counter) async {
+    var stat = await src.stat();
+    var fileName = p.basename(src.path);
     var record = FileUploadRecord(
         id: "$counter",
         fileName: fileName,
-        filePath: src,
-        size: -1,
+        filePath: src.path,
+        size: stat.size,
         beginUploadTime: DateTime.now().millisecondsSinceEpoch,
         endUploadTime: -1,
         fileLastModTime: DateTime.now().millisecondsSinceEpoch,
@@ -155,19 +179,60 @@ class PathUploader extends FileUploader {
         progress: 0,
         message: FileUploadStatus.uploading.name);
     await spu.setString(_uploadKey(taskId), record.toJson());
-    return true;
+    return record;
   }
 
   @override
-  void clearRecordByState(List<FileUploadStatus> filters) {}
+  void clearRecordByState(List<FileUploadStatus> filters) {
+    FlutterUploader().clearUploads();
+    var records = _getUploadRecords();
+    for (var record in records) {
+      if (FileUploadStatus.isAny(record.status, filters)) {
+        spu.remove(record.id);
+      }
+    }
+  }
+
+  List<FileUploadRecord>? _records;
 
   @override
   int getCount() {
-    return 0;
+    _records = _getUploadRecords();
+    return _records!.length;
   }
 
   @override
   FileUploadRecord? getRecord(int index) {
-    return null;
+    if (_records == null || _records!.length < index) {
+      return null;
+    }
+    return _records![index];
+  }
+
+  List<FileUploadRecord> _getUploadRecords() {
+    List<FileUploadRecord> list = [];
+    var keys = spu.getKeys();
+    for (var key in keys) {
+      if (!key.startsWith(_uploadKeyPrefix)) {
+        continue;
+      }
+      String? str = spu.getString(key);
+      if (str == null) {
+        continue;
+      }
+      var record = FileUploadRecord.fromJson(str);
+      if (record.endUploadTime > 0 &&
+          DateTime.now().millisecondsSinceEpoch - record.endUploadTime >
+              Duration(minutes: 10).inMilliseconds) {
+        spu.remove(key);
+        continue;
+      }
+      record.id = key;
+      list.add(record);
+    }
+    list.sort(((a, b) {
+      return a.beginUploadTime > b.beginUploadTime ? 0 : 1;
+    }));
+    return list;
   }
 }
