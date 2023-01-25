@@ -292,7 +292,7 @@ class _FileListPageState extends State<FileListPage> {
         showNotification: true,
         openFileFromNotification: true,
       );
-      showMessage("${item.name} 已开始下载, 请从状态栏查看下载进度");
+      showMessage("已开始下载, 请从状态栏查看下载进度");
     }
   }
 
@@ -364,6 +364,8 @@ class _FileListPageState extends State<FileListPage> {
       openNewPage(FileListPage(item.path, item.name));
     } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(item);
+    } else {
+      showMessage("不支持查看该类型的文件");
     }
   }
 

@@ -155,10 +155,12 @@ func registerStatic(app *fiber.App) {
 }
 
 func staticLoginRequired(c *fiber.Ctx) bool {
-	u, err := getLoginUserFromSign(c)
+	u, err := getUserFromRequest(c)
 	if err != nil {
 		return true
 	}
+	setCorsHeader(c)
+	SetContextUser(c, u)
 	path, err := url.PathUnescape(c.Path())
 	if err != nil {
 		return true
@@ -170,8 +172,6 @@ func staticLoginRequired(c *fiber.Ctx) bool {
 	if inf.Hidden || inf.Type == vfs.ObjectTypeDir {
 		return true
 	}
-	setCorsHeader(c)
-	SetContextUser(c, u)
 	return false
 }
 
@@ -226,7 +226,7 @@ func getRequestSign(c *fiber.Ctx) (token, device, mode string) {
 	return headers["X-AUTH-TOKEN"], headers["X-DEVICE"], "r"
 }
 
-func getLoginUserFromSign(c *fiber.Ctx) (*user.User, error) {
+func getUserFromRequest(c *fiber.Ctx) (*user.User, error) {
 	token, device, mode := getRequestSign(c)
 	if len(token) == 0 || len(device) == 0 {
 		return nil, errors.New("token not exists")
@@ -259,7 +259,7 @@ func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 			}
 		}()
 		setCorsHeader(c)
-		u, err := getLoginUserFromSign(c)
+		u, err := getUserFromRequest(c)
 		if err != nil {
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
 		}
@@ -278,7 +278,7 @@ func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 			}
 		}()
 		setCorsHeader(c)
-		u, err := getLoginUserFromSign(c)
+		u, err := getUserFromRequest(c)
 		if err == nil && u != nil {
 			SetContextUser(c, u)
 		}
