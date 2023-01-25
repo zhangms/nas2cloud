@@ -14,56 +14,50 @@ class ScaffoldPage extends StatefulWidget {
 }
 
 class _ScaffoldPageState extends State<ScaffoldPage> {
-  String initStatus = "Loading...";
+  String status = "Loading...";
 
-  Future<String> init() async {
-    var complete = await appStorage.init();
-    if (!complete) {
-      return "ERROR";
+  @override
+  void initState() {
+    super.initState();
+    loadHostStatus();
+  }
+
+  Future<void> loadHostStatus() async {
+    if (!AppStorage.isHostAddressConfiged()) {
+      setState(() {
+        status = "OK";
+      });
+      return;
     }
-    if (!appStorage.isHostAddressConfiged()) {
-      return "OK";
+    var hostState = await Api.getHostState(AppStorage.getHostAddress());
+    if (hostState.success) {
+      setState(() {
+        status = "OK";
+      });
+      return;
     }
-    var hostStatus = await api.getHostState(appStorage.getHostAddress());
-    if (!hostStatus.success) {
-      return hostStatus.message ?? "ERROR";
-    }
-    appStorage.saveHostState(hostStatus.data!);
-    var loginInfo = appStorage.getUserLoginInfo();
-    if (loginInfo == null) {
-      return "OK";
-    }
-    if (loginInfo.username == hostStatus.data!.userName) {
-      return "OK";
-    }
-    appStorage.deleteUserLoginInfo();
-    return "OK";
+    setState(() {
+      status = hostState.message ?? "HOST_STATUS_ERROR";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     context.watch<AppState>();
-    init().then((value) {
-      if (value != initStatus) {
-        setState(() {
-          initStatus = value;
-        });
-      }
-    });
-    if ("OK" != initStatus) {
+    if ("OK" != status) {
       return Scaffold(
         body: Center(
-          child: Text(initStatus),
+          child: Text(status),
         ),
       );
     }
-    if (!appStorage.isHostAddressConfiged()) {
+    if (!AppStorage.isHostAddressConfiged()) {
       return ConfigPage();
     }
-    if (!appStorage.isUserLogged()) {
+    if (!AppStorage.isUserLogged()) {
       return LoginPage();
     }
-    FileUploader.getInstance();
+    FileUploader.get();
     return FileHomePage();
   }
 }

@@ -11,32 +11,30 @@ import 'package:nas2cloud/api/dto/login_response/login_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 
-const _exception = {"success": false, "message": "服务器不可用"};
+class Api {
+  static const _exception = {"success": false, "message": "服务器不可用"};
 
-var _defaultHttpHeaders = {
-  "X-DEVICE": kIsWeb
-      ? "flutter-app-web"
-      : "${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version}",
-  "Content-Type": "application/json;charset=UTF-8",
-};
+  static var _defaultHttpHeaders = {
+    "X-DEVICE": kIsWeb
+        ? "flutter-app-web"
+        : "${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version}",
+    "Content-Type": "application/json;charset=UTF-8",
+  };
 
-class _Api {
-  const _Api();
-
-  Map<String, String> httpHeaders() {
+  static Map<String, String> httpHeaders() {
     var header = {..._defaultHttpHeaders};
-    if (appStorage.isUserLogged()) {
-      var data = appStorage.getUserLoginInfo()!;
+    if (AppStorage.isUserLogged()) {
+      var data = AppStorage.getUserLoginInfo()!;
       header["X-AUTH-TOKEN"] = "${data.username}-${data.token}";
     }
     return header;
   }
 
-  String getApiUrl(String path) {
-    if (!appStorage.isHostAddressConfiged()) {
+  static String getApiUrl(String path) {
+    if (!AppStorage.isHostAddressConfiged()) {
       return path;
     }
-    String address = appStorage.getHostAddress();
+    String address = AppStorage.getHostAddress();
     if (address.endsWith("/")) {
       address = address.substring(0, address.length - 1);
     }
@@ -46,12 +44,12 @@ class _Api {
     return "http://$address/$path";
   }
 
-  String getStaticFileUrl(String path) {
-    if (!appStorage.isHostAddressConfiged()) {
+  static String getStaticFileUrl(String path) {
+    if (!AppStorage.isHostAddressConfiged()) {
       return path;
     }
     String address =
-        appStorage.getHostState()?.staticAddress ?? appStorage.getHostAddress();
+        AppStorage.getHostState()?.staticAddress ?? AppStorage.getHostAddress();
     if (address.endsWith("/")) {
       address = address.substring(0, address.length - 1);
     }
@@ -61,14 +59,14 @@ class _Api {
     return "http://$address/$path";
   }
 
-  String signUrl(String url) {
+  static String signUrl(String url) {
     String str =
         "${DateTime.now().millisecondsSinceEpoch}|${jsonEncode(httpHeaders())}";
     var sign = Base64Encoder.urlSafe().convert(str.codeUnits);
     return "$url?_sign=$sign";
   }
 
-  Future<StateResponse> getHostState(String address) async {
+  static Future<StateResponse> getHostState(String address) async {
     try {
       var url = Uri.http(address, "api/state");
       Response resp = await http.get(url, headers: httpHeaders());
@@ -79,10 +77,10 @@ class _Api {
     }
   }
 
-  Future<LoginResponse> postLogin(
+  static Future<LoginResponse> postLogin(
       {required String username, required String password}) async {
     try {
-      var url = Uri.http(appStorage.getHostAddress(), "/api/user/login");
+      var url = Uri.http(AppStorage.getHostAddress(), "/api/user/login");
       Response resp = await http.post(url,
           headers: _defaultHttpHeaders,
           body: jsonEncode({
@@ -96,9 +94,9 @@ class _Api {
     }
   }
 
-  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
+  static Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
     try {
-      var url = Uri.http(appStorage.getHostAddress(), "/api/store/walk");
+      var url = Uri.http(AppStorage.getHostAddress(), "/api/store/walk");
       Response resp =
           await http.post(url, headers: httpHeaders(), body: reqeust.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
@@ -108,10 +106,10 @@ class _Api {
     }
   }
 
-  Future<Result> postCreateFolder(String path, String folderName) async {
+  static Future<Result> postCreateFolder(String path, String folderName) async {
     try {
       var url =
-          Uri.http(appStorage.getHostAddress(), "/api/store/createFolder");
+          Uri.http(AppStorage.getHostAddress(), "/api/store/createFolder");
       Response resp = await http.post(url,
           headers: httpHeaders(),
           body: jsonEncode({
@@ -125,9 +123,9 @@ class _Api {
     }
   }
 
-  Future<Result> postDeleteFile(String fullPath) async {
+  static Future<Result> postDeleteFile(String fullPath) async {
     try {
-      var url = Uri.http(appStorage.getHostAddress(), "/api/store/deleteFiles");
+      var url = Uri.http(AppStorage.getHostAddress(), "/api/store/deleteFiles");
       Response resp = await http.post(url,
           headers: httpHeaders(),
           body: jsonEncode({
@@ -140,7 +138,7 @@ class _Api {
     }
   }
 
-  Future<Result> uploadStream({
+  static Future<Result> uploadStream({
     required String dest,
     required String fileName,
     required int fileLastModified,
@@ -152,7 +150,7 @@ class _Api {
       if (dest.startsWith("/")) {
         url = "/api/store/upload$dest";
       }
-      var uri = Uri.http(appStorage.getHostAddress(), url);
+      var uri = Uri.http(AppStorage.getHostAddress(), url);
       var request = http.MultipartRequest("POST", uri)
         ..headers.addAll(httpHeaders())
         ..fields["lastModified"] = "$fileLastModified"
@@ -166,5 +164,3 @@ class _Api {
     }
   }
 }
-
-const api = _Api();

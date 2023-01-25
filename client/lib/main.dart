@@ -1,17 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/scaffold.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:provider/provider.dart';
 
+import 'bootstrap.dart';
+
 void main() async {
-  if (!kIsWeb) {
-    WidgetsFlutterBinding.ensureInitialized();
-    // Plugin must be initialized before using
-    await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
-  }
+  await initBeforeRunApp();
   runApp(MyApp());
 }
 

@@ -63,7 +63,7 @@ class _ConfigPageState extends State<ConfigPage> {
       address = address.substring("http://".length);
     }
     print("address:$address");
-    var response = await api.getHostState(address);
+    var response = await Api.getHostState(address);
     if (response.success) {
       clearError();
       appState.updateHostState(address, response.data!);

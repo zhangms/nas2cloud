@@ -81,8 +81,8 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     File item = widget.images[idx];
     if (FileExt.isImage(item.ext)) {
       return PhotoViewGalleryPageOptions(
-          imageProvider: NetworkImage(api.getStaticFileUrl(item.path),
-              headers: api.httpHeaders()),
+          imageProvider: NetworkImage(Api.getStaticFileUrl(item.path),
+              headers: Api.httpHeaders()),
           initialScale: PhotoViewComputedScale.contained,
           minScale: PhotoViewComputedScale.contained * 0.5,
           maxScale: PhotoViewComputedScale.covered * 4.1,
@@ -91,10 +91,10 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           scaleStateController: scaleStateController);
     } else if (FileExt.isVideo(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: VideoPlayerWapper(api.getStaticFileUrl(item.path)));
+          child: VideoPlayerWapper(Api.getStaticFileUrl(item.path)));
     } else if (FileExt.isPDF(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: PDFViewer(api.getStaticFileUrl(item.path)));
+          child: PDFViewer(Api.getStaticFileUrl(item.path)));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
           child: Center(

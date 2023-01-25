@@ -6,25 +6,7 @@ import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
 import 'package:nas2cloud/api/uploader/file_uploder.dart';
 
-void backgroundHandler() {
-  // Needed so that plugin communication works.
-  // This uploader instance works within the isolate only.
-  FlutterUploader uploader = FlutterUploader();
-
-  // You have now access to:
-  uploader.progress.listen((progress) {
-    // upload progress
-  });
-  uploader.result.listen((result) {
-    // upload results
-  });
-}
-
 class IOUploader extends FileUploader {
-  IOUploader() {
-    FlutterUploader().setBackgroundHandler(backgroundHandler);
-  }
-
   @override
   Future<bool> uploadStream(
       {required String dest,
@@ -44,10 +26,10 @@ class IOUploader extends FileUploader {
     var lastModified = await file.lastModified();
     final taskId = await FlutterUploader().enqueue(
       MultipartFormDataUpload(
-        url: api.getApiUrl(url),
+        url: Api.getApiUrl(url),
         files: [FileItem(path: src, field: "file")],
         method: UploadMethod.POST,
-        headers: api.httpHeaders(),
+        headers: Api.httpHeaders(),
         data: {"lastModified": "${lastModified.millisecondsSinceEpoch}"},
       ),
     );

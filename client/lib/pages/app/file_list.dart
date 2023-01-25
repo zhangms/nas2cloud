@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/downloader.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
@@ -14,7 +14,6 @@ import 'package:nas2cloud/api/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_upload_task.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 const _orderByOptions = [
   {"orderBy": "fileName", "name": "文件名排序"},
@@ -45,17 +44,10 @@ class _FileListPageState extends State<FileListPage> {
   late bool fetching;
   late String orderBy;
 
-  @pragma('vm:entry-point')
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
-    print("downloadCallback $id, $status, $progress");
-  }
-
   @override
   void initState() {
     super.initState();
-    FileUploader.getInstance().addListener(onUploadChange);
-    FlutterDownloader.registerCallback(downloadCallback);
+    FileUploader.get().addListener(onUploadChange);
     _setInitState();
     fetchNext(widget.path);
   }
@@ -71,7 +63,7 @@ class _FileListPageState extends State<FileListPage> {
 
   @override
   void dispose() {
-    FileUploader.getInstance().removeListener(onUploadChange);
+    FileUploader.get().removeListener(onUploadChange);
     super.dispose();
   }
 
@@ -249,7 +241,7 @@ class _FileListPageState extends State<FileListPage> {
     if (floderName.trim().isEmpty) {
       return;
     }
-    Result result = await api.postCreateFolder(widget.path, floderName);
+    Result result = await Api.postCreateFolder(widget.path, floderName);
     if (!result.success) {
       setState(() {
         showMessage(result.message!);
@@ -263,7 +255,7 @@ class _FileListPageState extends State<FileListPage> {
 
   Future<void> deleteFile(String path) async {
     print("delete $path");
-    Result result = await api.postDeleteFile(path);
+    Result result = await Api.postDeleteFile(path);
     if (!result.success) {
       setState(() {
         showMessage(result.message!);
@@ -281,19 +273,8 @@ class _FileListPageState extends State<FileListPage> {
     if (item.type == "DIR") {
       return;
     }
-    if (kIsWeb) {
-      launchUrl(Uri.parse(api.signUrl(api.getStaticFileUrl(item.path))));
-    } else {
-      FlutterDownloader.enqueue(
-        url: api.getStaticFileUrl(item.path),
-        headers: api.httpHeaders(),
-        savedDir: "./",
-        saveInPublicStorage: true,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
-      showMessage("已开始下载, 请从状态栏查看下载进度");
-    }
+    Downloader.download(Api.getStaticFileUrl(item.path));
+    showMessage("已开始下载, 请从状态栏查看下载进度");
   }
 
   fetchNext(String path) async {
@@ -307,7 +288,7 @@ class _FileListPageState extends State<FileListPage> {
           pageNo: currentPage + 1,
           pageSize: _pageSize,
           orderBy: orderBy);
-      var resp = await api.postFileWalk(request);
+      var resp = await Api.postFileWalk(request);
       if (!resp.success && resp.message == "RetryLaterAgain") {
         Timer(Duration(milliseconds: 100), () => fetchNext(path));
         print("fetchNext RetryLaterAgain");
@@ -337,7 +318,7 @@ class _FileListPageState extends State<FileListPage> {
     for (var i = 0; i < result.paths.length; i++) {
       var path = result.paths[i];
       print(path);
-      FileUploader.getInstance().uploadPath(src: path!, dest: widget.path);
+      FileUploader.get().uploadPath(src: path!, dest: widget.path);
     }
   }
 
@@ -461,7 +442,7 @@ class _FileListPageState extends State<FileListPage> {
       if (e.readStream == null) {
         continue;
       }
-      FileUploader.getInstance().uploadStream(
+      FileUploader.get().uploadStream(
         dest: widget.path,
         fileName: e.name,
         size: e.size,

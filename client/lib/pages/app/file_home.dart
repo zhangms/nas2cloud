@@ -27,7 +27,7 @@ class _FileHomePageState extends State<FileHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var hostState = appStorage.getHostState();
+    var hostState = AppStorage.getHostState();
     return Scaffold(
       appBar: buildAppBar(hostState),
       body: SafeArea(child: buildFileListView()),
@@ -94,7 +94,7 @@ class _FileHomePageState extends State<FileHomePage> {
   Future<void> initWalk() async {
     FileWalkRequest request = FileWalkRequest(
         path: "/", pageNo: 0, pageSize: _pageSize, orderBy: "fileName");
-    var resp = await api.postFileWalk(request);
+    var resp = await Api.postFileWalk(request);
     if (!resp.success || resp.data == null) {
       print("walk file error:${resp.toString()}");
       return;
@@ -112,7 +112,7 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   Widget buildDrawer() {
-    var hostState = appStorage.getHostState();
+    var hostState = AppStorage.getHostState();
     var appState = context.watch<AppState>();
 
     Widget avatar = CircleAvatar(
@@ -122,8 +122,8 @@ class _FileHomePageState extends State<FileHomePage> {
     if (hostState?.userAvatar != null) {
       avatar = CircleAvatar(
         backgroundImage: NetworkImage(
-            api.getStaticFileUrl(hostState!.userAvatar!),
-            headers: api.httpHeaders()),
+            Api.getStaticFileUrl(hostState!.userAvatar!),
+            headers: Api.httpHeaders()),
       );
     }
 

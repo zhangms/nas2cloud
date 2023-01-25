@@ -9,7 +9,7 @@ typedef FileUploadListener = void Function(FileUploadRecord record);
 abstract class FileUploader {
   static FileUploader? _uploader;
 
-  factory FileUploader.getInstance() {
+  factory FileUploader.get() {
     if (_uploader != null) {
       return _uploader!;
     }

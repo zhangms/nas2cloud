@@ -5,23 +5,23 @@ import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
 
 class AppState extends ChangeNotifier {
   updateHostState(String address, statedto.Data data) async {
-    await appStorage.saveHostAddress(address);
-    await appStorage.saveHostState(data);
+    await AppStorage.saveHostAddress(address);
+    await AppStorage.saveHostState(data);
     notifyListeners();
   }
 
   clearHostAddress() async {
-    await appStorage.clearHostAddress();
+    await AppStorage.clearHostAddress();
     notifyListeners();
   }
 
   login(logindto.Data data) async {
-    await appStorage.saveUserLoginInfo(data);
+    await AppStorage.saveUserLoginInfo(data);
     notifyListeners();
   }
 
   Future<void> logout() async {
-    await appStorage.clearUserLogin();
+    await AppStorage.clearUserLogin();
     notifyListeners();
   }
 }

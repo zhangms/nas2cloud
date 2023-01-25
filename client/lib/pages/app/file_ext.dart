@@ -97,8 +97,8 @@ class FileExt {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
           child: Image.network(
-            api.getStaticFileUrl(item.thumbnail!),
-            headers: api.httpHeaders(),
+            Api.getStaticFileUrl(item.thumbnail!),
+            headers: Api.httpHeaders(),
           ),
         ),
       ),

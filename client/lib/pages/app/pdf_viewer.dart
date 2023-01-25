@@ -11,7 +11,7 @@ class PDFViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return PDF().cachedFromUrl(
       url,
-      headers: api.httpHeaders(),
+      headers: Api.httpHeaders(),
       placeholder: (progress) => Center(
           child: Text(
         '$progress %',

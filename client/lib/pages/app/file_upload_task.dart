@@ -17,7 +17,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
   @override
   void initState() {
     super.initState();
-    FileUploader.getInstance().addListener(onUploadChange);
+    FileUploader.get().addListener(onUploadChange);
     _repeatAniController = AnimationController(vsync: this)
       ..drive(Tween(begin: 0, end: 1))
       ..duration = Duration(milliseconds: 1000)
@@ -26,7 +26,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
 
   @override
   void dispose() {
-    FileUploader.getInstance().removeListener(onUploadChange);
+    FileUploader.get().removeListener(onUploadChange);
     _repeatAniController.dispose();
     super.dispose();
   }
@@ -81,13 +81,13 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
   }
 
   clearTask(List<FileUploadStatus> filters) {
-    var uploader = FileUploader.getInstance();
+    var uploader = FileUploader.get();
     uploader.clearRecordByState(filters);
     setState(() {});
   }
 
   buildUpladList() {
-    var uploader = FileUploader.getInstance();
+    var uploader = FileUploader.get();
     int total = uploader.getCount();
 
     if (total <= 0) {
@@ -103,7 +103,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
   }
 
   buildItemView(int index) {
-    var uploader = FileUploader.getInstance();
+    var uploader = FileUploader.get();
     FileUploadRecord? record = uploader.getRecord(index);
     if (record == null) {
       return ListTile(

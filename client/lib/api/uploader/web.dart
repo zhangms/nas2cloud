@@ -43,8 +43,7 @@ class WebUploader extends FileUploader {
       await _chgState(record, FileUploadStatus.error, "文件大小不能超过500MB");
       return false;
     }
-    api
-        .uploadStream(
+    Api.uploadStream(
             dest: record.dest,
             fileName: record.fileName,
             fileLastModified: record.fileLastModTime,

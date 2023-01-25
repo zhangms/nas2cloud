@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   buildAppBar() {
-    var title = appStorage.getHostState()?.appName ?? "Nas2cloud";
+    var title = AppStorage.getHostState()?.appName ?? "Nas2cloud";
     return AppBar(
       title: Text(title),
     );
@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
     _loginFormKey.currentState!.save();
     var uname = username.text.trim();
     var pwd = password.text;
-    var response = await api.postLogin(username: uname, password: pwd);
+    var response = await Api.postLogin(username: uname, password: pwd);
     if (!response.success) {
       setErrorMsg(response.message ?? "Error");
       return;
