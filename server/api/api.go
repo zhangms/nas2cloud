@@ -171,6 +171,7 @@ func staticLoginRequired(c *fiber.Ctx) bool {
 		return true
 	}
 	setCorsHeader(c)
+	SetContextUser(c, u)
 	return false
 }
 
