@@ -22,16 +22,22 @@ void downloadCallback(String id, DownloadTaskStatus status, int progress) {
   print("downloadCallback $id, $status, $progress");
 }
 
-initBeforeRunApp() async {
+Future<void> _initSharedPreferences() async {
   var prefComplete = await spu.initSharedPreferences();
   if (!prefComplete) {
     throw Error.safeToString("initSharedPreferences error");
   }
   print("SharedPreferences init complete");
+}
+
+initBeforeRunApp() async {
   if (kIsWeb) {
+    await _initSharedPreferences();
     return;
   }
   WidgetsFlutterBinding.ensureInitialized();
+  await _initSharedPreferences();
+
   await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
   FlutterDownloader.registerCallback(downloadCallback);
 
