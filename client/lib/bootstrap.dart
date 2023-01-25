@@ -7,7 +7,7 @@ import 'package:nas2cloud/utils/spu.dart';
 initBeforeRunApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await spu.initSharedPreferences();
+  await LocalNotification.get().init();
   await Downloader.get().init();
   await FileUploader.get().init();
-  await LocalNotification.get().init();
 }
