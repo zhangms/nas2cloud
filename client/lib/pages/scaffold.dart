@@ -13,36 +13,44 @@ class ScaffoldPage extends StatefulWidget {
 }
 
 class _ScaffoldPageState extends State<ScaffoldPage> {
-  String status = "Loading...";
+  late String status;
 
   @override
   void initState() {
     super.initState();
-    loadHostStatus();
+    setInitStateValue();
+  }
+
+  void setInitStateValue() {
+    status = "Loading...";
+  }
+
+  changeStatus(String value) {
+    if (status != value) {
+      setState(() {
+        status = value;
+      });
+    }
   }
 
   Future<void> loadHostStatus() async {
     if (!AppStorage.isHostAddressConfiged()) {
-      setState(() {
-        status = "OK";
-      });
+      changeStatus("OK");
       return;
     }
     var hostState = await Api.getHostState(AppStorage.getHostAddress());
     if (hostState.success) {
-      setState(() {
-        status = "OK";
-      });
+      await AppStorage.saveHostState(hostState.data!);
+      changeStatus("OK");
       return;
     }
-    setState(() {
-      status = hostState.message ?? "HOST_STATUS_ERROR";
-    });
+    changeStatus(hostState.message ?? "HOST_STATUS_ERROR");
   }
 
   @override
   Widget build(BuildContext context) {
     context.watch<AppState>();
+    loadHostStatus();
     if ("OK" != status) {
       return Scaffold(
         body: Center(
