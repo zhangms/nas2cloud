@@ -32,6 +32,20 @@ class _Api {
     return header;
   }
 
+  String getApiUrl(String path) {
+    if (!appStorage.isHostAddressConfiged()) {
+      return path;
+    }
+    String address = appStorage.getHostAddress();
+    if (address.endsWith("/")) {
+      address = address.substring(0, address.length - 1);
+    }
+    if (path.startsWith("/")) {
+      return "http://$address$path";
+    }
+    return "http://$address/$path";
+  }
+
   String getStaticFileUrl(String path) {
     if (!appStorage.isHostAddressConfiged()) {
       return path;
@@ -143,33 +157,6 @@ class _Api {
         ..headers.addAll(httpHeaders())
         ..fields["lastModified"] = "$fileLastModified"
         ..files.add(MultipartFile("file", stream, size, filename: fileName));
-      var resp = await request.send();
-      var ret = await resp.stream.bytesToString();
-      return Result.fromJson(ret);
-    } catch (e) {
-      print(e);
-      return Result.fromMap(_exception);
-    }
-  }
-
-  Future<Result> uploadPath({
-    required String src,
-    required String dest,
-  }) async {
-    try {
-      var url = "/api/store/upload/$dest";
-      if (dest.startsWith("/")) {
-        url = "/api/store/upload$dest";
-      }
-      File file = File(src);
-      var lastModified = await file.lastModified();
-      var lastModifiedMills = lastModified.millisecondsSinceEpoch;
-      var multipart = await MultipartFile.fromPath("file", src);
-      var uri = Uri.http(appStorage.getHostAddress(), url);
-      var request = http.MultipartRequest("POST", uri)
-        ..headers.addAll(httpHeaders())
-        ..fields["lastModified"] = "$lastModifiedMills"
-        ..files.add(multipart);
       var resp = await request.send();
       var ret = await resp.stream.bytesToString();
       return Result.fromJson(ret);
