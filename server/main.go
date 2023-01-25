@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 const pidFile = "nas2cloud.pid"
@@ -35,11 +34,9 @@ func main() {
 func start() {
 	os.WriteFile(pidFile, []byte(strconv.Itoa(os.Getpid())), fs.ModePerm)
 	defer os.Remove(pidFile)
-
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1024 * 1024 * 1024, //1G
 	})
-	app.Use(fiberLogger.New())
 	api.Register(app)
 	go waitingSignal(app)
 	err := app.Listen(fmt.Sprintf(":%d", env.GetPort()))

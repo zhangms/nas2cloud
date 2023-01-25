@@ -31,7 +31,7 @@ func (f *FileController) CreateFolder(c *fiber.Ctx) error {
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
-	u, _ := GetLoggedUser(c)
+	u, _ := GetContextUser(c)
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
@@ -56,7 +56,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
-	u, _ := GetLoggedUser(c)
+	u, _ := GetContextUser(c)
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
@@ -74,7 +74,7 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
-	u, _ := GetLoggedUser(c)
+	u, _ := GetContextUser(c)
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}

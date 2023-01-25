@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -13,6 +14,10 @@ var inner *log.Logger
 
 func init() {
 	inner = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
+}
+
+func GetWriter() io.Writer {
+	return inner.Writer()
 }
 
 func Info(v ...any) {

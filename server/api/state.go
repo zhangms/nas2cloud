@@ -21,7 +21,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 		AppName:       "平淼淼和大树的Family",
 		StaticAddress: "",
 	}
-	u, _ := GetLoggedUser(c)
+	u, _ := GetContextUser(c)
 	if u != nil {
 		resp.UserName = u.Name
 		resp.UserAvatar = u.Avatar

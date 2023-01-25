@@ -48,7 +48,7 @@ type fileWalkItem struct {
 }
 
 func (f *FileController) Walk(c *fiber.Ctx) error {
-	u, _ := GetLoggedUser(c)
+	u, _ := GetContextUser(c)
 	request := f.walkRequest(c)
 	resp, err := f.walk(u, request)
 	if err == svc.RetryLaterAgain {

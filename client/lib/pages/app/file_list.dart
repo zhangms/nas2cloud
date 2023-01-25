@@ -13,8 +13,7 @@ import 'package:nas2cloud/api/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_upload_task.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
-
-const _pageSize = 50;
+import 'package:url_launcher/url_launcher.dart';
 
 const _orderByOptions = [
   {"orderBy": "fileName", "name": "文件名排序"},
@@ -24,6 +23,8 @@ const _orderByOptions = [
   {"orderBy": "modTime_desc", "name": "最早修改在后"},
   {"orderBy": "creTime_desc", "name": "最新添加"},
 ];
+
+const _pageSize = 50;
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -44,68 +45,10 @@ class _FileListPageState extends State<FileListPage> {
   late String orderBy;
 
   @override
-  void initState() {
-    super.initState();
-    FileUploader.getInstance().addListener(onUploadChange);
-    setInitState();
-    fetchNext(widget.path);
-  }
-
-  @override
-  void dispose() {
-    FileUploader.getInstance().removeListener(onUploadChange);
-    super.dispose();
-  }
-
-  void setInitState() {
-    total = -1;
-    currentStop = -1;
-    currentPage = -1;
-    fetching = false;
-    items = [];
-    orderBy = _orderByOptions[0]["orderBy"]!;
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
       body: SafeArea(child: buildBodyView()),
-    );
-  }
-
-  buildAppBar() {
-    return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-        ),
-        onPressed: () {
-          pop();
-        },
-      ),
-      title: Text(
-        widget.name,
-      ),
-      actions: [buildAddMenu(), buildSortMenu()],
-    );
-  }
-
-  PopupMenuButton<Text> buildSortMenu() {
-    return PopupMenuButton<Text>(
-      icon: Icon(
-        Icons.sort,
-      ),
-      itemBuilder: (context) {
-        return [
-          for (var i = 0; i < _orderByOptions.length; i++)
-            PopupMenuItem(
-              enabled: _orderByOptions[i]["orderBy"]! != orderBy,
-              child: Text(_orderByOptions[i]["name"]!),
-              onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
-            )
-        ];
-      },
     );
   }
 
@@ -127,8 +70,130 @@ class _FileListPageState extends State<FileListPage> {
           PopupMenuDivider(),
           PopupMenuItem(
             child: Text("文件上传任务列表"),
-            onTap: () => onViewUploading(),
+            onTap: () => openUploadTaskPage(),
           ),
+        ];
+      },
+    );
+  }
+
+  buildAppBar() {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+        ),
+        onPressed: () {
+          pop();
+        },
+      ),
+      title: Text(
+        widget.name,
+      ),
+      actions: [buildAddMenu(), buildSortMenu()],
+    );
+  }
+
+  Widget buildBodyView() {
+    if (total <= 0) {
+      return Center(
+        child: Text(total < 0 ? "Loading" : "Empty"),
+      );
+    }
+    return ListView.builder(
+        itemCount: total >= 0 ? total : 0,
+        itemBuilder: ((context, index) {
+          return buildItemView(index);
+        }));
+  }
+
+  buildCreateFolderDialog(BuildContext context) {
+    var input = TextEditingController();
+    return AlertDialog(
+      title: Text("创建文件夹"),
+      content: TextField(
+        controller: input,
+        decoration: InputDecoration(
+          labelText: "请输入文件夹名称",
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: (() {
+              pop();
+            }),
+            child: Text("取消")),
+        TextButton(
+            onPressed: (() {
+              createFolder(input.text);
+              pop();
+            }),
+            child: Text("确定"))
+      ],
+    );
+  }
+
+  buildItemContextMenu(File item) {
+    return PopupMenuButton<Text>(
+      icon: Icon(
+        Icons.more_horiz_rounded,
+      ),
+      itemBuilder: (context) {
+        return [
+          if (item.type != "DIR")
+            PopupMenuItem(
+              child: ListTile(
+                leading: Icon(Icons.download),
+                title: Text("下载"),
+              ),
+              onTap: () => download(item),
+            ),
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.delete),
+              title: Text("删除"),
+            ),
+            onTap: () => showItemDeleteConfirm(item),
+          ),
+        ];
+      },
+    );
+  }
+
+  buildItemView(int index) {
+    if (items.length - index < 20) {
+      fetchNext(widget.path);
+    }
+    if (items.length <= index) {
+      return ListTile(
+        leading: Icon(Icons.hourglass_empty),
+      );
+    }
+    var item = items[index];
+    return ListTile(
+      leading: FileExt.getItemIcon(item),
+      trailing: buildItemContextMenu(item),
+      title: Text(item.name),
+      subtitle: Text("${item.modTime}  ${item.size}"),
+      onTap: () {
+        onItemTap(item);
+      },
+    );
+  }
+
+  PopupMenuButton<Text> buildSortMenu() {
+    return PopupMenuButton<Text>(
+      icon: Icon(
+        Icons.sort,
+      ),
+      itemBuilder: (context) {
+        return [
+          for (var i = 0; i < _orderByOptions.length; i++)
+            PopupMenuItem(
+              enabled: _orderByOptions[i]["orderBy"]! != orderBy,
+              child: Text(_orderByOptions[i]["name"]!),
+              onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
+            )
         ];
       },
     );
@@ -145,17 +210,53 @@ class _FileListPageState extends State<FileListPage> {
     fetchNext(widget.path);
   }
 
-  Widget buildBodyView() {
-    if (total <= 0) {
-      return Center(
-        child: Text(total < 0 ? "Loading" : "Empty"),
-      );
+  void clearMessage() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+  }
+
+  Future<void> createFolder(String floderName) async {
+    if (floderName.trim().isEmpty) {
+      return;
     }
-    return ListView.builder(
-        itemCount: total >= 0 ? total : 0,
-        itemBuilder: ((context, index) {
-          return buildItemView(index);
-        }));
+    Result result = await api.postCreateFolder(widget.path, floderName);
+    if (!result.success) {
+      setState(() {
+        showMessage(result.message!);
+      });
+      return;
+    }
+    setInitState();
+    orderBy = "creTime_desc";
+    fetchNext(widget.path);
+  }
+
+  Future<void> deleteFile(String path) async {
+    print("delete $path");
+    Result result = await api.postDeleteFile(path);
+    if (!result.success) {
+      setState(() {
+        showMessage(result.message!);
+      });
+      return;
+    }
+    items.removeWhere((element) => element.path == path);
+    setState(() {
+      total -= 1;
+      showMessage("删除成功");
+    });
+  }
+
+  @override
+  void dispose() {
+    FileUploader.getInstance().removeListener(onUploadChange);
+    super.dispose();
+  }
+
+  void download(File item) {
+    if (item.type == "DIR") {
+      return;
+    }
+    launchUrl(Uri.parse(api.signUrl(api.getStaticFileUrl(item.path))));
   }
 
   fetchNext(String path) async {
@@ -190,68 +291,25 @@ class _FileListPageState extends State<FileListPage> {
     }
   }
 
-  buildItemView(int index) {
-    if (items.length - index < 20) {
-      fetchNext(widget.path);
+  @override
+  void initState() {
+    super.initState();
+    FileUploader.getInstance().addListener(onUploadChange);
+    setInitState();
+    fetchNext(widget.path);
+  }
+
+  Future<void> nativeUpload() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
+    if (result == null) {
+      return;
     }
-    if (items.length <= index) {
-      return ListTile(
-        leading: Icon(Icons.hourglass_empty),
-      );
+    for (var i = 0; i < result.paths.length; i++) {
+      var path = result.paths[i];
+      print(path);
+      FileUploader.getInstance().uploadPath(src: path!, dest: widget.path);
     }
-    var item = items[index];
-    return ListTile(
-      leading: FileExt.getItemIcon(item),
-      title: Text(item.name),
-      subtitle: Text("${item.modTime}  ${item.size}"),
-      onTap: () {
-        onItemTap(item);
-      },
-      onLongPress: () {
-        showItemOperationMenu(item);
-      },
-    );
-  }
-
-  void onItemTap(File item) {
-    if (item.type == "DIR") {
-      openNewPage(FileListPage(item.path, item.name));
-    } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
-      openGallery(item);
-    }
-  }
-
-  void openNewPage(Widget widget) {
-    clearMessage();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => widget,
-      ),
-    );
-  }
-
-  void pop() {
-    clearMessage();
-    Navigator.of(context).pop();
-  }
-
-  void clearMessage() {
-    ScaffoldMessenger.of(context).clearSnackBars();
-  }
-
-  void showMessage(String message) {
-    clearMessage();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
-  }
-
-  onCreateFolder() async {
-    Future.delayed(const Duration(milliseconds: 100), (() {
-      showDialog(
-          context: context,
-          builder: ((context) => buildCreateFolderDialog(context)));
-    }));
   }
 
   onAddFile() async {
@@ -264,92 +322,30 @@ class _FileListPageState extends State<FileListPage> {
     }));
   }
 
-  onViewUploading() {
+  onCreateFolder() async {
     Future.delayed(const Duration(milliseconds: 100), (() {
-      openNewPage(FileUploadTaskPage());
+      showDialog(
+          context: context,
+          builder: ((context) => buildCreateFolderDialog(context)));
     }));
   }
 
-  buildCreateFolderDialog(BuildContext context) {
-    var input = TextEditingController();
-    return AlertDialog(
-      title: Text("创建文件夹"),
-      content: TextField(
-        controller: input,
-        decoration: InputDecoration(
-          labelText: "请输入文件夹名称",
-        ),
-      ),
-      actions: [
-        TextButton(
-            onPressed: (() {
-              pop();
-            }),
-            child: Text("取消")),
-        TextButton(
-            onPressed: (() {
-              createFolder(input.text);
-              pop();
-            }),
-            child: Text("确定"))
-      ],
-    );
+  void onItemTap(File item) {
+    if (item.type == "DIR") {
+      openNewPage(FileListPage(item.path, item.name));
+    } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
+      openGallery(item);
+    }
   }
 
-  Future<void> createFolder(String floderName) async {
-    if (floderName.trim().isEmpty) {
-      return;
+  void onUploadChange(FileUploadRecord record) {
+    if (record.dest == widget.path) {
+      if (record.status == FileUploadStatus.success.name) {
+        setInitState();
+        orderBy = "creTime_desc";
+        fetchNext(widget.path);
+      }
     }
-    Result result = await api.postCreateFolder(widget.path, floderName);
-    if (!result.success) {
-      setState(() {
-        showMessage(result.message!);
-      });
-      return;
-    }
-    setInitState();
-    orderBy = "creTime_desc";
-    fetchNext(widget.path);
-  }
-
-  void showItemOperationMenu(File item) {
-    showDialog(
-        context: context,
-        builder: ((context) {
-          return AlertDialog(
-            title: Text("删除文件"),
-            content: Text("确认删除 ${item.name} ?"),
-            actions: [
-              TextButton(
-                  onPressed: (() {
-                    pop();
-                  }),
-                  child: Text("取消")),
-              TextButton(
-                  onPressed: (() {
-                    deleteFile(item.path);
-                    pop();
-                  }),
-                  child: Text("确定"))
-            ],
-          );
-        }));
-  }
-
-  Future<void> deleteFile(String path) async {
-    print("delete $path");
-    Result result = await api.postDeleteFile(path);
-    if (!result.success) {
-      setState(() {
-        showMessage(result.message!);
-      });
-      return;
-    }
-    items.removeWhere((element) => element.path == path);
-    setState(() {
-      total -= 1;
-      showMessage("删除成功");
-    });
   }
 
   void openGallery(File item) {
@@ -367,14 +363,68 @@ class _FileListPageState extends State<FileListPage> {
     openNewPage(GalleryPhotoViewPage(images, index));
   }
 
-  void onUploadChange(FileUploadRecord record) {
-    if (record.dest == widget.path) {
-      if (record.status == FileUploadStatus.success.name) {
-        setInitState();
-        orderBy = "creTime_desc";
-        fetchNext(widget.path);
-      }
-    }
+  void openNewPage(Widget widget) {
+    clearMessage();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => widget,
+      ),
+    );
+  }
+
+  openUploadTaskPage() {
+    Future.delayed(const Duration(milliseconds: 100), (() {
+      openNewPage(FileUploadTaskPage());
+    }));
+  }
+
+  void pop() {
+    clearMessage();
+    Navigator.of(context).pop();
+  }
+
+  void setInitState() {
+    total = -1;
+    currentStop = -1;
+    currentPage = -1;
+    fetching = false;
+    items = [];
+    orderBy = _orderByOptions[0]["orderBy"]!;
+  }
+
+  void showItemDeleteConfirm(File item) {
+    Future.delayed(
+        Duration(milliseconds: 20),
+        () => {
+              showDialog(
+                  context: context,
+                  builder: ((context) {
+                    return AlertDialog(
+                      title: Text("删除文件"),
+                      content: Text("确认删除 ${item.name} ?"),
+                      actions: [
+                        TextButton(
+                            onPressed: (() {
+                              pop();
+                            }),
+                            child: Text("取消")),
+                        TextButton(
+                            onPressed: (() {
+                              deleteFile(item.path);
+                              pop();
+                            }),
+                            child: Text("确定"))
+                      ],
+                    );
+                  }))
+            });
+  }
+
+  void showMessage(String message) {
+    clearMessage();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
   }
 
   Future<void> webUpload() async {
@@ -397,18 +447,5 @@ class _FileListPageState extends State<FileListPage> {
       );
     }
     openNewPage(FileUploadTaskPage());
-  }
-
-  Future<void> nativeUpload() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowMultiple: true);
-    if (result == null) {
-      return;
-    }
-    for (var i = 0; i < result.paths.length; i++) {
-      var path = result.paths[i];
-      print(path);
-      FileUploader.getInstance().uploadPath(src: path!, dest: widget.path);
-    }
   }
 }

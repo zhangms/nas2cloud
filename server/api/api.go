@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type Result struct {
@@ -89,12 +91,12 @@ type ContextKey string
 
 const loginUserKey ContextKey = "loggedUser"
 
-func SetLoggedUser(c *fiber.Ctx, usr *user.User) {
+func SetContextUser(c *fiber.Ctx, usr *user.User) {
 	ctx := context.WithValue(context.Background(), loginUserKey, usr)
 	c.SetUserContext(ctx)
 }
 
-func GetLoggedUser(c *fiber.Ctx) (*user.User, error) {
+func GetContextUser(c *fiber.Ctx) (*user.User, error) {
 	u := c.UserContext().Value(loginUserKey)
 	if u == nil {
 		return nil, errors.New("NOT_LOGIN")
@@ -103,8 +105,34 @@ func GetLoggedUser(c *fiber.Ctx) (*user.User, error) {
 }
 
 func Register(app *fiber.App) {
+	initLooger(app)
 	registerStatic(app)
 	registerHandler(app)
+}
+
+func initLooger(app *fiber.App) {
+	app.Use(fiberLogger.New(fiberLogger.Config{
+		Next:         nil,
+		Done:         nil,
+		Format:       "${time} [HTTP ] ${status}|${latency}|${user}|${method}|${path}\n",
+		TimeFormat:   "2006/01/02 15:04:05.000000",
+		TimeZone:     "Local",
+		TimeInterval: 500 * time.Millisecond,
+		Output:       logger.GetWriter(),
+		CustomTags: map[string]fiberLogger.LogFunc{
+			"user": func(output fiberLogger.Buffer, c *fiber.Ctx, data *fiberLogger.Data, extraParam string) (int, error) {
+				u, _ := GetContextUser(c)
+				if u != nil {
+					return output.Write([]byte(u.Name))
+				} else {
+					return output.Write([]byte("nil"))
+				}
+			},
+			"method8": func(output fiberLogger.Buffer, c *fiber.Ctx, data *fiberLogger.Data, extraParam string) (int, error) {
+				return output.Write([]byte(fmt.Sprintf("%8s", c.Method())))
+			},
+		},
+	}))
 }
 
 func registerStatic(app *fiber.App) {
@@ -234,7 +262,7 @@ func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 		if err != nil {
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
 		}
-		SetLoggedUser(c, u)
+		SetContextUser(c, u)
 		return impl(c)
 	}
 }
@@ -251,7 +279,7 @@ func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 		setCorsHeader(c)
 		u, err := getLoginUserFromSign(c)
 		if err == nil && u != nil {
-			SetLoggedUser(c, u)
+			SetContextUser(c, u)
 		}
 		return impl(c)
 	}
