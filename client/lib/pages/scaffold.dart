@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_storage.dart';
-import 'package:nas2cloud/api/uploader/file_uploder.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_home.dart';
 import 'package:nas2cloud/pages/config.dart';
@@ -57,7 +56,7 @@ class _ScaffoldPageState extends State<ScaffoldPage> {
     if (!AppStorage.isUserLogged()) {
       return LoginPage();
     }
-    FileUploader.get();
     return FileHomePage();
+    // return TestPage();
   }
 }

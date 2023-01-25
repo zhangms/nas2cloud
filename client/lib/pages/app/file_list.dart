@@ -4,13 +4,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/downloader.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/api/uploader/file_uploder.dart';
+import 'package:nas2cloud/components/downloader.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_upload_task.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
@@ -273,7 +273,7 @@ class _FileListPageState extends State<FileListPage> {
     if (item.type == "DIR") {
       return;
     }
-    Downloader.download(Api.getStaticFileUrl(item.path));
+    Downloader.get().download(Api.getStaticFileUrl(item.path));
     showMessage("已开始下载, 请从状态栏查看下载进度");
   }
 
@@ -320,6 +320,7 @@ class _FileListPageState extends State<FileListPage> {
       print(path);
       FileUploader.get().uploadPath(src: path!, dest: widget.path);
     }
+    showMessage("已开始上传, 请从状态栏查看上传进度");
   }
 
   onAddFile() async {

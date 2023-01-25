@@ -68,6 +68,10 @@ func SendOK(c *fiber.Ctx, data any) error {
 	return c.Status(http.StatusOK).JSON(ResultOK(data))
 }
 
+func SendMsg(c *fiber.Ctx, message string) error {
+	return c.Status(http.StatusOK).JSON(&Result{Success: true, Message: message})
+}
+
 func SendErrorPage(c *fiber.Ctx, status int, err error) error {
 	c.Type("html", "utf-8")
 	data, _ := res.ParseText("err.html", &struct {
@@ -186,6 +190,7 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/store/walk", handleLoginRequired(fileController.Walk))
 	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))
 	app.Post("/api/store/deleteFiles", handleLoginRequired(fileController.DeleteFiles))
+	app.Get("/api/store/fileExists/*", handleLoginRequired(fileController.Exists))
 	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
 }
 

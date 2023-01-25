@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
-import 'package:nas2cloud/api/uploader/io.dart';
-import 'package:nas2cloud/api/uploader/web.dart';
+import 'package:nas2cloud/components/uploader/path.dart';
+import 'package:nas2cloud/components/uploader/web.dart';
 
 typedef FileUploadListener = void Function(FileUploadRecord record);
 
@@ -16,7 +16,7 @@ abstract class FileUploader {
     if (kIsWeb) {
       _uploader = WebUploader();
     } else {
-      _uploader = IOUploader();
+      _uploader = PathUploader();
     }
     return _uploader!;
   }
@@ -24,6 +24,10 @@ abstract class FileUploader {
   List<FileUploadListener> _listeners = [];
 
   FileUploader();
+
+  Future<bool> init() async {
+    return true;
+  }
 
   Future<bool> uploadStream(
       {required String dest,

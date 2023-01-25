@@ -138,6 +138,37 @@ class Api {
     }
   }
 
+  static String paths(String first, String second) {
+    var base = first;
+    if (!base.startsWith("/")) {
+      base = "/$base";
+    }
+    if (base.endsWith("/")) {
+      base = base.substring(0, base.length - 1);
+    }
+
+    var path = second;
+    if (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+    if (path.endsWith("/")) {
+      path = path.substring(0, path.length - 1);
+    }
+    return "$base/$path";
+  }
+
+  static Future<Result> getFileExists(String fullPath) async {
+    try {
+      var url = Uri.http(AppStorage.getHostAddress(),
+          paths("/api/store/fileExists", fullPath));
+      Response resp = await http.get(url, headers: httpHeaders());
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
+  }
+
   static Future<Result> uploadStream({
     required String dest,
     required String fileName,
@@ -146,11 +177,15 @@ class Api {
     required Stream<List<int>> stream,
   }) async {
     try {
-      var url = "/api/store/upload/$dest";
-      if (dest.startsWith("/")) {
-        url = "/api/store/upload$dest";
+      Result exists = await getFileExists(paths(dest, fileName));
+      if (!exists.success) {
+        return exists;
       }
-      var uri = Uri.http(AppStorage.getHostAddress(), url);
+      if (exists.message == "true") {
+        return Result(success: false, message: "文件已存在");
+      }
+      var uri = Uri.http(
+          AppStorage.getHostAddress(), paths("/api/store/upload", dest));
       var request = http.MultipartRequest("POST", uri)
         ..headers.addAll(httpHeaders())
         ..fields["lastModified"] = "$fileLastModified"

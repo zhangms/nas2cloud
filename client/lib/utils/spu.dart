@@ -12,9 +12,10 @@ class _Spu {
         _prefs = await SharedPreferences.getInstance();
         _complete = true;
       }
+      print("initSharedPreferences complete");
       return _complete;
     } catch (e) {
-      print(e);
+      print("initSharedPreferences error $e");
       return false;
     }
   }
@@ -44,6 +45,14 @@ class _Spu {
 
   Future<bool> setString(String key, String value) async {
     return await _prefs.setString(_wrap(key), value);
+  }
+
+  Future<bool> setInt(String key, int value) async {
+    return await _prefs.setInt(_wrap(key), value);
+  }
+
+  int? getInt(String key) {
+    return _prefs.getInt(_wrap(key));
   }
 
   Future<bool> remove(String key) async {

@@ -67,9 +67,20 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	return SendOK(c, "OK")
 }
 
+func (f *FileController) Exists(c *fiber.Ctx) error {
+	p, _ := url.PathUnescape(c.Params("*"))
+	path := filepath.Clean("/" + p)
+	u, _ := GetContextUser(c)
+	exists, err := storage.File().Exists(u.Name, path)
+	if err != nil {
+		return SendError(c, http.StatusForbidden, err.Error())
+	}
+	return SendMsg(c, fmt.Sprintf("%v", exists))
+}
+
 func (f *FileController) Upload(c *fiber.Ctx) error {
 	p, _ := url.PathUnescape(c.Params("*"))
-	path := "/" + p
+	path := filepath.Clean("/" + p)
 	file, err := c.FormFile("file")
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())

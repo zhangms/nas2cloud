@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
-import 'package:nas2cloud/api/uploader/file_uploder.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
-const String _keyPrefix = "app.fileupload.";
-
 class WebUploader extends FileUploader {
+  static const String _keyPrefix = "app.fileupload.";
+
   @override
   Future<bool> uploadStream(
       {required String dest,
