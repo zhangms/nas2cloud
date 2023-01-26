@@ -1,6 +1,7 @@
 package sign
 
 import (
+	"errors"
 	"nas2cloud/libs/cipher"
 	"nas2cloud/svc/cache"
 	"sync"
@@ -30,7 +31,7 @@ func (d *SignSvc) tryGenerateKey() error {
 	}
 	mutex.Lock()
 	defer mutex.Unlock()
-	pri, pub, err := cipher.GenerateRsaKeyPem(1024)
+	pri, pub, err := cipher.GenerateRsaKeyPem(2048)
 	if err != nil {
 		return err
 	}
@@ -52,4 +53,19 @@ func (d *SignSvc) GetPublicKey() (string, error) {
 		return "", err
 	}
 	return value, err
+}
+
+func (d *SignSvc) DecryptToString(chipertext []byte) (string, error) {
+	value, err := cache.Get(cacheKeyRsaPrivatePem)
+	if err != nil {
+		return "", err
+	}
+	if len(value) == 0 {
+		return "", errors.New("private key not exists")
+	}
+	data, err := cipher.RsaDecrypt(value, chipertext)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }

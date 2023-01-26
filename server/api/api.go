@@ -11,6 +11,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/res"
+	"nas2cloud/svc/sign"
 	"nas2cloud/svc/user"
 	"net/http"
 	"net/url"
@@ -194,41 +195,83 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
 }
 
+const keyToken = "X-AUTH-TOKEN"
+const keyDevice = "X-DEVICE"
+
 func getRequestSign(c *fiber.Ctx) (token, device, mode string) {
-	token = c.Get("X-AUTH-TOKEN", c.Cookies("X-AUTH-TOKEN", ""))
-	device = c.Get("X-DEVICE", c.Cookies("X-DEVICE", ""))
-	mode = "rw"
-	if len(token) > 0 && len(device) > 0 {
-		return
+
+	sign := getHeaderSign(c)
+	if sign != nil {
+		return sign[keyToken], sign[keyDevice], "rw"
 	}
-	var sign = c.Query("_sign")
-	if len(sign) == 0 {
-		return
+	sign = getCookieSign(c)
+	if sign != nil {
+		return sign[keyToken], sign[keyDevice], "rw"
 	}
-	data, err := base64.URLEncoding.DecodeString(sign)
+	sign = getQuerySign(c)
+	if sign != nil {
+		return sign[keyToken], sign[keyDevice], "r"
+	}
+	return "", "", ""
+}
+
+func getQuerySign(c *fiber.Ctx) map[string]string {
+	var base64sign = c.Query("_sign")
+	if len(base64sign) == 0 {
+		return nil
+	}
+	chipertext, err := base64.URLEncoding.DecodeString(base64sign)
 	if err != nil {
-		return
+		return nil
 	}
-	var decode = string(data)
-	arr := strings.SplitN(decode, "|", 2)
+	origin, err := sign.Sign().DecryptToString(chipertext)
+	if err != nil {
+		logger.Error("sign error:", base64sign)
+		return nil
+	}
+	arr := strings.SplitN(origin, " ", 2)
 	if len(arr) != 2 {
-		return
+		return nil
 	}
 	mills, err := strconv.ParseInt(arr[0], 10, 64)
 	if err != nil {
-		return
+		return nil
 	}
 	signTime := time.UnixMilli(mills)
 	now := time.Now()
 	if now.Sub(signTime) > time.Minute*60 || now.Sub(signTime) < time.Minute*-5 {
-		return
+		return nil
 	}
 	headers := make(map[string]string)
 	err = json.Unmarshal([]byte(arr[1]), &headers)
 	if err != nil {
-		return
+		return nil
 	}
-	return headers["X-AUTH-TOKEN"], headers["X-DEVICE"], "r"
+	return headers
+}
+
+func getCookieSign(c *fiber.Ctx) map[string]string {
+	token := c.Cookies(keyToken)
+	device := c.Cookies(keyDevice)
+	if len(token) == 0 || len(device) == 0 {
+		return nil
+	}
+	return map[string]string{
+		keyToken:  token,
+		keyDevice: device,
+	}
+}
+
+func getHeaderSign(c *fiber.Ctx) map[string]string {
+	token := c.Get(keyToken)
+	device := c.Get(keyDevice)
+	if len(token) == 0 || len(device) == 0 {
+		return nil
+	}
+	return map[string]string{
+		keyToken:  token,
+		keyDevice: device,
+	}
 }
 
 func getUserFromRequest(c *fiber.Ctx) (*user.User, error) {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -10,9 +11,16 @@ import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/dto/login_response/login_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
+import 'package:pointycastle/asymmetric/api.dart';
 
 class Api {
   static const _exception = {"success": false, "message": "服务器不可用"};
+
+  static final RSAKeyParser _rsaKeyParser = RSAKeyParser();
+
+  static String? _rsaPublicKeyContent;
+
+  static Encrypter? _encrypter;
 
   static var _defaultHttpHeaders = {
     "X-DEVICE": kIsWeb
@@ -20,6 +28,33 @@ class Api {
         : "${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version}",
     "Content-Type": "application/json;charset=UTF-8",
   };
+
+  static Encrypter? _getEncrypter() {
+    String? content = AppStorage.getHostState()?.publicKey;
+    if (content == null || content.isEmpty) {
+      return null;
+    }
+    if (content != _rsaPublicKeyContent) {
+      _rsaPublicKeyContent = content;
+      var publicKey = _rsaKeyParser.parse(content) as RSAPublicKey;
+      _encrypter = Encrypter(RSA(publicKey: publicKey));
+    }
+    return _encrypter;
+  }
+
+  static String encrypt(String data) {
+    var encrypter = _getEncrypter();
+    if (encrypter == null) {
+      throw StateError("encrypter is null");
+    }
+    try {
+      final encrypted = encrypter.encrypt(data);
+      return Base64Codec.urlSafe().encode(encrypted.bytes);
+    } catch (e) {
+      print(e);
+      return "";
+    }
+  }
 
   static Map<String, String> httpHeaders() {
     var header = {..._defaultHttpHeaders};
@@ -30,18 +65,30 @@ class Api {
     return header;
   }
 
+  static String paths(String first, String second) {
+    var base = first;
+    if (!base.startsWith("/")) {
+      base = "/$base";
+    }
+    if (base.endsWith("/")) {
+      base = base.substring(0, base.length - 1);
+    }
+    var path = second;
+    if (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+    if (path.endsWith("/")) {
+      path = path.substring(0, path.length - 1);
+    }
+    return "$base/$path";
+  }
+
   static String getApiUrl(String path) {
     if (!AppStorage.isHostAddressConfiged()) {
       return path;
     }
     String address = AppStorage.getHostAddress();
-    if (address.endsWith("/")) {
-      address = address.substring(0, address.length - 1);
-    }
-    if (path.startsWith("/")) {
-      return "http://$address$path";
-    }
-    return "http://$address/$path";
+    return "http://${paths(address, path)}";
   }
 
   static String getStaticFileUrl(String path) {
@@ -50,19 +97,13 @@ class Api {
     }
     String address =
         AppStorage.getHostState()?.staticAddress ?? AppStorage.getHostAddress();
-    if (address.endsWith("/")) {
-      address = address.substring(0, address.length - 1);
-    }
-    if (path.startsWith("/")) {
-      return "http://$address$path";
-    }
-    return "http://$address/$path";
+    return "http://${paths(address, path)}";
   }
 
   static String signUrl(String url) {
-    String str =
-        "${DateTime.now().millisecondsSinceEpoch}|${jsonEncode(httpHeaders())}";
-    var sign = Base64Encoder.urlSafe().convert(str.codeUnits);
+    var now = DateTime.now().millisecondsSinceEpoch;
+    String str = "$now ${jsonEncode(httpHeaders())}";
+    String sign = encrypt(str);
     return "$url?_sign=$sign";
   }
 
@@ -150,25 +191,6 @@ class Api {
       print(e);
       return Result.fromMap(_exception);
     }
-  }
-
-  static String paths(String first, String second) {
-    var base = first;
-    if (!base.startsWith("/")) {
-      base = "/$base";
-    }
-    if (base.endsWith("/")) {
-      base = base.substring(0, base.length - 1);
-    }
-
-    var path = second;
-    if (path.startsWith("/")) {
-      path = path.substring(1);
-    }
-    if (path.endsWith("/")) {
-      path = path.substring(0, path.length - 1);
-    }
-    return "$base/$path";
   }
 
   static Future<Result> getFileExists(String fullPath) async {

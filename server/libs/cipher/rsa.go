@@ -48,11 +48,11 @@ func RsaEncryptToString(publicKeyPem string, data []byte) (string, error) {
 	return hex.EncodeToString(chipertext), nil
 }
 
-func RsaDecrypt(privateKeyPem string, data []byte) ([]byte, error) {
+func RsaDecrypt(privateKeyPem string, ciphertext []byte) ([]byte, error) {
 	p, _ := pem.Decode([]byte(privateKeyPem))
 	privateKey, err := x509.ParsePKCS1PrivateKey(p.Bytes)
 	if err != nil {
 		return nil, err
 	}
-	return rsa.DecryptPKCS1v15(rand.Reader, privateKey, data)
+	return rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext)
 }
