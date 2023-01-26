@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"nas2cloud/env"
 	"nas2cloud/libs"
-	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/res"
@@ -278,18 +277,15 @@ func getHeaderSign(c *fiber.Ctx) map[string]string {
 func getUserFromRequest(c *fiber.Ctx) (*user.User, error) {
 	token, device, mode := getRequestSign(c)
 	if len(token) == 0 || len(device) == 0 {
-		return nil, errors.New("token not exists")
+		return nil, errors.New("sign error")
 	}
 	arr := strings.SplitN(token, "-", 2)
 	if len(arr) != 2 {
 		return nil, errors.New("token error")
 	}
-	u, err := user.GetLoggedUser(arr[0], device, arr[1])
+	u, err := user.FindUserByAuthToken(arr[0], arr[1], device)
 	if err != nil {
-		return nil, errs.Wrap(err, "get login user error")
-	}
-	if u == nil {
-		return nil, errors.New("login expired")
+		return nil, err
 	}
 	u.Mode = mode
 	return u, nil
@@ -312,8 +308,12 @@ func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 		}()
 		setCorsHeader(c)
 		u, err := getUserFromRequest(c)
-		if err != nil {
+		if user.IsLoginExpired(err) {
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
+		}
+		if err != nil {
+			logger.Warn(err)
+			return SendError(c, http.StatusForbidden, err.Error())
 		}
 		SetContextUser(c, u)
 		return impl(c)

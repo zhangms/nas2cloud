@@ -26,11 +26,3 @@ func Login(name string, password string, device string) (string, error) {
 	logger.Info("LOGIN_SUCCESS", name, device)
 	return token, nil
 }
-
-func GetLoggedUser(name string, device string, token string) (*User, error) {
-	return findUserByAuthToken(name, device, token)
-}
-
-func GetUserByName(name string) *User {
-	return findUserByName(name)
-}

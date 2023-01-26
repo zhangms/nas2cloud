@@ -88,14 +88,16 @@ func createNewUserAuthToken(userName string, token string, device string) error 
 	//return result.LastInsertId()
 }
 
-func findUserByAuthToken(userName string, device string, token string) (*User, error) {
+var loginExpired = errors.New("LOGIN_EXPIRED")
+
+func FindUserByAuthToken(userName string, token string, device string) (*User, error) {
 	key := keyToken(userName, device)
 	value, err := cache.Get(key)
 	if err != nil {
 		return nil, err
 	}
 	if value != token {
-		return nil, errors.New("LOGIN_EXPIRED")
+		return nil, loginExpired
 	}
 	usr := findUserByName(userName)
 	if usr == nil {
@@ -128,4 +130,8 @@ func GetUserRoles(userName string) string {
 		return usr.Roles
 	}
 	return ""
+}
+
+func IsLoginExpired(err error) bool {
+	return err == loginExpired
 }
