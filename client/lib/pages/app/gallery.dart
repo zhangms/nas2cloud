@@ -4,6 +4,7 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/pdf_viewer.dart';
+import 'package:nas2cloud/pages/app/text_reader.dart';
 import 'package:nas2cloud/pages/app/video_player.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -14,6 +15,9 @@ class GalleryPhotoViewPage extends StatefulWidget {
       return true;
     }
     if (!kIsWeb && FileExt.isPDF(ext)) {
+      return true;
+    }
+    if (FileExt.isText(ext)) {
       return true;
     }
     return false;
@@ -95,6 +99,9 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     } else if (FileExt.isPDF(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: PDFViewer(Api.getStaticFileUrl(item.path)));
+    } else if (FileExt.isText(item.ext)) {
+      return PhotoViewGalleryPageOptions.customChild(
+          child: TextReader(path: item.path));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
           child: Center(

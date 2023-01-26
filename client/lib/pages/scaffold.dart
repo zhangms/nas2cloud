@@ -12,7 +12,7 @@ class ScaffoldPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<AppState>();
-    return FutureBuilder<Object>(
+    return FutureBuilder<StateResponse>(
         future: Api.getHostStateIfConfiged(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
@@ -36,8 +36,7 @@ class ScaffoldPage extends StatelessWidget {
     );
   }
 
-  Widget getPage(dynamic response) {
-    StateResponse resp = response;
+  Widget getPage(StateResponse resp) {
     if (resp.message == "HOST_NOT_CONFIGED") {
       return ConfigPage();
     }
@@ -48,5 +47,6 @@ class ScaffoldPage extends StatelessWidget {
       return LoginPage();
     }
     return FileHomePage();
+    // return TestPage();
   }
 }

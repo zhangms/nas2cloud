@@ -234,4 +234,26 @@ class Api {
       return Result.fromMap(_exception);
     }
   }
+
+  static Future<RangeData> rangeGetStatic(
+      String path, int start, int end) async {
+    try {
+      var url = Uri.http(AppStorage.getHostAddress(), path);
+      Map<String, String> headers = {"Range": "bytes=$start-$end"};
+      headers.addAll(httpHeaders());
+      Response resp = await http.get(url, headers: headers);
+      return RangeData(resp.headers[HttpHeaders.contentTypeHeader] ?? "UNKNOWN",
+          resp.contentLength ?? 0, resp.bodyBytes);
+    } catch (e) {
+      print(e);
+      return RangeData("UNKNOWN", 0, null);
+    }
+  }
+}
+
+class RangeData {
+  String contentType;
+  int contentLength;
+  Uint8List? content;
+  RangeData(this.contentType, this.contentLength, this.content);
 }

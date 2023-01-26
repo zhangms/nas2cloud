@@ -38,6 +38,28 @@ class FileExt {
     return ext == ".PDF";
   }
 
+  static bool isText(String? ext) {
+    switch (ext) {
+      case ".TXT":
+      case ".TEXT":
+      case ".JAVA":
+      case ".H":
+      case ".CPP":
+      case ".PY":
+      case ".GO":
+      case ".DART":
+      case ".JS":
+      case ".HTML":
+      case ".CONF":
+      case ".SH":
+      case ".JSON":
+      case ".XML":
+        return true;
+      default:
+        return false;
+    }
+  }
+
   static Widget getItemIcon(File item) {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
