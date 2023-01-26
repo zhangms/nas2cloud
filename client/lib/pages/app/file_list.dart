@@ -121,8 +121,7 @@ class _FileListPageState extends State<FileListPage> {
   Widget buildBodyView() {
     if (total <= 0) {
       return Center(
-        child: Text(total < 0 ? "Loading" : "Empty"),
-      );
+          child: total < 0 ? CircularProgressIndicator() : Text("Empty"));
     }
     return ListView.builder(
         itemCount: total >= 0 ? total : 0,
