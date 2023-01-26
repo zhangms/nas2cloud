@@ -12,6 +12,8 @@ import (
 
 var inner *log.Logger
 
+const skipCaller = 3
+
 func init() {
 	inner = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 }
@@ -21,19 +23,36 @@ func GetWriter() io.Writer {
 }
 
 func Info(v ...any) {
-	inner.Println(msg("[INFO ] "+caller(2), v...))
+	printInfo(skipCaller, v...)
 }
 
 func Warn(v ...any) {
-	inner.Println(msg("[WARN ] "+caller(2), v...))
+	printWarn(skipCaller, v...)
 }
 
 func Error(v ...any) {
-	printError(3, v...)
+	printError(skipCaller, v...)
+}
+
+func PrintIfError(err error, v ...any) {
+	if err != nil {
+		args := make([]any, 0, len(v)+1)
+		args = append(args, err)
+		args = append(args, v...)
+		printError(skipCaller, args...)
+	}
 }
 
 func printError(skip int, v ...any) {
 	inner.Println(msg("[ERROR] "+caller(skip), v...))
+}
+
+func printWarn(skip int, v ...any) {
+	inner.Println(msg("[WARN ] "+caller(skip), v...))
+}
+
+func printInfo(skip int, v ...any) {
+	inner.Println(msg("[INFO ] "+caller(skip), v...))
 }
 
 func ErrorStacktrace(v ...any) {
@@ -52,7 +71,7 @@ func ErrorStacktrace(v ...any) {
 		stack = append(stack, "\n")
 		message = append(message, strings.Join(stack, ""))
 	}
-	printError(3, message...)
+	printError(skipCaller, message...)
 }
 
 func caller(skip int) string {

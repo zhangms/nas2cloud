@@ -26,7 +26,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 	}
 	key, err := sign.Sign().GetPublicKey("sys")
 	if err != nil {
-		return SendError(c, http.StatusInternalServerError, err.Error())
+		return SendError(c, http.StatusInternalServerError, "SERVER_STATUS_ERROR")
 	}
 	resp.PublicKey = key
 	u, _ := GetContextUser(c)

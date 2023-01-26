@@ -5,6 +5,7 @@ import (
 	"errors"
 	"nas2cloud/libs/cipher"
 	"nas2cloud/libs/errs"
+	"nas2cloud/libs/logger"
 	"nas2cloud/svc/cache"
 )
 
@@ -54,6 +55,12 @@ func (d *SignSvc) GetPublicKey(flag string) (string, error) {
 }
 
 func (d *SignSvc) getRSAKey(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
+	pri, pub, err := d.getRSAKeyImpl(flag)
+	logger.PrintIfError(err, "getRSAKey", flag)
+	return pri, pub, err
+}
+
+func (d *SignSvc) getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
 	err = d.tryGenerateRSAKey(flag)
 	if err != nil {
 		return "", "", err
