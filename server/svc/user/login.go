@@ -27,13 +27,8 @@ func Login(name string, password string, device string) (string, error) {
 	return token, nil
 }
 
-func GetLoggedUser(name string, device string, token string) *User {
-	usr, err := findUserByAuthToken(name, device, token)
-	if err != nil {
-		logger.Error(name, device, token, err)
-		return nil
-	}
-	return usr
+func GetLoggedUser(name string, device string, token string) (*User, error) {
+	return findUserByAuthToken(name, device, token)
 }
 
 func GetUserByName(name string) *User {

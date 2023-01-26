@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"nas2cloud/env"
 	"nas2cloud/libs"
+	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/res"
@@ -283,7 +284,10 @@ func getUserFromRequest(c *fiber.Ctx) (*user.User, error) {
 	if len(arr) != 2 {
 		return nil, errors.New("token error")
 	}
-	u := user.GetLoggedUser(arr[0], device, arr[1])
+	u, err := user.GetLoggedUser(arr[0], device, arr[1])
+	if err != nil {
+		return nil, errs.Wrap(err, "get login user error")
+	}
 	if u == nil {
 		return nil, errors.New("login expired")
 	}

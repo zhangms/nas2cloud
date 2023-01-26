@@ -24,7 +24,6 @@ func (*StateController) State(c *fiber.Ctx) error {
 		AppName:       "平淼淼和大树的Family",
 		StaticAddress: "",
 	}
-
 	key, err := sign.Sign().GetPublicKey("sys")
 	if err != nil {
 		return SendError(c, http.StatusInternalServerError, err.Error())

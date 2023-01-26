@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"nas2cloud/libs/cipher"
+	"nas2cloud/libs/logger"
 	"nas2cloud/svc/cache"
 )
 
@@ -46,6 +47,9 @@ func (d *SignSvc) tryGenerateRSAKey(flag string) error {
 
 func (d *SignSvc) GetPublicKey(flag string) (string, error) {
 	_, pub, err := d.getRSAKey(flag)
+	if err != nil {
+		logger.ErrorStacktrace("GetPublicKey error", flag, err)
+	}
 	return pub, err
 }
 

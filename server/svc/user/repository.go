@@ -95,7 +95,7 @@ func findUserByAuthToken(userName string, device string, token string) (*User, e
 		return nil, err
 	}
 	if value != token {
-		return nil, errors.New("user not login")
+		return nil, errors.New("LOGIN_EXPIRED")
 	}
 	usr := findUserByName(userName)
 	if usr == nil {
