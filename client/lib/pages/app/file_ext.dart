@@ -57,6 +57,12 @@ class FileExt {
       case ".JSON":
       case ".XML":
       case ".LOG":
+      case ".SQL":
+      case ".PROPRETIES":
+      case ".JSP":
+      case ".C":
+      case ".PHP":
+      case ".MD":
         return true;
       default:
         return false;
