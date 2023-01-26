@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"nas2cloud/libs/cipher"
-	"nas2cloud/libs/logger"
+	"nas2cloud/libs/errs"
 	"nas2cloud/svc/cache"
 )
 
@@ -48,7 +48,7 @@ func (d *SignSvc) tryGenerateRSAKey(flag string) error {
 func (d *SignSvc) GetPublicKey(flag string) (string, error) {
 	_, pub, err := d.getRSAKey(flag)
 	if err != nil {
-		logger.ErrorStacktrace("GetPublicKey error", flag, err)
+		return "", errs.Wrap(err, "GetPublicKey")
 	}
 	return pub, err
 }
@@ -64,7 +64,7 @@ func (d *SignSvc) getRSAKey(flag string) (rsaPrivateKey string, rsaPublicKey str
 		return "", "", err
 	}
 	if len(value) == 0 {
-		return "", "", errors.New("key not exists")
+		return "", "", errors.New("rsa key not exists")
 	}
 	mp := make(map[string]string)
 	err = json.Unmarshal([]byte(value), &mp)
