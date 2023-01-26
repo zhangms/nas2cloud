@@ -32,6 +32,8 @@ type Store interface {
 
 	Info(file string) (*ObjectInfo, error)
 
+	Open(file string) (io.Reader, error)
+
 	Read(file string) ([]byte, error)
 
 	Write(file string, data []byte) error

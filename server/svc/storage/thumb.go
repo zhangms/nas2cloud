@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"nas2cloud/env"
 	"nas2cloud/libs/img"
@@ -17,6 +18,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/dhowden/tag"
 	"github.com/google/uuid"
 )
 
@@ -38,6 +40,7 @@ func init() {
 			".GIF":  &ffmpegThumbnail{},
 			".MP4":  &ffmpegThumbnail{},
 			".MOV":  &ffmpegThumbnail{},
+			".MP3":  &tagThumbnail{thumbUser: "", defaultThumb: "/thumb/music.jpg"},
 		},
 		queue:       make(chan string, 1024),
 		thumbDir:    "/thumb",
@@ -222,4 +225,52 @@ func (f *ffmpegThumbnail) ffmpeg(from string, to string, width int, height int) 
 		return err
 	}
 	return nil
+}
+
+type tagThumbnail struct {
+	thumbUser    string
+	defaultThumb string
+}
+
+func (t *tagThumbnail) exec(from string, to string, width int, height int) error {
+	err := t.execFromTag(from, to)
+	if err != nil {
+		data, err := vfs.Read(t.thumbUser, t.defaultThumb)
+		if err != nil {
+			return err
+		}
+		err = vfs.Write(t.thumbUser, to, data)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (t *tagThumbnail) execFromTag(from string, to string) error {
+	reader, err := vfs.Open(t.thumbUser, from)
+	if err != nil {
+		return err
+	}
+	switch r := reader.(type) {
+	case io.ReadSeeker:
+		meta, err := tag.ReadFrom(r)
+		if err != nil {
+			return err
+		}
+		if meta == nil {
+			return errors.New("no meta")
+		}
+		pic := meta.Picture()
+		if pic == nil {
+			return errors.New("no pic")
+		}
+		err = vfs.Write(sysUser, to, pic.Data)
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.New("not support :" + from)
+	}
 }

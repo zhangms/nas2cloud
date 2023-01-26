@@ -75,6 +75,10 @@ func (l *Local) Info(file string) (*ObjectInfo, error) {
 	return l.infoF(l.AbsVirtual(file), fi)
 }
 
+func (l *Local) Open(file string) (io.Reader, error) {
+	return os.Open(l.AbsLocal(file))
+}
+
 func (l *Local) Read(file string) ([]byte, error) {
 	return os.ReadFile(l.AbsLocal(file))
 }

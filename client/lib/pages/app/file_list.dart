@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -346,6 +347,8 @@ class _FileListPageState extends State<FileListPage> {
       openNewPage(FileListPage(item.path, item.name));
     } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(item);
+    } else if (FileExt.isMusic(item.ext)) {
+      playMusic(item);
     } else {
       showMessage("不支持查看该类型的文件");
     }
@@ -451,5 +454,52 @@ class _FileListPageState extends State<FileListPage> {
       );
     }
     openNewPage(FileUploadTaskPage());
+  }
+
+  static final assetsAudioPlayer = AssetsAudioPlayer();
+
+  Future<void> playMusic(File item) async {
+    try {
+      List<Audio> playlist = [];
+      var playIndex = 0;
+      bool playIndexFinded = false;
+      for (var it in items) {
+        var name = it.name;
+        int index = name.lastIndexOf(".");
+        if (index > 0) {
+          name = name.substring(0, index);
+        }
+        if (FileExt.isMusic(it.ext)) {
+          playlist.add(Audio.network(
+            Api.getStaticFileUrl(it.path),
+            headers: Api.httpHeaders(),
+            metas: Metas(
+              title: name,
+              image: () {
+                if (it.thumbnail == null) {
+                  return null;
+                }
+                return MetasImage.network(
+                    Api.signUrl(Api.getStaticFileUrl(it.thumbnail!)));
+              }(),
+            ),
+          ));
+          if (it.path == item.path) {
+            playIndexFinded = true;
+          } else if (!playIndexFinded) {
+            playIndex++;
+          }
+        }
+      }
+      if (!playIndexFinded) {
+        playIndex = 0;
+      }
+      await assetsAudioPlayer.open(
+        Playlist(audios: playlist, startIndex: playIndex),
+        showNotification: true,
+      );
+    } catch (t) {
+      print(t);
+    }
   }
 }

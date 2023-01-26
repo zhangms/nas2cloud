@@ -182,6 +182,14 @@ func Info(role string, file string) (*ObjectInfo, error) {
 	return store.Info(f)
 }
 
+func Open(role string, file string) (io.Reader, error) {
+	store, f, err := GetStore(role, file)
+	if err != nil {
+		return nil, err
+	}
+	return store.Open(f)
+}
+
 func Read(role string, file string) ([]byte, error) {
 	store, f, err := GetStore(role, file)
 	if err != nil {

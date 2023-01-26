@@ -21,6 +21,10 @@ func (e *empty) Info(file string) (*ObjectInfo, error) {
 	return nil, errors.New("cannot get info")
 }
 
+func (e *empty) Open(file string) (io.Reader, error) {
+	return nil, errors.New("cannot open")
+}
+
 func (e *empty) Read(file string) ([]byte, error) {
 	return nil, errors.New("cannot read")
 }

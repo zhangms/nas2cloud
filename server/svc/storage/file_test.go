@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -12,6 +14,8 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/dhowden/tag"
 )
 
 func TestWalk(t *testing.T) {
@@ -62,4 +66,24 @@ func TestName2(t *testing.T) {
 	fmt.Println(tt)
 
 	os.Chtimes("/Users/ZMS/Downloads/BaiduNetdisk_mac_4.15.0_x64.dmg", tt, tt)
+}
+
+func TestTag(t *testing.T) {
+	// file, _ := os.Open("/Users/ZMS/Music/三年二班_周杰伦_叶惠美.mp3")
+	file, _ := os.Open("/Users/ZMS/Music/1973.mp3")
+
+	var a any = file
+
+	switch a.(type) {
+	case io.ReadSeeker:
+		println("------->is readSeeker--------->")
+	default:
+		break
+	}
+	m, _ := tag.ReadFrom(file)
+	pic := m.Picture()
+	if pic != nil {
+		str := fmt.Sprintf("data:%s;base64,%s", pic.MIMEType, base64.StdEncoding.EncodeToString(pic.Data))
+		fmt.Println(str)
+	}
 }
