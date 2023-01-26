@@ -56,6 +56,7 @@ class FileExt {
       case ".SH":
       case ".JSON":
       case ".XML":
+      case ".LOG":
         return true;
       default:
         return false;

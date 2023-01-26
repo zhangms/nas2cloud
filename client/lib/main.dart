@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
         title: "Nas2cloud",
         theme: AppLightTheme.themeData,
         home: ScaffoldPage(),
+        routes: <String, WidgetBuilder>{
+          '/home': (_) => ScaffoldPage(),
+        },
       ),
     );
   }

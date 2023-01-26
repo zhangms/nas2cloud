@@ -115,7 +115,7 @@ class _FileListPageState extends State<FileListPage> {
       title: Text(
         widget.name,
       ),
-      actions: [buildAddMenu(), buildSortMenu()],
+      actions: [buildAddMenu(), buildMoreMenu()],
     );
   }
 
@@ -204,10 +204,10 @@ class _FileListPageState extends State<FileListPage> {
     );
   }
 
-  PopupMenuButton<Text> buildSortMenu() {
+  PopupMenuButton<Text> buildMoreMenu() {
     return PopupMenuButton<Text>(
       icon: Icon(
-        Icons.sort,
+        Icons.more_horiz,
       ),
       itemBuilder: (context) {
         return [
@@ -216,10 +216,22 @@ class _FileListPageState extends State<FileListPage> {
               enabled: _orderByOptions[i]["orderBy"]! != orderBy,
               child: Text(_orderByOptions[i]["name"]!),
               onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
-            )
+            ),
+          PopupMenuDivider(),
+          PopupMenuItem(
+            onTap: (() {
+              popAll();
+            }),
+            child: Text("回到首页"),
+          ),
         ];
       },
     );
+  }
+
+  Future<void> popAll() async {
+    var nav = Navigator.of(context);
+    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/'));
   }
 
   changeOrderBy(String order) {
@@ -343,7 +355,7 @@ class _FileListPageState extends State<FileListPage> {
 
   void onItemTap(File item) {
     if (item.type == "DIR") {
-      openNewPage(FileListPage(item.path, item.name));
+      openNewPage(FileListPage(item.path, item.name), name: item.path);
     } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(item);
     } else if (FileExt.isMusic(item.ext)) {
@@ -378,10 +390,11 @@ class _FileListPageState extends State<FileListPage> {
     openNewPage(GalleryPhotoViewPage(images, index));
   }
 
-  void openNewPage(Widget widget) {
+  void openNewPage(Widget widget, {String? name}) {
     clearMessage();
     Navigator.of(context).push(
       MaterialPageRoute(
+        settings: RouteSettings(name: name),
         builder: (context) => widget,
       ),
     );
