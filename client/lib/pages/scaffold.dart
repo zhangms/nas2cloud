@@ -25,7 +25,7 @@ class ScaffoldPage extends StatelessWidget {
   Widget buildLoading() {
     return Scaffold(
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Text("Loading..."),
       ),
     );
   }

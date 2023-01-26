@@ -13,7 +13,7 @@ class TextReader extends StatefulWidget {
 }
 
 class _TextReaderState extends State<TextReader> {
-  static const int range = 1024;
+  static const int range = 4096;
 
   final ScrollController controller = ScrollController();
   var start = 0;
@@ -70,17 +70,12 @@ class _TextReaderState extends State<TextReader> {
       more = false;
       return;
     }
-    var contentType = data.contentType.toLowerCase();
-    if (!contentType.startsWith("text") || !contentType.contains("utf-8")) {
-      more = false;
-      contentText = "不支持的类型：$contentType";
-      return;
-    }
     try {
       content.addAll(data.content!);
       contentText = utf8.decode(content);
     } catch (e) {
       print(e);
+      contentText = "不支持的类型：${data.contentType}";
       more = false;
     }
     if (data.contentLength < range) {
@@ -93,7 +88,7 @@ class _TextReaderState extends State<TextReader> {
 
   Widget buildLoading() {
     return wrap(Center(
-      child: CircularProgressIndicator(),
+      child: Text("Loading..."),
     ));
   }
 

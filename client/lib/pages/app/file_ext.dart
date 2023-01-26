@@ -28,6 +28,7 @@ class FileExt {
     switch (ext) {
       case ".MP4":
       case ".MOV":
+      case ".MKV":
         return true;
       default:
         return false;
@@ -49,6 +50,7 @@ class FileExt {
       case ".GO":
       case ".DART":
       case ".JS":
+      case ".CSS":
       case ".HTML":
       case ".CONF":
       case ".SH":

@@ -46,7 +46,7 @@ class _FileHomePageState extends State<FileHomePage> {
     int len = walkData!.files!.length;
     if (len == 0) {
       return Center(
-        child: Text("NO DATA"),
+        child: Text("Empty"),
       );
     }
     return ListView(

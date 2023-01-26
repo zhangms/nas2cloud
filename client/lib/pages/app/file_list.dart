@@ -51,6 +51,7 @@ class _FileListPageState extends State<FileListPage> {
     FileUploader.get().addListener(onUploadChange);
     _setInitState();
     fetchNext(widget.path);
+    // Timer(Duration(milliseconds: 100), () => fetchNext(widget.path));
   }
 
   void _setInitState() {
@@ -120,8 +121,7 @@ class _FileListPageState extends State<FileListPage> {
 
   Widget buildBodyView() {
     if (total <= 0) {
-      return Center(
-          child: total < 0 ? CircularProgressIndicator() : Text("Empty"));
+      return Center(child: total < 0 ? Text("Loading...") : Text("Empty"));
     }
     return ListView.builder(
         itemCount: total >= 0 ? total : 0,
