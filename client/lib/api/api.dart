@@ -66,6 +66,20 @@ class Api {
     return "$url?_sign=$sign";
   }
 
+  static Future<StateResponse> getHostStateIfConfiged() async {
+    if (!AppStorage.isHostAddressConfiged()) {
+      return Future.value(StateResponse.fromMap({
+        "success": true,
+        "message": "HOST_NOT_CONFIGED",
+      }));
+    }
+    var state = await getHostState(AppStorage.getHostAddress());
+    if (state.success) {
+      await AppStorage.saveHostState(state.data!);
+    }
+    return state;
+  }
+
   static Future<StateResponse> getHostState(String address) async {
     try {
       var url = Uri.http(address, "api/state");

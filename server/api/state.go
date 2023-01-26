@@ -29,6 +29,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 	if err != nil {
 		return SendError(c, http.StatusInternalServerError, err.Error())
 	}
+	resp.PublicKey = key
 
 	u, _ := GetContextUser(c)
 	if u != nil {
@@ -36,6 +37,5 @@ func (*StateController) State(c *fiber.Ctx) error {
 		resp.UserAvatar = u.Avatar
 	}
 
-	resp.PublicKey = key
 	return SendOK(c, resp)
 }

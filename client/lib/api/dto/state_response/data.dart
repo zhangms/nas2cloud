@@ -2,12 +2,14 @@ import 'dart:convert';
 
 class Data {
   String appName;
+  String publicKey;
   String? userName;
   String? staticAddress;
   String? userAvatar;
 
   Data({
     required this.appName,
+    required this.publicKey,
     this.userName,
     this.staticAddress,
     this.userAvatar,
@@ -15,11 +17,12 @@ class Data {
 
   @override
   String toString() {
-    return 'Data(appName: $appName, userName: $userName, staticAddress: $staticAddress, userAvatar: $userAvatar)';
+    return 'Data(appName: $appName, publicKey: $publicKey, userName: $userName, staticAddress: $staticAddress, userAvatar: $userAvatar)';
   }
 
   factory Data.fromMap(Map<String, dynamic> data) => Data(
         appName: data['appName'] as String,
+        publicKey: data['publicKey'] as String,
         userName: data['userName'] as String?,
         staticAddress: data['staticAddress'] as String?,
         userAvatar: data['userAvatar'] as String?,
@@ -27,6 +30,7 @@ class Data {
 
   Map<String, dynamic> toMap() => {
         'appName': appName,
+        'publicKey': publicKey,
         'userName': userName,
         'staticAddress': staticAddress,
         'userAvatar': userAvatar,

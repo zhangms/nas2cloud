@@ -34,13 +34,19 @@ func (d *SignSvc) tryGenerateKey() error {
 	if err != nil {
 		return err
 	}
-	cache.Set(cacheKeyRsaPrivatePem, pri)
-	cache.Set(cacheKeyRsaPublicPem, pub)
-	return nil
+	_, err = cache.Set(cacheKeyRsaPrivatePem, pri)
+	if err != nil {
+		return err
+	}
+	_, err = cache.Set(cacheKeyRsaPublicPem, pub)
+	return err
 }
 
 func (d *SignSvc) GetPublicKey() (string, error) {
-	d.tryGenerateKey()
+	err := d.tryGenerateKey()
+	if err != nil {
+		return "", err
+	}
 	value, err := cache.Get(cacheKeyRsaPublicPem)
 	if err != nil {
 		return "", err
