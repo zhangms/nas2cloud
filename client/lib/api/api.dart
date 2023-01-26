@@ -88,7 +88,7 @@ class Api {
       return path;
     }
     String address = AppStorage.getHostAddress();
-    return "http://${paths(address, path)}";
+    return Uri.http(address, path).toString();
   }
 
   static String getStaticFileUrl(String path) {
@@ -97,7 +97,7 @@ class Api {
     }
     String address =
         AppStorage.getHostState()?.staticAddress ?? AppStorage.getHostAddress();
-    return "http://${paths(address, path)}";
+    return Uri.http(address, path).toString();
   }
 
   static String signUrl(String url) {

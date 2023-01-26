@@ -224,7 +224,7 @@ func getQuerySign(c *fiber.Ctx) map[string]string {
 	if err != nil {
 		return nil
 	}
-	origin, err := sign.Sign().DecryptToString(chipertext)
+	origin, err := sign.Sign().DecryptToString("sys", chipertext)
 	if err != nil {
 		logger.Error("sign error:", base64sign)
 		return nil

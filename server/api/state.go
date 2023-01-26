@@ -25,17 +25,15 @@ func (*StateController) State(c *fiber.Ctx) error {
 		StaticAddress: "",
 	}
 
-	key, err := sign.Sign().GetPublicKey()
+	key, err := sign.Sign().GetPublicKey("sys")
 	if err != nil {
 		return SendError(c, http.StatusInternalServerError, err.Error())
 	}
 	resp.PublicKey = key
-
 	u, _ := GetContextUser(c)
 	if u != nil {
 		resp.UserName = u.Name
 		resp.UserAvatar = u.Avatar
 	}
-
 	return SendOK(c, resp)
 }
