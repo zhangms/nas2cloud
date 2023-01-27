@@ -312,7 +312,6 @@ func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error
 			return SendError(c, http.StatusForbidden, "LOGIN_REQUIRED")
 		}
 		if err != nil {
-			logger.Warn(err)
 			return SendError(c, http.StatusForbidden, err.Error())
 		}
 		SetContextUser(c, u)

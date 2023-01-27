@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_storage.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/data.dart' as filewk;
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/api/dto/state_response/data.dart' as state;
+import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_list.dart';
 import 'package:provider/provider.dart';
-
-const _pageSize = 50;
 
 class FileHomePage extends StatefulWidget {
   @override
@@ -17,41 +14,45 @@ class FileHomePage extends StatefulWidget {
 }
 
 class _FileHomePageState extends State<FileHomePage> {
-  filewk.Data? walkData;
-
-  @override
-  void initState() {
-    super.initState();
-    initWalk();
-  }
+  static const _pageSize = 50;
 
   @override
   Widget build(BuildContext context) {
-    var hostState = AppStorage.getHostState();
-    return Scaffold(
-      appBar: buildAppBar(hostState),
-      body: SafeArea(child: buildFileListView()),
-      drawer: Drawer(
-        child: SafeArea(child: buildDrawer()),
-      ),
-    );
+    return FutureBuilder<FileWalkResponse>(
+        future: walk(),
+        builder: (context, snapshot) {
+          return Scaffold(
+            appBar: buildAppBar(),
+            body: SafeArea(child: buildBody(snapshot)),
+            drawer: Drawer(
+              child: SafeArea(child: buildDrawer()),
+            ),
+          );
+        });
   }
 
-  Widget buildFileListView() {
-    if (walkData?.files == null) {
-      return ListView(
-        children: [],
+  Widget buildBody(AsyncSnapshot<FileWalkResponse> snapshot) {
+    if (snapshot.connectionState != ConnectionState.done) {
+      return Center(
+        child: Text("Loading"),
       );
     }
-    int len = walkData!.files!.length;
-    if (len == 0) {
+
+    var response = snapshot.data!;
+    if (!response.success) {
+      return Center(
+        child: Text("Error:${response.message}"),
+      );
+    }
+    var files = response.data?.files ?? [];
+    if (files.isEmpty) {
       return Center(
         child: Text("Empty"),
       );
     }
     return ListView(
       children: [
-        for (int i = 0; i < len; i++) buildListItem(walkData!.files![i])
+        for (int i = 0; i < files.length; i++) buildListItem(files[i])
       ],
     );
   }
@@ -73,7 +74,8 @@ class _FileHomePageState extends State<FileHomePage> {
     );
   }
 
-  AppBar buildAppBar(state.Data? hostState) {
+  AppBar buildAppBar() {
+    var hostState = AppStorage.getHostState();
     return AppBar(
       leading: Builder(builder: (context) {
         return IconButton(
@@ -91,17 +93,10 @@ class _FileHomePageState extends State<FileHomePage> {
     );
   }
 
-  Future<void> initWalk() async {
+  Future<FileWalkResponse> walk() async {
     FileWalkRequest request = FileWalkRequest(
         path: "/", pageNo: 0, pageSize: _pageSize, orderBy: "fileName");
-    var resp = await Api.postFileWalk(request);
-    if (!resp.success || resp.data == null) {
-      print("walk file error:${resp.toString()}");
-      return;
-    }
-    setState(() {
-      walkData = resp.data;
-    });
+    return await Api.postFileWalk(request);
   }
 
   Widget? buildItemIcon(File item) {
@@ -134,52 +129,64 @@ class _FileHomePageState extends State<FileHomePage> {
           accountEmail: Text(hostState?.appName ?? ""),
           currentAccountPicture: avatar,
         ),
-        ListTile(
-          title: Text("照片"),
-          leading: const Icon(Icons.image),
-          onTap: () {
-            Navigator.pop(context);
-            showMessage("尚未支持");
-          },
-        ),
-        ListTile(
-          title: Text("自动上传"),
-          leading: const Icon(Icons.cloud_upload),
-          onTap: () {
-            Navigator.pop(context);
-            showMessage("尚未支持");
-          },
-        ),
+        buildPhoto(),
+        buildAutoUpload(),
         Divider(),
-        ListTile(
-          title: Text("退出登录"),
-          leading: const Icon(Icons.logout),
-          onTap: () {
-            Navigator.pop(context);
-            showDialog(
-                context: context,
-                builder: ((context) {
-                  return AlertDialog(
-                    title: Text("退出登录"),
-                    content: Text("确认退出？"),
-                    actions: [
-                      TextButton(
-                          onPressed: (() {
-                            Navigator.of(context).pop();
-                          }),
-                          child: Text("取消")),
-                      TextButton(
-                          onPressed: (() {
-                            Navigator.of(context).pop();
-                            appState.logout();
-                          }),
-                          child: Text("确定")),
-                    ],
-                  );
-                }));
-          },
-        ),
+        buildLogout(appState),
       ],
+    );
+  }
+
+  ListTile buildLogout(AppState appState) {
+    return ListTile(
+      title: Text("退出登录"),
+      leading: const Icon(Icons.logout),
+      onTap: () {
+        Navigator.pop(context);
+        showDialog(
+            context: context,
+            builder: ((context) {
+              return AlertDialog(
+                title: Text("退出登录"),
+                content: Text("确认退出？"),
+                actions: [
+                  TextButton(
+                      onPressed: (() {
+                        Navigator.of(context).pop();
+                      }),
+                      child: Text("取消")),
+                  TextButton(
+                      onPressed: (() {
+                        Navigator.of(context).pop();
+                        appState.logout();
+                      }),
+                      child: Text("确定")),
+                ],
+              );
+            }));
+      },
+    );
+  }
+
+  ListTile buildAutoUpload() {
+    return ListTile(
+      title: Text("自动上传"),
+      leading: const Icon(Icons.cloud_upload),
+      onTap: () {
+        Navigator.pop(context);
+        showMessage("尚未支持");
+      },
+    );
+  }
+
+  ListTile buildPhoto() {
+    return ListTile(
+      title: Text("照片"),
+      leading: const Icon(Icons.image),
+      onTap: () {
+        Navigator.pop(context);
+        showMessage("尚未支持");
+      },
     );
   }
 

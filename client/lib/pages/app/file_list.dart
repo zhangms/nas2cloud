@@ -9,23 +9,13 @@ import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
+import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/components/downloader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_upload_task.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
-
-const _orderByOptions = [
-  {"orderBy": "fileName", "name": "文件名排序"},
-  {"orderBy": "size_asc", "name": "文件从小到大"},
-  {"orderBy": "size_desc", "name": "文件从大到小"},
-  {"orderBy": "modTime_asc", "name": "最早修改在前"},
-  {"orderBy": "modTime_desc", "name": "最早修改在后"},
-  {"orderBy": "creTime_desc", "name": "最新添加"},
-];
-
-const _pageSize = 50;
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -38,27 +28,40 @@ class FileListPage extends StatefulWidget {
 }
 
 class _FileListPageState extends State<FileListPage> {
+  static const _pageSize = 50;
+
+  static const _orderByOptions = [
+    {"orderBy": "fileName", "name": "文件名排序"},
+    {"orderBy": "size_asc", "name": "文件从小到大"},
+    {"orderBy": "size_desc", "name": "文件从大到小"},
+    {"orderBy": "modTime_asc", "name": "最早修改在前"},
+    {"orderBy": "modTime_desc", "name": "最早修改在后"},
+    {"orderBy": "creTime_desc", "name": "最新添加"},
+  ];
+
+  static final _noDataResponse = FileWalkResponse.fromMap({
+    "success": true,
+  });
+
   late int total;
   late int currentStop;
   late int currentPage;
   late List<File> items;
-  late bool fetching;
   late String orderBy;
+  bool fetchWhenBuild = true;
 
   @override
   void initState() {
     super.initState();
     FileUploader.get().addListener(onUploadChange);
     _setInitState();
-    fetchNext(widget.path);
-    // Timer(Duration(milliseconds: 100), () => fetchNext(widget.path));
+    print("init state");
   }
 
   void _setInitState() {
     total = -1;
     currentStop = -1;
     currentPage = -1;
-    fetching = false;
     items = [];
     orderBy = _orderByOptions[0]["orderBy"]!;
   }
@@ -71,9 +74,134 @@ class _FileListPageState extends State<FileListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(),
-      body: SafeArea(child: buildBodyView()),
+    return FutureBuilder<FileWalkResponse>(
+        future: buildFetch(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            mergeWalkData(snapshot.data!);
+          }
+          return Scaffold(
+            appBar: buildAppBar(),
+            body: SafeArea(child: buildBodyView(snapshot)),
+          );
+        });
+  }
+
+  Future<FileWalkResponse> buildFetch() {
+    if (fetchWhenBuild) {
+      fetchWhenBuild = false;
+      return fetch(widget.path, currentPage + 1, _pageSize, orderBy);
+    }
+    return Future.value(_noDataResponse);
+  }
+
+  Future<FileWalkResponse> fetch(
+      String path, int pageNo, int pageSize, String orderBy) async {
+    if (total >= 0 && items.length >= total) {
+      return Future.value(_noDataResponse);
+    }
+    FileWalkRequest request = FileWalkRequest(
+      path: path,
+      pageNo: pageNo,
+      pageSize: pageSize,
+      orderBy: orderBy,
+    );
+    var resp = await Api.postFileWalk(request);
+    if (resp.message == "RetryLaterAgain") {
+      print("fetch RetryLaterAgain");
+      return await Future<FileWalkResponse>.delayed(Duration(milliseconds: 100),
+          () {
+        return fetch(path, pageNo, pageSize, orderBy);
+      });
+    }
+    return resp;
+  }
+
+  void mergeWalkData(FileWalkResponse resp) {
+    var data = resp.data;
+    if (total < 0) {
+      total = 0;
+    }
+    if (!resp.success) {
+      showMessage(resp.message ?? "ERROR");
+      return;
+    }
+    if (data == null) {
+      return;
+    }
+    total = data.total;
+    currentStop = data.currentStop;
+    currentPage = data.currentPage;
+    items.addAll(data.files ?? []);
+  }
+
+  Widget buildBodyView(AsyncSnapshot<FileWalkResponse> snapshot) {
+    print("build body");
+    if (total < 0) {
+      return Center(
+        child: Text("Loading..."),
+      );
+    }
+    if (total == 0) {
+      return Center(
+        child: Text("Empty"),
+      );
+    }
+    return ListView.builder(
+        itemCount: total,
+        itemBuilder: ((context, index) {
+          return buildItemView(index);
+        }));
+  }
+
+  buildItemView(int index) {
+    if (items.length - index < 20) {
+      tryFetchNext();
+    }
+    if (items.length <= index) {
+      return ListTile(
+        leading: Icon(Icons.hourglass_empty),
+      );
+    }
+    var item = items[index];
+    return ListTile(
+      leading: FileExt.getItemIcon(item),
+      trailing: buildItemContextMenu(item),
+      title: Text(item.name),
+      subtitle: Text("${item.modTime}  ${item.size}"),
+      onTap: () {
+        onItemTap(item);
+      },
+    );
+  }
+
+  bool fetchingNext = false;
+
+  Future<void> tryFetchNext() async {
+    if (!fetchingNext && total > 0 && total > items.length) {
+      fetchingNext = true;
+      var nextPage = currentPage + 1;
+      print("fetch next:  $nextPage");
+      var resp = await fetch(widget.path, nextPage, _pageSize, orderBy);
+      mergeWalkData(resp);
+      fetchingNext = false;
+    }
+  }
+
+  buildAppBar() {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+        ),
+        onPressed: () {
+          pop();
+        },
+      ),
+      title: Text(
+        widget.name,
+      ),
+      actions: [buildAddMenu(), buildMoreMenu()],
     );
   }
 
@@ -102,32 +230,34 @@ class _FileListPageState extends State<FileListPage> {
     );
   }
 
-  buildAppBar() {
-    return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-        ),
-        onPressed: () {
-          pop();
-        },
+  PopupMenuButton<Text> buildMoreMenu() {
+    return PopupMenuButton<Text>(
+      icon: Icon(
+        Icons.more_horiz,
       ),
-      title: Text(
-        widget.name,
-      ),
-      actions: [buildAddMenu(), buildMoreMenu()],
+      itemBuilder: (context) {
+        return [
+          for (var i = 0; i < _orderByOptions.length; i++)
+            PopupMenuItem(
+              enabled: _orderByOptions[i]["orderBy"]! != orderBy,
+              child: Text(_orderByOptions[i]["name"]!),
+              onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
+            ),
+          PopupMenuDivider(),
+          PopupMenuItem(
+            onTap: (() {
+              popAll();
+            }),
+            child: Text("回到首页"),
+          ),
+        ];
+      },
     );
   }
 
-  Widget buildBodyView() {
-    if (total <= 0) {
-      return Center(child: total < 0 ? Text("Loading...") : Text("Empty"));
-    }
-    return ListView.builder(
-        itemCount: total >= 0 ? total : 0,
-        itemBuilder: ((context, index) {
-          return buildItemView(index);
-        }));
+  Future<void> popAll() async {
+    var nav = Navigator.of(context);
+    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/'));
   }
 
   buildCreateFolderDialog(BuildContext context) {
@@ -183,66 +313,15 @@ class _FileListPageState extends State<FileListPage> {
     );
   }
 
-  buildItemView(int index) {
-    if (items.length - index < 20) {
-      fetchNext(widget.path);
-    }
-    if (items.length <= index) {
-      return ListTile(
-        leading: Icon(Icons.hourglass_empty),
-      );
-    }
-    var item = items[index];
-    return ListTile(
-      leading: FileExt.getItemIcon(item),
-      trailing: buildItemContextMenu(item),
-      title: Text(item.name),
-      subtitle: Text("${item.modTime}  ${item.size}"),
-      onTap: () {
-        onItemTap(item);
-      },
-    );
-  }
-
-  PopupMenuButton<Text> buildMoreMenu() {
-    return PopupMenuButton<Text>(
-      icon: Icon(
-        Icons.more_horiz,
-      ),
-      itemBuilder: (context) {
-        return [
-          for (var i = 0; i < _orderByOptions.length; i++)
-            PopupMenuItem(
-              enabled: _orderByOptions[i]["orderBy"]! != orderBy,
-              child: Text(_orderByOptions[i]["name"]!),
-              onTap: () => changeOrderBy(_orderByOptions[i]["orderBy"]!),
-            ),
-          PopupMenuDivider(),
-          PopupMenuItem(
-            onTap: (() {
-              popAll();
-            }),
-            child: Text("回到首页"),
-          ),
-        ];
-      },
-    );
-  }
-
-  Future<void> popAll() async {
-    var nav = Navigator.of(context);
-    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/'));
-  }
-
   changeOrderBy(String order) {
     if (orderBy == order) {
       return;
     }
-    _setInitState();
     setState(() {
+      _setInitState();
       orderBy = order;
+      fetchWhenBuild = true;
     });
-    fetchNext(widget.path);
   }
 
   void clearMessage() {
@@ -255,29 +334,28 @@ class _FileListPageState extends State<FileListPage> {
     }
     Result result = await Api.postCreateFolder(widget.path, floderName);
     if (!result.success) {
-      setState(() {
-        showMessage(result.message!);
-      });
+      showMessage(result.message!);
       return;
     }
-    _setInitState();
-    orderBy = "creTime_desc";
-    fetchNext(widget.path);
+    setState(() {
+      _setInitState();
+      orderBy = "creTime_desc";
+      fetchWhenBuild = true;
+    });
   }
 
   Future<void> deleteFile(String path) async {
     print("delete $path");
     Result result = await Api.postDeleteFile(path);
     if (!result.success) {
-      setState(() {
-        showMessage(result.message!);
-      });
+      showMessage(result.message!);
       return;
     }
     items.removeWhere((element) => element.path == path);
+    total -= 1;
+    showMessage("删除成功");
     setState(() {
-      total -= 1;
-      showMessage("删除成功");
+      fetchWhenBuild = false;
     });
   }
 
@@ -287,38 +365,6 @@ class _FileListPageState extends State<FileListPage> {
     }
     Downloader.get().download(Api.getStaticFileUrl(item.path));
     showMessage("已开始下载, 请从状态栏查看下载进度");
-  }
-
-  fetchNext(String path) async {
-    if (fetching || (total >= 0 && currentStop >= total)) {
-      return;
-    }
-    try {
-      fetching = true;
-      FileWalkRequest request = FileWalkRequest(
-          path: path,
-          pageNo: currentPage + 1,
-          pageSize: _pageSize,
-          orderBy: orderBy);
-      var resp = await Api.postFileWalk(request);
-      if (!resp.success && resp.message == "RetryLaterAgain") {
-        Timer(Duration(milliseconds: 100), () => fetchNext(path));
-        print("fetchNext RetryLaterAgain");
-        return;
-      } else if (!resp.success) {
-        print("fetchNext error:${resp.toString()}");
-        return;
-      }
-      var data = resp.data!;
-      currentStop = data.currentStop;
-      currentPage++;
-      items.addAll(data.files ?? []);
-      setState(() {
-        total = data.total;
-      });
-    } finally {
-      fetching = false;
-    }
   }
 
   Future<void> nativeUpload() async {
@@ -368,9 +414,11 @@ class _FileListPageState extends State<FileListPage> {
   void onUploadChange(FileUploadRecord record) {
     if (record.dest == widget.path) {
       if (record.status == FileUploadStatus.success.name) {
-        _setInitState();
-        orderBy = "creTime_desc";
-        fetchNext(widget.path);
+        setState(() {
+          _setInitState();
+          orderBy = "creTime_desc";
+          fetchWhenBuild = true;
+        });
       }
     }
   }
