@@ -139,7 +139,6 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
           message: message,
           child: Icon(
             Icons.error_outline,
-            color: Colors.red,
           ),
         );
       case FileUploadStatus.waiting:
@@ -151,7 +150,6 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
       case FileUploadStatus.success:
         return Icon(
           Icons.done,
-          color: Colors.green,
         );
     }
   }

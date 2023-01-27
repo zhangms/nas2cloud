@@ -49,12 +49,7 @@ class _AndroidAutoUploadConfigWidgetState
         Divider(),
         for (var cfg in configs)
           ListTile(
-            leading: cfg.autoupload
-                ? Icon(
-                    Icons.cloud,
-                    color: Colors.green,
-                  )
-                : Icon(Icons.cloud_off),
+            leading: cfg.autoupload ? Icon(Icons.cloud) : Icon(Icons.cloud_off),
             trailing: Icon(Icons.navigate_next),
             title: Text(cfg.name),
             subtitle: cfg.remote != null ? Text(cfg.remote!) : null,

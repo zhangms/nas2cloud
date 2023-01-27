@@ -65,6 +65,8 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
             height: MediaQuery.of(context).size.height,
           ),
           child: PhotoViewGallery.builder(
+            backgroundDecoration:
+                BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
             scrollPhysics: const BouncingScrollPhysics(),
             pageController: widget.pageController,
             itemCount: widget.images.length,
