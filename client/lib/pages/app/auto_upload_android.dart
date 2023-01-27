@@ -43,6 +43,10 @@ class _AndroidAutoUploadConfigWidgetState
     List<_AndroidAutoUploadDirConfig> configs = snapshot.data ?? [];
     return ListView(
       children: [
+        ListTile(
+          title: Text("配置本机上传到云端的目录"),
+        ),
+        Divider(),
         for (var cfg in configs)
           ListTile(
             leading: cfg.autoupload
@@ -74,6 +78,12 @@ class _AndroidAutoUploadConfigWidgetState
     }
     var name = p.basename(f.path);
     if (name.startsWith(".")) {
+      return false;
+    }
+    if (name.toLowerCase() == "android") {
+      return false;
+    }
+    if (name.toLowerCase() == "miui") {
       return false;
     }
     return true;

@@ -170,6 +170,7 @@ class _FileHomePageState extends State<FileHomePage> {
       title: Text("自动上传"),
       leading: const Icon(Icons.cloud_upload),
       onTap: () {
+        Navigator.pop(context);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => AutoUploadPage(),
