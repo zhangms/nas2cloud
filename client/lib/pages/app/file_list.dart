@@ -75,17 +75,17 @@ class _FileListPageState extends State<FileListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<FileWalkResponse>(
-        future: fetchOnBuild(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            mergeFetched(snapshot.data!);
-          }
-          return Scaffold(
-            appBar: buildAppBar(),
-            body: SafeArea(child: buildBodyView(snapshot)),
-          );
-        });
+    return Scaffold(
+      appBar: buildAppBar(),
+      body: FutureBuilder<FileWalkResponse>(
+          future: fetchOnBuild(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              mergeFetched(snapshot.data!);
+            }
+            return SafeArea(child: buildBodyView(snapshot));
+          }),
+    );
   }
 
   Future<FileWalkResponse> fetchOnBuild() {
@@ -124,7 +124,6 @@ class _FileListPageState extends State<FileListPage> {
       total = 0;
     }
     if (!resp.success) {
-      showMessage(resp.message ?? "ERROR");
       return;
     }
     if (data == null) {
@@ -242,6 +241,10 @@ class _FileListPageState extends State<FileListPage> {
             ),
           PopupMenuDivider(),
           PopupMenuItem(
+            onTap: (() => showCurrentPath()),
+            child: Text("显示当前位置"),
+          ),
+          PopupMenuItem(
             onTap: (() {
               popAll();
             }),
@@ -319,10 +322,6 @@ class _FileListPageState extends State<FileListPage> {
       orderBy = order;
       fetchWhenBuild = true;
     });
-  }
-
-  void clearMessage() {
-    ScaffoldMessenger.of(context).clearSnackBars();
   }
 
   Future<void> createFolder(String floderName) async {
@@ -457,35 +456,36 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   void showItemDeleteConfirm(File item) {
-    Future.delayed(
-        Duration(milliseconds: 20),
-        () => {
-              showDialog(
-                  context: context,
-                  builder: ((context) {
-                    return AlertDialog(
-                      title: Text("删除文件"),
-                      content: Text("确认删除 ${item.name} ?"),
-                      actions: [
-                        TextButton(
-                            onPressed: (() {
-                              pop();
-                            }),
-                            child: Text("取消")),
-                        TextButton(
-                            onPressed: (() {
-                              deleteFile(item.path);
-                              pop();
-                            }),
-                            child: Text("确定"))
-                      ],
-                    );
-                  }))
-            });
+    Future.delayed(Duration(milliseconds: 20), () {
+      showDialog(
+          context: context,
+          builder: ((context) {
+            return AlertDialog(
+              title: Text("删除文件"),
+              content: Text("确认删除 ${item.name} ?"),
+              actions: [
+                TextButton(
+                    onPressed: (() {
+                      pop();
+                    }),
+                    child: Text("取消")),
+                TextButton(
+                    onPressed: (() {
+                      deleteFile(item.path);
+                      pop();
+                    }),
+                    child: Text("确定"))
+              ],
+            );
+          }));
+    });
+  }
+
+  clearMessage() {
+    ScaffoldMessenger.of(context).clearSnackBars();
   }
 
   void showMessage(String message) {
-    clearMessage();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message),
     ));
@@ -558,5 +558,18 @@ class _FileListPageState extends State<FileListPage> {
     } catch (t) {
       print(t);
     }
+  }
+
+  void showCurrentPath() {
+    Future.delayed(Duration(milliseconds: 10), () {
+      showDialog(
+          context: context,
+          builder: ((context) {
+            return AlertDialog(
+              title: Text("当前位置"),
+              content: SelectableText(widget.path),
+            );
+          }));
+    });
   }
 }

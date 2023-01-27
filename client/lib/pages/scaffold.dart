@@ -25,7 +25,15 @@ class ScaffoldPage extends StatelessWidget {
 
   Widget buildLoading() {
     return Scaffold(
+      appBar: buildAppBar(),
       body: AppWidgets.getPageLoadingView(),
+    );
+  }
+
+  buildAppBar() {
+    return AppBar(
+      leading: Icon(Icons.menu),
+      title: Text(AppStorage.getHostState()?.appName ?? "Nas2cloud"),
     );
   }
 

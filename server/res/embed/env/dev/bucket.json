@@ -56,7 +56,7 @@
     "hidden": false
   },
   {
-    "id": "user_zms_dir",
+    "id": "userhome_zms",
     "name": "ZMS的文件夹",
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Users/zms",
@@ -64,7 +64,7 @@
     "hidden": false
   },
   {
-    "id": "user_pmz_dir",
+    "id": "userhome_pmz",
     "name": "PMZ的文件夹",
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Users/pmz",

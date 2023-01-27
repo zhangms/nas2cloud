@@ -12,6 +12,7 @@ class AndroidAutoUploadConfigWidget extends StatefulWidget {
 
 class _AndroidAutoUploadConfigWidgetState
     extends State<AndroidAutoUploadConfigWidget> {
+      
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<_AndroidAutoUploadDirConfig>>(
@@ -102,8 +103,8 @@ class _AndroidAutoUploadConfigWidgetState
 }
 
 class _AndroidAutoUploadDirConfig {
-  String name;
-  String path;
+  final String name;
+  final String path;
   String? remote;
   bool autoupload;
 
@@ -113,12 +114,44 @@ class _AndroidAutoUploadDirConfig {
     required this.autoupload,
     this.remote,
   });
+
+  _AndroidAutoUploadDirConfig copyWith({
+    String? name,
+    String? path,
+    String? remote,
+    bool? autoupload,
+  }) {
+    return _AndroidAutoUploadDirConfig(
+      name: name ?? this.name,
+      path: path ?? this.path,
+      remote: remote ?? this.remote,
+      autoupload: autoupload ?? this.autoupload,
+    );
+  }
 }
 
-class _AndroidAutoUploadConfigView extends StatelessWidget {
+class _AndroidAutoUploadConfigView extends StatefulWidget {
   final _AndroidAutoUploadDirConfig config;
 
   _AndroidAutoUploadConfigView(this.config);
+
+  @override
+  State<_AndroidAutoUploadConfigView> createState() =>
+      _AndroidAutoUploadConfigViewState();
+}
+
+class _AndroidAutoUploadConfigViewState
+    extends State<_AndroidAutoUploadConfigView> {
+  late _AndroidAutoUploadDirConfig stateConfig;
+
+  late TextEditingController remoteLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    stateConfig = widget.config.copyWith();
+    remoteLocation = TextEditingController(text: stateConfig.remote);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +163,7 @@ class _AndroidAutoUploadConfigView extends StatelessWidget {
 
   buildAppBar(BuildContext context) {
     return AppBar(
+      title: Text(stateConfig.name),
       leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.close)),
@@ -146,8 +180,66 @@ class _AndroidAutoUploadConfigView extends StatelessWidget {
     return ListView(
       children: [
         SwitchListTile(
-            value: true, title: Text("F"), onChanged: (obj) => print("FF")),
+            value: stateConfig.autoupload,
+            title: Text("自动上传"),
+            onChanged: ((obj) {
+              stateConfig.autoupload = !stateConfig.autoupload;
+              setState(() {});
+            })),
+        ListTile(
+          title: Text(
+            "上传位置",
+          ),
+          subtitle: TextField(
+            decoration: stateConfig.autoupload
+                ? InputDecoration(hintText: "首页->more->显示当前位置")
+                : InputDecoration(),
+            enabled: stateConfig.autoupload,
+            controller: remoteLocation,
+          ),
+        ),
+        SizedBox(height: 10),
+        buildFileGridView(),
       ],
     );
+  }
+
+  FutureBuilder<List<String>> buildFileGridView() {
+    return FutureBuilder<List<String>>(
+        future: getLocalFiles(),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return Text("");
+          }
+          return buildFileGridImpl(snapshot.data!);
+        });
+  }
+
+  Future<List<String>> getLocalFiles() async {
+    Directory directory = Directory(widget.config.path);
+    try {
+      var files = await directory
+          .list()
+          .map((event) => event.path)
+          .where((element) => !p.basename(element).startsWith("."))
+          .take(20)
+          .toList();
+      return files;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Widget buildFileGridImpl(List<String> data) {
+    print(data);
+    return SizedBox(
+        height: 200,
+        child: GridView.count(
+          crossAxisCount: 10,
+          children: [
+            for (var f in data) Text(f),
+          ],
+        ));
   }
 }

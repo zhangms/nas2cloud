@@ -20,17 +20,17 @@ class _FileHomePageState extends State<FileHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<FileWalkResponse>(
-        future: walk(),
-        builder: (context, snapshot) {
-          return Scaffold(
-            appBar: buildAppBar(),
-            body: SafeArea(child: buildBody(snapshot)),
-            drawer: Drawer(
-              child: SafeArea(child: buildDrawer()),
-            ),
-          );
-        });
+    return Scaffold(
+      appBar: buildAppBar(),
+      body: FutureBuilder<FileWalkResponse>(
+          future: walk(),
+          builder: (context, snapshot) {
+            return SafeArea(child: buildBody(snapshot));
+          }),
+      drawer: Drawer(
+        child: SafeArea(child: buildDrawer()),
+      ),
+    );
   }
 
   Widget buildBody(AsyncSnapshot<FileWalkResponse> snapshot) {
@@ -76,9 +76,7 @@ class _FileHomePageState extends State<FileHomePage> {
     return AppBar(
       leading: Builder(builder: (context) {
         return IconButton(
-          icon: Icon(
-            Icons.menu,
-          ),
+          icon: Icon(Icons.menu),
           onPressed: () {
             Scaffold.of(context).openDrawer();
           },
