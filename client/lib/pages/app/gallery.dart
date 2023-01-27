@@ -6,6 +6,7 @@ import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/pdf_viewer.dart';
 import 'package:nas2cloud/pages/app/text_reader.dart';
 import 'package:nas2cloud/pages/app/video_player.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -104,9 +105,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           child: TextReader(path: item.path));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
-          child: Center(
-        child: Text("UNSUPPORT"),
-      ));
+          child: AppWidgets.getPageErrorView("UNSUPPORT"));
     }
   }
 

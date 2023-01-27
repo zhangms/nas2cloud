@@ -58,7 +58,7 @@ class FileExt {
       case ".XML":
       case ".LOG":
       case ".SQL":
-      case ".PROPRETIES":
+      case ".PROPERTIES":
       case ".JSP":
       case ".C":
       case ".PHP":

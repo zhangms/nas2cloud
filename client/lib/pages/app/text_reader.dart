@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 
 class TextReader extends StatefulWidget {
   final String path;
@@ -87,9 +88,7 @@ class _TextReaderState extends State<TextReader> {
   }
 
   Widget buildLoading() {
-    return wrap(Center(
-      child: Text("Loading..."),
-    ));
+    return wrap(AppWidgets.getPageLoadingView());
   }
 
   Widget wrap(Widget widget) {

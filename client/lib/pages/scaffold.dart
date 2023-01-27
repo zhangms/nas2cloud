@@ -6,6 +6,7 @@ import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/app/file_home.dart';
 import 'package:nas2cloud/pages/config.dart';
 import 'package:nas2cloud/pages/login.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
 class ScaffoldPage extends StatelessWidget {
@@ -24,15 +25,13 @@ class ScaffoldPage extends StatelessWidget {
 
   Widget buildLoading() {
     return Scaffold(
-      body: Center(
-        child: Text("Loading..."),
-      ),
+      body: AppWidgets.getPageLoadingView(),
     );
   }
 
   Widget errorPage(String? message) {
     return Scaffold(
-      body: Center(child: Text(message ?? "ERROR")),
+      body: AppWidgets.getPageErrorView(message ?? "ERROR"),
     );
   }
 

@@ -16,6 +16,7 @@ import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/app/file_ext.dart';
 import 'package:nas2cloud/pages/app/file_upload_task.dart';
 import 'package:nas2cloud/pages/app/gallery.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -138,14 +139,10 @@ class _FileListPageState extends State<FileListPage> {
   Widget buildBodyView(AsyncSnapshot<FileWalkResponse> snapshot) {
     print("build body");
     if (total < 0) {
-      return Center(
-        child: Text("Loading..."),
-      );
+      return AppWidgets.getPageLoadingView();
     }
     if (total == 0) {
-      return Center(
-        child: Text("Empty"),
-      );
+      return AppWidgets.getPageEmptyView();
     }
     return ListView.builder(
         itemCount: total,
@@ -401,7 +398,7 @@ class _FileListPageState extends State<FileListPage> {
 
   void onItemTap(File item) {
     if (item.type == "DIR") {
-      openNewPage(FileListPage(item.path, item.name), name: item.path);
+      openNewPage(FileListPage(item.path, item.name));
     } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(item);
     } else if (FileExt.isMusic(item.ext)) {

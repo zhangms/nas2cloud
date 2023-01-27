@@ -5,7 +5,9 @@ import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/pages/app/auto_upload.dart';
 import 'package:nas2cloud/pages/app/file_list.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
 class FileHomePage extends StatefulWidget {
@@ -33,22 +35,16 @@ class _FileHomePageState extends State<FileHomePage> {
 
   Widget buildBody(AsyncSnapshot<FileWalkResponse> snapshot) {
     if (snapshot.connectionState != ConnectionState.done) {
-      return Center(
-        child: Text("Loading"),
-      );
+      return AppWidgets.getPageLoadingView();
     }
 
     var response = snapshot.data!;
     if (!response.success) {
-      return Center(
-        child: Text("Error:${response.message}"),
-      );
+      return AppWidgets.getPageErrorView(response.message ?? "ERROR");
     }
     var files = response.data?.files ?? [];
     if (files.isEmpty) {
-      return Center(
-        child: Text("Empty"),
-      );
+      return AppWidgets.getPageEmptyView();
     }
     return ListView(
       children: [
@@ -62,6 +58,7 @@ class _FileHomePageState extends State<FileHomePage> {
       leading: buildItemIcon(item),
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
+      trailing: Icon(Icons.navigate_next),
       onTap: () {
         if (item.type == "DIR") {
           Navigator.of(context).push(
@@ -173,8 +170,11 @@ class _FileHomePageState extends State<FileHomePage> {
       title: Text("自动上传"),
       leading: const Icon(Icons.cloud_upload),
       onTap: () {
-        Navigator.pop(context);
-        showMessage("尚未支持");
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AutoUploadPage(),
+          ),
+        );
       },
     );
   }
