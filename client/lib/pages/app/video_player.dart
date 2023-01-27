@@ -47,21 +47,16 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Colors.black,
-        ),
-        child: Center(
-          child: _controller.value.isInitialized
-              ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: Stack(alignment: Alignment.bottomCenter, children: [
-                    VideoPlayer(_controller),
-                    VideoProgressIndicator(_controller, allowScrubbing: true),
-                  ]),
-                )
-              : Container(),
-        ),
+      body: Center(
+        child: _controller.value.isInitialized
+            ? AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: Stack(alignment: Alignment.bottomCenter, children: [
+                  VideoPlayer(_controller),
+                  VideoProgressIndicator(_controller, allowScrubbing: true),
+                ]),
+              )
+            : Container(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

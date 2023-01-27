@@ -93,9 +93,6 @@ class _TextReaderState extends State<TextReader> {
 
   Widget wrap(Widget widget) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
       child: widget,
     );
   }

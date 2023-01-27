@@ -61,9 +61,6 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     return Scaffold(
         appBar: buildAppBar(),
         body: Container(
-          decoration: const BoxDecoration(
-            color: Colors.black,
-          ),
           constraints: BoxConstraints.expand(
             height: MediaQuery.of(context).size.height,
           ),

@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: "Nas2cloud",
         theme: AppLightTheme.themeData,
+        // darkTheme: AppDarkTheme.themeData,
         home: ScaffoldPage(),
         routes: <String, WidgetBuilder>{
           '/home': (_) => ScaffoldPage(),

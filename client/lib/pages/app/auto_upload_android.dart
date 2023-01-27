@@ -129,7 +129,7 @@ class _AndroidAutoUploadConfigView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: Text("FF"),
+      body: buildBody(),
     );
   }
 
@@ -138,6 +138,21 @@ class _AndroidAutoUploadConfigView extends StatelessWidget {
       leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.close)),
+      actions: [
+        TextButton(
+          child: Text("保存"),
+          onPressed: () => print("X"),
+        )
+      ],
+    );
+  }
+
+  Widget buildBody() {
+    return ListView(
+      children: [
+        SwitchListTile(
+            value: true, title: Text("F"), onChanged: (obj) => print("FF")),
+      ],
     );
   }
 }

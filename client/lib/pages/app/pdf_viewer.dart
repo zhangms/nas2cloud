@@ -13,11 +13,7 @@ class PDFViewer extends StatelessWidget {
     return PDF().cachedFromUrl(
       url,
       headers: Api.httpHeaders(),
-      placeholder: (progress) => Center(
-          child: Text(
-        '$progress %',
-        style: TextStyle(color: Colors.orange),
-      )),
+      placeholder: (progress) => Center(child: Text("$progress %")),
       errorWidget: (error) => AppWidgets.getPageErrorView(error.toString()),
     );
   }
