@@ -54,11 +54,11 @@ class _FileListPageState extends State<FileListPage> {
   void initState() {
     super.initState();
     FileUploader.get().addListener(onUploadChange);
-    _setInitState();
+    resetState();
     print("init state");
   }
 
-  void _setInitState() {
+  void resetState() {
     total = -1;
     currentStop = -1;
     currentPage = -1;
@@ -75,10 +75,10 @@ class _FileListPageState extends State<FileListPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<FileWalkResponse>(
-        future: buildFetch(),
+        future: fetchOnBuild(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            mergeWalkData(snapshot.data!);
+            mergeFetched(snapshot.data!);
           }
           return Scaffold(
             appBar: buildAppBar(),
@@ -87,7 +87,7 @@ class _FileListPageState extends State<FileListPage> {
         });
   }
 
-  Future<FileWalkResponse> buildFetch() {
+  Future<FileWalkResponse> fetchOnBuild() {
     if (fetchWhenBuild) {
       fetchWhenBuild = false;
       return fetch(widget.path, currentPage + 1, _pageSize, orderBy);
@@ -117,7 +117,7 @@ class _FileListPageState extends State<FileListPage> {
     return resp;
   }
 
-  void mergeWalkData(FileWalkResponse resp) {
+  void mergeFetched(FileWalkResponse resp) {
     var data = resp.data;
     if (total < 0) {
       total = 0;
@@ -156,7 +156,7 @@ class _FileListPageState extends State<FileListPage> {
 
   buildItemView(int index) {
     if (items.length - index < 20) {
-      tryFetchNext();
+      fetchNext();
     }
     if (items.length <= index) {
       return ListTile(
@@ -177,13 +177,13 @@ class _FileListPageState extends State<FileListPage> {
 
   bool fetchingNext = false;
 
-  Future<void> tryFetchNext() async {
+  Future<void> fetchNext() async {
     if (!fetchingNext && total > 0 && total > items.length) {
       fetchingNext = true;
       var nextPage = currentPage + 1;
       print("fetch next:  $nextPage");
       var resp = await fetch(widget.path, nextPage, _pageSize, orderBy);
-      mergeWalkData(resp);
+      mergeFetched(resp);
       fetchingNext = false;
     }
   }
@@ -318,7 +318,7 @@ class _FileListPageState extends State<FileListPage> {
       return;
     }
     setState(() {
-      _setInitState();
+      resetState();
       orderBy = order;
       fetchWhenBuild = true;
     });
@@ -338,7 +338,7 @@ class _FileListPageState extends State<FileListPage> {
       return;
     }
     setState(() {
-      _setInitState();
+      resetState();
       orderBy = "creTime_desc";
       fetchWhenBuild = true;
     });
@@ -415,7 +415,7 @@ class _FileListPageState extends State<FileListPage> {
     if (record.dest == widget.path) {
       if (record.status == FileUploadStatus.success.name) {
         setState(() {
-          _setInitState();
+          resetState();
           orderBy = "creTime_desc";
           fetchWhenBuild = true;
         });
