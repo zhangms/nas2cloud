@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_storage.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
@@ -72,7 +72,6 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   AppBar buildAppBar() {
-    var hostState = AppStorage.getHostState();
     return AppBar(
       leading: Builder(builder: (context) {
         return IconButton(
@@ -82,9 +81,7 @@ class _FileHomePageState extends State<FileHomePage> {
           },
         );
       }),
-      title: Text(
-        hostState?.appName ?? "Nas2cloud",
-      ),
+      title: Text(AppConfig.getAppName()),
     );
   }
 
@@ -102,7 +99,7 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   Widget buildDrawer() {
-    var hostState = AppStorage.getHostState();
+    var hostState = AppConfig.getHostState();
     var appState = context.watch<AppState>();
 
     Widget avatar = CircleAvatar(

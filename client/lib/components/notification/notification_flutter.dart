@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/notification/notification.dart';
 
 class NotificationFlutter extends LocalNotification {
@@ -45,8 +46,8 @@ class NotificationFlutter extends LocalNotification {
   @override
   void send({required int id, required String title, required String body}) {
     var androidDetail = AndroidNotificationDetails(
-      "com.zms.nas2cloud",
-      "Nas2cloud",
+      AppConfig.appId,
+      AppConfig.getAppName(),
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -63,8 +64,8 @@ class NotificationFlutter extends LocalNotification {
       required String body,
       required int progress}) {
     var androidDetail = AndroidNotificationDetails(
-      "com.zms.nas2cloud",
-      "Nas2cloud",
+      AppConfig.appId,
+      AppConfig.getAppName(),
       importance: Importance.max,
       priority: Priority.high,
       showProgress: true,

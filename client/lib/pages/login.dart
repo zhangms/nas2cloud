@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_storage.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
 import 'package:provider/provider.dart';
@@ -62,9 +62,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   buildAppBar() {
-    var title = AppStorage.getHostState()?.appName ?? "Nas2cloud";
     return AppBar(
-      title: Text(title),
+      title: Text(AppConfig.getAppName()),
     );
   }
 

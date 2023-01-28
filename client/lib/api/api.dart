@@ -5,7 +5,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:nas2cloud/api/app_storage.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/dto/login_response/login_response.dart';
@@ -30,7 +30,7 @@ class Api {
   };
 
   static Encrypter? _getEncrypter() {
-    String? content = AppStorage.getHostState()?.publicKey;
+    String? content = AppConfig.getHostState()?.publicKey;
     if (content == null || content.isEmpty) {
       return null;
     }
@@ -58,8 +58,8 @@ class Api {
 
   static Map<String, String> httpHeaders() {
     var header = {..._defaultHttpHeaders};
-    if (AppStorage.isUserLogged()) {
-      var data = AppStorage.getUserLoginInfo()!;
+    if (AppConfig.isUserLogged()) {
+      var data = AppConfig.getUserLoginInfo()!;
       header["X-AUTH-TOKEN"] = "${data.username}-${data.token}";
     }
     return header;
@@ -84,19 +84,19 @@ class Api {
   }
 
   static String getApiUrl(String path) {
-    if (!AppStorage.isHostAddressConfiged()) {
+    if (!AppConfig.isHostAddressConfiged()) {
       return path;
     }
-    String address = AppStorage.getHostAddress();
+    String address = AppConfig.getHostAddress();
     return Uri.http(address, path).toString();
   }
 
   static String getStaticFileUrl(String path) {
-    if (!AppStorage.isHostAddressConfiged()) {
+    if (!AppConfig.isHostAddressConfiged()) {
       return path;
     }
     String address =
-        AppStorage.getHostState()?.staticAddress ?? AppStorage.getHostAddress();
+        AppConfig.getHostState()?.staticAddress ?? AppConfig.getHostAddress();
     return Uri.http(address, path).toString();
   }
 
@@ -108,15 +108,15 @@ class Api {
   }
 
   static Future<StateResponse> getHostStateIfConfiged() async {
-    if (!AppStorage.isHostAddressConfiged()) {
+    if (!AppConfig.isHostAddressConfiged()) {
       return Future.value(StateResponse.fromMap({
         "success": true,
         "message": "HOST_NOT_CONFIGED",
       }));
     }
-    var state = await getHostState(AppStorage.getHostAddress());
+    var state = await getHostState(AppConfig.getHostAddress());
     if (state.success) {
-      await AppStorage.saveHostState(state.data!);
+      await AppConfig.saveHostState(state.data!);
     }
     return state;
   }
@@ -135,7 +135,7 @@ class Api {
   static Future<LoginResponse> postLogin(
       {required String username, required String password}) async {
     try {
-      var url = Uri.http(AppStorage.getHostAddress(), "/api/user/login");
+      var url = Uri.http(AppConfig.getHostAddress(), "/api/user/login");
       Response resp = await http.post(url,
           headers: _defaultHttpHeaders,
           body: jsonEncode({
@@ -151,7 +151,7 @@ class Api {
 
   static Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
     try {
-      var url = Uri.http(AppStorage.getHostAddress(), "/api/store/walk");
+      var url = Uri.http(AppConfig.getHostAddress(), "/api/store/walk");
       Response resp =
           await http.post(url, headers: httpHeaders(), body: reqeust.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
@@ -163,8 +163,7 @@ class Api {
 
   static Future<Result> postCreateFolder(String path, String folderName) async {
     try {
-      var url =
-          Uri.http(AppStorage.getHostAddress(), "/api/store/createFolder");
+      var url = Uri.http(AppConfig.getHostAddress(), "/api/store/createFolder");
       Response resp = await http.post(url,
           headers: httpHeaders(),
           body: jsonEncode({
@@ -180,7 +179,7 @@ class Api {
 
   static Future<Result> postDeleteFile(String fullPath) async {
     try {
-      var url = Uri.http(AppStorage.getHostAddress(), "/api/store/deleteFiles");
+      var url = Uri.http(AppConfig.getHostAddress(), "/api/store/deleteFiles");
       Response resp = await http.post(url,
           headers: httpHeaders(),
           body: jsonEncode({
@@ -195,8 +194,8 @@ class Api {
 
   static Future<Result> getFileExists(String fullPath) async {
     try {
-      var url = Uri.http(AppStorage.getHostAddress(),
-          paths("/api/store/fileExists", fullPath));
+      var url = Uri.http(
+          AppConfig.getHostAddress(), paths("/api/store/fileExists", fullPath));
       Response resp = await http.get(url, headers: httpHeaders());
       return Result.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
@@ -221,7 +220,7 @@ class Api {
         return Result(success: false, message: "文件已存在");
       }
       var uri = Uri.http(
-          AppStorage.getHostAddress(), paths("/api/store/upload", dest));
+          AppConfig.getHostAddress(), paths("/api/store/upload", dest));
       var request = http.MultipartRequest("POST", uri)
         ..headers.addAll(httpHeaders())
         ..fields["lastModified"] = "$fileLastModified"
@@ -238,7 +237,7 @@ class Api {
   static Future<RangeData> rangeGetStatic(
       String path, int start, int end) async {
     try {
-      var url = Uri.http(AppStorage.getHostAddress(), path);
+      var url = Uri.http(AppConfig.getHostAddress(), path);
       Map<String, String> headers = {"Range": "bytes=$start-$end"};
       headers.addAll(httpHeaders());
       Response resp = await http.get(url, headers: headers);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_storage.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/config.dart';
@@ -33,12 +33,13 @@ class HomePage extends StatelessWidget {
   buildAppBar() {
     return AppBar(
       leading: Icon(Icons.menu),
-      title: Text(AppStorage.getHostState()?.appName ?? "Nas2cloud"),
+      title: Text(AppConfig.getAppName()),
     );
   }
 
   Widget errorPage(String? message) {
     return Scaffold(
+      appBar: buildAppBar(),
       body: AppWidgets.getPageErrorView(message ?? "ERROR"),
     );
   }
@@ -50,10 +51,10 @@ class HomePage extends StatelessWidget {
     if (!resp.success) {
       return errorPage(resp.message);
     }
-    if (!AppStorage.isUserLogged()) {
+    if (!AppConfig.isUserLogged()) {
       return LoginPage();
     } else if (resp.data?.userName?.isEmpty ?? true) {
-      AppStorage.clearUserLogin();
+      AppConfig.clearUserLogin();
       return LoginPage();
     }
     return FileHomePage();

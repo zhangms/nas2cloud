@@ -2,7 +2,8 @@ import 'package:nas2cloud/api/dto/login_response/data.dart' as logindto;
 import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
 import 'package:nas2cloud/utils/spu.dart';
 
-class AppStorage {
+class AppConfig {
+  static const appId = "com.zms.nas2cloud";
   static const _hostAddressKey = "app.host.address";
   static const _hostStateKey = "app.host.state";
   static const _loginTokenKey = "app.login.token";
@@ -26,6 +27,10 @@ class AppStorage {
   static statedto.Data? getHostState() {
     final String? str = spu.getString(_hostStateKey);
     return str == null ? null : statedto.Data.fromJson(str);
+  }
+
+  static String getAppName() {
+    return getHostState()?.appName ?? "Nas2cloud";
   }
 
   static Future<bool> saveUserLoginInfo(logindto.Data data) async {
