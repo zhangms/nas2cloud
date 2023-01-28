@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:nas2cloud/api/api.dart';
@@ -27,6 +28,9 @@ Future<int> _uploadCounter() async {
 
 @pragma('vm:entry-point')
 void flutterUploaderBackgroudHandler() {
+  if (kIsWeb) {
+    return;
+  }
   WidgetsFlutterBinding.ensureInitialized();
   FlutterUploader uploader = FlutterUploader();
   uploader.progress.listen(flutterUploaderTaskProgress);
