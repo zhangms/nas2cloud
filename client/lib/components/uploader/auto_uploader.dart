@@ -9,6 +9,7 @@ class AutoUploader {
 
   static void init() {
     BackgroundProcessor.registerAutoUploadTask();
+    executeAutouploadAsync();
   }
 
   static Future<bool> saveConfig(AutoUploadConfig config) async {
@@ -35,5 +36,13 @@ class AutoUploader {
     return Stream<String>.fromIterable(spu.getStringList(key) ?? [])
         .map((event) => AutoUploadConfig.fromJson(event))
         .toList();
+  }
+
+  static void executeAutouploadSync() {
+    print("execute autoupload");
+  }
+
+  static void executeAutouploadAsync() {
+    Future.delayed(Duration(seconds: 10), executeAutouploadSync);
   }
 }
