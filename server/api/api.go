@@ -192,6 +192,7 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))
 	app.Post("/api/store/deleteFiles", handleLoginRequired(fileController.DeleteFiles))
 	app.Get("/api/store/fileExists/*", handleLoginRequired(fileController.Exists))
+	app.Post("/api/store/fileListExists", handleLoginRequired(fileController.ListExists))
 	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
 }
 

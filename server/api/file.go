@@ -78,6 +78,31 @@ func (f *FileController) Exists(c *fiber.Ctx) error {
 	return SendMsg(c, fmt.Sprintf("%v", exists))
 }
 
+func (f *FileController) ListExists(c *fiber.Ctx) error {
+	type request struct {
+		Path []string `json:"paths"`
+	}
+	req := &request{}
+	err := json.Unmarshal(c.Body(), req)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	u, _ := GetContextUser(c)
+	ret := make([]int, 0, len(req.Path))
+	for _, v := range req.Path {
+		exists, err := storage.File().Exists(u.Name, v)
+		if err != nil {
+			return SendError(c, http.StatusForbidden, err.Error())
+		}
+		if exists {
+			ret = append(ret, 1)
+		} else {
+			ret = append(ret, 0)
+		}
+	}
+	return SendOK(c, ret)
+}
+
 func (f *FileController) Upload(c *fiber.Ctx) error {
 	p, _ := url.PathUnescape(c.Params("*"))
 	path := filepath.Clean("/" + p)

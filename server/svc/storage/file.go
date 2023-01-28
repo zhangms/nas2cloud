@@ -180,6 +180,11 @@ func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, mo
 }
 
 func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
+	userRoles := user.GetUserRoles(username)
+	_, _, err := vfs.GetStore(userRoles, fullPath)
+	if err != nil {
+		return false, err
+	}
 	exists, err := fileCache.exists(fullPath)
 	if err != nil {
 		return false, err
@@ -187,7 +192,6 @@ func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
 	if exists {
 		return true, nil
 	}
-	userRoles := user.GetUserRoles(username)
 	if !vfs.Exists(userRoles, fullPath) {
 		return false, nil
 	}
