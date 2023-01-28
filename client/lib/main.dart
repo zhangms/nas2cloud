@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/app.dart';
-import 'package:nas2cloud/pages/scaffold.dart';
+import 'package:nas2cloud/pages/home.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
+import 'package:nas2cloud/utils/spu.dart';
 import 'package:provider/provider.dart';
 
-import 'bootstrap.dart';
+import 'components/downloader.dart';
+import 'components/notification/notification.dart';
+import 'components/uploader/file_uploder.dart';
 
 void main() async {
   await initBeforeRunApp();
   runApp(MyApp());
+}
+
+initBeforeRunApp() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await spu.initSharedPreferences();
+  await LocalNotification.get().init();
+  await Downloader.get().init();
+  await FileUploader.get().init();
 }
 
 class MyApp extends StatelessWidget {
@@ -22,9 +33,9 @@ class MyApp extends StatelessWidget {
         title: "Nas2cloud",
         theme: AppLightTheme.themeData,
         // darkTheme: AppDarkTheme.themeData,
-        home: ScaffoldPage(),
+        home: HomePage(),
         routes: <String, WidgetBuilder>{
-          "/home": (_) => ScaffoldPage(),
+          "/home": (_) => HomePage(),
         },
       ),
     );

@@ -9,7 +9,7 @@ import 'package:nas2cloud/pages/login.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
-class ScaffoldPage extends StatelessWidget {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<AppState>();
