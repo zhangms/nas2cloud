@@ -12,7 +12,6 @@ class AndroidAutoUploadConfigWidget extends StatefulWidget {
 
 class _AndroidAutoUploadConfigWidgetState
     extends State<AndroidAutoUploadConfigWidget> {
-      
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<_AndroidAutoUploadDirConfig>>(
@@ -68,6 +67,8 @@ class _AndroidAutoUploadConfigWidgetState
     );
   }
 
+  static const List<String> fileNameBlackList = ["android", "miui"];
+
   Future<bool> isSupportedAutoUploadDir(FileSystemEntity f) async {
     if (!await FileSystemEntity.isDirectory(f.path)) {
       return false;
@@ -76,10 +77,7 @@ class _AndroidAutoUploadConfigWidgetState
     if (name.startsWith(".")) {
       return false;
     }
-    if (name.toLowerCase() == "android") {
-      return false;
-    }
-    if (name.toLowerCase() == "miui") {
+    if (fileNameBlackList.contains(name.toLowerCase())) {
       return false;
     }
     return true;
@@ -234,12 +232,19 @@ class _AndroidAutoUploadConfigViewState
   Widget buildFileGridImpl(List<String> data) {
     print(data);
     return SizedBox(
-        height: 200,
+        height: 300,
         child: GridView.count(
           crossAxisCount: 10,
           children: [
-            for (var f in data) Text(f),
+            for (var path in data) buildItemCard(path),
           ],
         ));
+  }
+
+  Widget buildItemCard(String path) {
+    var name = p.basename(path);
+    return Card(
+      child: Text(name),
+    );
   }
 }

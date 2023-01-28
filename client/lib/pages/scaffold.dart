@@ -52,6 +52,9 @@ class ScaffoldPage extends StatelessWidget {
     }
     if (!AppStorage.isUserLogged()) {
       return LoginPage();
+    } else if (resp.data?.userName?.isEmpty ?? true) {
+      AppStorage.clearUserLogin();
+      return LoginPage();
     }
     return FileHomePage();
     // return TestPage();

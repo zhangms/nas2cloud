@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         // darkTheme: AppDarkTheme.themeData,
         home: ScaffoldPage(),
         routes: <String, WidgetBuilder>{
-          '/home': (_) => ScaffoldPage(),
+          "/home": (_) => ScaffoldPage(),
         },
       ),
     );
