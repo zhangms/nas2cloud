@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/components/background/background.dart';
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/pages/home.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:nas2cloud/utils/spu.dart';
@@ -17,9 +19,11 @@ void main() async {
 initBeforeRunApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await spu.initSharedPreferences();
+  BackgroundProcessor.init();
   await LocalNotification.get().init();
   await Downloader.get().init();
   await FileUploader.get().init();
+  AutoUploader.init();
 }
 
 class MyApp extends StatelessWidget {

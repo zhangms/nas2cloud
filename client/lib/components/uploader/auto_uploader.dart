@@ -1,10 +1,15 @@
 import 'dart:async';
 
+import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
 class AutoUploader {
   static const String key = "app.autoupload.config";
+
+  static void init() {
+    BackgroundProcessor.registerAutoUploadTask();
+  }
 
   static Future<bool> saveConfig(AutoUploadConfig config) async {
     List<String> ret = [];

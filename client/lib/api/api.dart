@@ -13,6 +13,12 @@ import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 
+bool get isInDebugMode {
+  bool inDebugMode = false;
+  assert(inDebugMode = true); //如果debug模式下会触发赋值
+  return inDebugMode;
+}
+
 class Api {
   static const _exception = {"success": false, "message": "服务器不可用"};
 

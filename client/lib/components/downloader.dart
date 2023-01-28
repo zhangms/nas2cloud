@@ -43,7 +43,7 @@ class Downloader {
       return true;
     }
     _inited = true;
-    await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
+    await FlutterDownloader.initialize(debug: isInDebugMode, ignoreSsl: true);
     FlutterDownloader.registerCallback(downloadCallback);
     print("FlutterDownloader init complete");
     return true;
