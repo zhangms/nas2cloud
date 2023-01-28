@@ -6,6 +6,7 @@
     "endpoint": "/Users/ZMS/NAS/local/console",
     "authorize": "PUBLIC",
     "hidden": true,
+    "mode": "rw",
     "comment": "react前端"
   },
   {
@@ -15,6 +16,7 @@
     "endpoint": "/Users/ZMS/NAS/local/app",
     "authorize": "PUBLIC",
     "hidden": true,
+    "mode": "rw",
     "comment": "flutter app"
   },
   {
@@ -24,6 +26,7 @@
     "endpoint": "/Users/ZMS/NAS/Thumb",
     "authorize": "ALL",
     "hidden": true,
+    "mode": "r",
     "comment": "缩略图"
   },
   {
@@ -32,6 +35,7 @@
     "mountType": "local",
     "endpoint": "/Volumes/Y/Mount",
     "authorize": "admin,family",
+    "mode": "rw",
     "hidden": false
   },
   {
@@ -40,6 +44,7 @@
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Users/zms",
     "authorize": "zms",
+    "mode": "rw",
     "hidden": false
   },
   {
@@ -48,6 +53,7 @@
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Users/pmz",
     "authorize": "pmz",
+    "mode": "rw",
     "hidden": false
   }
 ]

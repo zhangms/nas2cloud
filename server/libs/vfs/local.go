@@ -83,6 +83,10 @@ func (l *Local) Read(file string) ([]byte, error) {
 	return os.ReadFile(l.AbsLocal(file))
 }
 
+func (l *Local) IsWriteable() bool {
+	return IsModeWriteable(l.bucket.mode)
+}
+
 func (l *Local) Write(file string, data []byte) error {
 	return os.WriteFile(l.AbsLocal(file), data, fs.ModePerm)
 }

@@ -19,6 +19,7 @@ type Bucket struct {
 	mountType string
 	endpoint  string
 	authorize string
+	mode      string
 	hidden    bool
 }
 
@@ -72,6 +73,7 @@ func init() {
 		MountType string `json:"mountType"`
 		Endpoint  string `json:"endpoint"`
 		Authorize string `json:"authorize"`
+		Mode      string `json:"mode"`
 		Hidden    bool   `json:"hidden"`
 	}
 	configs := make([]*config, 0)
@@ -87,6 +89,7 @@ func init() {
 			mountType: conf.MountType,
 			endpoint:  path.Clean(conf.Endpoint),
 			authorize: conf.Authorize,
+			mode:      conf.Mode,
 			hidden:    conf.Hidden,
 		}
 	}
@@ -187,6 +190,9 @@ func Open(role string, file string) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
+	if !store.IsWriteable() {
+		return nil, errors.New("permission denied")
+	}
 	return store.Open(f)
 }
 
@@ -202,6 +208,9 @@ func Write(role string, file string, data []byte) error {
 	store, f, err := GetStore(role, file)
 	if err != nil {
 		return err
+	}
+	if !store.IsWriteable() {
+		return errors.New("permission denied")
 	}
 	return store.Write(f, data)
 }
@@ -219,6 +228,9 @@ func MkdirAll(role string, path string) error {
 	if err != nil {
 		return err
 	}
+	if !store.IsWriteable() {
+		return errors.New("permission denied")
+	}
 	return store.MkdirAll(f)
 }
 
@@ -226,6 +238,9 @@ func RemoveAll(role string, path string) error {
 	store, f, err := GetStore(role, path)
 	if err != nil {
 		return err
+	}
+	if !store.IsWriteable() {
+		return errors.New("permission denied")
 	}
 	return store.RemoveAll(f)
 }
@@ -235,6 +250,9 @@ func Remove(role string, path string) error {
 	if err != nil {
 		return err
 	}
+	if !store.IsWriteable() {
+		return errors.New("permission denied")
+	}
 	return store.Remove(f)
 }
 
@@ -242,6 +260,9 @@ func Upload(role string, path string, reader io.Reader, modTime time.Time) (int6
 	store, f, err := GetStore(role, path)
 	if err != nil {
 		return 0, err
+	}
+	if !store.IsWriteable() {
+		return 0, errors.New("permission denied")
 	}
 	return store.Upload(f, reader, modTime)
 }

@@ -29,6 +29,10 @@ func (e *empty) Read(file string) ([]byte, error) {
 	return nil, errors.New("cannot read")
 }
 
+func (l *empty) IsWriteable() bool {
+	return false
+}
+
 func (e *empty) Write(file string, data []byte) error {
 	return errors.New("cannot write")
 }

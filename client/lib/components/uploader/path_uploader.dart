@@ -25,6 +25,7 @@ Future<int> _uploadCounter() async {
   return count;
 }
 
+@pragma('vm:entry-point')
 void _flutterUploaderBackgroudHandler() {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterUploader uploader = FlutterUploader();

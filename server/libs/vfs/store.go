@@ -46,5 +46,7 @@ type Store interface {
 
 	Remove(file string) error
 
+	IsWriteable() bool
+
 	Upload(file string, reader io.Reader, modTime time.Time) (int64, error)
 }

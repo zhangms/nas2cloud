@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/dto/file_upload_record.dart';
 import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
-import 'package:nas2cloud/components/uploader/path.dart';
-import 'package:nas2cloud/components/uploader/web.dart';
+import 'package:nas2cloud/components/uploader/path_uploader.dart';
+import 'package:nas2cloud/components/uploader/web_uploader.dart';
 
 typedef FileUploadListener = void Function(FileUploadRecord record);
 
