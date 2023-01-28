@@ -1,31 +1,34 @@
-class AutoUploadDirConfig {
-  final String name;
-  final String path;
-  String? remote;
-  bool autoupload;
+import 'dart:async';
 
-  AutoUploadDirConfig({
-    required this.name,
-    required this.path,
-    required this.autoupload,
-    this.remote,
-  });
-
-  AutoUploadDirConfig copyWith({
-    String? name,
-    String? path,
-    String? remote,
-    bool? autoupload,
-  }) {
-    return AutoUploadDirConfig(
-      name: name ?? this.name,
-      path: path ?? this.path,
-      remote: remote ?? this.remote,
-      autoupload: autoupload ?? this.autoupload,
-    );
-  }
-}
+import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
+import 'package:nas2cloud/utils/spu.dart';
 
 class AutoUploader {
-  static saveAutoUploadConfig(AutoUploadDirConfig config) {}
+  static const String key = "app.autoupload.config";
+
+  static Future<bool> saveConfig(AutoUploadConfig config) async {
+    List<String> ret = [];
+    List<String> configs = spu.getStringList(key) ?? [];
+
+    bool configExists = false;
+    for (var c in configs) {
+      var cfg = AutoUploadConfig.fromJson(c);
+      if (cfg.path == config.path) {
+        ret.add(config.toJson());
+        configExists = true;
+      } else {
+        ret.add(c);
+      }
+    }
+    if (!configExists) {
+      ret.add(config.toJson());
+    }
+    return await spu.setStringList(key, ret);
+  }
+
+  static Future<List<AutoUploadConfig>> getConfigList() {
+    return Stream<String>.fromIterable(spu.getStringList(key) ?? [])
+        .map((event) => AutoUploadConfig.fromJson(event))
+        .toList();
+  }
 }

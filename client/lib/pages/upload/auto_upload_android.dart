@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/pages/files/local_file_grid_view.dart';
 import 'package:nas2cloud/themes/widgets.dart';
@@ -31,15 +32,23 @@ class _AndroidAutoUploadConfigWidgetState
     if (!await Permission.storage.request().isGranted) {
       return _AndroidAutoUploadConfig(false, []);
     }
-    List<AutoUploadDirConfig> result = [];
+
     Directory directory = Directory(rootdir);
     var files = directory.listSync();
+    Map<String, AutoUploadConfig> configMap = {};
+    for (var config in await AutoUploader.getConfigList()) {
+      configMap[config.path] = config;
+    }
+    List<AutoUploadConfig> result = [];
     for (var f in files) {
       if (await isSupportedAutoUploadDir(f)) {
-        result.add(getUploadConfig(f.path));
+        var cfg = configMap[f.path] ??
+            AutoUploadConfig(
+                name: p.basename(f.path), path: f.path, autoupload: false);
+        result.add(cfg);
       }
     }
-    result.sort(sortUploadConfig);
+    result.sort(configSorter);
     return _AndroidAutoUploadConfig(true, result);
   }
 
@@ -65,7 +74,7 @@ class _AndroidAutoUploadConfigWidgetState
     );
   }
 
-  showConfig(AutoUploadDirConfig cfg) {
+  showConfig(AutoUploadConfig cfg) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => _ConfigView(cfg, onSave),
@@ -73,7 +82,10 @@ class _AndroidAutoUploadConfigWidgetState
     );
   }
 
-  onSave(AutoUploadDirConfig config) {}
+  onSave(AutoUploadConfig config) async {
+    await AutoUploader.saveConfig(config);
+    setState(() {});
+  }
 
   static const List<String> fileNameBlackList = ["android", "miui"];
 
@@ -91,7 +103,7 @@ class _AndroidAutoUploadConfigWidgetState
     return true;
   }
 
-  int sortUploadConfig(AutoUploadDirConfig a, AutoUploadDirConfig b) {
+  int configSorter(AutoUploadConfig a, AutoUploadConfig b) {
     if (a.autoupload && !b.autoupload) {
       return -1;
     }
@@ -100,23 +112,18 @@ class _AndroidAutoUploadConfigWidgetState
     }
     return a.name.toLowerCase().compareTo(b.name.toLowerCase());
   }
-
-  AutoUploadDirConfig getUploadConfig(String path) {
-    return AutoUploadDirConfig(
-        name: p.basename(path), path: path, autoupload: false);
-  }
 }
 
 class _AndroidAutoUploadConfig {
   bool storageGrant = false;
-  List<AutoUploadDirConfig> configs;
+  List<AutoUploadConfig> configs;
   _AndroidAutoUploadConfig(this.storageGrant, this.configs);
 }
 
 class _ConfigView extends StatefulWidget {
-  final AutoUploadDirConfig config;
+  final AutoUploadConfig config;
 
-  final Function(AutoUploadDirConfig config) save;
+  final Function(AutoUploadConfig config) save;
 
   _ConfigView(this.config, this.save);
 
@@ -125,7 +132,7 @@ class _ConfigView extends StatefulWidget {
 }
 
 class _ConfigViewState extends State<_ConfigView> {
-  late AutoUploadDirConfig stateConfig;
+  late AutoUploadConfig stateConfig;
   late TextEditingController remoteLocation;
   String? remoteLocationError;
 

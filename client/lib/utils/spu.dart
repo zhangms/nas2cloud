@@ -43,8 +43,16 @@ class _Spu {
     return ret;
   }
 
+  List<String>? getStringList(String key) {
+    return _prefs.getStringList(key);
+  }
+
   Future<bool> setString(String key, String value) async {
     return await _prefs.setString(_wrap(key), value);
+  }
+
+  Future<bool> setStringList(String key, List<String> value) {
+    return _prefs.setStringList(key, value);
   }
 
   Future<bool> setInt(String key, int value) async {
