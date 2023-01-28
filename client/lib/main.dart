@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
@@ -12,6 +13,7 @@ import 'components/notification/notification.dart';
 import 'components/uploader/file_uploder.dart';
 
 void main() async {
+  print("isInDebugMode: $isInDebugMode");
   await initBeforeRunApp();
   runApp(MyApp());
 }

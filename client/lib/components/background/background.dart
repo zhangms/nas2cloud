@@ -4,7 +4,7 @@ import 'package:workmanager/workmanager.dart';
 
 class BackgroundProcessor {
   @pragma('vm:entry-point')
-  static void _callbackDispatcher() {
+  static void callbackDispatcher() {
     Workmanager().executeTask((task, inputData) {
       print("Native called background task: $task");
       return Future.value(true);
@@ -21,14 +21,15 @@ class BackgroundProcessor {
       return;
     }
     _inited = true;
-    Workmanager().initialize(_callbackDispatcher, isInDebugMode: isInDebugMode);
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: isInDebugMode);
+    print("background processor init complete");
   }
 
   static void registerAutoUploadTask() {
     Workmanager().registerPeriodicTask(
       "periodic-autoupload-task",
       "autoupload",
-      frequency: Duration(minutes: 5),
+      initialDelay: Duration(seconds: 10),
       existingWorkPolicy: ExistingWorkPolicy.keep,
     );
   }

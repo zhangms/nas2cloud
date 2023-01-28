@@ -26,14 +26,14 @@ Future<int> _uploadCounter() async {
 }
 
 @pragma('vm:entry-point')
-void _flutterUploaderBackgroudHandler() {
+void flutterUploaderBackgroudHandler() {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterUploader uploader = FlutterUploader();
-  uploader.progress.listen(_onUploadTaskProgress);
-  uploader.result.listen(_onUploadTaskResponse);
+  uploader.progress.listen(flutterUploaderTaskProgress);
+  uploader.result.listen(flutterUploaderTaskResponse);
 }
 
-void _onUploadTaskResponse(UploadTaskResponse result) {
+void flutterUploaderTaskResponse(UploadTaskResponse result) {
   print("upload result : $result");
   var record = _getUploadRecord(result.taskId);
   if (record == null || record.endUploadTime > 0) {
@@ -70,7 +70,7 @@ void _onUploadTaskResponse(UploadTaskResponse result) {
   }
 }
 
-void _onUploadTaskProgress(UploadTaskProgress progress) {
+void flutterUploaderTaskProgress(UploadTaskProgress progress) {
   print("upload progress : $progress");
   var record = _getUploadRecord(progress.taskId);
   if (record == null || record.endUploadTime > 0) {
@@ -102,8 +102,8 @@ class PathUploader extends FileUploader {
   Future<bool> init() {
     if (!_inited) {
       _inited = true;
-      _flutterUploaderBackgroudHandler();
-      FlutterUploader().setBackgroundHandler(_flutterUploaderBackgroudHandler);
+      flutterUploaderBackgroudHandler();
+      FlutterUploader().setBackgroundHandler(flutterUploaderBackgroudHandler);
       print("FlutterUploader init complete");
     }
     return Future.value(_inited);
