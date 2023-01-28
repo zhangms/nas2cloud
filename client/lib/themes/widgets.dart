@@ -3,7 +3,15 @@ import 'package:flutter/material.dart';
 class AppWidgets {
   static Widget getPageLoadingView() {
     return Center(
-      child: Text("Loading..."),
+      child: FutureBuilder<String>(
+          future:
+              Future.delayed(Duration(milliseconds: 200), () => "Loading..."),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text(snapshot.data ?? "");
+            }
+            return Text("");
+          }),
     );
   }
 
