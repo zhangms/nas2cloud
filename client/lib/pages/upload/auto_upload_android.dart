@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/pages/app/file_ext.dart';
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
+import 'package:nas2cloud/pages/files/local_file_grid_view.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
@@ -30,7 +31,7 @@ class _AndroidAutoUploadConfigWidgetState
     if (!await Permission.storage.request().isGranted) {
       return _AndroidAutoUploadConfig(false, []);
     }
-    List<_AutoUploadDirConfig> result = [];
+    List<AutoUploadDirConfig> result = [];
     Directory directory = Directory(rootdir);
     var files = directory.listSync();
     for (var f in files) {
@@ -58,19 +59,21 @@ class _AndroidAutoUploadConfigWidgetState
             trailing: Icon(Icons.navigate_next),
             title: Text(cfg.name),
             subtitle: cfg.remote != null ? Text(cfg.remote!) : null,
-            onTap: () => viewAutoUploadConfig(cfg),
+            onTap: () => showConfig(cfg),
           ),
       ],
     );
   }
 
-  viewAutoUploadConfig(_AutoUploadDirConfig cfg) {
+  showConfig(AutoUploadDirConfig cfg) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => _AndroidAutoUploadConfigView(cfg),
+        builder: (context) => _ConfigView(cfg, onSave),
       ),
     );
   }
+
+  onSave(AutoUploadDirConfig config) {}
 
   static const List<String> fileNameBlackList = ["android", "miui"];
 
@@ -88,7 +91,7 @@ class _AndroidAutoUploadConfigWidgetState
     return true;
   }
 
-  int sortUploadConfig(_AutoUploadDirConfig a, _AutoUploadDirConfig b) {
+  int sortUploadConfig(AutoUploadDirConfig a, AutoUploadDirConfig b) {
     if (a.autoupload && !b.autoupload) {
       return -1;
     }
@@ -98,59 +101,31 @@ class _AndroidAutoUploadConfigWidgetState
     return a.name.toLowerCase().compareTo(b.name.toLowerCase());
   }
 
-  _AutoUploadDirConfig getUploadConfig(String path) {
-    return _AutoUploadDirConfig(
+  AutoUploadDirConfig getUploadConfig(String path) {
+    return AutoUploadDirConfig(
         name: p.basename(path), path: path, autoupload: false);
   }
 }
 
 class _AndroidAutoUploadConfig {
   bool storageGrant = false;
-  List<_AutoUploadDirConfig> configs;
+  List<AutoUploadDirConfig> configs;
   _AndroidAutoUploadConfig(this.storageGrant, this.configs);
 }
 
-class _AutoUploadDirConfig {
-  final String name;
-  final String path;
-  String? remote;
-  bool autoupload;
+class _ConfigView extends StatefulWidget {
+  final AutoUploadDirConfig config;
 
-  _AutoUploadDirConfig({
-    required this.name,
-    required this.path,
-    required this.autoupload,
-    this.remote,
-  });
+  final Function(AutoUploadDirConfig config) save;
 
-  _AutoUploadDirConfig copyWith({
-    String? name,
-    String? path,
-    String? remote,
-    bool? autoupload,
-  }) {
-    return _AutoUploadDirConfig(
-      name: name ?? this.name,
-      path: path ?? this.path,
-      remote: remote ?? this.remote,
-      autoupload: autoupload ?? this.autoupload,
-    );
-  }
-}
-
-class _AndroidAutoUploadConfigView extends StatefulWidget {
-  final _AutoUploadDirConfig config;
-
-  _AndroidAutoUploadConfigView(this.config);
+  _ConfigView(this.config, this.save);
 
   @override
-  State<_AndroidAutoUploadConfigView> createState() =>
-      _AndroidAutoUploadConfigViewState();
+  State<_ConfigView> createState() => _ConfigViewState();
 }
 
-class _AndroidAutoUploadConfigViewState
-    extends State<_AndroidAutoUploadConfigView> {
-  late _AutoUploadDirConfig stateConfig;
+class _ConfigViewState extends State<_ConfigView> {
+  late AutoUploadDirConfig stateConfig;
   late TextEditingController remoteLocation;
   String? remoteLocationError;
 
@@ -201,6 +176,11 @@ class _AndroidAutoUploadConfigViewState
       });
       return;
     }
+    stateConfig.remote = remoteLocation.text;
+    widget.save(stateConfig);
+    setState(() {
+      Navigator.of(context).pop();
+    });
   }
 
   Widget buildBody() {
@@ -228,105 +208,10 @@ class _AndroidAutoUploadConfigViewState
           ),
         ),
         SizedBox(height: 10),
-        buildFileGridView(),
-      ],
-    );
-  }
-
-  FutureBuilder<List<String>> buildFileGridView() {
-    return FutureBuilder<List<String>>(
-        future: getLocalFiles(),
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return Text("");
-          }
-          return buildFileGridImpl(snapshot.data!);
-        });
-  }
-
-  Future<List<String>> getLocalFiles() async {
-    Directory directory = Directory(widget.config.path);
-    try {
-      var files = await directory
-          .list()
-          .map((event) => event.path)
-          .where((element) {
-            var name = p.basename(element);
-            return !name.startsWith(".");
-          })
-          .take(30)
-          .toList();
-      return files;
-    } catch (e) {
-      print(e);
-      return [];
-    }
-  }
-
-  Widget buildFileGridImpl(List<String> data) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 10),
-      child: SizedBox(
+        SizedBox(
           height: 500,
-          child: GridView.count(
-            crossAxisCount: 4,
-            children: [
-              for (var path in data) buildItemCard(path),
-            ],
-          )),
-    );
-  }
-
-  Widget buildItemCard(String path) {
-    var theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        height: 300,
-        width: 300,
-        child: FutureBuilder<Widget>(
-            future: buildFileThumbWidget(path, theme),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return snapshot.data!;
-              }
-              return Text("");
-            }),
-      ),
-    );
-  }
-
-  Future<Widget> buildFileThumbWidget(String path, ThemeData theme) async {
-    if (await FileSystemEntity.isDirectory(path)) {
-      return buildItemThumbIcon(Icons.folder, path, theme);
-    }
-    if (FileExt.isImage(p.extension(path).toUpperCase())) {
-      return Image.file(File(path));
-    }
-    if (FileExt.isVideo(p.extension(path).toUpperCase())) {
-      return buildItemThumbIcon(Icons.video_file, path, theme);
-    }
-    return buildItemThumbIcon(Icons.insert_drive_file, path, theme);
-  }
-
-  Widget buildItemThumbIcon(IconData icon, String path, ThemeData theme) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      children: [
-        Icon(
-          icon,
-          size: 100,
-        ),
-        Container(
-          margin: EdgeInsets.all(8),
-          child: Text(
-            p.basename(path),
-            style: TextStyle(
-                fontSize: 12,
-                overflow: TextOverflow.ellipsis,
-                color: theme.colorScheme.onPrimary),
-          ),
-        ),
+          child: LocalDirListGridView(widget.config.path, 30),
+        )
       ],
     );
   }

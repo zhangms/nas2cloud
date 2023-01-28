@@ -13,10 +13,11 @@ import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/components/downloader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/pages/app/file_ext.dart';
-import 'package:nas2cloud/pages/app/file_upload_task.dart';
-import 'package:nas2cloud/pages/app/gallery.dart';
+import 'package:nas2cloud/pages/files/file_widgets.dart';
+import 'package:nas2cloud/pages/gallery/gallery.dart';
+import 'package:nas2cloud/pages/upload/file_upload_task.dart';
 import 'package:nas2cloud/themes/widgets.dart';
+import 'package:nas2cloud/utils/file_helper.dart';
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -161,7 +162,7 @@ class _FileListPageState extends State<FileListPage> {
     }
     var item = items[index];
     return ListTile(
-      leading: FileExt.getItemIcon(item),
+      leading: FileWidgets.getItemIcon(item),
       trailing: buildItemContextMenu(item),
       title: Text(item.name),
       subtitle: Text("${item.modTime}  ${item.size}"),
@@ -400,7 +401,7 @@ class _FileListPageState extends State<FileListPage> {
       openNewPage(FileListPage(item.path, item.name));
     } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(item);
-    } else if (FileExt.isMusic(item.ext)) {
+    } else if (FileHelper.isMusic(item.ext)) {
       playMusic(item);
     } else {
       showMessage("不支持查看该类型的文件");
@@ -526,7 +527,7 @@ class _FileListPageState extends State<FileListPage> {
         if (index > 0) {
           name = name.substring(0, index);
         }
-        if (FileExt.isMusic(it.ext)) {
+        if (FileHelper.isMusic(it.ext)) {
           playlist.add(Audio.network(
             Api.getStaticFileUrl(it.path),
             headers: Api.httpHeaders(),

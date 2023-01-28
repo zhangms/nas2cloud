@@ -1,74 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
+import 'package:nas2cloud/utils/file_helper.dart';
 
-class FileExt {
-  static bool isImage(String? ext) {
-    switch (ext) {
-      case ".JPG":
-      case ".JPEG":
-      case ".PNG":
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  static bool isMusic(String? ext) {
-    switch (ext) {
-      case ".MP3":
-      case ".WAV":
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  static bool isVideo(String? ext) {
-    switch (ext) {
-      case ".MP4":
-      case ".MOV":
-      case ".MKV":
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  static bool isPDF(String? ext) {
-    return ext == ".PDF";
-  }
-
-  static bool isText(String? ext) {
-    switch (ext) {
-      case ".TXT":
-      case ".TEXT":
-      case ".JAVA":
-      case ".H":
-      case ".CPP":
-      case ".PY":
-      case ".GO":
-      case ".DART":
-      case ".JS":
-      case ".CSS":
-      case ".HTML":
-      case ".CONF":
-      case ".SH":
-      case ".JSON":
-      case ".XML":
-      case ".LOG":
-      case ".SQL":
-      case ".PROPERTIES":
-      case ".JSP":
-      case ".C":
-      case ".PHP":
-      case ".MD":
-        return true;
-      default:
-        return false;
-    }
-  }
-
+class FileWidgets {
   static Widget getItemIcon(File item) {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
@@ -76,23 +11,23 @@ class FileExt {
     if (item.thumbnail == null || item.thumbnail!.isEmpty) {
       return _getItemIconByExt(item.ext);
     }
-    if (isVideo(item.ext)) {
+    if (FileHelper.isVideo(item.ext)) {
       return _getItemThumbnailVideo(item);
     }
     return _getItemThumbnail(item);
   }
 
   static Widget _getItemIconByExt(String? ext) {
-    if (isImage(ext)) {
+    if (FileHelper.isImage(ext)) {
       return Icon(Icons.image);
     }
-    if (isMusic(ext)) {
+    if (FileHelper.isMusic(ext)) {
       return Icon(Icons.audio_file);
     }
-    if (isVideo(ext)) {
+    if (FileHelper.isVideo(ext)) {
       return Icon(Icons.video_file);
     }
-    if (isPDF(ext)) {
+    if (FileHelper.isPDF(ext)) {
       return Icon(Icons.picture_as_pdf);
     }
     switch (ext) {

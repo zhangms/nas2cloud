@@ -2,23 +2,23 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/pages/app/file_ext.dart';
-import 'package:nas2cloud/pages/app/pdf_viewer.dart';
-import 'package:nas2cloud/pages/app/text_reader.dart';
-import 'package:nas2cloud/pages/app/video_player.dart';
+import 'package:nas2cloud/pages/gallery/pdf_viewer.dart';
+import 'package:nas2cloud/pages/gallery/text_reader.dart';
+import 'package:nas2cloud/pages/gallery/video_player.dart';
 import 'package:nas2cloud/themes/widgets.dart';
+import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class GalleryPhotoViewPage extends StatefulWidget {
   static bool isSupportFileExt(String? ext) {
-    if (FileExt.isImage(ext) || FileExt.isVideo(ext)) {
+    if (FileHelper.isImage(ext) || FileHelper.isVideo(ext)) {
       return true;
     }
-    if (!kIsWeb && FileExt.isPDF(ext)) {
+    if (!kIsWeb && FileHelper.isPDF(ext)) {
       return true;
     }
-    if (FileExt.isText(ext)) {
+    if (FileHelper.isText(ext)) {
       return true;
     }
     return false;
@@ -83,7 +83,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
 
   PhotoViewGalleryPageOptions buildImage(BuildContext context, int idx) {
     File item = widget.images[idx];
-    if (FileExt.isImage(item.ext)) {
+    if (FileHelper.isImage(item.ext)) {
       return PhotoViewGalleryPageOptions(
           imageProvider: NetworkImage(Api.getStaticFileUrl(item.path),
               headers: Api.httpHeaders()),
@@ -93,13 +93,13 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           heroAttributes: PhotoViewHeroAttributes(tag: item.path),
           controller: controller,
           scaleStateController: scaleStateController);
-    } else if (FileExt.isVideo(item.ext)) {
+    } else if (FileHelper.isVideo(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: VideoPlayerWapper(Api.getStaticFileUrl(item.path)));
-    } else if (FileExt.isPDF(item.ext)) {
+    } else if (FileHelper.isPDF(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: PDFViewer(Api.getStaticFileUrl(item.path)));
-    } else if (FileExt.isText(item.ext)) {
+    } else if (FileHelper.isText(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: TextReader(path: item.path));
     } else {
