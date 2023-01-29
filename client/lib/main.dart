@@ -25,7 +25,7 @@ initBeforeRunApp() async {
   await LocalNotification.get().init();
   await Downloader.get().init();
   await FileUploader.get().init();
-  AutoUploader.init();
+  AutoUploader().init();
 }
 
 class MyApp extends StatelessWidget {

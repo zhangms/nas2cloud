@@ -5,16 +5,18 @@ import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:workmanager/workmanager.dart';
 
 class BackgroundProcessor {
-  static const String AUTO_UPLOAD_TASK = "autoupload";
+  static const String autoUploadTaskName = "autoupload";
 
   @pragma('vm:entry-point')
   static void callbackDispatcher() {
-    Workmanager().executeTask((task, inputData) {
+    Workmanager().executeTask((task, inputData) async {
       print("Native called background task: $task");
-      if (task == AUTO_UPLOAD_TASK) {
-        AutoUploader.executeAutouploadSync();
+      switch (task) {
+        case autoUploadTaskName:
+          return await AutoUploader().executeAutoupload();
+        default:
+          return true;
       }
-      return Future.value(true);
     });
   }
 
@@ -35,9 +37,10 @@ class BackgroundProcessor {
   static void registerAutoUploadTask() {
     Workmanager().registerPeriodicTask(
       "${AppConfig.appId}.periodic-autoupload-task",
-      AUTO_UPLOAD_TASK,
+      autoUploadTaskName,
       initialDelay: Duration(seconds: 10),
       existingWorkPolicy: ExistingWorkPolicy.keep,
+      inputData: {"hello": "world"},
     );
   }
 }

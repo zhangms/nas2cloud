@@ -36,7 +36,7 @@ class _AndroidAutoUploadConfigWidgetState
     Directory directory = Directory(rootdir);
     var files = directory.listSync();
     Map<String, AutoUploadConfig> configMap = {};
-    for (var config in await AutoUploader.getConfigList()) {
+    for (var config in await AutoUploader().getConfigList()) {
       configMap[config.path] = config;
     }
     List<AutoUploadConfig> result = [];
@@ -83,7 +83,7 @@ class _AndroidAutoUploadConfigWidgetState
   }
 
   onSave(AutoUploadConfig config) async {
-    await AutoUploader.saveConfig(config);
+    await AutoUploader().saveConfig(config);
     setState(() {});
   }
 

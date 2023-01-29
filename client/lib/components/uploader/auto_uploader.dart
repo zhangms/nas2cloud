@@ -7,12 +7,17 @@ import 'package:nas2cloud/utils/spu.dart';
 class AutoUploader {
   static const String key = "app.autoupload.config";
 
-  static void init() {
+  static AutoUploader _instance = AutoUploader._private();
+
+  factory AutoUploader() => _instance;
+
+  AutoUploader._private();
+
+  void init() {
     BackgroundProcessor.registerAutoUploadTask();
-    executeAutouploadAsync();
   }
 
-  static Future<bool> saveConfig(AutoUploadConfig config) async {
+  Future<bool> saveConfig(AutoUploadConfig config) async {
     List<String> ret = [];
     List<String> configs = spu.getStringList(key) ?? [];
 
@@ -32,17 +37,14 @@ class AutoUploader {
     return await spu.setStringList(key, ret);
   }
 
-  static Future<List<AutoUploadConfig>> getConfigList() {
+  Future<List<AutoUploadConfig>> getConfigList() {
     return Stream<String>.fromIterable(spu.getStringList(key) ?? [])
         .map((event) => AutoUploadConfig.fromJson(event))
         .toList();
   }
 
-  static void executeAutouploadSync() {
-    print("execute autoupload");
-  }
-
-  static void executeAutouploadAsync() {
-    Future.delayed(Duration(seconds: 10), executeAutouploadSync);
+  Future<bool> executeAutoupload() {
+    print("FFFFF------->");
+    return Future.value(true);
   }
 }
