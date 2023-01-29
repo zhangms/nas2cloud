@@ -5,8 +5,6 @@ import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:nas2cloud/utils/spu.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 
 class AutoUploader {
   static const String key = "app.autoupload.config";
@@ -47,17 +45,6 @@ class AutoUploader {
         .toList();
   }
 
-  openDb() async {
-    var path = await getDatabasesPath();
-    openDatabase(
-      join(path, "autoupload.db"),
-      onCreate: (Database db, int version) async {
-        await db.execute(
-            'CREATE TABLE nas2cloud_autoupload (id INTEGER PRIMARY KEY, path TEXT, create_time INTEGER, upload_time, )');
-      },
-    );
-  }
-
   Future<bool> executeAutoupload() async {
     List<AutoUploadConfig> configs = await getConfigList();
     for (var config in configs) {
@@ -71,13 +58,18 @@ class AutoUploader {
   Future<bool> _executeAutoupload(AutoUploadConfig config) async {
     var directory = Directory(config.path);
 
-    directory
+    var start = DateTime.now();
+
+    await directory
         .list(recursive: true)
         .map((file) => file.path)
         .where((path) => !FileHelper.isHidden(path))
         .forEach((element) {
       print(element);
     });
+
+    print(
+        "${DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch}");
 
     return true;
   }

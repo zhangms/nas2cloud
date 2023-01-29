@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/uploader/auto_uploader.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
 
 class TestPage extends StatelessWidget {
   @override
@@ -17,6 +17,7 @@ class TestPage extends StatelessWidget {
   }
 
   onClick() async {
-    AutoUploader().executeAutoupload();
+    // AutoUploader().executeAutoupload();
+    UploadRepo.platform.open();
   }
 }
