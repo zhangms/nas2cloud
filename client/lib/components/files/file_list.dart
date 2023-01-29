@@ -14,7 +14,7 @@ import 'package:nas2cloud/components/uploader/file_upload_record.dart';
 import 'package:nas2cloud/components/uploader/file_upload_status_enum.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
-import 'package:nas2cloud/pages/files/file_widgets.dart';
+import 'package:nas2cloud/components/files/file_widgets.dart';
 import 'package:nas2cloud/components/gallery/gallery.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/file_helper.dart';

@@ -6,7 +6,7 @@ import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/uploader/pages/page_auto_upload.dart';
-import 'package:nas2cloud/pages/files/file_list.dart';
+import 'package:nas2cloud/components/files/file_list.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
