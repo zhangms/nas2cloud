@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/dto/file_upload_record.dart';
-import 'package:nas2cloud/api/dto/file_upload_status_enum.dart';
+import 'package:nas2cloud/components/uploader/file_upload_record.dart';
+import 'package:nas2cloud/components/uploader/file_upload_status_enum.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/data_size.dart';
 import 'package:nas2cloud/utils/time.dart';

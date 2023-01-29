@@ -1,7 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart' as filepath;
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 
 class TestPage extends StatelessWidget {
   @override
@@ -19,35 +17,6 @@ class TestPage extends StatelessWidget {
   }
 
   onClick() async {
-    var dir = await filepath.getExternalStorageDirectory();
-    print("getExternalStorageDirectory");
-    print(dir);
-
-    var pics = await filepath.getExternalStorageDirectories(
-        type: filepath.StorageDirectory.pictures);
-    print("getExternalStorageDirectories");
-    print(pics);
-
-    var downloads = await filepath.getExternalStorageDirectories(
-        type: filepath.StorageDirectory.downloads);
-    print("getExternalStorageDirectories");
-    print(downloads);
-
-    // var download = await filepath.getDownloadsDirectory();
-    // print("getDownloadsDirectory");
-    // print(download);
-
-    var appdoc = await filepath.getApplicationDocumentsDirectory();
-    print("getApplicationDocumentsDirectory");
-    print(appdoc);
-
-    print("------");
-    Directory directory = Directory("/storage/emulated/0/");
-    var list = directory.listSync();
-    for (var element in list) {
-      print(element);
-    }
-
-    // getUploadRecord(taskId)
+    AutoUploader().executeAutoupload();
   }
 }

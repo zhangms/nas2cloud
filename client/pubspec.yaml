@@ -27,6 +27,7 @@ dependencies:
   pointycastle: ^3.6.2
   provider: ^6.0.0
   shared_preferences: ^2.0.16
+  sqflite: ^2.2.4+1
   url_launcher: ^6.1.8
   video_player: ^2.5.0
   workmanager: ^0.5.1

@@ -4,8 +4,8 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/config.dart';
-import 'package:nas2cloud/pages/files/file_home.dart';
 import 'package:nas2cloud/pages/login.dart';
+import 'package:nas2cloud/pages/test.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
       AppConfig.clearUserLogin();
       return LoginPage();
     }
-    return FileHomePage();
-    // return TestPage();
+    // return FileHomePage();
+    return TestPage();
   }
 }

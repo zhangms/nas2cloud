@@ -7,6 +7,12 @@ import 'package:workmanager/workmanager.dart';
 class BackgroundProcessor {
   static const String autoUploadTaskName = "autoupload";
 
+  static BackgroundProcessor _instance = BackgroundProcessor._private();
+
+  factory BackgroundProcessor() => _instance;
+
+  BackgroundProcessor._private();
+
   @pragma('vm:entry-point')
   static void callbackDispatcher() {
     Workmanager().executeTask((task, inputData) async {
@@ -20,9 +26,9 @@ class BackgroundProcessor {
     });
   }
 
-  static bool _inited = false;
+  bool _inited = false;
 
-  static void init() {
+  void init() {
     if (kIsWeb) {
       return;
     }
@@ -34,13 +40,14 @@ class BackgroundProcessor {
     print("background processor init complete");
   }
 
-  static void registerAutoUploadTask() {
+  void registerAutoUploadTask() {
     Workmanager().registerPeriodicTask(
       "${AppConfig.appId}.periodic-autoupload-task",
       autoUploadTaskName,
       initialDelay: Duration(seconds: 10),
       existingWorkPolicy: ExistingWorkPolicy.keep,
       inputData: {"hello": "world"},
+      tag: autoUploadTaskName,
     );
   }
 }

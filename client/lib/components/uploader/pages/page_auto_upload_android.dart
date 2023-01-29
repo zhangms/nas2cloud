@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
-import 'package:nas2cloud/pages/files/local_file_grid_view.dart';
+import 'package:nas2cloud/components/uploader/pages/local_file_grid_view.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
@@ -158,12 +158,7 @@ class _ConfigViewState extends State<_ConfigView> {
         leading: IconButton(
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(Icons.close)),
-        actions: [
-          TextButton(
-            onPressed: () => save(),
-            child: Text("保存"),
-          )
-        ],
+        actions: [IconButton(onPressed: () => save(), icon: Icon(Icons.done))],
       ),
       body: buildBody(),
     );

@@ -8,7 +8,7 @@ import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:nas2cloud/utils/spu.dart';
 import 'package:provider/provider.dart';
 
-import 'components/downloader.dart';
+import 'components/downloader/downloader.dart';
 import 'components/notification/notification.dart';
 import 'components/uploader/file_uploder.dart';
 
@@ -21,7 +21,7 @@ void main() async {
 initBeforeRunApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await spu.initSharedPreferences();
-  BackgroundProcessor.init();
+  BackgroundProcessor().init();
   await LocalNotification.get().init();
   await Downloader.get().init();
   await FileUploader.get().init();

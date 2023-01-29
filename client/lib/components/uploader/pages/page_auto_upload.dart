@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
-import 'auto_upload_android.dart';
+import 'page_auto_upload_android.dart';
 
 class AutoUploadPage extends StatefulWidget {
   @override
