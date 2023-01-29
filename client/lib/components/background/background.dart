@@ -28,7 +28,7 @@ class BackgroundProcessor {
 
   bool _inited = false;
 
-  void init() {
+  void initialize() {
     if (kIsWeb) {
       return;
     }

@@ -10,12 +10,10 @@ import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/components/downloader/downloader.dart';
-import 'package:nas2cloud/components/uploader/file_upload_record.dart';
-import 'package:nas2cloud/components/uploader/file_upload_status_enum.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
 import 'package:nas2cloud/components/files/file_widgets.dart';
 import 'package:nas2cloud/components/gallery/gallery.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
+import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 
@@ -55,7 +53,6 @@ class _FileListPageState extends State<FileListPage> {
   @override
   void initState() {
     super.initState();
-    FileUploader.get().addListener(onUploadChange);
     resetState();
     print("init state");
   }
@@ -66,12 +63,6 @@ class _FileListPageState extends State<FileListPage> {
     currentPage = -1;
     items = [];
     orderBy = _orderByOptions[0]["orderBy"]!;
-  }
-
-  @override
-  void dispose() {
-    FileUploader.get().removeListener(onUploadChange);
-    super.dispose();
   }
 
   @override
@@ -360,7 +351,7 @@ class _FileListPageState extends State<FileListPage> {
     if (item.type == "DIR") {
       return;
     }
-    Downloader.get().download(Api.getStaticFileUrl(item.path));
+    Downloader.platform.download(Api.getStaticFileUrl(item.path));
     showMessage("已开始下载, 请从状态栏查看下载进度");
   }
 
@@ -373,7 +364,7 @@ class _FileListPageState extends State<FileListPage> {
     for (var i = 0; i < result.paths.length; i++) {
       var path = result.paths[i];
       print(path);
-      FileUploader.get().uploadPath(src: path!, dest: widget.path);
+      FileUploader.platform.uploadPath(src: path!, dest: widget.path);
     }
     openNewPage(FileUploadTaskPage());
   }
@@ -405,18 +396,6 @@ class _FileListPageState extends State<FileListPage> {
       playMusic(item);
     } else {
       showMessage("不支持查看该类型的文件");
-    }
-  }
-
-  void onUploadChange(FileUploadRecord record) {
-    if (record.dest == widget.path) {
-      if (record.status == FileUploadStatus.success.name) {
-        setState(() {
-          resetState();
-          orderBy = "creTime_desc";
-          fetchWhenBuild = true;
-        });
-      }
     }
   }
 
@@ -504,7 +483,7 @@ class _FileListPageState extends State<FileListPage> {
       if (e.readStream == null) {
         continue;
       }
-      FileUploader.get().uploadStream(
+      FileUploader.platform.uploadStream(
         dest: widget.path,
         fileName: e.name,
         size: e.size,

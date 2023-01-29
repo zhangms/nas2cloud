@@ -11,7 +11,7 @@ class NotificationFlutter extends LocalNotification {
   static bool _inited = false;
 
   @override
-  Future<bool> init() async {
+  Future<bool> initialize() async {
     if (_inited) {
       return true;
     }

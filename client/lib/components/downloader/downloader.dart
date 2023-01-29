@@ -4,13 +4,11 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Downloader {
-  static Downloader _instance = Downloader();
+  static Downloader _instance = Downloader._private();
 
-  factory Downloader.get() {
-    return _instance;
-  }
+  static Downloader get platform => _instance;
 
-  Downloader();
+  Downloader._private();
 
   void download(String path) {
     if (kIsWeb) {
@@ -35,7 +33,7 @@ class Downloader {
 
   static bool _inited = false;
 
-  Future<bool> init() async {
+  Future<bool> initialize() async {
     if (kIsWeb) {
       return true;
     }

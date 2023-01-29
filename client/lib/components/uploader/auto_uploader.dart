@@ -17,7 +17,7 @@ class AutoUploader {
 
   AutoUploader._private();
 
-  void init() {
+  void initialize() {
     BackgroundProcessor().registerAutoUploadTask();
   }
 

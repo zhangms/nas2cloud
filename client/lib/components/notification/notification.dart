@@ -3,20 +3,21 @@ import 'package:nas2cloud/components/notification/notification_flutter.dart';
 import 'package:nas2cloud/components/notification/notification_unsupport.dart';
 
 abstract class LocalNotification {
-  static late LocalNotification _instance;
+  static LocalNotification _instance = _platform();
 
-  factory LocalNotification.get() {
+  static LocalNotification get platform => _instance;
+
+  static LocalNotification _platform() {
     if (kIsWeb) {
-      _instance = UnsupportNotification();
+      return UnsupportNotification();
     } else {
-      _instance = NotificationFlutter();
+      return NotificationFlutter();
     }
-    return _instance;
   }
 
   LocalNotification();
 
-  Future<bool> init();
+  Future<bool> initialize();
 
   void send({required int id, required String title, required String body});
 

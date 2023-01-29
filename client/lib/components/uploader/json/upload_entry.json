@@ -1,8 +1,0 @@
-{
-    "r@id": 123,
-    "r@path": "path",
-    "r@createTime": 123,
-    "r@beginUploadTime": 123,
-    "r@endEploadTime": 123,
-    "r@status":"uploading/waiting/failed/"
-}

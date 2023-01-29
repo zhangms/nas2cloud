@@ -21,11 +21,11 @@ void main() async {
 initBeforeRunApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await spu.initSharedPreferences();
-  BackgroundProcessor().init();
-  await LocalNotification.get().init();
-  await Downloader.get().init();
-  await FileUploader.get().init();
-  AutoUploader().init();
+  BackgroundProcessor().initialize();
+  await LocalNotification.platform.initialize();
+  await Downloader.platform.initialize();
+  await FileUploader.platform.initialize();
+  AutoUploader().initialize();
 }
 
 class MyApp extends StatelessWidget {
