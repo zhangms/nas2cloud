@@ -3,7 +3,7 @@ import 'package:nas2cloud/components/uploader/upload_repo.dart';
 
 class UploadRepoSP extends UploadRepo {
   @override
-  Future<int> saveIfNotExists(UploadEntry entry) {
+  Future<UploadEntry> saveIfNotExists(UploadEntry entry) {
     throw UnimplementedError();
   }
 

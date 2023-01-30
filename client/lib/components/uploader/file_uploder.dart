@@ -60,7 +60,6 @@ abstract class FileUploader {
         endUploadTime: 9,
         status: UploadStatus.waiting.name,
         message: UploadStatus.waiting.name);
-    int id = await UploadRepo.platform.saveIfNotExists(entry);
-    return entry.copyWith(id: id);
+    return await UploadRepo.platform.saveIfNotExists(entry);
   }
 }

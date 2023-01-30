@@ -65,16 +65,16 @@ class UploadRepoSqflite extends UploadRepo {
   }
 
   @override
-  Future<int> saveIfNotExists(UploadEntry entry) async {
+  Future<UploadEntry> saveIfNotExists(UploadEntry entry) async {
     await _open();
-    var id = Sqflite.firstIntValue(await database!.rawQuery(
-            "select id from t_upload_entry where src=? and dest=?",
-            [entry.src, entry.dest])) ??
-        0;
-    if (id > 0) {
-      return id;
+    var list = await database!.rawQuery(
+        "select * from t_upload_entry where src=? and dest=?",
+        [entry.src, entry.dest]);
+    if (list.isNotEmpty) {
+      return UploadEntry.fromMap(list[0]);
     }
-    return await database!.insert("t_upload_entry", entry.toMap());
+    var id = await database!.insert("t_upload_entry", entry.toMap());
+    return entry.copyWith(id: id);
   }
 
   @override

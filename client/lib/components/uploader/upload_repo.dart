@@ -20,7 +20,7 @@ abstract class UploadRepo {
 /*
  * return id
  */
-  Future<int> saveIfNotExists(UploadEntry entry);
+  Future<UploadEntry> saveIfNotExists(UploadEntry entry);
 
   Future<int> getWaitingCount(String channel);
 
