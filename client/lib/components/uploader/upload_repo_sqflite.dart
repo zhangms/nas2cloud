@@ -1,12 +1,13 @@
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 const String _initDbSQL = '''
 CREATE TABLE t_upload_entry (
     id INTEGER PRIMARY KEY,
-    uploadGroupId TEXT,
+    channel TEXT,
     src TEXT,
     dest TEXT,
     size INTEGER,
@@ -22,7 +23,7 @@ CREATE UNIQUE INDEX t_upload_entry_index1 on t_upload_entry (src);
 
 CREATE UNIQUE INDEX t_upload_entry_index2 on t_upload_entry (src, dest);
 
-CREATE INDEX t_upload_entry_index3 on t_upload_entry (uploadGroupId);
+CREATE INDEX t_upload_entry_index3 on t_upload_entry (channel);
 ''';
 
 class UploadRepoSqflite extends UploadRepo {
@@ -35,7 +36,7 @@ class UploadRepoSqflite extends UploadRepo {
   Database? database;
 
   Future<bool> _open() async {
-    if (database != null) {
+    if (database != null && database!.isOpen) {
       return true;
     }
     var sqls = await Stream.fromIterable(_initDbSQL.split(";"))
@@ -66,13 +67,44 @@ class UploadRepoSqflite extends UploadRepo {
   @override
   Future<int> saveIfNotExists(UploadEntry entry) async {
     await _open();
-    var count = Sqflite.firstIntValue(await database!.rawQuery(
-            "select count(1) from t_upload_entry where src=? and dest=?",
+    var id = Sqflite.firstIntValue(await database!.rawQuery(
+            "select id from t_upload_entry where src=? and dest=?",
             [entry.src, entry.dest])) ??
         0;
-    if (count > 0) {
-      return 0;
+    if (id > 0) {
+      return id;
     }
     return await database!.insert("t_upload_entry", entry.toMap());
+  }
+
+  @override
+  Future<int> getWaitingCount(String channel) async {
+    await _open();
+    return Sqflite.firstIntValue(await database!.rawQuery(
+            "select count(1) from t_upload_entry where uploadGroupId=? and status=?",
+            [channel, UploadStatus.waiting.name])) ??
+        0;
+  }
+
+  @override
+  Future<UploadEntry?> findFirstWaitingUploadEntry(String channel) async {
+    await _open();
+    var result = await database!.query(
+      "t_upload_entry",
+      where: "channel=? and status=?",
+      whereArgs: [channel, UploadStatus.waiting.name],
+      limit: 1,
+      orderBy: "id",
+    );
+    if (result.isNotEmpty) {
+      return UploadEntry.fromMap(result[0]);
+    }
+    return null;
+  }
+
+  @override
+  Future<int> update(UploadEntry entry) async {
+    await _open();
+    return await database!.update("t_upload_entry", entry.toMap());
   }
 }

@@ -486,7 +486,7 @@ class _FileListPageState extends State<FileListPage> {
       FileUploader.platform.uploadStream(
         dest: widget.path,
         fileName: e.name,
-        size: e.size,
+        fileSize: e.size,
         stream: e.readStream!,
       );
     }

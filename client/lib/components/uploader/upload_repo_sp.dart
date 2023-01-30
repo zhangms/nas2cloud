@@ -6,4 +6,19 @@ class UploadRepoSP extends UploadRepo {
   Future<int> saveIfNotExists(UploadEntry entry) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<int> getWaitingCount(String channel) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UploadEntry?> findFirstWaitingUploadEntry(String channel) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int> update(UploadEntry entry) {
+    throw UnimplementedError();
+  }
 }

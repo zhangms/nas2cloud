@@ -66,5 +66,5 @@ class AutoUploadConfig {
     );
   }
 
-  String get group => "$path:$remote";
+  String get uploadChannel => "$path:$remote";
 }

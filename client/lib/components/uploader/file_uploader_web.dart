@@ -1,4 +1,5 @@
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
 
 class WebUploader extends FileUploader {
   @override
@@ -7,7 +8,21 @@ class WebUploader extends FileUploader {
   }
 
   @override
+  Future<bool> uploadEntry({required UploadEntry entry}) {
+    // TODO: implement uploadEntry
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> uploadEntryStream(
+      {required UploadEntry entry, required Stream<List<int>> stream}) {
+    // TODO: implement uploadEntryStream
+    throw UnimplementedError();
+  }
+
+  @override
   Future<bool> uploadPath({required String src, required String dest}) {
+    // TODO: implement uploadPath
     throw UnimplementedError();
   }
 
@@ -15,8 +30,9 @@ class WebUploader extends FileUploader {
   Future<bool> uploadStream(
       {required String dest,
       required String fileName,
-      required int size,
+      required int fileSize,
       required Stream<List<int>> stream}) {
+    // TODO: implement uploadStream
     throw UnimplementedError();
   }
 

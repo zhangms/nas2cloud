@@ -30,10 +30,12 @@ class TestPage extends StatelessWidget {
       AutoUploader().executeAutoupload();
     }
 
-    var f = "/storage/emulated/0/Download/aaa.png";
+    var f = "/storage/emulated/0/";
     var b = "/storage/emulated/0/";
 
     var r = p.relative(f, from: b);
     print("relative------>$r");
+    var remote = "/home";
+    print(p.normalize(p.join(remote, r)));
   }
 }

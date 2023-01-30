@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class UploadEntry {
   int? id;
-  String uploadGroupId;
+  String channel;
   String src;
   String dest;
   int size;
@@ -15,7 +15,7 @@ class UploadEntry {
 
   UploadEntry({
     this.id,
-    required this.uploadGroupId,
+    required this.channel,
     required this.src,
     required this.dest,
     required this.size,
@@ -29,12 +29,12 @@ class UploadEntry {
 
   @override
   String toString() {
-    return 'UploadEntry(id: $id, uploadGroupId: $uploadGroupId, src: $src, dest: $dest, size: $size, lastModified: $lastModified, createTime: $createTime, beginUploadTime: $beginUploadTime, endUploadTime: $endUploadTime, status: $status, message: $message)';
+    return 'UploadEntry(id: $id, channel: $channel, src: $src, dest: $dest, size: $size, lastModified: $lastModified, createTime: $createTime, beginUploadTime: $beginUploadTime, endUploadTime: $endUploadTime, status: $status, message: $message)';
   }
 
   factory UploadEntry.fromMap(Map<String, dynamic> data) => UploadEntry(
         id: data['id'] as int?,
-        uploadGroupId: data['uploadGroupId'] as String,
+        channel: data['channel'] as String,
         src: data['src'] as String,
         dest: data['dest'] as String,
         size: data['size'] as int,
@@ -48,7 +48,7 @@ class UploadEntry {
 
   Map<String, dynamic> toMap() => {
         'id': id,
-        'uploadGroupId': uploadGroupId,
+        'channel': channel,
         'src': src,
         'dest': dest,
         'size': size,
@@ -74,7 +74,7 @@ class UploadEntry {
 
   UploadEntry copyWith({
     int? id,
-    String? uploadGroupId,
+    String? channel,
     String? src,
     String? dest,
     int? size,
@@ -87,7 +87,7 @@ class UploadEntry {
   }) {
     return UploadEntry(
       id: id ?? this.id,
-      uploadGroupId: uploadGroupId ?? this.uploadGroupId,
+      channel: channel ?? this.channel,
       src: src ?? this.src,
       dest: dest ?? this.dest,
       size: size ?? this.size,

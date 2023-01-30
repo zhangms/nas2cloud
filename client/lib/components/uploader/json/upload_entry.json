@@ -1,6 +1,6 @@
 {
     "id": 123,
-    "r@uploadGroupId": "112233",
+    "r@channel": "112233",
     "r@src": "/xxx/xxx.png",
     "r@dest": "/Pic/test",
     "r@size": 123,

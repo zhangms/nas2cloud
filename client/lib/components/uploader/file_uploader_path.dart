@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
 
 class PathUploader extends FileUploader {
   static bool _initialized = false;
@@ -16,18 +17,28 @@ class PathUploader extends FileUploader {
   }
 
   @override
-  Future<bool> uploadPath({required String src, required String dest}) async {
-    FlutterUploader().clearUploads();
+  Future<bool> uploadEntry({required UploadEntry entry}) async {
     return true;
+  }
+
+  @override
+  Future<bool> uploadPath({required String src, required String dest}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> uploadEntryStream(
+      {required UploadEntry entry, required Stream<List<int>> stream}) {
+    throw UnimplementedError("use uploadPath");
   }
 
   @override
   Future<bool> uploadStream(
       {required String dest,
       required String fileName,
-      required int size,
+      required int fileSize,
       required Stream<List<int>> stream}) {
-    throw UnsupportedError("unsupport");
+    throw UnsupportedError("use uploadPath");
   }
 }
 
