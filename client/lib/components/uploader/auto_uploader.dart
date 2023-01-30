@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
@@ -23,7 +22,7 @@ class AutoUploader {
 
   Future<bool> saveConfig(AutoUploadConfig config) async {
     List<String> ret = [];
-    List<String> configs = spu.getStringList(key) ?? [];
+    List<String> configs = await Spu().getStringList(key) ?? [];
 
     bool configExists = false;
     for (var c in configs) {
@@ -38,11 +37,12 @@ class AutoUploader {
     if (!configExists) {
       ret.add(config.toJson());
     }
-    return await spu.setStringList(key, ret);
+    return await Spu().setStringList(key, ret);
   }
 
-  Future<List<AutoUploadConfig>> getConfigList() {
-    return Stream<String>.fromIterable(spu.getStringList(key) ?? [])
+  Future<List<AutoUploadConfig>> getConfigList() async {
+    var list = (await Spu().getStringList(key)) ?? [];
+    return Stream<String>.fromIterable(list)
         .map((event) => AutoUploadConfig.fromJson(event))
         .toList();
   }
@@ -59,37 +59,26 @@ class AutoUploader {
 
   Future<bool> _executeAutoupload(AutoUploadConfig config) async {
     var start = DateTime.now();
-    await _syncToUpload(config);
-    print(
-        "saveToUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}");
-    await loopExecuteUpload(config.uploadChannel);
-    return true;
-  }
 
-  Future<void> _syncToUpload(AutoUploadConfig config) async {
     var directory = Directory(config.path);
     await for (final file in directory
         .list(recursive: true, followLinks: true)
         .map((file) => file.path)
         .where((file) => !FileHelper.isHidden(file))
         .where((file) => !FileSystemEntity.isDirectorySync(file))) {
-      await FileUploader.saveToUpload(
+      var entry = FileUploader.toUploadEntry(
         channel: config.uploadChannel,
         filepath: file,
         relativeFrom: config.basepath,
         remote: config.remote!,
       );
-    }
-  }
-
-  Future<void> loopExecuteUpload(String group) async {
-    while (true) {
-      var entry = await UploadRepo.platform.findFirstWaitingUploadEntry(group);
-      if (entry == null) {
-        break;
+      var enqueued = await FileUploader.platform.enqueue(entry);
+      if (enqueued) {
+        print("enqueue auto upload : ${entry.src}, ${entry.dest}");
       }
-      FileUploader.platform.uploadEntry(entry: entry);
-      break;
     }
+    print(
+        "enqueueUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}");
+    return true;
   }
 }

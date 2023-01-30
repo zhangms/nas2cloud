@@ -26,11 +26,11 @@ CREATE UNIQUE INDEX t_upload_entry_index2 on t_upload_entry (src, dest);
 
 CREATE INDEX t_upload_entry_index3 on t_upload_entry (channel);
 
-CREATE INDEX t_upload_entry_index3 on t_upload_entry (uploadTaskId);
+CREATE INDEX t_upload_entry_index4 on t_upload_entry (uploadTaskId);
 
 ''';
 
-class UploadRepoSqflite extends UploadRepo {
+class UploadRepoSqflite extends UploadRepository {
   static UploadRepoSqflite _instance = UploadRepoSqflite._private();
 
   factory UploadRepoSqflite() => _instance;
@@ -91,24 +91,26 @@ class UploadRepoSqflite extends UploadRepo {
   }
 
   @override
-  Future<UploadEntry?> findFirstWaitingUploadEntry(String channel) async {
+  Future<int> update(UploadEntry entry) async {
     await _open();
-    var result = await database!.query(
-      "t_upload_entry",
-      where: "channel=? and status=?",
-      whereArgs: [channel, UploadStatus.waiting.name],
-      limit: 1,
-      orderBy: "id",
-    );
-    if (result.isNotEmpty) {
-      return UploadEntry.fromMap(result[0]);
+    return await database!.update("t_upload_entry", entry.toMap(),
+        where: "id=?", whereArgs: [entry.id]);
+  }
+
+  @override
+  Future<UploadEntry?> findByTaskId(String taskId) async {
+    await _open();
+    var list = await database!.query("t_upload_entry",
+        where: "uploadTaskId=?", whereArgs: [taskId], limit: 1);
+    if (list.isNotEmpty) {
+      return UploadEntry.fromMap(list[0]);
     }
     return null;
   }
 
   @override
-  Future<int> update(UploadEntry entry) async {
+  Future<void> clearAll() async {
     await _open();
-    return await database!.update("t_upload_entry", entry.toMap());
+    database!.delete("t_upload_entry", where: "id>0");
   }
 }

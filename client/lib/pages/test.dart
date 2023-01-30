@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 
@@ -20,11 +21,13 @@ class TestPage extends StatelessWidget {
   }
 
   onClick() async {
+    UploadRepository.platform.clearAll();
+
     await AutoUploader().saveConfig(AutoUploadConfig(
         name: "Download",
         path: "/storage/emulated/0/Download",
         basepath: "/storage/emulated/0",
-        remote: "/home",
+        remote: "/userhome_zms",
         autoupload: true));
     if (await Permission.manageExternalStorage.request().isGranted) {
       AutoUploader().executeAutoupload();

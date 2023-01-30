@@ -36,8 +36,8 @@ class Api {
     "Content-Type": "application/json;charset=UTF-8",
   };
 
-  static Encrypter? _getEncrypter() {
-    String? content = AppConfig.getHostState()?.publicKey;
+  static Future<Encrypter?> _getEncrypter() async {
+    String? content = (await AppConfig.getHostState())?.publicKey;
     if (content == null || content.isEmpty) {
       return null;
     }
@@ -49,8 +49,8 @@ class Api {
     return _encrypter;
   }
 
-  static String encrypt(String data) {
-    var encrypter = _getEncrypter();
+  static Future<String> encrypt(String data) async {
+    var encrypter = await _getEncrypter();
     if (encrypter == null) {
       throw StateError("encrypter is null");
     }
@@ -63,51 +63,52 @@ class Api {
     }
   }
 
-  static Map<String, String> httpHeaders() {
+  static Future<Map<String, String>> httpHeaders() async {
     var header = {..._defaultHttpHeaders};
-    if (AppConfig.isUserLogged()) {
-      var data = AppConfig.getUserLoginInfo()!;
-      header["X-AUTH-TOKEN"] = "${data.username}-${data.token}";
+    if (await AppConfig.isUserLogged()) {
+      var data = await AppConfig.getUserLoginInfo();
+      header["X-AUTH-TOKEN"] = "${data!.username}-${data.token}";
     }
     return header;
   }
 
-  static String paths(String first, String second) {
-    return p.normalize(p.join("/", first, second));
+  static String joinPath(String first, String second) {
+    return p.normalize(["/", first, second].join("/"));
   }
 
-  static String getApiUrl(String path) {
-    if (!AppConfig.isHostAddressConfiged()) {
+  static Future<String> getApiUrl(String path) async {
+    if (!await AppConfig.isHostAddressConfiged()) {
       return path;
     }
-    String address = AppConfig.getHostAddress();
+    String address = await AppConfig.getHostAddress();
     return Uri.http(address, path).toString();
   }
 
-  static String getStaticFileUrl(String path) {
-    if (!AppConfig.isHostAddressConfiged()) {
+  static Future<String> getStaticFileUrl(String path) async {
+    if (!await AppConfig.isHostAddressConfiged()) {
       return path;
     }
-    String address =
-        AppConfig.getHostState()?.staticAddress ?? AppConfig.getHostAddress();
+    var state = await AppConfig.getHostState();
+    var hostAddress = await AppConfig.getHostAddress();
+    String address = state?.staticAddress ?? hostAddress;
     return Uri.http(address, path).toString();
   }
 
-  static String signUrl(String url) {
+  static Future<String> signUrl(String url) async {
     var now = DateTime.now().millisecondsSinceEpoch;
     String str = "$now ${jsonEncode(httpHeaders())}";
-    String sign = encrypt(str);
+    String sign = await encrypt(str);
     return "$url?_sign=$sign";
   }
 
   static Future<StateResponse> getHostStateIfConfiged() async {
-    if (!AppConfig.isHostAddressConfiged()) {
+    if (!await AppConfig.isHostAddressConfiged()) {
       return Future.value(StateResponse.fromMap({
         "success": true,
         "message": "HOST_NOT_CONFIGED",
       }));
     }
-    var state = await getHostState(AppConfig.getHostAddress());
+    var state = await getHostState(await AppConfig.getHostAddress());
     if (state.success) {
       await AppConfig.saveHostState(state.data!);
     }
@@ -117,7 +118,7 @@ class Api {
   static Future<StateResponse> getHostState(String address) async {
     try {
       var url = Uri.http(address, "api/state");
-      Response resp = await http.get(url, headers: httpHeaders());
+      Response resp = await http.get(url, headers: await httpHeaders());
       return StateResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
@@ -128,7 +129,7 @@ class Api {
   static Future<LoginResponse> postLogin(
       {required String username, required String password}) async {
     try {
-      var url = Uri.http(AppConfig.getHostAddress(), "/api/user/login");
+      var url = Uri.http(await AppConfig.getHostAddress(), "/api/user/login");
       Response resp = await http.post(url,
           headers: _defaultHttpHeaders,
           body: jsonEncode({
@@ -144,9 +145,9 @@ class Api {
 
   static Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
     try {
-      var url = Uri.http(AppConfig.getHostAddress(), "/api/store/walk");
-      Response resp =
-          await http.post(url, headers: httpHeaders(), body: reqeust.toJson());
+      var url = Uri.http(await AppConfig.getHostAddress(), "/api/store/walk");
+      Response resp = await http.post(url,
+          headers: await httpHeaders(), body: reqeust.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
@@ -156,9 +157,10 @@ class Api {
 
   static Future<Result> postCreateFolder(String path, String folderName) async {
     try {
-      var url = Uri.http(AppConfig.getHostAddress(), "/api/store/createFolder");
+      var url =
+          Uri.http(await AppConfig.getHostAddress(), "/api/store/createFolder");
       Response resp = await http.post(url,
-          headers: httpHeaders(),
+          headers: await httpHeaders(),
           body: jsonEncode({
             "path": path,
             "folderName": folderName,
@@ -172,9 +174,10 @@ class Api {
 
   static Future<Result> postDeleteFile(String fullPath) async {
     try {
-      var url = Uri.http(AppConfig.getHostAddress(), "/api/store/deleteFiles");
+      var url =
+          Uri.http(await AppConfig.getHostAddress(), "/api/store/deleteFiles");
       Response resp = await http.post(url,
-          headers: httpHeaders(),
+          headers: await httpHeaders(),
           body: jsonEncode({
             "paths": [fullPath],
           }));
@@ -187,9 +190,10 @@ class Api {
 
   static Future<Result> getFileExists(String fullPath) async {
     try {
-      var url = Uri.http(
-          AppConfig.getHostAddress(), paths("/api/store/fileExists", fullPath));
-      Response resp = await http.get(url, headers: httpHeaders());
+      var url = Uri.http(await AppConfig.getHostAddress(),
+          joinPath("/api/store/fileExists", fullPath));
+      Response resp = await http.get(url, headers: await httpHeaders());
+      print("getFileExists resp------->${utf8.decode(resp.bodyBytes)}");
       return Result.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
@@ -205,17 +209,17 @@ class Api {
     required Stream<List<int>> stream,
   }) async {
     try {
-      Result exists = await getFileExists(paths(dest, fileName));
+      Result exists = await getFileExists(joinPath(dest, fileName));
       if (!exists.success) {
         return exists;
       }
       if (exists.message == "true") {
         return Result(success: false, message: "文件已存在");
       }
-      var uri = Uri.http(
-          AppConfig.getHostAddress(), paths("/api/store/upload", dest));
+      var uri = Uri.http(await AppConfig.getHostAddress(),
+          joinPath("/api/store/upload", dest));
       var request = http.MultipartRequest("POST", uri)
-        ..headers.addAll(httpHeaders())
+        ..headers.addAll(await httpHeaders())
         ..fields["lastModified"] = "$fileLastModified"
         ..files.add(MultipartFile("file", stream, size, filename: fileName));
       var resp = await request.send();
@@ -230,9 +234,9 @@ class Api {
   static Future<RangeData> rangeGetStatic(
       String path, int start, int end) async {
     try {
-      var url = Uri.http(AppConfig.getHostAddress(), path);
+      var url = Uri.http(await AppConfig.getHostAddress(), path);
       Map<String, String> headers = {"Range": "bytes=$start-$end"};
-      headers.addAll(httpHeaders());
+      headers.addAll(await httpHeaders());
       Response resp = await http.get(url, headers: headers);
       return RangeData(resp.headers[HttpHeaders.contentTypeHeader] ?? "UNKNOWN",
           resp.contentLength ?? 0, resp.bodyBytes);

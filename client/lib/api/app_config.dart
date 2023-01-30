@@ -9,45 +9,45 @@ class AppConfig {
   static const _loginTokenKey = "app.login.token";
 
   static Future<bool> saveHostAddress(String address) async {
-    return await spu.setString(_hostAddressKey, address);
+    return await Spu().setString(_hostAddressKey, address);
   }
 
-  static String getHostAddress() {
-    return spu.getString(_hostAddressKey) ?? "";
+  static Future<String> getHostAddress() async {
+    return await Spu().getString(_hostAddressKey) ?? "";
   }
 
-  static bool isHostAddressConfiged() {
-    return spu.getString(_hostAddressKey) != null;
+  static Future<bool> isHostAddressConfiged() async {
+    return (await Spu().getString(_hostAddressKey)) != null;
   }
 
   static Future<bool> saveHostState(statedto.Data state) async {
-    return await spu.setString(_hostStateKey, state.toJson());
+    return await Spu().setString(_hostStateKey, state.toJson());
   }
 
-  static statedto.Data? getHostState() {
-    final String? str = spu.getString(_hostStateKey);
+  static Future<statedto.Data?> getHostState() async {
+    final String? str = await Spu().getString(_hostStateKey);
     return str == null ? null : statedto.Data.fromJson(str);
   }
 
-  static String getAppName() {
-    return getHostState()?.appName ?? "Nas2cloud";
+  static Future<String> getAppName() async {
+    return (await getHostState())?.appName ?? "Nas2cloud";
   }
 
   static Future<bool> saveUserLoginInfo(logindto.Data data) async {
-    return await spu.setString(_loginTokenKey, data.toJson());
+    return await Spu().setString(_loginTokenKey, data.toJson());
   }
 
   static Future<bool> deleteUserLoginInfo() async {
-    return await spu.remove(_loginTokenKey);
+    return await Spu().remove(_loginTokenKey);
   }
 
-  static bool isUserLogged() {
-    final String? tokenData = spu.getString(_loginTokenKey);
+  static Future<bool> isUserLogged() async {
+    final String? tokenData = await Spu().getString(_loginTokenKey);
     return tokenData != null;
   }
 
-  static logindto.Data? getUserLoginInfo() {
-    final String? tokenData = spu.getString(_loginTokenKey);
+  static Future<logindto.Data?> getUserLoginInfo() async {
+    final String? tokenData = await Spu().getString(_loginTokenKey);
     if (tokenData != null) {
       return logindto.Data.fromJson(tokenData);
     }
@@ -55,16 +55,16 @@ class AppConfig {
   }
 
   static Future<void> clearHostAddress() async {
-    await spu.remove(_hostStateKey);
-    await spu.remove(_hostAddressKey);
+    await Spu().remove(_hostStateKey);
+    await Spu().remove(_hostAddressKey);
   }
 
   static clearUserLogin() async {
-    await spu.remove(_loginTokenKey);
-    var keys = spu.getKeys();
+    await Spu().remove(_loginTokenKey);
+    var keys = await Spu().getKeys();
     for (var key in keys) {
       if (key != _hostAddressKey) {
-        await spu.remove(key);
+        await Spu().remove(key);
       }
     }
   }

@@ -44,10 +44,11 @@ class NotificationFlutter extends LocalNotification {
   static void notificationTapBackground(NotificationResponse response) {}
 
   @override
-  void send({required int id, required String title, required String body}) {
+  void send(
+      {required int id, required String title, required String body}) async {
     var androidDetail = AndroidNotificationDetails(
       AppConfig.appId,
-      AppConfig.getAppName(),
+      await AppConfig.getAppName(),
       importance: Importance.max,
       priority: Priority.high,
     );
@@ -62,10 +63,12 @@ class NotificationFlutter extends LocalNotification {
       {required int id,
       required String title,
       required String body,
-      required int progress}) {
+      required int progress}) async {
+    Future.sync(() => AppConfig.getAppName());
+
     var androidDetail = AndroidNotificationDetails(
       AppConfig.appId,
-      AppConfig.getAppName(),
+      await AppConfig.getAppName(),
       importance: Importance.max,
       priority: Priority.high,
       showProgress: true,

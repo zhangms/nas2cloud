@@ -1,7 +1,7 @@
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 
-class UploadRepoSP extends UploadRepo {
+class UploadRepoSP extends UploadRepository {
   @override
   Future<UploadEntry> saveIfNotExists(UploadEntry entry) {
     throw UnimplementedError();
@@ -13,12 +13,17 @@ class UploadRepoSP extends UploadRepo {
   }
 
   @override
-  Future<UploadEntry?> findFirstWaitingUploadEntry(String channel) {
+  Future<int> update(UploadEntry entry) {
     throw UnimplementedError();
   }
 
   @override
-  Future<int> update(UploadEntry entry) {
+  Future<UploadEntry?> findByTaskId(String taskId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> clearAll() {
     throw UnimplementedError();
   }
 }

@@ -19,4 +19,4 @@ CREATE UNIQUE INDEX t_upload_entry_index2 on t_upload_entry (src, dest);
 
 CREATE INDEX t_upload_entry_index3 on t_upload_entry (channel);
 
-CREATE INDEX t_upload_entry_index3 on t_upload_entry (uploadTaskId);
+CREATE INDEX t_upload_entry_index4 on t_upload_entry (uploadTaskId);

@@ -2,5 +2,9 @@ enum UploadStatus {
   waiting,
   uploading,
   successed,
-  failed,
+  failed;
+
+  static bool match(String name, UploadStatus status) {
+    return name == status.name;
+  }
 }

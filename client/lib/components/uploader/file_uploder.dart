@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/components/uploader/file_uploader_path.dart';
 import 'package:nas2cloud/components/uploader/file_uploader_web.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:path/path.dart' as p;
 
@@ -37,19 +36,19 @@ abstract class FileUploader {
 
   Future<bool> uploadPath({required String src, required String dest});
 
-  Future<bool> uploadEntry({required UploadEntry entry});
+  Future<bool> enqueue(UploadEntry entry);
 
-  static Future<UploadEntry> saveToUpload({
+  static UploadEntry toUploadEntry({
     required String channel,
     required String filepath,
     required String relativeFrom,
     required String remote,
-  }) async {
+  }) {
     var file = File(filepath);
     var dest = p.normalize(
         p.join(remote, p.relative(file.parent.path, from: relativeFrom)));
     var stat = file.statSync();
-    var entry = UploadEntry(
+    return UploadEntry(
         channel: channel,
         src: file.path,
         dest: dest,
@@ -57,10 +56,9 @@ abstract class FileUploader {
         lastModified: stat.modified.millisecondsSinceEpoch,
         createTime: DateTime.now().millisecondsSinceEpoch,
         beginUploadTime: 0,
-        endUploadTime: 9,
+        endUploadTime: 0,
         uploadTaskId: "none",
         status: UploadStatus.waiting.name,
         message: UploadStatus.waiting.name);
-    return await UploadRepo.platform.saveIfNotExists(entry);
   }
 }

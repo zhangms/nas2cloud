@@ -20,7 +20,7 @@ void main() async {
 
 initBeforeRunApp() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await spu.initSharedPreferences();
+  await Spu().initSharedPreferences();
   BackgroundProcessor().initialize();
   await LocalNotification.platform.initialize();
   await Downloader.platform.initialize();

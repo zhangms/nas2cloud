@@ -8,7 +8,7 @@ class WebUploader extends FileUploader {
   }
 
   @override
-  Future<bool> uploadEntry({required UploadEntry entry}) {
+  Future<bool> enqueue(UploadEntry entry) {
     // TODO: implement uploadEntry
     throw UnimplementedError();
   }
