@@ -9,5 +9,6 @@
     "r@beginUploadTime": 1234567890,
     "r@endUploadTime": 1234567890,
     "r@status": "waiting/uploading/waiting/failed",
+    "r@uploadTaskId": "xxx",
     "r@message": "uploading"
 }

@@ -88,11 +88,7 @@ class AutoUploader {
       if (entry == null) {
         break;
       }
-      // var copy = entry.copyWith(
-      //     status: UploadStatus.uploading.name,
-      //     message: "uploading",
-      //     beginUploadTime: DateTime.now().millisecondsSinceEpoch);
-      // UploadRepo.platform.update(copy);
+      FileUploader.platform.uploadEntry(entry: entry);
       break;
     }
   }

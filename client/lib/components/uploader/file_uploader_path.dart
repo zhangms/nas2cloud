@@ -17,13 +17,13 @@ class PathUploader extends FileUploader {
   }
 
   @override
-  Future<bool> uploadEntry({required UploadEntry entry}) async {
-    return true;
+  Future<bool> uploadPath({required String src, required String dest}) {
+    throw UnimplementedError();
   }
 
   @override
-  Future<bool> uploadPath({required String src, required String dest}) {
-    throw UnimplementedError();
+  Future<bool> uploadEntry({required UploadEntry entry}) async {
+    return true;
   }
 
   @override

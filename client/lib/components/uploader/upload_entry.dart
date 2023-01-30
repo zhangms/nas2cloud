@@ -11,6 +11,7 @@ class UploadEntry {
   int beginUploadTime;
   int endUploadTime;
   String status;
+  String uploadTaskId;
   String message;
 
   UploadEntry({
@@ -24,12 +25,13 @@ class UploadEntry {
     required this.beginUploadTime,
     required this.endUploadTime,
     required this.status,
+    required this.uploadTaskId,
     required this.message,
   });
 
   @override
   String toString() {
-    return 'UploadEntry(id: $id, channel: $channel, src: $src, dest: $dest, size: $size, lastModified: $lastModified, createTime: $createTime, beginUploadTime: $beginUploadTime, endUploadTime: $endUploadTime, status: $status, message: $message)';
+    return 'UploadEntry(id: $id, channel: $channel, src: $src, dest: $dest, size: $size, lastModified: $lastModified, createTime: $createTime, beginUploadTime: $beginUploadTime, endUploadTime: $endUploadTime, status: $status, uploadTaskId: $uploadTaskId, message: $message)';
   }
 
   factory UploadEntry.fromMap(Map<String, dynamic> data) => UploadEntry(
@@ -43,6 +45,7 @@ class UploadEntry {
         beginUploadTime: data['beginUploadTime'] as int,
         endUploadTime: data['endUploadTime'] as int,
         status: data['status'] as String,
+        uploadTaskId: data['uploadTaskId'] as String,
         message: data['message'] as String,
       );
 
@@ -57,6 +60,7 @@ class UploadEntry {
         'beginUploadTime': beginUploadTime,
         'endUploadTime': endUploadTime,
         'status': status,
+        'uploadTaskId': uploadTaskId,
         'message': message,
       };
 
@@ -83,6 +87,7 @@ class UploadEntry {
     int? beginUploadTime,
     int? endUploadTime,
     String? status,
+    String? uploadTaskId,
     String? message,
   }) {
     return UploadEntry(
@@ -96,6 +101,7 @@ class UploadEntry {
       beginUploadTime: beginUploadTime ?? this.beginUploadTime,
       endUploadTime: endUploadTime ?? this.endUploadTime,
       status: status ?? this.status,
+      uploadTaskId: uploadTaskId ?? this.uploadTaskId,
       message: message ?? this.message,
     );
   }

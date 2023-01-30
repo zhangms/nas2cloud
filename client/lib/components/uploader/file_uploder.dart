@@ -58,6 +58,7 @@ abstract class FileUploader {
         createTime: DateTime.now().millisecondsSinceEpoch,
         beginUploadTime: 0,
         endUploadTime: 9,
+        uploadTaskId: "none",
         status: UploadStatus.waiting.name,
         message: UploadStatus.waiting.name);
     return await UploadRepo.platform.saveIfNotExists(entry);
