@@ -1,6 +1,7 @@
 {
     "r@name": "name",
     "r@path": "path",
+    "r@basepath": "base",
     "r@autoupload": false,
     "remote": "xxx"
 }

@@ -11,6 +11,7 @@ import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/api/dto/login_response/login_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
+import 'package:path/path.dart' as p;
 import 'package:pointycastle/asymmetric/api.dart';
 
 bool get isInDebugMode {
@@ -72,21 +73,7 @@ class Api {
   }
 
   static String paths(String first, String second) {
-    var base = first;
-    if (!base.startsWith("/")) {
-      base = "/$base";
-    }
-    if (base.endsWith("/")) {
-      base = base.substring(0, base.length - 1);
-    }
-    var path = second;
-    if (path.startsWith("/")) {
-      path = path.substring(1);
-    }
-    if (path.endsWith("/")) {
-      path = path.substring(0, path.length - 1);
-    }
-    return "$base/$path";
+    return p.normalize(p.join("/", first, second));
   }
 
   static String getApiUrl(String path) {

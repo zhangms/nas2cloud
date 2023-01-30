@@ -1,5 +1,3 @@
-import 'package:path/path.dart' as p;
-
 class FileHelper {
   static bool isImage(String? ext) {
     switch (ext) {
@@ -68,7 +66,6 @@ class FileHelper {
   }
 
   static bool isHidden(String filepath) {
-    var name = p.basename(filepath);
-    return name.startsWith(".");
+    return filepath.indexOf("/.") > 0;
   }
 }

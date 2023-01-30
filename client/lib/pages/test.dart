@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
+import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
+import 'package:path/path.dart' as p;
+import 'package:permission_handler/permission_handler.dart';
 
 class TestPage extends StatelessWidget {
   @override
@@ -17,7 +20,20 @@ class TestPage extends StatelessWidget {
   }
 
   onClick() async {
-    // AutoUploader().executeAutoupload();
-    UploadRepo.platform.open();
+    await AutoUploader().saveConfig(AutoUploadConfig(
+        name: "Download",
+        path: "/storage/emulated/0/Download",
+        basepath: "/storage/emulated/0",
+        remote: "/home",
+        autoupload: true));
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      AutoUploader().executeAutoupload();
+    }
+
+    var f = "/storage/emulated/0/Download/aaa.png";
+    var b = "/storage/emulated/0/";
+
+    var r = p.relative(f, from: b);
+    print("relative------>$r");
   }
 }

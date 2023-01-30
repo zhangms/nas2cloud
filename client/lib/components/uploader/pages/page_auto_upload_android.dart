@@ -26,7 +26,7 @@ class _AndroidAutoUploadConfigWidgetState
         });
   }
 
-  static const String rootdir = "/storage/emulated/0/";
+  static const String rootdir = "/storage/emulated/0";
 
   Future<_AndroidAutoUploadConfig> getAutoUploadConfig() async {
     if (!await Permission.storage.request().isGranted) {
@@ -44,7 +44,10 @@ class _AndroidAutoUploadConfigWidgetState
       if (await isSupportedAutoUploadDir(f)) {
         var cfg = configMap[f.path] ??
             AutoUploadConfig(
-                name: p.basename(f.path), path: f.path, autoupload: false);
+                basepath: rootdir,
+                name: p.basename(f.path),
+                path: f.path,
+                autoupload: false);
         result.add(cfg);
       }
     }

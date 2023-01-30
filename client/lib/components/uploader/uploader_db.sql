@@ -1,5 +1,6 @@
 CREATE TABLE t_upload_entry (
     id INTEGER PRIMARY KEY,
+    uploadGroupId TEXT,
     src TEXT,
     dest TEXT,
     size INTEGER,
@@ -14,3 +15,5 @@ CREATE TABLE t_upload_entry (
 CREATE UNIQUE INDEX t_upload_entry_index1 on t_upload_entry (src);
 
 CREATE UNIQUE INDEX t_upload_entry_index2 on t_upload_entry (src, dest);
+
+CREATE INDEX t_upload_entry_index3 on t_upload_entry (uploadGroupId);

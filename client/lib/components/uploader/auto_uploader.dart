@@ -3,8 +3,12 @@ import 'dart:io';
 
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:nas2cloud/utils/spu.dart';
+import 'package:path/path.dart' as p;
 
 class AutoUploader {
   static const String key = "app.autoupload.config";
@@ -57,20 +61,42 @@ class AutoUploader {
 
   Future<bool> _executeAutoupload(AutoUploadConfig config) async {
     var directory = Directory(config.path);
-
     var start = DateTime.now();
-
-    await directory
-        .list(recursive: true)
-        .map((file) => file.path)
-        .where((path) => !FileHelper.isHidden(path))
-        .forEach((element) {
-      print(element);
-    });
-
+    await for (final file in directory
+        .list(recursive: true, followLinks: true)
+        .where((file) => !FileHelper.isHidden(file.path))
+        .where((file) => !FileSystemEntity.isDirectorySync(file.path))) {
+      await saveToUpload(
+          file: file,
+          relativeFrom: config.basepath,
+          remote: config.remote!,
+          group: config.group);
+    }
     print(
-        "${DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch}");
-
+        "saveToUpload:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}");
     return true;
+  }
+
+  Future<void> saveToUpload(
+      {required FileSystemEntity file,
+      required String group,
+      required String relativeFrom,
+      required String remote}) async {
+    var parent = file.parent.path;
+    var dest = p.join(remote, p.relative(parent, from: relativeFrom));
+    var stat = file.statSync();
+    var entry = UploadEntry(
+        uploadGroupId: group,
+        src: file.path,
+        dest: dest,
+        size: stat.size,
+        lastModified: stat.modified.millisecondsSinceEpoch,
+        createTime: DateTime.now().millisecondsSinceEpoch,
+        beginUploadTime: 0,
+        endUploadTime: 9,
+        status: UploadStatus.waiting.name,
+        message: UploadStatus.waiting.name);
+    int count = await UploadRepo.platform.saveIfNotExists(entry);
+    print("saveToUpload ${file.path}, $count");
   }
 }
