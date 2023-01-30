@@ -81,7 +81,7 @@ class _FileHomePageState extends State<FileHomePage> {
           },
         );
       }),
-      title: Text(AppConfig.getAppName()),
+      title: Text(AppConfig.getAppNameSync()),
     );
   }
 
@@ -99,7 +99,7 @@ class _FileHomePageState extends State<FileHomePage> {
   }
 
   Widget buildDrawer() {
-    var hostState = AppConfig.getHostState();
+    var hostState = AppConfig.getHostStateSync();
     var appState = context.watch<AppState>();
 
     Widget avatar = CircleAvatar(
@@ -109,8 +109,8 @@ class _FileHomePageState extends State<FileHomePage> {
     if (hostState?.userAvatar != null) {
       avatar = CircleAvatar(
         backgroundImage: NetworkImage(
-            Api.getStaticFileUrl(hostState!.userAvatar!),
-            headers: Api.httpHeaders()),
+            Api.getStaticFileUrlSync(hostState!.userAvatar!),
+            headers: Api.httpHeadersSync()),
       );
     }
 

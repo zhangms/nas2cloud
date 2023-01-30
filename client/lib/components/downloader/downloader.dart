@@ -12,11 +12,11 @@ class Downloader {
 
   void download(String path) {
     if (kIsWeb) {
-      launchUrl(Uri.parse(Api.signUrl(path)));
+      launchUrl(Uri.parse(Api.signUrlSync(path)));
     } else {
       FlutterDownloader.enqueue(
         url: path,
-        headers: Api.httpHeaders(),
+        headers: Api.httpHeadersSync(),
         savedDir: "./",
         saveInPublicStorage: true,
         showNotification: true,

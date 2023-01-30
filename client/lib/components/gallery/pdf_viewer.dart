@@ -12,7 +12,7 @@ class PDFViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return PDF().cachedFromUrl(
       url,
-      headers: Api.httpHeaders(),
+      headers: Api.httpHeadersSync(),
       placeholder: (progress) => Center(child: Text("$progress %")),
       errorWidget: (error) => AppWidgets.getPageErrorView(error.toString()),
     );

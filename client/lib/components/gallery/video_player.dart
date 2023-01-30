@@ -19,8 +19,8 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(Api.signUrl(widget.videoUrl),
-        httpHeaders: Api.httpHeaders());
+    _controller = VideoPlayerController.network(Api.signUrlSync(widget.videoUrl),
+        httpHeaders: Api.httpHeadersSync());
     _controller
         .initialize()
         .onError((error, stackTrace) => print(error))

@@ -71,7 +71,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
             pageController: widget.pageController,
             itemCount: widget.images.length,
             scrollDirection: Axis.horizontal,
-            builder: buildImage,
+            builder: buildImageSync,
             onPageChanged: (index) {
               setState(() {
                 currentIndex = index;
@@ -81,12 +81,20 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
         ));
   }
 
-  PhotoViewGalleryPageOptions buildImage(BuildContext context, int idx) {
+  PhotoViewGalleryPageOptions buildImageSync(BuildContext context, int index) {
+    PhotoViewGalleryPageOptions? options;
+    Future.value(buildImageAsync(context, index))
+        .then((value) => options = value);
+    return options!;
+  }
+
+  Future<PhotoViewGalleryPageOptions> buildImageAsync(
+      BuildContext context, int idx) async {
     File item = widget.images[idx];
     if (FileHelper.isImage(item.ext)) {
       return PhotoViewGalleryPageOptions(
-          imageProvider: NetworkImage(Api.getStaticFileUrl(item.path),
-              headers: Api.httpHeaders()),
+          imageProvider: NetworkImage(await Api.getStaticFileUrl(item.path),
+              headers: await Api.httpHeaders()),
           initialScale: PhotoViewComputedScale.contained,
           minScale: PhotoViewComputedScale.contained * 0.5,
           maxScale: PhotoViewComputedScale.covered * 4.1,
@@ -95,10 +103,10 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           scaleStateController: scaleStateController);
     } else if (FileHelper.isVideo(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: VideoPlayerWapper(Api.getStaticFileUrl(item.path)));
+          child: VideoPlayerWapper(await Api.getStaticFileUrl(item.path)));
     } else if (FileHelper.isPDF(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: PDFViewer(Api.getStaticFileUrl(item.path)));
+          child: PDFViewer(await Api.getStaticFileUrl(item.path)));
     } else if (FileHelper.isText(item.ext)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: TextReader(path: item.path));

@@ -56,10 +56,11 @@ class PathUploader extends FileUploader {
     }
     var taskId = await FlutterUploader().enqueue(
       MultipartFormDataUpload(
-        url: Api.getApiUrl(Api.joinPath("/api/store/upload", savedEntry.dest)),
+        url: await Api.getApiUrl(
+            Api.joinPath("/api/store/upload", savedEntry.dest)),
         files: [FileItem(path: savedEntry.src, field: "file")],
         method: UploadMethod.POST,
-        headers: Api.httpHeaders(),
+        headers: await Api.httpHeaders(),
         data: {"lastModified": "${savedEntry.lastModified}"},
         tag: fileName,
       ),

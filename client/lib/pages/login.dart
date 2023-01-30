@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
 
   buildAppBar() {
     return AppBar(
-      title: Text(AppConfig.getAppName()),
+      title: Text(AppConfig.getAppNameSync()),
     );
   }
 

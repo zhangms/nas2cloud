@@ -63,8 +63,8 @@ class FileWidgets {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
           child: Image.network(
-            Api.getStaticFileUrl(item.thumbnail!),
-            headers: Api.httpHeaders(),
+            Api.getStaticFileUrlSync(item.thumbnail!),
+            headers: Api.httpHeadersSync(),
           ),
         ),
       ),

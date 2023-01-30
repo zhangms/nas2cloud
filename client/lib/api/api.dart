@@ -63,6 +63,12 @@ class Api {
     }
   }
 
+  static Map<String, String> httpHeadersSync() {
+    Map<String, String>? ret;
+    Future.value(httpHeaders()).then((value) => ret = value);
+    return ret!;
+  }
+
   static Future<Map<String, String>> httpHeaders() async {
     var header = {..._defaultHttpHeaders};
     if (await AppConfig.isUserLogged()) {
@@ -94,11 +100,23 @@ class Api {
     return Uri.http(address, path).toString();
   }
 
+  static String getStaticFileUrlSync(String path) {
+    String? ret;
+    Future.value(getStaticFileUrl(path)).then((value) => ret = value);
+    return ret!;
+  }
+
   static Future<String> signUrl(String url) async {
     var now = DateTime.now().millisecondsSinceEpoch;
     String str = "$now ${jsonEncode(httpHeaders())}";
     String sign = await encrypt(str);
     return "$url?_sign=$sign";
+  }
+
+  static String signUrlSync(String url) {
+    String? ret;
+    Future.value(signUrl(url)).then((value) => ret = value);
+    return ret!;
   }
 
   static Future<StateResponse> getHostStateIfConfiged() async {

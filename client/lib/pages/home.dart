@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
   buildAppBar() {
     return AppBar(
       leading: Icon(Icons.menu),
-      title: Text(AppConfig.getAppName()),
+      title: Text(AppConfig.getAppNameSync()),
     );
   }
 
@@ -54,9 +54,7 @@ class HomePage extends StatelessWidget {
     if (!resp.success) {
       return errorPage(resp.message);
     }
-    if (!AppConfig.isUserLogged()) {
-      return LoginPage();
-    } else if (resp.data?.userName?.isEmpty ?? true) {
+    if (resp.data?.userName?.isEmpty ?? true) {
       AppConfig.clearUserLogin();
       return LoginPage();
     }
