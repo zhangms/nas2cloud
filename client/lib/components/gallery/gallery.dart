@@ -130,7 +130,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           child: PDFViewer(item.url, item.requestHeader));
     } else if (FileHelper.isText(item.fileExt)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: TextReader(item.url, item.requestHeader));
+          child: TextReader(item.filepath, item.requestHeader));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
           child: AppWidgets.getPageErrorView("UNSUPPORT"));

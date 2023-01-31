@@ -24,15 +24,24 @@ class PathUploader extends FileUploader {
   }
 
   @override
-  Future<bool> uploadPath({required String src, required String dest}) {
-    throw UnimplementedError();
+  Future<bool> uploadPath({required String src, required String dest}) async {
+    var entry = FileUploader.toUploadEntry(
+        channel: "uploadPath",
+        filepath: src,
+        relativeFrom: p.dirname(src),
+        remote: dest);
+    return await enqueue(entry);
   }
 
   @override
   Future<bool> enqueue(UploadEntry entry) async {
     FlutterUploader().clearUploads();
     var savedEntry = await UploadRepository.platform.saveIfNotExists(entry);
-    if (!UploadStatus.match(savedEntry.status, UploadStatus.waiting)) {
+    if (UploadStatus.match(savedEntry.status, UploadStatus.uploading)) {
+      return false;
+    }
+    if (UploadStatus.match(savedEntry.status, UploadStatus.waiting) &&
+        savedEntry.uploadTaskId != "none") {
       return false;
     }
     var fileName = p.basename(savedEntry.src);
@@ -56,6 +65,7 @@ class PathUploader extends FileUploader {
       ));
       return false;
     }
+
     var url =
         await Api.getApiUrl(Api.joinPath("/api/store/upload", savedEntry.dest));
     var headers = await Api.httpHeaders();
@@ -140,22 +150,26 @@ void flutterUploaderTaskResponse(UploadTaskResponse result) {
     }
     switch (statusName) {
       case "Completed":
-        UploadRepository.platform.update(entry.copyWith(
+        var result = entry.copyWith(
           status: UploadStatus.successed.name,
           endUploadTime: DateTime.now().millisecondsSinceEpoch,
           message: message,
-        ));
+        );
+        UploadRepository.platform.update(result);
+        FileUploader.notifyListeners(result);
         LocalNotification.platform.clear(id: entry.id ?? 0);
         break;
       case "Failed":
         if (UploadStatus.match(entry.status, UploadStatus.failed)) {
           return;
         }
-        UploadRepository.platform.update(entry.copyWith(
+        var result = entry.copyWith(
           status: UploadStatus.failed.name,
           endUploadTime: DateTime.now().millisecondsSinceEpoch,
           message: message,
-        ));
+        );
+        FileUploader.notifyListeners(result);
+        UploadRepository.platform.update(result);
         LocalNotification.platform.send(
             id: entry.id ?? 0,
             title: p.basename(entry.src),

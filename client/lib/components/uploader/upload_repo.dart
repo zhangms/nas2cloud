@@ -29,4 +29,6 @@ abstract class UploadRepository {
   Future<UploadEntry?> findByTaskId(String taskId);
 
   Future<int> clearAll();
+
+  Future<int> getTotal();
 }

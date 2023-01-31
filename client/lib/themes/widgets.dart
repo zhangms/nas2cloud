@@ -21,6 +21,12 @@ class AppWidgets {
     );
   }
 
+  static Widget getCenterTextView(String text) {
+    return Center(
+      child: Text(text),
+    );
+  }
+
   static Widget getPageErrorView(String message) {
     return Center(
       child: Text(message),

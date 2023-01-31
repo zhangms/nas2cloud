@@ -92,7 +92,7 @@ class _FileHomePageState extends State<FileHomePage> {
       title: FutureBuilder<String>(
           future: AppConfig.getAppName(),
           builder: (context, snapshot) {
-            return Text(snapshot.hasData ? snapshot.data! : "Nas2coud");
+            return Text(snapshot.hasData ? snapshot.data! : "");
           }),
     );
   }

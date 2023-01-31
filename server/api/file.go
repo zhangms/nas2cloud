@@ -62,6 +62,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	}
 	err = storage.File().Remove(u.Name, req.Path)
 	if err != nil {
+		logger.ErrorStacktrace(err, req.Path)
 		return SendError(c, http.StatusForbidden, "file can't delete")
 	}
 	return SendOK(c, "OK")

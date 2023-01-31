@@ -14,6 +14,8 @@ import 'package:nas2cloud/components/files/file_widgets.dart';
 import 'package:nas2cloud/components/gallery/gallery.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 
@@ -53,8 +55,21 @@ class _FileListPageState extends State<FileListPage> {
   @override
   void initState() {
     super.initState();
+    FileUploader.addListener(onUploadResultChange);
     resetState();
-    print("init state");
+  }
+
+  @override
+  void dispose() {
+    FileUploader.removeListener(onUploadResultChange);
+    super.dispose();
+  }
+
+  onUploadResultChange(UploadEntry entry) {
+    if (UploadStatus.match(entry.status, UploadStatus.successed) &&
+        entry.dest == widget.path) {
+      resetFetch("creTime_desc");
+    }
   }
 
   void resetState() {
@@ -206,7 +221,7 @@ class _FileListPageState extends State<FileListPage> {
           ),
           PopupMenuItem(
             child: Text("创建文件夹"),
-            onTap: () => onCreateFolder(),
+            onTap: () => onTabCreateFolder(),
           ),
           PopupMenuDivider(),
           PopupMenuItem(
@@ -306,9 +321,12 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   changeOrderBy(String order) {
-    if (orderBy == order) {
-      return;
+    if (orderBy != order) {
+      resetFetch(order);
     }
+  }
+
+  resetFetch(String order) {
     setState(() {
       resetState();
       orderBy = order;
@@ -325,11 +343,7 @@ class _FileListPageState extends State<FileListPage> {
       showMessage(result.message!);
       return;
     }
-    setState(() {
-      resetState();
-      orderBy = "creTime_desc";
-      fetchWhenBuild = true;
-    });
+    resetFetch("creTime_desc");
   }
 
   Future<void> deleteFile(String path) async {
@@ -380,7 +394,7 @@ class _FileListPageState extends State<FileListPage> {
     }));
   }
 
-  onCreateFolder() async {
+  onTabCreateFolder() async {
     Future.delayed(const Duration(milliseconds: 100), (() {
       showDialog(
           context: context,

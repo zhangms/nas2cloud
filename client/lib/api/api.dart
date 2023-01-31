@@ -96,7 +96,8 @@ class Api {
 
   static Future<String> signUrl(String url) async {
     var now = DateTime.now().millisecondsSinceEpoch;
-    String str = "$now ${jsonEncode(httpHeaders())}";
+    var headers = await httpHeaders();
+    String str = "$now ${jsonEncode(headers)}";
     String sign = await encrypt(str);
     return "$url?_sign=$sign";
   }
@@ -235,7 +236,8 @@ class Api {
     try {
       var url = Uri.http(await AppConfig.getHostAddress(), path);
       Map<String, String> headers = {"Range": "bytes=$start-$end"};
-      headers.addAll(await httpHeaders());
+      var authHeader = await httpHeaders();
+      headers.addAll(authHeader);
       Response resp = await http.get(url, headers: headers);
       return RangeData(resp.headers[HttpHeaders.contentTypeHeader] ?? "UNKNOWN",
           resp.contentLength ?? 0, resp.bodyBytes);

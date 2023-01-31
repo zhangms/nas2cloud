@@ -19,11 +19,6 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
   bool isPlaying = false;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     if (_controller != null) {
       _controller!.dispose();
@@ -33,32 +28,23 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-        future: initVideoPlayerController(),
+    return FutureBuilder<String>(
+        future: getVideoSignUrl(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
+          if (!snapshot.hasData) {
             return AppWidgets.getPageLoadingView();
           }
+          VideoPlayerController controller = _getController(snapshot.data!);
           return Scaffold(
             body: Center(
-              child: _controller!.value.isInitialized
-                  ? AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child:
-                          Stack(alignment: Alignment.bottomCenter, children: [
-                        VideoPlayer(_controller!),
-                        VideoProgressIndicator(_controller!,
-                            allowScrubbing: true),
-                      ]),
-                    )
-                  : Container(),
+              child: buildVideoView(),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 setState(() {
-                  _controller!.value.isPlaying
-                      ? _controller!.pause()
-                      : _controller!.play();
+                  controller.value.isPlaying
+                      ? controller.pause()
+                      : controller.play();
                 });
               },
               child: Icon(
@@ -69,11 +55,17 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
         });
   }
 
-  Future<void> initVideoPlayerController() async {
-    var url = await Api.signUrl(widget.videoUrl);
+  Future<String> getVideoSignUrl() async {
+    return await Api.signUrl(widget.videoUrl);
+  }
+
+  VideoPlayerController _getController(String url) {
+    if (_controller != null) {
+      return _controller!;
+    }
     _controller =
         VideoPlayerController.network(url, httpHeaders: widget.requestHeader);
-    await _controller!
+    _controller!
         .initialize()
         .onError((error, stackTrace) => print(error))
         .then((_) {
@@ -88,5 +80,26 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
         }
       });
     });
+    return _controller!;
+  }
+
+  buildVideoView() {
+    if (_controller == null) {
+      return AppWidgets.getCenterTextView("Loading...");
+    }
+    if (_controller!.value.isInitialized) {
+      return AspectRatio(
+        aspectRatio: _controller!.value.aspectRatio,
+        child: Stack(alignment: Alignment.bottomCenter, children: [
+          VideoPlayer(_controller!),
+          VideoProgressIndicator(_controller!, allowScrubbing: true),
+        ]),
+      );
+    }
+    if (_controller!.value.hasError) {
+      return AppWidgets.getPageErrorView(
+          _controller!.value.errorDescription ?? "ERROR");
+    }
+    return AppWidgets.getCenterTextView("Loading...");
   }
 }

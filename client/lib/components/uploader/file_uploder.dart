@@ -63,4 +63,22 @@ abstract class FileUploader {
   }
 
   Future<void> cancelAll();
+
+  static List<Function(UploadEntry entry)> _listeners = [];
+
+  static void removeListener(Function(UploadEntry entry) listener) {
+    _listeners.remove(listener);
+    print("uploader remove listener : ${_listeners.length}");
+  }
+
+  static void addListener(Function(UploadEntry entry) listener) {
+    _listeners.add(listener);
+    print("uploader add listener : ${_listeners.length}");
+  }
+
+  static void notifyListeners(UploadEntry entry) {
+    for (var listener in _listeners) {
+      listener(entry);
+    }
+  }
 }

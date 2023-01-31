@@ -29,7 +29,7 @@ class _AndroidAutoUploadConfigWidgetState
   static const String rootdir = "/storage/emulated/0";
 
   Future<_AndroidAutoUploadConfig> getAutoUploadConfig() async {
-    if (!await Permission.storage.request().isGranted) {
+    if (!await Permission.manageExternalStorage.request().isGranted) {
       return _AndroidAutoUploadConfig(false, []);
     }
 

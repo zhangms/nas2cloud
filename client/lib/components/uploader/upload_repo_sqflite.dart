@@ -59,7 +59,7 @@ class UploadRepoSqflite extends UploadRepository {
         .where((sql) => sql.isNotEmpty)
         .toList();
     var path = await getDatabasesPath();
-    var datapath = p.join(path, "");
+    var datapath = p.join(path, dbname);
     database = await openDatabase(
       datapath,
       version: 1,
@@ -125,5 +125,13 @@ class UploadRepoSqflite extends UploadRepository {
   Future<int> clearAll() async {
     var database = await _open();
     return await database.delete("t_upload_entry", where: "id>0");
+  }
+
+  @override
+  Future<int> getTotal() async {
+    var database = await _open();
+    var ret = await database.rawQuery("select count(1) from t_upload_entry");
+    var count = Sqflite.firstIntValue(ret) ?? 0;
+    return count;
   }
 }

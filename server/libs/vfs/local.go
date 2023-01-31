@@ -108,7 +108,13 @@ func (l *Local) RemoveAll(file string) error {
 }
 
 func (l *Local) Remove(file string) error {
-	return os.Remove(l.AbsLocal(file))
+	err := os.Remove(l.AbsLocal(file))
+	if err != nil {
+		if l.Exists(file) {
+			return err
+		}
+	}
+	return nil
 }
 
 func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
