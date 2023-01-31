@@ -3,9 +3,9 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/components/files/file_home.dart';
 import 'package:nas2cloud/pages/config.dart';
 import 'package:nas2cloud/pages/login.dart';
-import 'package:nas2cloud/pages/test.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -49,9 +49,6 @@ class HomePage extends StatelessWidget {
   }
 
   Widget getPage(StateResponse resp) {
-    // if (1 == 1) {
-    //   return TestPage();
-    // }
     if (resp.message == "HOST_NOT_CONFIGED") {
       return ConfigPage();
     }
@@ -62,7 +59,6 @@ class HomePage extends StatelessWidget {
       AppConfig.clearUserLogin();
       return LoginPage();
     }
-    // return FileHomePage();
-    return TestPage();
+    return FileHomePage();
   }
 }

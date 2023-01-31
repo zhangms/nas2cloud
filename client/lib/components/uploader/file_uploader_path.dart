@@ -16,6 +16,7 @@ class PathUploader extends FileUploader {
   Future<bool> initialize() async {
     if (!_initialized) {
       _initialized = true;
+      flutterUploaderBackgroudHandler();
       FlutterUploader().setBackgroundHandler(flutterUploaderBackgroudHandler);
       print("FlutterUploader init complete");
     }
@@ -29,6 +30,7 @@ class PathUploader extends FileUploader {
 
   @override
   Future<bool> enqueue(UploadEntry entry) async {
+    FlutterUploader().clearUploads();
     var savedEntry = await UploadRepository.platform.saveIfNotExists(entry);
     if (!UploadStatus.match(savedEntry.status, UploadStatus.waiting)) {
       return false;
@@ -54,13 +56,15 @@ class PathUploader extends FileUploader {
       ));
       return false;
     }
+    var url =
+        await Api.getApiUrl(Api.joinPath("/api/store/upload", savedEntry.dest));
+    var headers = await Api.httpHeaders();
     var taskId = await FlutterUploader().enqueue(
       MultipartFormDataUpload(
-        url: await Api.getApiUrl(
-            Api.joinPath("/api/store/upload", savedEntry.dest)),
+        url: url,
         files: [FileItem(path: savedEntry.src, field: "file")],
         method: UploadMethod.POST,
-        headers: await Api.httpHeaders(),
+        headers: headers,
         data: {"lastModified": "${savedEntry.lastModified}"},
         tag: fileName,
       ),
@@ -95,6 +99,7 @@ class PathUploader extends FileUploader {
 void flutterUploaderBackgroudHandler() {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterUploader uploader = FlutterUploader();
+  uploader.clearUploads();
   uploader.result.listen(flutterUploaderTaskResponse);
   uploader.progress.listen(flutterUploaderTaskProgress);
 }
@@ -117,6 +122,7 @@ void flutterUploaderTaskProgress(UploadTaskProgress progress) {
 }
 
 void flutterUploaderTaskResponse(UploadTaskResponse result) {
+  print("upload result : $result");
   if (result.status != null) {
     return;
   }
