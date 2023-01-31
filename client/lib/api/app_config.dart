@@ -54,6 +54,11 @@ class AppConfig {
     return null;
   }
 
+  static Future<String?> getLoginUserName() async {
+    var info = await getUserLoginInfo();
+    return info?.username;
+  }
+
   static Future<void> clearHostAddress() async {
     await Spu().remove(_hostStateKey);
     await Spu().remove(_hostAddressKey);

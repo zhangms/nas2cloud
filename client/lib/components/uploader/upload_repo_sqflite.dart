@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
@@ -37,18 +39,27 @@ class UploadRepoSqflite extends UploadRepository {
 
   UploadRepoSqflite._private();
 
-  Database? database;
+  Map<String, Database> databases = {};
 
-  Future<bool> _open() async {
-    if (database != null && database!.isOpen) {
-      return true;
+  Future<Database> _open() async {
+    var username = await AppConfig.getLoginUserName();
+    if (username == null) {
+      throw ErrorDescription("Db Open Error");
+    }
+    var dbname = "nas2cloud_uploader_$username.db";
+    if (databases.isNotEmpty && databases[dbname] == null) {
+      await _close();
+    }
+    var database = databases[dbname];
+    if (database != null) {
+      return database;
     }
     var sqls = await Stream.fromIterable(_initDbSQL.split(";"))
         .map((sql) => sql.trim())
         .where((sql) => sql.isNotEmpty)
         .toList();
     var path = await getDatabasesPath();
-    var datapath = p.join(path, "nas2cloud_uploader.db");
+    var datapath = p.join(path, "");
     database = await openDatabase(
       datapath,
       version: 1,
@@ -58,34 +69,35 @@ class UploadRepoSqflite extends UploadRepository {
         }
       },
     );
-    print("sqflite nas2cloud_uploader.db opened");
-    return true;
+    print("sqflite $dbname opened");
+    databases[dbname] = database;
+    return database;
   }
 
-  Future<void> close() async {
-    if (database != null) {
-      await database!.close();
-      database = null;
+  Future<void> _close() async {
+    for (var e in databases.entries) {
+      await e.value.close();
     }
+    databases.clear();
   }
 
   @override
   Future<UploadEntry> saveIfNotExists(UploadEntry entry) async {
-    await _open();
-    var list = await database!.rawQuery(
+    var database = await _open();
+    var list = await database.rawQuery(
         "select * from t_upload_entry where src=? and dest=?",
         [entry.src, entry.dest]);
     if (list.isNotEmpty) {
       return UploadEntry.fromMap(list[0]);
     }
-    var id = await database!.insert("t_upload_entry", entry.toMap());
+    var id = await database.insert("t_upload_entry", entry.toMap());
     return entry.copyWith(id: id);
   }
 
   @override
   Future<int> getWaitingCount(String channel) async {
-    await _open();
-    return Sqflite.firstIntValue(await database!.rawQuery(
+    var database = await _open();
+    return Sqflite.firstIntValue(await database.rawQuery(
             "select count(1) from t_upload_entry where uploadGroupId=? and status=?",
             [channel, UploadStatus.waiting.name])) ??
         0;
@@ -93,15 +105,15 @@ class UploadRepoSqflite extends UploadRepository {
 
   @override
   Future<int> update(UploadEntry entry) async {
-    await _open();
-    return await database!.update("t_upload_entry", entry.toMap(),
+    var database = await _open();
+    return await database.update("t_upload_entry", entry.toMap(),
         where: "id=?", whereArgs: [entry.id]);
   }
 
   @override
   Future<UploadEntry?> findByTaskId(String taskId) async {
-    await _open();
-    var list = await database!.query("t_upload_entry",
+    var database = await _open();
+    var list = await database.query("t_upload_entry",
         where: "uploadTaskId=?", whereArgs: [taskId], limit: 1);
     if (list.isNotEmpty) {
       return UploadEntry.fromMap(list[0]);
@@ -111,7 +123,7 @@ class UploadRepoSqflite extends UploadRepository {
 
   @override
   Future<int> clearAll() async {
-    await _open();
-    return await database!.delete("t_upload_entry", where: "id>0");
+    var database = await _open();
+    return await database.delete("t_upload_entry", where: "id>0");
   }
 }

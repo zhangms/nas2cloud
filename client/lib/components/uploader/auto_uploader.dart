@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
@@ -8,7 +9,7 @@ import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
 class AutoUploader {
-  static const String key = "app.autoupload.config";
+  static const String _key = "app.autoupload.config";
 
   static AutoUploader _instance = AutoUploader._private();
 
@@ -20,10 +21,21 @@ class AutoUploader {
     await BackgroundProcessor().registerAutoUploadTask();
   }
 
+  Future<String?> _getKey() async {
+    var userName = await AppConfig.getLoginUserName();
+    if (userName == null) {
+      return null;
+    }
+    return "$_key.$userName";
+  }
+
   Future<bool> saveConfig(AutoUploadConfig config) async {
+    var key = await _getKey();
+    if (key == null) {
+      return false;
+    }
     List<String> ret = [];
     List<String> configs = await Spu().getStringList(key) ?? [];
-
     bool configExists = false;
     for (var c in configs) {
       var cfg = AutoUploadConfig.fromJson(c);
@@ -41,6 +53,10 @@ class AutoUploader {
   }
 
   Future<List<AutoUploadConfig>> getConfigList() async {
+    var key = await _getKey();
+    if (key == null) {
+      return [];
+    }
     var list = (await Spu().getStringList(key)) ?? [];
     return Stream<String>.fromIterable(list)
         .map((event) => AutoUploadConfig.fromJson(event))
@@ -48,13 +64,16 @@ class AutoUploader {
   }
 
   Future<bool> executeAutoupload() async {
-    List<AutoUploadConfig> configs = await getConfigList();
-    for (var config in configs) {
-      if (config.autoupload) {
-        await _executeAutoupload(config);
+    if (await AppConfig.isUserLogged()) {
+      List<AutoUploadConfig> configs = await getConfigList();
+      for (var config in configs) {
+        if (config.autoupload) {
+          await _executeAutoupload(config);
+        }
       }
+      return true;
     }
-    return true;
+    return false;
   }
 
   Future<bool> _executeAutoupload(AutoUploadConfig config) async {
