@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/login_response/data.dart' as logindto;
 import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
 
 class AppState extends ChangeNotifier {
   updateHostState(String address, statedto.Data data) async {
@@ -22,6 +23,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> logout() async {
     await AppConfig.clearUserLogin();
+    await FileUploader.platform.cancelAll();
     notifyListeners();
   }
 }

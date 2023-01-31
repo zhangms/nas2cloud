@@ -61,4 +61,6 @@ abstract class FileUploader {
         status: UploadStatus.waiting.name,
         message: UploadStatus.waiting.name);
   }
+
+  Future<void> cancelAll();
 }

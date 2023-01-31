@@ -93,6 +93,12 @@ class PathUploader extends FileUploader {
       required Stream<List<int>> stream}) {
     throw UnsupportedError("use uploadPath");
   }
+
+  @override
+  Future<void> cancelAll() async {
+    await FlutterUploader().cancelAll();
+    await FlutterUploader().clearUploads();
+  }
 }
 
 @pragma('vm:entry-point')

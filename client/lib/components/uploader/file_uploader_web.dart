@@ -36,6 +36,11 @@ class WebUploader extends FileUploader {
     throw UnimplementedError();
   }
 
+  @override
+  Future<void> cancelAll() async {
+    // TODO: implement clearAll
+  }
+
   // static const String _keyPrefix = "app.fileupload.";
 
   // @override
