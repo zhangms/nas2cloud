@@ -58,6 +58,7 @@ class UploadRepoSqflite extends UploadRepository {
         }
       },
     );
+    print("sqflite nas2cloud_uploader.db opened");
     return true;
   }
 
@@ -109,8 +110,8 @@ class UploadRepoSqflite extends UploadRepository {
   }
 
   @override
-  Future<void> clearAll() async {
+  Future<int> clearAll() async {
     await _open();
-    database!.delete("t_upload_entry", where: "id>0");
+    return await database!.delete("t_upload_entry", where: "id>0");
   }
 }
