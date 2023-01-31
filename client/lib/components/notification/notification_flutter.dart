@@ -11,9 +11,9 @@ class NotificationFlutter extends LocalNotification {
   static bool _inited = false;
 
   @override
-  Future<bool> initialize() async {
+  void initialize() {
     if (_inited) {
-      return true;
+      return;
     }
     _inited = true;
     const AndroidInitializationSettings androidInitializationSettings =
@@ -28,14 +28,14 @@ class NotificationFlutter extends LocalNotification {
       iOS: darwinInitializationSettings,
       macOS: darwinInitializationSettings,
     );
-
-    await _notifier.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: receiveNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-    );
-    print("FlutterLocalNotificationsPlugin init complete");
-    return true;
+    _notifier
+        .initialize(
+          initializationSettings,
+          onDidReceiveNotificationResponse: receiveNotificationResponse,
+          onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+        )
+        .whenComplete(
+            () => print("FlutterLocalNotificationsPlugin init complete"));
   }
 
   static void receiveNotificationResponse(NotificationResponse response) {}

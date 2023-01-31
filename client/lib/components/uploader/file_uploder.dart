@@ -22,7 +22,7 @@ abstract class FileUploader {
 
   FileUploader();
 
-  Future<bool> initialize();
+  void initialize();
 
   Future<bool> uploadStream({
     required String dest,

@@ -3,7 +3,7 @@ import 'package:nas2cloud/components/uploader/upload_entry.dart';
 
 class WebUploader extends FileUploader {
   @override
-  Future<bool> initialize() {
+  void initialize() {
     throw UnimplementedError();
   }
 

@@ -17,7 +17,7 @@ abstract class LocalNotification {
 
   LocalNotification();
 
-  Future<bool> initialize();
+  void initialize();
 
   void send({required int id, required String title, required String body});
 

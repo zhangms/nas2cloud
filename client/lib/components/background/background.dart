@@ -4,18 +4,12 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:workmanager/workmanager.dart';
 
-class BackgroundProcessor {
-  static const String autoUploadTaskName = "autoupload";
+const String autoUploadTaskName = "autoupload";
 
-  static BackgroundProcessor _instance = BackgroundProcessor._private();
-
-  factory BackgroundProcessor() => _instance;
-
-  BackgroundProcessor._private();
-
-  @pragma('vm:entry-point')
-  static void callbackDispatcher() {
-    Workmanager().executeTask((task, inputData) async {
+@pragma('vm:entry-point')
+void backgroundCallbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    try {
       print("Native called background task: $task");
       switch (task) {
         case autoUploadTaskName:
@@ -23,8 +17,19 @@ class BackgroundProcessor {
         default:
           return true;
       }
-    });
-  }
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  });
+}
+
+class BackgroundProcessor {
+  static BackgroundProcessor _instance = BackgroundProcessor._private();
+
+  factory BackgroundProcessor() => _instance;
+
+  BackgroundProcessor._private();
 
   bool _inited = false;
 
@@ -36,19 +41,21 @@ class BackgroundProcessor {
       return;
     }
     _inited = true;
-    Workmanager().initialize(callbackDispatcher, isInDebugMode: isInDebugMode);
-    print("background processor init complete");
+    Workmanager()
+        .initialize(backgroundCallbackDispatcher, isInDebugMode: isInDebugMode)
+        .whenComplete(() => print("background processor init complete"));
   }
 
   void registerAutoUploadTask() {
-    Workmanager().registerPeriodicTask(
-      "${AppConfig.appId}.periodic-autoupload-task",
-      autoUploadTaskName,
-      initialDelay: Duration(seconds: 10),
-      existingWorkPolicy: ExistingWorkPolicy.keep,
-      inputData: {"hello": "world"},
-      tag: autoUploadTaskName,
-    );
-    print("auto upload task registed");
+    Workmanager()
+        .registerPeriodicTask(
+          "${AppConfig.appId}.periodic-autoupload-task",
+          autoUploadTaskName,
+          initialDelay: Duration(seconds: 10),
+          existingWorkPolicy: ExistingWorkPolicy.keep,
+          inputData: {"hello": "world"},
+          tag: autoUploadTaskName,
+        )
+        .whenComplete(() => print("auto upload task registed"));
   }
 }

@@ -34,17 +34,16 @@ class Downloader {
 
   static bool _inited = false;
 
-  Future<bool> initialize() async {
+  void initialize() {
     if (kIsWeb) {
-      return true;
+      return;
     }
     if (_inited) {
-      return true;
+      return;
     }
     _inited = true;
     // await FlutterDownloader.initialize(debug: isInDebugMode, ignoreSsl: true);
     // FlutterDownloader.registerCallback(downloadCallback);
     // print("FlutterDownloader init complete");
-    return true;
   }
 }
