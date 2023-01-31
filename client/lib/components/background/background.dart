@@ -49,5 +49,6 @@ class BackgroundProcessor {
       inputData: {"hello": "world"},
       tag: autoUploadTaskName,
     );
+    print("auto upload task registed");
   }
 }
