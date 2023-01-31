@@ -63,7 +63,11 @@ class _LoginPageState extends State<LoginPage> {
 
   buildAppBar() {
     return AppBar(
-      title: Text(AppConfig.getAppNameSync()),
+      title: FutureBuilder<String>(
+          future: AppConfig.getAppName(),
+          builder: (context, snapshot) {
+            return Text(snapshot.hasData ? snapshot.data! : "Nas2coud");
+          }),
     );
   }
 

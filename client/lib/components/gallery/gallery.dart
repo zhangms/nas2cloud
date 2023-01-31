@@ -24,11 +24,11 @@ class GalleryPhotoViewPage extends StatefulWidget {
     return false;
   }
 
-  final List<File> images;
+  final List<File> files;
   final int index;
   final PageController pageController;
 
-  GalleryPhotoViewPage(this.images, this.index)
+  GalleryPhotoViewPage(this.files, this.index)
       : pageController = PageController(initialPage: index);
 
   @override
@@ -64,52 +64,73 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           constraints: BoxConstraints.expand(
             height: MediaQuery.of(context).size.height,
           ),
-          child: PhotoViewGallery.builder(
-            backgroundDecoration:
-                BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
-            scrollPhysics: const BouncingScrollPhysics(),
-            pageController: widget.pageController,
-            itemCount: widget.images.length,
-            scrollDirection: Axis.horizontal,
-            builder: buildImageSync,
-            onPageChanged: (index) {
-              setState(() {
-                currentIndex = index;
-              });
-            },
-          ),
+          child: FutureBuilder<List<_GalleryItem>>(
+              future: getGalleryItems(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return AppWidgets.getPageLoadingView();
+                }
+                galleryItems = snapshot.data!;
+                return PhotoViewGallery.builder(
+                  backgroundDecoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor),
+                  scrollPhysics: const BouncingScrollPhysics(),
+                  pageController: widget.pageController,
+                  itemCount: galleryItems!.length,
+                  scrollDirection: Axis.horizontal,
+                  builder: buildView,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentIndex = index;
+                    });
+                  },
+                );
+              }),
         ));
   }
 
-  PhotoViewGalleryPageOptions buildImageSync(BuildContext context, int index) {
-    PhotoViewGalleryPageOptions? options;
-    Future.value(buildImageAsync(context, index))
-        .then((value) => options = value);
-    return options!;
+  Future<List<_GalleryItem>> getGalleryItems() async {
+    List<_GalleryItem> list = [];
+    var headers = await Api.httpHeaders();
+    for (var file in widget.files) {
+      var url = await Api.getStaticFileUrl(file.path);
+      list.add(_GalleryItem(
+        filepath: file.path,
+        fileExt: file.ext,
+        url: url,
+        name: file.name,
+        requestHeader: headers,
+      ));
+    }
+    return list;
   }
 
-  Future<PhotoViewGalleryPageOptions> buildImageAsync(
-      BuildContext context, int idx) async {
-    File item = widget.images[idx];
-    if (FileHelper.isImage(item.ext)) {
+  List<_GalleryItem>? galleryItems;
+
+  PhotoViewGalleryPageOptions buildView(BuildContext context, int idx) {
+    var item = galleryItems?[idx];
+    if (item == null) {
+      return PhotoViewGalleryPageOptions.customChild(
+          child: AppWidgets.getPageErrorView("NotFound"));
+    }
+    if (FileHelper.isImage(item.fileExt)) {
       return PhotoViewGalleryPageOptions(
-          imageProvider: NetworkImage(await Api.getStaticFileUrl(item.path),
-              headers: await Api.httpHeaders()),
+          imageProvider: NetworkImage(item.url, headers: item.requestHeader),
           initialScale: PhotoViewComputedScale.contained,
           minScale: PhotoViewComputedScale.contained * 0.5,
           maxScale: PhotoViewComputedScale.covered * 4.1,
-          heroAttributes: PhotoViewHeroAttributes(tag: item.path),
+          heroAttributes: PhotoViewHeroAttributes(tag: item.filepath),
           controller: controller,
           scaleStateController: scaleStateController);
-    } else if (FileHelper.isVideo(item.ext)) {
+    } else if (FileHelper.isVideo(item.fileExt)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: VideoPlayerWapper(await Api.getStaticFileUrl(item.path)));
-    } else if (FileHelper.isPDF(item.ext)) {
+          child: VideoPlayerWapper(item.url, item.requestHeader));
+    } else if (FileHelper.isPDF(item.fileExt)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: PDFViewer(await Api.getStaticFileUrl(item.path)));
-    } else if (FileHelper.isText(item.ext)) {
+          child: PDFViewer(item.url, item.requestHeader));
+    } else if (FileHelper.isText(item.fileExt)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: TextReader(path: item.path));
+          child: TextReader(item.url, item.requestHeader));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
           child: AppWidgets.getPageErrorView("UNSUPPORT"));
@@ -118,7 +139,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
 
   buildAppBar() {
     var index = currentIndex + 1;
-    var item = widget.images[currentIndex];
+    var item = widget.files[currentIndex];
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
@@ -126,7 +147,22 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           Navigator.of(context).pop();
         },
       ),
-      title: Text("($index/${widget.images.length})${item.name}"),
+      title: Text("($index/${widget.files.length})${item.name}"),
     );
   }
+}
+
+class _GalleryItem {
+  String filepath;
+  String? fileExt;
+  String url;
+  String name;
+  Map<String, String> requestHeader;
+
+  _GalleryItem(
+      {required this.filepath,
+      this.fileExt,
+      required this.url,
+      required this.name,
+      required this.requestHeader});
 }

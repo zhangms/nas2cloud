@@ -28,7 +28,15 @@ class _FileHomePageState extends State<FileHomePage> {
             return SafeArea(child: buildBody(snapshot));
           }),
       drawer: Drawer(
-        child: SafeArea(child: buildDrawer()),
+        child: SafeArea(
+            child: FutureBuilder<_Drawer>(
+                future: getDrawerData(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return AppWidgets.getPageLoadingView();
+                  }
+                  return buildDrawer(snapshot.data!);
+                })),
       ),
     );
   }
@@ -81,7 +89,11 @@ class _FileHomePageState extends State<FileHomePage> {
           },
         );
       }),
-      title: Text(AppConfig.getAppNameSync()),
+      title: FutureBuilder<String>(
+          future: AppConfig.getAppName(),
+          builder: (context, snapshot) {
+            return Text(snapshot.hasData ? snapshot.data! : "Nas2coud");
+          }),
     );
   }
 
@@ -98,27 +110,22 @@ class _FileHomePageState extends State<FileHomePage> {
     return Icon(Icons.insert_drive_file);
   }
 
-  Widget buildDrawer() {
-    var hostState = AppConfig.getHostStateSync();
+  Widget buildDrawer(_Drawer _drawer) {
     var appState = context.watch<AppState>();
-
     Widget avatar = CircleAvatar(
       child: FlutterLogo(),
     );
-
-    if (hostState?.userAvatar != null) {
+    if (_drawer.userAvatar != null) {
       avatar = CircleAvatar(
-        backgroundImage: NetworkImage(
-            Api.getStaticFileUrlSync(hostState!.userAvatar!),
-            headers: Api.httpHeadersSync()),
+        backgroundImage:
+            NetworkImage(_drawer.userAvatar!, headers: _drawer.httpHeaders),
       );
     }
-
     return ListView(
       children: [
         UserAccountsDrawerHeader(
-          accountName: Text((hostState?.userName ?? "").toUpperCase()),
-          accountEmail: Text(hostState?.appName ?? ""),
+          accountName: Text((_drawer.userName ?? "").toUpperCase()),
+          accountEmail: Text(_drawer.appName ?? ""),
           currentAccountPicture: avatar,
         ),
         buildPhoto(),
@@ -196,4 +203,15 @@ class _FileHomePageState extends State<FileHomePage> {
       content: Text(message),
     ));
   }
+
+  getDrawerData() {}
+}
+
+class _Drawer {
+  String? userAvatar;
+  String? userName;
+  String? appName;
+  Map<String, String>? httpHeaders;
+
+  _Drawer({this.userAvatar, this.userName, this.appName, this.httpHeaders});
 }

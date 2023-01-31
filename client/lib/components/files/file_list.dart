@@ -347,11 +347,12 @@ class _FileListPageState extends State<FileListPage> {
     });
   }
 
-  void download(File item) {
+  void download(File item) async {
     if (item.type == "DIR") {
       return;
     }
-    Downloader.platform.download(Api.getStaticFileUrlSync(item.path));
+    var path = await Api.getStaticFileUrl(item.path);
+    Downloader.platform.download(path);
     showMessage("已开始下载, 请从状态栏查看下载进度");
   }
 
@@ -507,17 +508,20 @@ class _FileListPageState extends State<FileListPage> {
           name = name.substring(0, index);
         }
         if (FileHelper.isMusic(it.ext)) {
+          var audioUrl = await Api.getStaticFileUrl(it.path);
+          var httpHeaders = await Api.httpHeaders();
+          var audioThumb =
+              await Api.signUrl(await Api.getStaticFileUrl(it.thumbnail!));
           playlist.add(Audio.network(
-            Api.getStaticFileUrlSync(it.path),
-            headers: Api.httpHeadersSync(),
+            audioUrl,
+            headers: httpHeaders,
             metas: Metas(
               title: name,
               image: () {
                 if (it.thumbnail == null) {
                   return null;
                 }
-                return MetasImage.network(
-                    Api.signUrlSync(Api.getStaticFileUrlSync(it.thumbnail!)));
+                return MetasImage.network(audioThumb);
               }(),
             ),
           ));

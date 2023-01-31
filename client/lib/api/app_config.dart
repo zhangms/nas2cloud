@@ -29,20 +29,8 @@ class AppConfig {
     return str == null ? null : statedto.Data.fromJson(str);
   }
 
-  static statedto.Data? getHostStateSync() {
-    statedto.Data? ret;
-    Future.value(getHostState()).then((value) => ret = value);
-    return ret;
-  }
-
   static Future<String> getAppName() async {
     return (await getHostState())?.appName ?? "Nas2cloud";
-  }
-
-  static String getAppNameSync() {
-    String? ret;
-    Future.value(getAppName()).then((value) => ret = value);
-    return ret!;
   }
 
   static Future<bool> saveUserLoginInfo(logindto.Data data) async {

@@ -5,9 +5,10 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 class TextReader extends StatefulWidget {
-  final String path;
+  final String url;
+  final Map<String, String> requestHeader;
 
-  const TextReader({super.key, required this.path});
+  TextReader(this.url, this.requestHeader);
 
   @override
   State<TextReader> createState() => _TextReaderState();
@@ -29,7 +30,7 @@ class _TextReaderState extends State<TextReader> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<RangeData>(
-        future: Api.rangeGetStatic(widget.path, start, end),
+        future: Api.rangeGetStatic(widget.url, start, end),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             mergeContent(snapshot.data);

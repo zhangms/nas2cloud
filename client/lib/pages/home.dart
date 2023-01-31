@@ -33,7 +33,11 @@ class HomePage extends StatelessWidget {
   buildAppBar() {
     return AppBar(
       leading: Icon(Icons.menu),
-      title: Text(AppConfig.getAppNameSync()),
+      title: FutureBuilder<String>(
+          future: AppConfig.getAppName(),
+          builder: (context, snapshot) {
+            return Text(snapshot.hasData ? snapshot.data! : "Nas2coud");
+          }),
     );
   }
 

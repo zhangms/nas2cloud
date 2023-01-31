@@ -62,12 +62,25 @@ class FileWidgets {
         width: 40,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
-          child: Image.network(
-            Api.getStaticFileUrlSync(item.thumbnail!),
-            headers: Api.httpHeadersSync(),
-          ),
+          child: FutureBuilder<Widget>(
+              future: _buildImage(item.thumbnail!),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data!;
+                }
+                return Text("");
+              }),
         ),
       ),
+    );
+  }
+
+  static Future<Widget> _buildImage(String thumbnail) async {
+    var url = await Api.getStaticFileUrl(thumbnail);
+    var headers = await Api.httpHeaders();
+    return Image.network(
+      url,
+      headers: headers,
     );
   }
 }

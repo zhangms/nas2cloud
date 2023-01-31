@@ -10,13 +10,15 @@ class Downloader {
 
   Downloader._private();
 
-  void download(String path) {
+  Future<void> download(String path) async {
     if (kIsWeb) {
-      launchUrl(Uri.parse(Api.signUrlSync(path)));
+      var url = await Api.signUrl(path);
+      launchUrl(Uri.parse(url));
     } else {
+      var headers = await Api.httpHeaders();
       FlutterDownloader.enqueue(
         url: path,
-        headers: Api.httpHeadersSync(),
+        headers: headers,
         savedDir: "./",
         saveInPublicStorage: true,
         showNotification: true,
