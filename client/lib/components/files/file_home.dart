@@ -110,22 +110,22 @@ class _FileHomePageState extends State<FileHomePage> {
     return Icon(Icons.insert_drive_file);
   }
 
-  Widget buildDrawer(_Drawer _drawer) {
+  Widget buildDrawer(_Drawer drawer) {
     var appState = context.watch<AppState>();
     Widget avatar = CircleAvatar(
       child: FlutterLogo(),
     );
-    if (_drawer.userAvatar != null) {
+    if (drawer.userAvatar != null) {
       avatar = CircleAvatar(
         backgroundImage:
-            NetworkImage(_drawer.userAvatar!, headers: _drawer.httpHeaders),
+            NetworkImage(drawer.userAvatar!, headers: drawer.httpHeaders),
       );
     }
     return ListView(
       children: [
         UserAccountsDrawerHeader(
-          accountName: Text((_drawer.userName ?? "").toUpperCase()),
-          accountEmail: Text(_drawer.appName ?? ""),
+          accountName: Text((drawer.userName ?? "").toUpperCase()),
+          accountEmail: Text(drawer.appName ?? ""),
           currentAccountPicture: avatar,
         ),
         buildPhoto(),
@@ -204,7 +204,22 @@ class _FileHomePageState extends State<FileHomePage> {
     ));
   }
 
-  getDrawerData() {}
+  Future<_Drawer> getDrawerData() async {
+    var state = await AppConfig.getHostState();
+    var appName = state?.appName;
+    var userName = state?.userName;
+    var httpHeaders = await Api.httpHeaders();
+
+    var userAvatar = state?.userAvatar;
+    if (userAvatar != null) {
+      userAvatar = await Api.getStaticFileUrl(userAvatar);
+    }
+    return _Drawer(
+        userAvatar: userAvatar,
+        userName: userName,
+        appName: appName,
+        httpHeaders: httpHeaders);
+  }
 }
 
 class _Drawer {
