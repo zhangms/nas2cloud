@@ -6,6 +6,7 @@ import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/pages/home.dart';
 import 'package:nas2cloud/pages/test.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
+import 'package:nas2cloud/utils/spu.dart';
 import 'package:provider/provider.dart';
 
 import 'components/downloader/downloader.dart';
@@ -14,17 +15,17 @@ import 'components/uploader/file_uploder.dart';
 
 void main() {
   print("isInDebugMode: $isInDebugMode");
-  initBeforeRunApp();
-  runApp(MyApp());
+  initBeforeRunApp().then((value) => runApp(MyApp()));
 }
 
-initBeforeRunApp() {
+Future<void> initBeforeRunApp() async {
   WidgetsFlutterBinding.ensureInitialized();
-  BackgroundProcessor().initialize();
-  LocalNotification.platform.initialize();
-  Downloader.platform.initialize();
-  FileUploader.platform.initialize();
-  AutoUploader().initialize();
+  await Spu().initSharedPreferences();
+  await BackgroundProcessor().initialize();
+  await LocalNotification.platform.initialize();
+  await Downloader.platform.initialize();
+  await FileUploader.platform.initialize();
+  await AutoUploader().initialize();
 }
 
 class MyApp extends StatelessWidget {

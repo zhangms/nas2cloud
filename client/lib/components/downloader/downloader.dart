@@ -34,7 +34,7 @@ class Downloader {
 
   static bool _inited = false;
 
-  void initialize() {
+  Future<void> initialize() async {
     if (kIsWeb) {
       return;
     }

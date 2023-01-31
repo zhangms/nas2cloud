@@ -33,7 +33,7 @@ class BackgroundProcessor {
 
   bool _inited = false;
 
-  void initialize() {
+  Future<void> initialize() async {
     if (kIsWeb) {
       return;
     }
@@ -41,21 +41,20 @@ class BackgroundProcessor {
       return;
     }
     _inited = true;
-    Workmanager()
-        .initialize(backgroundCallbackDispatcher, isInDebugMode: isInDebugMode)
-        .whenComplete(() => print("background processor init complete"));
+    await Workmanager()
+        .initialize(backgroundCallbackDispatcher, isInDebugMode: isInDebugMode);
+    print("background processor init complete");
   }
 
-  void registerAutoUploadTask() {
-    Workmanager()
-        .registerPeriodicTask(
-          "${AppConfig.appId}.periodic-autoupload-task",
-          autoUploadTaskName,
-          initialDelay: Duration(seconds: 10),
-          existingWorkPolicy: ExistingWorkPolicy.keep,
-          inputData: {"hello": "world"},
-          tag: autoUploadTaskName,
-        )
-        .whenComplete(() => print("auto upload task registed"));
+  Future<void> registerAutoUploadTask() async {
+    await Workmanager().registerPeriodicTask(
+      "${AppConfig.appId}.periodic-autoupload-task",
+      autoUploadTaskName,
+      initialDelay: Duration(seconds: 10),
+      existingWorkPolicy: ExistingWorkPolicy.keep,
+      inputData: {"hello": "world"},
+      tag: autoUploadTaskName,
+    );
+    print("auto upload task registed");
   }
 }

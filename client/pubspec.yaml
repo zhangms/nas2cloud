@@ -16,7 +16,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_cached_pdfview: ^0.4.1
+  flutter_downloader: ^1.10.1+2
   flutter_local_notifications: ^13.0.0
+  flutter_uploader: ^3.0.0-beta.4
   http: ^0.13.5
   path: ^1.8.2
   path_provider: ^2.0.12

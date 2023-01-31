@@ -2,7 +2,7 @@ import 'notification.dart';
 
 class UnsupportNotification extends LocalNotification {
   @override
-  void initialize() {}
+  Future<void> initialize() async {}
 
   @override
   void send({required int id, required String title, required String body}) {}

@@ -16,8 +16,8 @@ class AutoUploader {
 
   AutoUploader._private();
 
-  void initialize() {
-    BackgroundProcessor().registerAutoUploadTask();
+  Future<void> initialize() async {
+    await BackgroundProcessor().registerAutoUploadTask();
   }
 
   Future<bool> saveConfig(AutoUploadConfig config) async {

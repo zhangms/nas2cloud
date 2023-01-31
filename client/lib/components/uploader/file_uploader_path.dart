@@ -9,7 +9,7 @@ class PathUploader extends FileUploader {
   }
 
   @override
-  void initialize() async {}
+  Future<void> initialize() async {}
 
   @override
   Future<bool> uploadEntryStream(
