@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 import 'page_auto_upload_android.dart';
@@ -31,6 +32,7 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
         },
       ),
       title: Text("自动上传"),
+      actions: [buildMoreMenu()],
     );
   }
 
@@ -43,5 +45,31 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
     }
     return AppWidgets.getPageErrorView(
         "尚未支持：${Platform.operatingSystem},${Platform.operatingSystemVersion}");
+  }
+
+  PopupMenuButton<Text> buildMoreMenu() {
+    return PopupMenuButton<Text>(
+      icon: Icon(
+        Icons.more_horiz,
+      ),
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            child: Text("文件上传任务列表"),
+            onTap: () => openUploadTaskPage(),
+          ),
+        ];
+      },
+    );
+  }
+
+  openUploadTaskPage() {
+    Future.delayed(const Duration(milliseconds: 100), (() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => FileUploadTaskPage(),
+        ),
+      );
+    }));
   }
 }

@@ -96,7 +96,7 @@ class AppConfig {
     await Spu().remove(_hostAddressKey);
   }
 
-  static clearUserLogin() async {
+  static Future<void> clearUserLogin() async {
     await Spu().remove(_loginTokenKey);
     var keys = await Spu().getKeys();
     for (var key in keys) {

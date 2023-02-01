@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
     return FutureBuilder<StateResponse>(
         future: Api().getHostStateIfConfiged(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
+          if (!snapshot.hasData) {
             return buildLoading();
           }
           return getPage(snapshot.data!);

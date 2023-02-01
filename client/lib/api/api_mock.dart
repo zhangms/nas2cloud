@@ -1,13 +1,9 @@
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
-import 'package:nas2cloud/api/dto/login_response/data.dart' as logindata;
 import 'package:nas2cloud/api/dto/login_response/login_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/api/dto/state_response/data.dart' as statedata;
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
-
-import 'dto/file_walk_response/data.dart' as filedata;
 
 class ApiMock extends Api {
   ApiMock() : super.internal();
@@ -35,17 +31,17 @@ class ApiMock extends Api {
     return StateResponse.fromMap({
       "success": true,
       "message": "OK",
-      "data": statedata.Data.fromMap({
+      "data": {
         "appName": "hello",
         "publicKey": "",
         "userName": "zms",
-      }),
+      },
     });
   }
 
   @override
   Future<StateResponse> getHostStateIfConfiged() async {
-    return await getHostState("");
+    return await getHostState("xxx");
   }
 
   @override
@@ -81,7 +77,7 @@ class ApiMock extends Api {
     return FileWalkResponse.fromMap({
       "success": true,
       "message": "OK",
-      "data": filedata.Data.fromMap({
+      "data": {
         "currentStart": 0,
         "currentStop": 0,
         "currentPage": 0,
@@ -89,7 +85,7 @@ class ApiMock extends Api {
         "total": 0,
         "nav": [],
         "files": []
-      }),
+      },
     });
   }
 
@@ -99,11 +95,11 @@ class ApiMock extends Api {
     return LoginResponse.fromMap({
       "success": true,
       "message": "OK",
-      "data": logindata.Data.fromMap({
+      "data": {
         'username': "FF",
         'token': "FF",
         'createTime': "FF",
-      }),
+      },
     });
   }
 

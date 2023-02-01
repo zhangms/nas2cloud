@@ -20,11 +20,25 @@ class TestPage extends StatelessWidget {
             SizedBox(
               height: 30,
             ),
-            ElevatedButton(onPressed: () => exec(context), child: Text("EXEC"))
+            ElevatedButton(onPressed: () => clean(), child: Text("CLEAN")),
+            SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(onPressed: () => exec(context), child: Text("EXEC")),
+            SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(
+                onPressed: () => gohome(context), child: Text("HOME")),
           ],
         ),
       ),
     );
+  }
+
+  gohome(BuildContext context) {
+    var nav = Navigator.of(context);
+    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/'));
   }
 
   mock() async {
@@ -70,7 +84,8 @@ class TestPage extends StatelessWidget {
     ));
     var hoststate = await AppConfig.getHostState();
     print("hoststate------>$hoststate");
-    AppConfig.useMockApi(true);
+    await AppConfig.useMockApi(true);
+    print("mockapi------>${AppConfig.isUseMockApi()}");
   }
 
   initUploadData() async {
@@ -89,5 +104,12 @@ class TestPage extends StatelessWidget {
         await UploadRepository.platform.saveIfNotExists(entry);
       }
     }
+  }
+
+  clean() async {
+    await AppConfig.clearUserLogin();
+    await AppConfig.clearHostAddress();
+    await AppConfig.useMockApi(false);
+    await FileUploader.platform.cancelAndClearAll();
   }
 }
