@@ -191,20 +191,8 @@ func (r *fileCacheMgr) delete(path string) error {
 	return nil
 }
 
-func (r *fileCacheMgr) updateSize(file string, size int64) error {
-	exists, err := r.exists(file)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return nil
-	}
-	data, err := cache.Get(r.keyItem(file))
-	if err != nil {
-		return err
-	}
-	info := &vfs.ObjectInfo{}
-	err = json.Unmarshal([]byte(data), info)
+func (r *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
+	info, err := vfs.Info(userRoles, file)
 	if err != nil {
 		return err
 	}

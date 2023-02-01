@@ -100,17 +100,17 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
-	fw.diskUsage(event.path)
+	fw.diskUsage(event.userRoles, event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processCreate(event *fileEvent) error {
-	fw.diskUsage(event.path)
+	fw.diskUsage(event.userRoles, event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processDelete(event *fileEvent) error {
-	fw.diskUsage(event.path)
+	fw.diskUsage(event.userRoles, event.path)
 	return nil
 }
 
@@ -123,14 +123,14 @@ func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
 	return ok, err
 }
 
-func (fw *fileWatchSvc) diskUsage(path string) {
+func (fw *fileWatchSvc) diskUsage(userRoles, path string) {
 	usage, err := disk.duAllParent(path)
 	if err != nil {
 		logger.Error("DU_EXEC_ERROR", path, err)
 		return
 	}
 	for _, du := range usage {
-		err = fileCache.updateSize(du.path, du.size)
+		err = fileCache.updateSize(userRoles, du.path, du.size)
 		if err != nil {
 			logger.Error("DU_UPDATE_FILE_SIZE_ERROR", du.path, err)
 		} else {
