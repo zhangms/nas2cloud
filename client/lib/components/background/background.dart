@@ -13,7 +13,8 @@ void backgroundCallbackDispatcher() {
       print("Native called background task: $task");
       switch (task) {
         case autoUploadTaskName:
-          return await AutoUploader().executeAutoupload();
+          var enqueuedCount = await AutoUploader().executeAutoupload();
+          return enqueuedCount >= 0;
         default:
           return true;
       }
@@ -52,9 +53,21 @@ class BackgroundProcessor {
       autoUploadTaskName,
       initialDelay: Duration(seconds: 10),
       existingWorkPolicy: ExistingWorkPolicy.keep,
-      inputData: {"hello": "world"},
+      inputData: {"type": "periodic"},
       tag: autoUploadTaskName,
     );
     print("auto upload task registed");
+  }
+
+  Future<void> executeOnceAutoUploadTask() async {
+    await Workmanager().registerOneOffTask(
+      "${AppConfig.appId}_upload_${DateTime.now().millisecondsSinceEpoch}",
+      autoUploadTaskName,
+      initialDelay: Duration(seconds: 10),
+      existingWorkPolicy: ExistingWorkPolicy.keep,
+      inputData: {"type": "once"},
+      tag: autoUploadTaskName,
+    );
+    print("once auto upload task registed");
   }
 }

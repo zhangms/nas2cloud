@@ -64,25 +64,26 @@ class AutoUploader {
         .toList();
   }
 
-  Future<bool> executeAutoupload() async {
+  Future<int> executeAutoupload() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult != ConnectivityResult.wifi) {
       print("auto upload skip because not wifi");
-      return false;
+      return -1;
     }
     List<AutoUploadConfig> configs = await getConfigList();
+    var enqueuedCount = 0;
     for (var config in configs) {
       if (config.autoupload) {
-        await _executeAutoupload(config);
+        enqueuedCount += (await _executeAutoupload(config));
       }
     }
-    return false;
+    return enqueuedCount;
   }
 
-  Future<bool> _executeAutoupload(AutoUploadConfig config) async {
+  Future<int> _executeAutoupload(AutoUploadConfig config) async {
     var start = DateTime.now();
-
     var directory = Directory(config.path);
+    var enqueuedCount = 0;
     await for (final file in directory
         .list(recursive: true, followLinks: true)
         .map((file) => file.path)
@@ -96,11 +97,12 @@ class AutoUploader {
       );
       var enqueued = await FileUploader.platform.enqueue(entry);
       if (enqueued) {
+        enqueuedCount++;
         print("enqueue auto upload : ${entry.src}, ${entry.dest}");
       }
     }
     print(
         "enqueueUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}");
-    return true;
+    return enqueuedCount;
   }
 }

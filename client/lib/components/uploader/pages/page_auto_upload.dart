@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
@@ -58,10 +59,9 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
             child: Text("文件上传任务列表"),
             onTap: () => openUploadTaskPage(),
           ),
-          PopupMenuDivider(),
           PopupMenuItem(
-            child: Text("文件上传任务列表"),
-            onTap: () => openUploadTaskPage(),
+            child: Text("执行同步"),
+            onTap: () => executeUpload(),
           ),
         ];
       },
@@ -76,5 +76,9 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
         ),
       );
     }));
+  }
+
+  executeUpload() async {
+    await BackgroundProcessor().executeOnceAutoUploadTask();
   }
 }

@@ -50,6 +50,7 @@ class _FileListPageState extends State<FileListPage> {
   late int currentPage;
   late List<File> items;
   late String orderBy;
+  int fetchRetryCount = 0;
   bool fetchWhenBuild = true;
 
   @override
@@ -115,13 +116,14 @@ class _FileListPageState extends State<FileListPage> {
       orderBy: orderBy,
     );
     var resp = await Api().postFileWalk(request);
-    if (resp.message == "RetryLaterAgain") {
+    if (resp.message == "RetryLaterAgain" && fetchRetryCount++ < 5) {
       print("fetch RetryLaterAgain");
-      return await Future<FileWalkResponse>.delayed(Duration(milliseconds: 100),
+      return await Future<FileWalkResponse>.delayed(Duration(milliseconds: 200),
           () {
         return fetch(path, pageNo, pageSize, orderBy);
       });
     }
+    fetchRetryCount = 0;
     return resp;
   }
 
