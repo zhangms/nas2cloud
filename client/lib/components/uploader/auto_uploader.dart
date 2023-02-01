@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
@@ -64,14 +65,16 @@ class AutoUploader {
   }
 
   Future<bool> executeAutoupload() async {
-    if (await AppConfig.isUserLogged()) {
-      List<AutoUploadConfig> configs = await getConfigList();
-      for (var config in configs) {
-        if (config.autoupload) {
-          await _executeAutoupload(config);
-        }
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult != ConnectivityResult.wifi) {
+      print("auto upload skip because not wifi");
+      return false;
+    }
+    List<AutoUploadConfig> configs = await getConfigList();
+    for (var config in configs) {
+      if (config.autoupload) {
+        await _executeAutoupload(config);
       }
-      return true;
     }
     return false;
   }

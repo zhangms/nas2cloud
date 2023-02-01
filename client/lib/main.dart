@@ -3,6 +3,8 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/home.dart';
+import 'package:nas2cloud/pages/test.dart';
+import 'package:nas2cloud/themes/app_theme.dark.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:provider/provider.dart';
 
@@ -23,9 +25,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: "Nas2cloud",
         theme: AppLightTheme.themeData,
-        // darkTheme: AppDarkTheme.themeData,
-        home: HomePage(),
-        // home: TestPage(),
+        darkTheme: AppDarkTheme.themeData,
+        // home: HomePage(),
+        home: TestPage(),
         routes: <String, WidgetBuilder>{
           "/home": (_) => HomePage(),
         },

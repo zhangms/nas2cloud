@@ -35,13 +35,10 @@ class PathUploader extends FileUploader {
 
   @override
   Future<bool> enqueue(UploadEntry entry) async {
-    FlutterUploader().clearUploads();
+    _syncTaskState();
+
     var savedEntry = await UploadRepository.platform.saveIfNotExists(entry);
-    if (UploadStatus.match(savedEntry.status, UploadStatus.uploading)) {
-      return false;
-    }
-    if (UploadStatus.match(savedEntry.status, UploadStatus.waiting) &&
-        savedEntry.uploadTaskId != "none") {
+    if (savedEntry.uploadTaskId != "none") {
       return false;
     }
     var fileName = p.basename(savedEntry.src);
@@ -65,8 +62,8 @@ class PathUploader extends FileUploader {
       ));
       return false;
     }
-    var url =
-        await Api().getApiUrl(Api().joinPath("/api/store/upload", savedEntry.dest));
+    var url = await Api()
+        .getApiUrl(Api().joinPath("/api/store/upload", savedEntry.dest));
     var headers = await Api().httpHeaders();
     var taskId = await FlutterUploader().enqueue(
       MultipartFormDataUpload(
@@ -115,6 +112,17 @@ class PathUploader extends FileUploader {
     await FlutterUploader().clearUploads();
     await UploadRepository.platform.deleteByStatus(status.name);
   }
+
+  void _syncTaskState() async {
+    var uploader = FlutterUploader();
+    await for (var progress in uploader.progress) {
+      handleUploadTaskStatus(
+          taskId: progress.taskId,
+          status: progress.status,
+          progress: progress.progress);
+    }
+    await uploader.clearUploads();
+  }
 }
 
 @pragma('vm:entry-point')
@@ -127,57 +135,67 @@ void flutterUploaderProcessHandler() {
 }
 
 void flutterUploaderTaskProgress(UploadTaskProgress progress) async {
-  var process = progress.progress ?? 0;
-  if (!(process > 0 &&
-      process < 100 &&
-      progress.status.description == "Running")) {
-    return;
-  }
-  var entry = await UploadRepository.platform.findByTaskId(progress.taskId);
-  if (entry == null) {
-    return;
-  }
-  if (!UploadStatus.match(entry.status, UploadStatus.uploading)) {
-    var result = entry.copyWith(status: UploadStatus.uploading.name);
-    await UploadRepository.platform.update(result);
-  }
-  LocalNotification.platform.progress(
-      id: entry.id ?? 0,
-      title: p.basename(entry.src),
-      body: "",
-      progress: process);
+  await handleUploadTaskStatus(
+      taskId: progress.taskId,
+      status: progress.status,
+      progress: progress.progress);
 }
 
 void flutterUploaderTaskResponse(UploadTaskResponse result) async {
-  print("upload result : $result");
-  final String? message = result.response;
-  final String statusName = result.status?.description ?? "UNKNOWN";
-  if (statusName != "Completed" && statusName != "Failed") {
-    return;
-  }
-  var entry = await UploadRepository.platform.findByTaskId(result.taskId);
+  await handleUploadTaskStatus(taskId: result.taskId, status: result.status);
+}
+
+Future<void> handleUploadTaskStatus({
+  required String taskId,
+  UploadTaskStatus? status,
+  int? progress,
+  String? message,
+}) async {
+  var entry = await UploadRepository.platform.findByTaskId(taskId);
   if (entry == null) {
     return;
   }
+  var statusName = status?.description ?? "NONE";
   switch (statusName) {
+    case "Enqueued":
+    case "Paused":
+      var result = entry.copyWith(
+        status: UploadStatus.waiting.name,
+        message: "$statusName:$message",
+      );
+      await UploadRepository.platform.update(result);
+      LocalNotification.platform.clear(id: entry.id ?? 0);
+      break;
+    case "Running":
+      var result = entry.copyWith(
+        status: UploadStatus.uploading.name,
+        message: "$statusName:$message,$progress",
+      );
+      await UploadRepository.platform.update(result);
+      if (progress != null) {
+        LocalNotification.platform.progress(
+            id: entry.id ?? 0,
+            title: p.basename(entry.src),
+            body: "",
+            progress: progress);
+      }
+      break;
     case "Completed":
       var result = entry.copyWith(
         status: UploadStatus.successed.name,
         endUploadTime: DateTime.now().millisecondsSinceEpoch,
-        message: message,
+        message: "$statusName:$message,$progress",
       );
       await UploadRepository.platform.update(result);
       FileUploader.notifyListeners(result);
       LocalNotification.platform.clear(id: entry.id ?? 0);
       break;
     case "Failed":
-      if (UploadStatus.match(entry.status, UploadStatus.failed)) {
-        return;
-      }
+    case "Cancelled":
       var result = entry.copyWith(
         status: UploadStatus.failed.name,
         endUploadTime: DateTime.now().millisecondsSinceEpoch,
-        message: message,
+        message: "$statusName:$message,$progress",
       );
       await UploadRepository.platform.update(result);
       FileUploader.notifyListeners(result);
@@ -185,8 +203,6 @@ void flutterUploaderTaskResponse(UploadTaskResponse result) async {
           id: entry.id ?? 0,
           title: p.basename(entry.src),
           body: "上传失败：$message");
-      break;
-    default:
       break;
   }
 }

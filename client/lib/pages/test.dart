@@ -3,8 +3,8 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/login_response/data.dart' as userdata;
 import 'package:nas2cloud/api/dto/state_response/data.dart' as statdata;
 import 'package:nas2cloud/components/notification/notification.dart';
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 
@@ -16,14 +16,14 @@ class TestPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () => mock(), child: Text("MOCK")),
-            SizedBox(
-              height: 30,
-            ),
-            ElevatedButton(onPressed: () => clean(), child: Text("CLEAN")),
-            SizedBox(
-              height: 30,
-            ),
+            // ElevatedButton(onPressed: () => mock(), child: Text("MOCK")),
+            // SizedBox(
+            //   height: 30,
+            // ),
+            // ElevatedButton(onPressed: () => clean(), child: Text("CLEAN")),
+            // SizedBox(
+            //   height: 30,
+            // ),
             ElevatedButton(onPressed: () => exec(context), child: Text("EXEC")),
             SizedBox(
               height: 30,
@@ -60,11 +60,16 @@ class TestPage extends StatelessWidget {
   }
 
   exec(BuildContext context) async {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => FileUploadTaskPage(),
-      ),
-    );
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (context) => FileUploadTaskPage(),
+    //   ),
+    // );
+
+    // FlutterUploader().progress.forEach((element) {
+    //   print("uploader-->$element");
+    // });
+    AutoUploader().executeAutoupload();
   }
 
   saveAppState() async {

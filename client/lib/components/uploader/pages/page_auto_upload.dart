@@ -58,6 +58,11 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
             child: Text("文件上传任务列表"),
             onTap: () => openUploadTaskPage(),
           ),
+          PopupMenuDivider(),
+          PopupMenuItem(
+            child: Text("文件上传任务列表"),
+            onTap: () => openUploadTaskPage(),
+          ),
         ];
       },
     );

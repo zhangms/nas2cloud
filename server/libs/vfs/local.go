@@ -118,6 +118,7 @@ func (l *Local) Remove(file string) error {
 }
 
 func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
+	l.MkdirAll(filepath.Dir(file))
 	writer, err := os.OpenFile(l.AbsLocal(file), os.O_CREATE|os.O_WRONLY, fs.ModePerm)
 	if err != nil {
 		return 0, err
