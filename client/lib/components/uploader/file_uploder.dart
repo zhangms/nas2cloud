@@ -62,7 +62,7 @@ abstract class FileUploader {
         message: UploadStatus.waiting.name);
   }
 
-  Future<void> clearAll();
+  Future<void> cancelAndClearAll();
 
   static List<Function(UploadEntry entry)> _listeners = [];
 
@@ -81,4 +81,6 @@ abstract class FileUploader {
       listener(entry);
     }
   }
+
+  Future<void> clearTask(UploadStatus status);
 }

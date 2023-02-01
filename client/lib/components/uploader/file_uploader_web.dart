@@ -1,5 +1,6 @@
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 
 class WebUploader extends FileUploader {
   @override
@@ -37,8 +38,14 @@ class WebUploader extends FileUploader {
   }
 
   @override
-  Future<void> clearAll() async {
+  Future<void> cancelAndClearAll() async {
     // TODO: implement clearAll
+  }
+
+  @override
+  Future<void> clearTask(UploadStatus status) {
+    // TODO: implement clearTask
+    throw UnimplementedError();
   }
 
   // static const String _keyPrefix = "app.fileupload.";

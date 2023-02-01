@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/dto/page_data.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/widgets.dart';
+import 'package:nas2cloud/utils/data_size.dart';
+import 'package:path/path.dart' as p;
 
 class FileUploadTaskPage extends StatefulWidget {
   @override
@@ -36,6 +39,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
   @override
   void initState() {
     super.initState();
+    FileUploader.addListener(onUploadStatusChange);
     _tabController = TabController(
       initialIndex: 0,
       length: _tabs.length,
@@ -45,8 +49,13 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
 
   @override
   void dispose() {
+    FileUploader.removeListener(onUploadStatusChange);
     _tabController.dispose();
     super.dispose();
+  }
+
+  onUploadStatusChange(UploadEntry entry) {
+    setState(() {});
   }
 
   @override
@@ -59,24 +68,48 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
 
   buildAppBar() {
     return AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
         ),
-        title: Text("文件上传任务"),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            for (var tab in _tabs)
-              Tab(
-                text: tab["name"]!,
-              )
-          ],
-        ));
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      title: Text("文件上传任务"),
+      bottom: TabBar(
+        controller: _tabController,
+        tabs: [
+          for (var tab in _tabs)
+            Tab(
+              text: tab["name"]!,
+            )
+        ],
+      ),
+      actions: [buildMoreMenu()],
+    );
+  }
+
+  buildMoreMenu() {
+    return PopupMenuButton<Text>(
+      icon: Icon(Icons.more_horiz),
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            child: Text("清空成功任务"),
+            onTap: () => clearTask(UploadStatus.successed),
+          ),
+          PopupMenuItem(
+            child: Text("清空失败任务"),
+            onTap: () => clearTask(UploadStatus.failed),
+          ),
+          PopupMenuItem(
+            child: Text("取消并清空所有任务"),
+            onTap: () => cancelAll(),
+          ),
+        ];
+      },
+    );
   }
 
   buildBody() {
@@ -108,161 +141,58 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
               }));
         });
   }
+
+  buildItemView(int index, UploadEntry data) {
+    return ListTile(
+      leading: buildLeadingIcon(data),
+      title: Text(p.basename(data.src)),
+      subtitle: Text(summary(data)),
+    );
+  }
+
+  String summary(UploadEntry data) {
+    var uploadTime = "-";
+    if (data.endUploadTime > 0) {
+      uploadTime =
+          DateTime.fromMillisecondsSinceEpoch(data.endUploadTime).toString();
+    } else if (data.beginUploadTime > 0) {
+      uploadTime =
+          DateTime.fromMillisecondsSinceEpoch(data.beginUploadTime).toString();
+    } else if (data.createTime > 0) {
+      uploadTime =
+          DateTime.fromMillisecondsSinceEpoch(data.createTime).toString();
+    }
+    return "$uploadTime ${readableDataSize(data.size.toDouble())}";
+  }
+
+  buildLeadingIcon(UploadEntry entry) {
+    var uploadState = UploadStatus.valueOf(entry.status);
+    if (uploadState == null) {
+      return Icon(Icons.question_mark);
+    }
+    switch (uploadState) {
+      case UploadStatus.waiting:
+        return Icon(Icons.pending);
+      case UploadStatus.uploading:
+        return AppWidgets.getRepeatRotation(Icon(Icons.autorenew), 1000);
+      case UploadStatus.successed:
+        return Icon(Icons.done);
+      case UploadStatus.failed:
+        return Tooltip(
+          message: entry.message,
+          child: Icon(Icons.error_outline),
+        );
+      default:
+    }
+  }
+
+  clearTask(UploadStatus status) {
+    FileUploader.platform.clearTask(status);
+    setState(() {});
+  }
+
+  cancelAll() {
+    FileUploader.platform.cancelAndClearAll();
+    setState(() {});
+  }
 }
-
-buildItemView(int index, UploadEntry data) {
-  return ListTile(
-    leading: buildLeadingIcon(),
-    title: Text("HELLO $index"),
-    subtitle: Text("2020-02-02:02:20:20, 99.9MB"),
-  );
-}
-
-buildLeadingIcon() {
-  return AppWidgets.getRepeatRotation(Icon(Icons.autorenew), 1000);
-}
-
-// class _FileUploadTaskPageState extends State<FileUploadTaskPage>
-//     with SingleTickerProviderStateMixin {
-//   late final AnimationController _repeatAniController;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     FileUploader.get().addListener(onUploadChange);
-//     _repeatAniController = AnimationController(vsync: this)
-//       ..drive(Tween(begin: 0, end: 1))
-//       ..duration = Duration(milliseconds: 1000)
-//       ..repeat();
-//   }
-
-//   @override
-//   void dispose() {
-//     FileUploader.get().removeListener(onUploadChange);
-//     _repeatAniController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: buildAppBar(),
-//       body: buildUpladList(),
-//     );
-//   }
-
-//   buildAppBar() {
-//     return AppBar(
-//       leading: IconButton(
-//         icon: Icon(
-//           Icons.arrow_back,
-//         ),
-//         onPressed: () {
-//           Navigator.of(context).pop();
-//         },
-//       ),
-//       title: Text("文件上传任务"),
-//       actions: [buildMoreMenu()],
-//     );
-//   }
-
-//   buildMoreMenu() {
-//     return PopupMenuButton<Text>(
-//       icon: Icon(Icons.more_horiz),
-//       itemBuilder: (context) {
-//         return [
-//           PopupMenuItem(
-//             child: Text("清空已完成任务"),
-//             onTap: () => clearTask([FileUploadStatus.success]),
-//           ),
-//           PopupMenuItem(
-//             child: Text("清空出错任务"),
-//             onTap: () => clearTask([FileUploadStatus.failed]),
-//           ),
-//           PopupMenuItem(
-//             child: Text("清空所有任务"),
-//             onTap: () => clearTask([
-//               FileUploadStatus.success,
-//               FileUploadStatus.failed,
-//               FileUploadStatus.waiting
-//             ]),
-//           ),
-//         ];
-//       },
-//     );
-//   }
-
-//   clearTask(List<FileUploadStatus> filters) {
-//     var uploader = FileUploader.get();
-//     uploader.clearRecordByState(filters);
-//     setState(() {});
-//   }
-
-//   buildUpladList() {
-//     var uploader = FileUploader.get();
-//     int total = uploader.getCount();
-
-//     if (total <= 0) {
-//       return Center(
-//         child: Text("无任务"),
-//       );
-//     }
-//     return ListView.builder(
-//         itemCount: total >= 0 ? total : 0,
-//         itemBuilder: ((context, index) {
-//           return buildItemView(index);
-//         }));
-//   }
-
-//   buildItemView(int index) {
-//     var uploader = FileUploader.get();
-//     FileUploadRecord? record = uploader.getRecord(index);
-//     if (record == null) {
-//       return ListTile(
-//         leading: Icon(Icons.question_mark),
-//         title: Text(""),
-//         subtitle: Text(""),
-//       );
-//     }
-//     var size = readableDataSize(record.size.toDouble());
-//     var time = formDateTime(
-//         DateTime.fromMillisecondsSinceEpoch(record.beginUploadTime));
-//     return ListTile(
-//       leading: buildLeadingIcon(record.status, record.message),
-//       title: Text(record.fileName),
-//       subtitle: Text("$time $size"),
-//     );
-//   }
-
-//   void onUploadChange(FileUploadRecord record) {
-//     setState(() {});
-//   }
-
-//   buildLeadingIcon(String stateName, String message) {
-//     var status = FileUploadStatus.valueOf(stateName);
-//     if (status == null) {
-//       return Icon(
-//         Icons.question_mark,
-//       );
-//     }
-//     switch (status) {
-//       case FileUploadStatus.failed:
-//         return Tooltip(
-//           message: message,
-//           child: Icon(
-//             Icons.error_outline,
-//           ),
-//         );
-//       case FileUploadStatus.waiting:
-//       case FileUploadStatus.uploading:
-//         return RotationTransition(
-//           turns: _repeatAniController,
-//           child: Icon(Icons.autorenew),
-//         );
-//       case FileUploadStatus.success:
-//         return Icon(
-//           Icons.done,
-//         );
-//     }
-//   }
-// }

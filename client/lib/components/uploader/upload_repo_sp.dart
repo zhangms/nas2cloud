@@ -34,8 +34,13 @@ class UploadRepoSP extends UploadRepository {
   }
 
   @override
- Future<PageData<UploadEntry>> findByStatus(
+  Future<PageData<UploadEntry>> findByStatus(
       {required String status, required int page, required int pageSize}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int> deleteByStatus(String status) {
     throw UnimplementedError();
   }
 }

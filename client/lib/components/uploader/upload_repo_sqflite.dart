@@ -155,4 +155,11 @@ class UploadRepoSqflite extends UploadRepository {
         .toList();
     return PageData<UploadEntry>(page, total, list);
   }
+
+  @override
+  Future<int> deleteByStatus(String status) async {
+    var database = await _open();
+    return await database
+        .delete("t_upload_entry", where: "status=?", whereArgs: [status]);
+  }
 }

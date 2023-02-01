@@ -65,7 +65,6 @@ class PathUploader extends FileUploader {
       ));
       return false;
     }
-
     var url =
         await Api.getApiUrl(Api.joinPath("/api/store/upload", savedEntry.dest));
     var headers = await Api.httpHeaders();
@@ -80,9 +79,9 @@ class PathUploader extends FileUploader {
       ),
     );
     UploadRepository.platform.update(savedEntry.copyWith(
-      status: UploadStatus.uploading.name,
-      message: "remoteExists",
-      beginUploadTime: DateTime.now().millisecondsSinceEpoch,
+      status: UploadStatus.waiting.name,
+      message: "enqueued",
+      beginUploadTime: 0,
       endUploadTime: 0,
       uploadTaskId: taskId,
     ));
@@ -105,9 +104,16 @@ class PathUploader extends FileUploader {
   }
 
   @override
-  Future<void> clearAll() async {
+  Future<void> cancelAndClearAll() async {
     await FlutterUploader().cancelAll();
     await FlutterUploader().clearUploads();
+    await UploadRepository.platform.clearAll();
+  }
+
+  @override
+  Future<void> clearTask(UploadStatus status) async {
+    await FlutterUploader().clearUploads();
+    await UploadRepository.platform.deleteByStatus(status.name);
   }
 }
 
@@ -120,63 +126,67 @@ void flutterUploaderProcessHandler() {
   uploader.progress.listen(flutterUploaderTaskProgress);
 }
 
-void flutterUploaderTaskProgress(UploadTaskProgress progress) {
+void flutterUploaderTaskProgress(UploadTaskProgress progress) async {
   var process = progress.progress ?? 0;
-  if (process > 0 &&
+  if (!(process > 0 &&
       process < 100 &&
-      progress.status.description == "Running") {
-    UploadRepository.platform.findByTaskId(progress.taskId).then((value) {
-      if (value != null) {
-        LocalNotification.platform.progress(
-            id: value.id ?? 0,
-            title: p.basename(value.src),
-            body: "",
-            progress: process);
-      }
-    });
+      progress.status.description == "Running")) {
+    return;
   }
+  var entry = await UploadRepository.platform.findByTaskId(progress.taskId);
+  if (entry == null) {
+    return;
+  }
+  if (!UploadStatus.match(entry.status, UploadStatus.uploading)) {
+    var result = entry.copyWith(status: UploadStatus.uploading.name);
+    await UploadRepository.platform.update(result);
+  }
+  LocalNotification.platform.progress(
+      id: entry.id ?? 0,
+      title: p.basename(entry.src),
+      body: "",
+      progress: process);
 }
 
-void flutterUploaderTaskResponse(UploadTaskResponse result) {
+void flutterUploaderTaskResponse(UploadTaskResponse result) async {
   print("upload result : $result");
   final String? message = result.response;
   final String statusName = result.status?.description ?? "UNKNOWN";
   if (statusName != "Completed" && statusName != "Failed") {
     return;
   }
-  UploadRepository.platform.findByTaskId(result.taskId).then((entry) {
-    if (entry == null) {
-      return;
-    }
-    switch (statusName) {
-      case "Completed":
-        var result = entry.copyWith(
-          status: UploadStatus.successed.name,
-          endUploadTime: DateTime.now().millisecondsSinceEpoch,
-          message: message,
-        );
-        UploadRepository.platform.update(result);
-        FileUploader.notifyListeners(result);
-        LocalNotification.platform.clear(id: entry.id ?? 0);
-        break;
-      case "Failed":
-        if (UploadStatus.match(entry.status, UploadStatus.failed)) {
-          return;
-        }
-        var result = entry.copyWith(
-          status: UploadStatus.failed.name,
-          endUploadTime: DateTime.now().millisecondsSinceEpoch,
-          message: message,
-        );
-        FileUploader.notifyListeners(result);
-        UploadRepository.platform.update(result);
-        LocalNotification.platform.send(
-            id: entry.id ?? 0,
-            title: p.basename(entry.src),
-            body: "上传失败：$message");
-        break;
-      default:
-        break;
-    }
-  });
+  var entry = await UploadRepository.platform.findByTaskId(result.taskId);
+  if (entry == null) {
+    return;
+  }
+  switch (statusName) {
+    case "Completed":
+      var result = entry.copyWith(
+        status: UploadStatus.successed.name,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+        message: message,
+      );
+      await UploadRepository.platform.update(result);
+      FileUploader.notifyListeners(result);
+      LocalNotification.platform.clear(id: entry.id ?? 0);
+      break;
+    case "Failed":
+      if (UploadStatus.match(entry.status, UploadStatus.failed)) {
+        return;
+      }
+      var result = entry.copyWith(
+        status: UploadStatus.failed.name,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+        message: message,
+      );
+      await UploadRepository.platform.update(result);
+      FileUploader.notifyListeners(result);
+      LocalNotification.platform.send(
+          id: entry.id ?? 0,
+          title: p.basename(entry.src),
+          body: "上传失败：$message");
+      break;
+    default:
+      break;
+  }
 }

@@ -35,4 +35,6 @@ abstract class UploadRepository {
 
   Future<PageData<UploadEntry>> findByStatus(
       {required String status, required int page, required int pageSize});
+
+  Future<int> deleteByStatus(String status);
 }
