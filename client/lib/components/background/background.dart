@@ -60,12 +60,14 @@ class BackgroundProcessor {
   }
 
   Future<void> executeOnceAutoUploadTask() async {
+    var n = DateTime.now();
+    var key = "${n.year}-${n.month}-${n.day} ${n.hour}:${n.minute}";
     await Workmanager().registerOneOffTask(
-      "${AppConfig.appId}_upload_${DateTime.now().millisecondsSinceEpoch}",
+      "${AppConfig.appId}_upload_$key",
       autoUploadTaskName,
       initialDelay: Duration(seconds: 10),
       existingWorkPolicy: ExistingWorkPolicy.keep,
-      inputData: {"type": "once"},
+      inputData: {"type": "once:$key"},
       tag: autoUploadTaskName,
     );
     print("once auto upload task registed");
