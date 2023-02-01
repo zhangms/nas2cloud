@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:nas2cloud/api/dto/page_data.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo_sp.dart';
 import 'package:nas2cloud/components/uploader/upload_repo_sqflite.dart';
@@ -31,4 +32,7 @@ abstract class UploadRepository {
   Future<int> clearAll();
 
   Future<int> getTotal();
+
+  Future<PageData<UploadEntry>> findByStatus(
+      {required String status, required int page, required int pageSize});
 }

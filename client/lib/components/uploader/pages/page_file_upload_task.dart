@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/dto/page_data.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 class FileUploadTaskPage extends StatefulWidget {
@@ -6,7 +10,45 @@ class FileUploadTaskPage extends StatefulWidget {
   State<FileUploadTaskPage> createState() => _FileUploadTaskPageState();
 }
 
-class _FileUploadTaskPageState extends State<FileUploadTaskPage> {
+final _tabs = [
+  {
+    "name": "上传中",
+    "state": UploadStatus.uploading.name,
+  },
+  {
+    "name": "等待上传",
+    "state": UploadStatus.waiting.name,
+  },
+  {
+    "name": "上传成功",
+    "state": UploadStatus.successed.name,
+  },
+  {
+    "name": "上传失败",
+    "state": UploadStatus.failed.name,
+  }
+];
+
+class _FileUploadTaskPageState extends State<FileUploadTaskPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      initialIndex: 0,
+      length: _tabs.length,
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,33 +59,63 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage> {
 
   buildAppBar() {
     return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-      title: Text("文件上传任务"),
-    );
+        title: Text("文件上传任务"),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            for (var tab in _tabs)
+              Tab(
+                text: tab["name"]!,
+              )
+          ],
+        ));
   }
 
   buildBody() {
-    return ListView.builder(
-        itemCount: 2,
-        itemBuilder: ((context, index) {
-          return buildItemView(index);
-        }));
-  }
-
-  buildItemView(int index) {
-    return ListTile(
-      leading: buildLeadingIcon(),
-      title: Text("HELLO $index"),
-      subtitle: Text("2020-02-02:02:20:20, 99.9MB"),
+    return TabBarView(
+      controller: _tabController,
+      children: [for (var tab in _tabs) buildUploadList(tab["state"]!)],
     );
   }
+
+  Widget buildUploadList(String taskState) {
+    return FutureBuilder<PageData<UploadEntry>>(
+        future: UploadRepository.platform.findByStatus(
+          status: taskState,
+          page: 0,
+          pageSize: 100,
+        ),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return AppWidgets.getPageLoadingView();
+          }
+          var page = snapshot.data!;
+          if (page.data.isEmpty) {
+            return AppWidgets.getCenterTextView("无任务");
+          }
+          return ListView.builder(
+              itemCount: page.total,
+              itemBuilder: ((context, index) {
+                return buildItemView(index, page.data[index]);
+              }));
+        });
+  }
+}
+
+buildItemView(int index, UploadEntry data) {
+  return ListTile(
+    leading: buildLeadingIcon(),
+    title: Text("HELLO $index"),
+    subtitle: Text("2020-02-02:02:20:20, 99.9MB"),
+  );
 }
 
 buildLeadingIcon() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
+import 'package:nas2cloud/api/dto/page_data.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
@@ -133,5 +134,25 @@ class UploadRepoSqflite extends UploadRepository {
     var ret = await database.rawQuery("select count(1) from t_upload_entry");
     var count = Sqflite.firstIntValue(ret) ?? 0;
     return count;
+  }
+
+  @override
+  Future<PageData<UploadEntry>> findByStatus(
+      {required String status,
+      required int page,
+      required int pageSize}) async {
+    var database = await _open();
+    var total = Sqflite.firstIntValue(await database.rawQuery(
+            "select count(1) from t_upload_entry where status=?", [status])) ??
+        0;
+    var resultSet = await database.query("t_upload_entry",
+        where: "status=?",
+        whereArgs: [status],
+        offset: page * pageSize,
+        limit: pageSize);
+    var list = await Stream.fromIterable(resultSet)
+        .map((map) => UploadEntry.fromMap(map))
+        .toList();
+    return PageData<UploadEntry>(page, total, list);
   }
 }
