@@ -45,6 +45,9 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
       length: _tabs.length,
       vsync: this,
     );
+    _tabController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
