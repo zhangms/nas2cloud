@@ -56,7 +56,6 @@ class HomePage extends StatelessWidget {
       return errorPage(resp.message);
     }
     if (resp.data?.userName?.isEmpty ?? true) {
-      AppConfig.clearUserLogin();
       return LoginPage();
     }
     return FileHomePage();

@@ -60,7 +60,7 @@ class Spu {
 
   Future<List<String>?> getStringList(String key) async {
     var prefs = await _get();
-    return prefs.getStringList(key);
+    return prefs.getStringList(_wrap(key));
   }
 
   Future<bool> setString(String key, String value) async {
@@ -70,7 +70,7 @@ class Spu {
 
   Future<bool> setStringList(String key, List<String> value) async {
     var prefs = await _get();
-    return prefs.setStringList(key, value);
+    return prefs.setStringList(_wrap(key), value);
   }
 
   Future<bool> setInt(String key, int value) async {

@@ -63,9 +63,9 @@ class ApiReal extends Api {
   @override
   Future<Map<String, String>> httpHeaders() async {
     var header = {..._defaultHttpHeaders};
-    if (await AppConfig.isUserLogged()) {
-      var data = await AppConfig.getUserLoginInfo();
-      header["X-AUTH-TOKEN"] = "${data!.username}-${data.token}";
+    var loginInfo = await AppConfig.getUserLoginInfo();
+    if (loginInfo != null) {
+      header["X-AUTH-TOKEN"] = "${loginInfo.username}-${loginInfo.token}";
     }
     return header;
   }
@@ -102,10 +102,10 @@ class ApiReal extends Api {
   @override
   Future<StateResponse> getHostStateIfConfiged() async {
     if (!await AppConfig.isHostAddressConfiged()) {
-      return Future.value(StateResponse.fromMap({
+      return StateResponse.fromMap({
         "success": true,
         "message": "HOST_NOT_CONFIGED",
-      }));
+      });
     }
     var state = await getHostState(await AppConfig.getHostAddress());
     if (state.success) {
@@ -118,7 +118,8 @@ class ApiReal extends Api {
   Future<StateResponse> getHostState(String address) async {
     try {
       var url = Uri.http(address, "api/state");
-      Response resp = await http.get(url, headers: await httpHeaders());
+      var headers = await httpHeaders();
+      Response resp = await http.get(url, headers: headers);
       return StateResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
@@ -131,8 +132,9 @@ class ApiReal extends Api {
       {required String username, required String password}) async {
     try {
       var url = Uri.http(await AppConfig.getHostAddress(), "/api/user/login");
+      var headers = await httpHeaders();
       Response resp = await http.post(url,
-          headers: _defaultHttpHeaders,
+          headers: headers,
           body: jsonEncode({
             "username": username,
             "password": password,

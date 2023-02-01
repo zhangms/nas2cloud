@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
       setErrorMsg(response.message ?? "Error");
       return;
     }
-    appState.login(response.data!);
+    await appState.login(response.data!);
   }
 
   Widget buildLoginButton() {

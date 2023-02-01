@@ -22,8 +22,8 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await AppConfig.clearUserLogin();
     await FileUploader.platform.cancelAndClearAll();
+    await AppConfig.clearUserLogin();
     notifyListeners();
   }
 }
