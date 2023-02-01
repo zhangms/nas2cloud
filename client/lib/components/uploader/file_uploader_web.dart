@@ -37,7 +37,7 @@ class WebUploader extends FileUploader {
   }
 
   @override
-  Future<void> cancelAll() async {
+  Future<void> clearAll() async {
     // TODO: implement clearAll
   }
 

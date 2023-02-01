@@ -26,4 +26,9 @@ class UploadRepoSP extends UploadRepository {
   Future<int> clearAll() {
     throw UnimplementedError();
   }
+  
+  @override
+  Future<int> getTotal() {
+    throw UnimplementedError();
+  }
 }

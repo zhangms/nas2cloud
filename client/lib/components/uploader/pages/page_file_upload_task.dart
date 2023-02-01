@@ -1,12 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 
-class FileUploadTaskPage extends StatelessWidget {
+class FileUploadTaskPage extends StatefulWidget {
+  @override
+  State<FileUploadTaskPage> createState() => _FileUploadTaskPageState();
+}
+
+class _FileUploadTaskPageState extends State<FileUploadTaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("uploading"),
+      appBar: buildAppBar(),
+      body: buildBody(),
     );
   }
+
+  buildAppBar() {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back,
+        ),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      title: Text("文件上传任务"),
+    );
+  }
+
+  buildBody() {
+    return ListView.builder(
+        itemCount: 2,
+        itemBuilder: ((context, index) {
+          return buildItemView(index);
+        }));
+  }
+
+  buildItemView(int index) {
+    return ListTile(
+      leading: buildLeadingIcon(),
+      title: Text("HELLO $index"),
+      subtitle: Text("2020-02-02:02:20:20, 99.9MB"),
+    );
+  }
+}
+
+buildLeadingIcon() {
+  return AppWidgets.getRepeatRotation(Icon(Icons.autorenew), 1000);
 }
 
 // class _FileUploadTaskPageState extends State<FileUploadTaskPage>

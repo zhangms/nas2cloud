@@ -105,7 +105,7 @@ class PathUploader extends FileUploader {
   }
 
   @override
-  Future<void> cancelAll() async {
+  Future<void> clearAll() async {
     await FlutterUploader().cancelAll();
     await FlutterUploader().clearUploads();
   }
