@@ -30,7 +30,7 @@ class _TextReaderState extends State<TextReader> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<RangeData>(
-        future: Api.rangeGetStatic(widget.url, start, end),
+        future: Api().rangeGetStatic(widget.url, start, end),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             mergeContent(snapshot.data);

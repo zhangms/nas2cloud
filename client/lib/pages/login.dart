@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
     _loginFormKey.currentState!.save();
     var uname = username.text.trim();
     var pwd = password.text;
-    var response = await Api.postLogin(username: uname, password: pwd);
+    var response = await Api().postLogin(username: uname, password: pwd);
     if (!response.success) {
       setErrorMsg(response.message ?? "Error");
       return;

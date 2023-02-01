@@ -46,7 +46,7 @@ class PathUploader extends FileUploader {
     }
     var fileName = p.basename(savedEntry.src);
     Result checkResult =
-        await Api.getFileExists(Api.joinPath(savedEntry.dest, fileName));
+        await Api().getFileExists(Api().joinPath(savedEntry.dest, fileName));
     if (!checkResult.success) {
       UploadRepository.platform.update(savedEntry.copyWith(
         status: UploadStatus.failed.name,
@@ -66,8 +66,8 @@ class PathUploader extends FileUploader {
       return false;
     }
     var url =
-        await Api.getApiUrl(Api.joinPath("/api/store/upload", savedEntry.dest));
-    var headers = await Api.httpHeaders();
+        await Api().getApiUrl(Api().joinPath("/api/store/upload", savedEntry.dest));
+    var headers = await Api().httpHeaders();
     var taskId = await FlutterUploader().enqueue(
       MultipartFormDataUpload(
         url: url,

@@ -16,7 +16,7 @@ class TestPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () => reset(), child: Text("RESET")),
+            ElevatedButton(onPressed: () => mock(), child: Text("MOCK")),
             SizedBox(
               height: 30,
             ),
@@ -27,7 +27,7 @@ class TestPage extends StatelessWidget {
     );
   }
 
-  reset() async {
+  mock() async {
     await saveAppState();
     LocalNotification.platform.send(id: 1, title: "Hello", body: "world");
     await initUploadData();
@@ -70,6 +70,7 @@ class TestPage extends StatelessWidget {
     ));
     var hoststate = await AppConfig.getHostState();
     print("hoststate------>$hoststate");
+    AppConfig.useMockApi(true);
   }
 
   initUploadData() async {

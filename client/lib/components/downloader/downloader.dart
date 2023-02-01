@@ -12,10 +12,10 @@ class Downloader {
 
   Future<void> download(String path) async {
     if (kIsWeb) {
-      var url = await Api.signUrl(path);
+      var url = await Api().signUrl(path);
       launchUrl(Uri.parse(url));
     } else {
-      var headers = await Api.httpHeaders();
+      var headers = await Api().httpHeaders();
       FlutterDownloader.enqueue(
         url: path,
         headers: headers,

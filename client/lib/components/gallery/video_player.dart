@@ -56,7 +56,7 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
   }
 
   Future<String> getVideoSignUrl() async {
-    return await Api.signUrl(widget.videoUrl);
+    return await Api().signUrl(widget.videoUrl);
   }
 
   VideoPlayerController _getController(String url) {

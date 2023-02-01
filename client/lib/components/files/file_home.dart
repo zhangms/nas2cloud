@@ -100,7 +100,7 @@ class _FileHomePageState extends State<FileHomePage> {
   Future<FileWalkResponse> walk() async {
     FileWalkRequest request = FileWalkRequest(
         path: "/", pageNo: 0, pageSize: _pageSize, orderBy: "fileName");
-    return await Api.postFileWalk(request);
+    return await Api().postFileWalk(request);
   }
 
   Widget? buildItemIcon(File item) {
@@ -208,11 +208,11 @@ class _FileHomePageState extends State<FileHomePage> {
     var state = await AppConfig.getHostState();
     var appName = state?.appName;
     var userName = state?.userName;
-    var httpHeaders = await Api.httpHeaders();
+    var httpHeaders = await Api().httpHeaders();
 
     var userAvatar = state?.userAvatar;
     if (userAvatar != null) {
-      userAvatar = await Api.getStaticFileUrl(userAvatar);
+      userAvatar = await Api().getStaticFileUrl(userAvatar);
     }
     return _Drawer(
         userAvatar: userAvatar,

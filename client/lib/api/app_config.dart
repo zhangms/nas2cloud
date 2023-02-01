@@ -1,5 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/dto/login_response/data.dart' as logindto;
 import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
+import 'package:nas2cloud/components/background/background.dart';
+import 'package:nas2cloud/components/downloader/downloader.dart';
+import 'package:nas2cloud/components/notification/notification.dart';
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
 class AppConfig {
@@ -7,6 +13,32 @@ class AppConfig {
   static const _hostAddressKey = "app.host.address";
   static const _hostStateKey = "app.host.state";
   static const _loginTokenKey = "app.login.token";
+  static const _useMockApiKey = "app.usemockapi";
+  static bool _useMockApi = false;
+
+  static Future<void> initialize() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Spu().initSharedPreferences();
+    await BackgroundProcessor().initialize();
+    await LocalNotification.platform.initialize();
+    await Downloader.platform.initialize();
+    await FileUploader.platform.initialize();
+    await AutoUploader().initialize();
+    _useMockApi = (await Spu().getBool(_useMockApiKey)) ?? false;
+  }
+
+  static Future<void> useMockApi(bool mock) async {
+    _useMockApi = mock;
+    if (mock) {
+      await Spu().setBool(_useMockApiKey, mock);
+    } else {
+      await Spu().remove(_useMockApiKey);
+    }
+  }
+
+  static bool isUseMockApi() {
+    return _useMockApi;
+  }
 
   static Future<bool> saveHostAddress(String address) async {
     return await Spu().setString(_hostAddressKey, address);

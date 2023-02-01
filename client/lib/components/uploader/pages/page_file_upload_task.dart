@@ -138,18 +138,18 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
             return AppWidgets.getCenterTextView("无任务");
           }
           return ListView.builder(
-              itemCount: page.total,
+              itemCount: page.data.length,
               itemBuilder: ((context, index) {
-                return buildItemView(index, page.data[index]);
+                return buildItemView(page.data[index]);
               }));
         });
   }
 
-  buildItemView(int index, UploadEntry data) {
+  buildItemView(UploadEntry entry) {
     return ListTile(
-      leading: buildLeadingIcon(data),
-      title: Text(p.basename(data.src)),
-      subtitle: Text(summary(data)),
+      leading: buildLeadingIcon(entry),
+      title: Text(p.basename(entry.src)),
+      subtitle: Text(summary(entry)),
     );
   }
 
@@ -189,13 +189,13 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
     }
   }
 
-  clearTask(UploadStatus status) {
-    FileUploader.platform.clearTask(status);
+  clearTask(UploadStatus status) async {
+    await FileUploader.platform.clearTask(status);
     setState(() {});
   }
 
-  cancelAll() {
-    FileUploader.platform.cancelAndClearAll();
+  cancelAll() async {
+    await FileUploader.platform.cancelAndClearAll();
     setState(() {});
   }
 }

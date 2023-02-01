@@ -76,8 +76,8 @@ class FileWidgets {
   }
 
   static Future<Widget> _buildImage(String thumbnail) async {
-    var url = await Api.getStaticFileUrl(thumbnail);
-    var headers = await Api.httpHeaders();
+    var url = await Api().getStaticFileUrl(thumbnail);
+    var headers = await Api().httpHeaders();
     return Image.network(
       url,
       headers: headers,

@@ -114,7 +114,7 @@ class _FileListPageState extends State<FileListPage> {
       pageSize: pageSize,
       orderBy: orderBy,
     );
-    var resp = await Api.postFileWalk(request);
+    var resp = await Api().postFileWalk(request);
     if (resp.message == "RetryLaterAgain") {
       print("fetch RetryLaterAgain");
       return await Future<FileWalkResponse>.delayed(Duration(milliseconds: 100),
@@ -338,7 +338,7 @@ class _FileListPageState extends State<FileListPage> {
     if (floderName.trim().isEmpty) {
       return;
     }
-    Result result = await Api.postCreateFolder(widget.path, floderName);
+    Result result = await Api().postCreateFolder(widget.path, floderName);
     if (!result.success) {
       showMessage(result.message!);
       return;
@@ -348,7 +348,7 @@ class _FileListPageState extends State<FileListPage> {
 
   Future<void> deleteFile(String path) async {
     print("delete $path");
-    Result result = await Api.postDeleteFile(path);
+    Result result = await Api().postDeleteFile(path);
     if (!result.success) {
       showMessage(result.message!);
       return;
@@ -365,7 +365,7 @@ class _FileListPageState extends State<FileListPage> {
     if (item.type == "DIR") {
       return;
     }
-    var path = await Api.getStaticFileUrl(item.path);
+    var path = await Api().getStaticFileUrl(item.path);
     Downloader.platform.download(path);
     showMessage("已开始下载, 请从状态栏查看下载进度");
   }
@@ -522,10 +522,10 @@ class _FileListPageState extends State<FileListPage> {
           name = name.substring(0, index);
         }
         if (FileHelper.isMusic(it.ext)) {
-          var audioUrl = await Api.getStaticFileUrl(it.path);
-          var httpHeaders = await Api.httpHeaders();
+          var audioUrl = await Api().getStaticFileUrl(it.path);
+          var httpHeaders = await Api().httpHeaders();
           var audioThumb =
-              await Api.signUrl(await Api.getStaticFileUrl(it.thumbnail!));
+              await Api().signUrl(await Api().getStaticFileUrl(it.thumbnail!));
           playlist.add(Audio.network(
             audioUrl,
             headers: httpHeaders,

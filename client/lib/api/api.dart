@@ -1,10 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
+import 'package:nas2cloud/api/api_mock.dart';
+import 'package:nas2cloud/api/api_real.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
@@ -12,7 +8,6 @@ import 'package:nas2cloud/api/dto/login_response/login_response.dart';
 import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:path/path.dart' as p;
-import 'package:pointycastle/asymmetric/api.dart';
 
 bool get isInDebugMode {
   bool inDebugMode = false;
@@ -20,232 +15,58 @@ bool get isInDebugMode {
   return inDebugMode;
 }
 
-class Api {
-  static const _exception = {"success": false, "message": "服务器不可用"};
+abstract class Api {
+  static Api _real = ApiReal();
+  static Api _mock = ApiMock();
 
-  static final RSAKeyParser _rsaKeyParser = RSAKeyParser();
-
-  static String? _rsaPublicKeyContent;
-
-  static Encrypter? _encrypter;
-
-  static var _defaultHttpHeaders = {
-    "X-DEVICE": kIsWeb
-        ? "flutter-app-web"
-        : "${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version}",
-    "Content-Type": "application/json;charset=UTF-8",
-  };
-
-  static Future<Encrypter?> _getEncrypter() async {
-    String? content = (await AppConfig.getHostState())?.publicKey;
-    if (content == null || content.isEmpty) {
-      return null;
-    }
-    if (content != _rsaPublicKeyContent) {
-      _rsaPublicKeyContent = content;
-      var publicKey = _rsaKeyParser.parse(content) as RSAPublicKey;
-      _encrypter = Encrypter(RSA(publicKey: publicKey));
-    }
-    return _encrypter;
-  }
-
-  static Future<String> encrypt(String data) async {
-    var encrypter = await _getEncrypter();
-    if (encrypter == null) {
-      throw StateError("encrypter is null");
-    }
-    try {
-      final encrypted = encrypter.encrypt(data);
-      return Base64Codec.urlSafe().encode(encrypted.bytes);
-    } catch (e) {
-      print(e);
-      return "";
+  factory Api() {
+    if (AppConfig.isUseMockApi()) {
+      return _mock;
+    } else {
+      return _real;
     }
   }
 
-  static Future<Map<String, String>> httpHeaders() async {
-    var header = {..._defaultHttpHeaders};
-    if (await AppConfig.isUserLogged()) {
-      var data = await AppConfig.getUserLoginInfo();
-      header["X-AUTH-TOKEN"] = "${data!.username}-${data.token}";
-    }
-    return header;
-  }
+  Api.internal();
 
-  static String joinPath(String first, String second) {
+  Future<String> encrypt(String data);
+
+  Future<Map<String, String>> httpHeaders();
+
+  String joinPath(String first, String second) {
     return p.normalize(["/", first, second].join("/"));
   }
 
-  static Future<String> getApiUrl(String path) async {
-    if (!await AppConfig.isHostAddressConfiged()) {
-      return path;
-    }
-    String address = await AppConfig.getHostAddress();
-    return Uri.http(address, path).toString();
-  }
+  Future<String> getApiUrl(String path);
 
-  static Future<String> getStaticFileUrl(String path) async {
-    if (!await AppConfig.isHostAddressConfiged()) {
-      return path;
-    }
-    var state = await AppConfig.getHostState();
-    var hostAddress = await AppConfig.getHostAddress();
-    String address = state?.staticAddress ?? hostAddress;
-    return Uri.http(address, path).toString();
-  }
+  Future<String> getStaticFileUrl(String path);
 
-  static Future<String> signUrl(String url) async {
-    var now = DateTime.now().millisecondsSinceEpoch;
-    var headers = await httpHeaders();
-    String str = "$now ${jsonEncode(headers)}";
-    String sign = await encrypt(str);
-    return "$url?_sign=$sign";
-  }
+  Future<String> signUrl(String url);
 
-  static Future<StateResponse> getHostStateIfConfiged() async {
-    if (!await AppConfig.isHostAddressConfiged()) {
-      return Future.value(StateResponse.fromMap({
-        "success": true,
-        "message": "HOST_NOT_CONFIGED",
-      }));
-    }
-    var state = await getHostState(await AppConfig.getHostAddress());
-    if (state.success) {
-      await AppConfig.saveHostState(state.data!);
-    }
-    return state;
-  }
+  Future<StateResponse> getHostStateIfConfiged();
 
-  static Future<StateResponse> getHostState(String address) async {
-    try {
-      var url = Uri.http(address, "api/state");
-      Response resp = await http.get(url, headers: await httpHeaders());
-      return StateResponse.fromJson(utf8.decode(resp.bodyBytes));
-    } catch (e) {
-      print(e);
-      return StateResponse.fromMap(_exception);
-    }
-  }
+  Future<StateResponse> getHostState(String address);
 
-  static Future<LoginResponse> postLogin(
-      {required String username, required String password}) async {
-    try {
-      var url = Uri.http(await AppConfig.getHostAddress(), "/api/user/login");
-      Response resp = await http.post(url,
-          headers: _defaultHttpHeaders,
-          body: jsonEncode({
-            "username": username,
-            "password": password,
-          }));
-      return LoginResponse.fromJson(utf8.decode(resp.bodyBytes));
-    } catch (e) {
-      print(e);
-      return LoginResponse.fromMap(_exception);
-    }
-  }
+  Future<LoginResponse> postLogin(
+      {required String username, required String password});
 
-  static Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
-    try {
-      var url = Uri.http(await AppConfig.getHostAddress(), "/api/store/walk");
-      Response resp = await http.post(url,
-          headers: await httpHeaders(), body: reqeust.toJson());
-      return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
-    } catch (e) {
-      print(e);
-      return FileWalkResponse.fromMap(_exception);
-    }
-  }
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust);
 
-  static Future<Result> postCreateFolder(String path, String folderName) async {
-    try {
-      var url =
-          Uri.http(await AppConfig.getHostAddress(), "/api/store/createFolder");
-      Response resp = await http.post(url,
-          headers: await httpHeaders(),
-          body: jsonEncode({
-            "path": path,
-            "folderName": folderName,
-          }));
-      return Result.fromJson(utf8.decode(resp.bodyBytes));
-    } catch (e) {
-      print(e);
-      return Result.fromMap(_exception);
-    }
-  }
+  Future<Result> postCreateFolder(String path, String folderName);
 
-  static Future<Result> postDeleteFile(String fullPath) async {
-    try {
-      var url =
-          Uri.http(await AppConfig.getHostAddress(), "/api/store/deleteFiles");
-      Response resp = await http.post(url,
-          headers: await httpHeaders(),
-          body: jsonEncode({
-            "paths": [fullPath],
-          }));
-      return Result.fromJson(utf8.decode(resp.bodyBytes));
-    } catch (e) {
-      print(e);
-      return Result.fromMap(_exception);
-    }
-  }
+  Future<Result> postDeleteFile(String fullPath);
 
-  static Future<Result> getFileExists(String fullPath) async {
-    try {
-      var url = Uri.http(await AppConfig.getHostAddress(),
-          joinPath("/api/store/fileExists", fullPath));
-      Response resp = await http.get(url, headers: await httpHeaders());
-      return Result.fromJson(utf8.decode(resp.bodyBytes));
-    } catch (e) {
-      print(e);
-      return Result.fromMap(_exception);
-    }
-  }
+  Future<Result> getFileExists(String fullPath);
 
-  static Future<Result> uploadStream({
+  Future<Result> uploadStream({
     required String dest,
     required String fileName,
     required int fileLastModified,
     required int size,
     required Stream<List<int>> stream,
-  }) async {
-    try {
-      Result exists = await getFileExists(joinPath(dest, fileName));
-      if (!exists.success) {
-        return exists;
-      }
-      if (exists.message == "true") {
-        return Result(success: false, message: "文件已存在");
-      }
-      var uri = Uri.http(await AppConfig.getHostAddress(),
-          joinPath("/api/store/upload", dest));
-      var request = http.MultipartRequest("POST", uri)
-        ..headers.addAll(await httpHeaders())
-        ..fields["lastModified"] = "$fileLastModified"
-        ..files.add(MultipartFile("file", stream, size, filename: fileName));
-      var resp = await request.send();
-      var ret = await resp.stream.bytesToString();
-      return Result.fromJson(ret);
-    } catch (e) {
-      print(e);
-      return Result.fromMap(_exception);
-    }
-  }
+  });
 
-  static Future<RangeData> rangeGetStatic(
-      String path, int start, int end) async {
-    try {
-      var url = Uri.http(await AppConfig.getHostAddress(), path);
-      Map<String, String> headers = {"Range": "bytes=$start-$end"};
-      var authHeader = await httpHeaders();
-      headers.addAll(authHeader);
-      Response resp = await http.get(url, headers: headers);
-      return RangeData(resp.headers[HttpHeaders.contentTypeHeader] ?? "UNKNOWN",
-          resp.contentLength ?? 0, resp.bodyBytes);
-    } catch (e) {
-      print(e);
-      return RangeData("UNKNOWN", 0, null);
-    }
-  }
+  Future<RangeData> rangeGetStatic(String path, int start, int end);
 }
 
 class RangeData {

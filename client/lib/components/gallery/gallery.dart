@@ -91,9 +91,9 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
 
   Future<List<_GalleryItem>> getGalleryItems() async {
     List<_GalleryItem> list = [];
-    var headers = await Api.httpHeaders();
+    var headers = await Api().httpHeaders();
     for (var file in widget.files) {
-      var url = await Api.getStaticFileUrl(file.path);
+      var url = await Api().getStaticFileUrl(file.path);
       list.add(_GalleryItem(
         filepath: file.path,
         fileExt: file.ext,

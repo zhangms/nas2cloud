@@ -174,7 +174,7 @@ class _ConfigViewState extends State<_ConfigView> {
       });
       return;
     }
-    var result = await Api.getFileExists(remoteLocation.text);
+    var result = await Api().getFileExists(remoteLocation.text);
     if (result.message != "true") {
       setState(() {
         remoteLocationError = "远程目录不存在：首页文件列表->more->显示当前位置";
