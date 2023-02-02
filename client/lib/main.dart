@@ -34,14 +34,15 @@ class _MyAppState extends State<_MyApp> {
   @override
   Widget build(BuildContext context) {
     context.watch<AppState>();
-    return FutureBuilder<_MyAppConfig>(
+    return FutureBuilder<_MyAppModel>(
         future: getMyAppConfig(),
         builder: (context, snapshot) {
+          _MyAppModel data = snapshot.data ?? _MyAppModel.getDefaultValue();
           return MaterialApp(
-            title: getTitle(snapshot.data),
+            title: data.appName,
             // home: HomePage(),
-            theme: getLightTheme(snapshot.data),
-            darkTheme: getDarkTheme(snapshot.data),
+            theme: getLightTheme(data),
+            darkTheme: getDarkTheme(data),
             home: TestPage(),
             routes: <String, WidgetBuilder>{
               "/home": (_) => HomePage(),
@@ -50,31 +51,34 @@ class _MyAppState extends State<_MyApp> {
         });
   }
 
-  Future<_MyAppConfig> getMyAppConfig() async {
-    return _MyAppConfig(
+  Future<_MyAppModel> getMyAppConfig() async {
+    return _MyAppModel(
       appName: await AppConfig.getAppName(),
-      theme: await AppConfig.getTheme(),
+      theme: await AppConfig.getThemeSetting(),
     );
   }
 
-  getLightTheme(_MyAppConfig? data) {
-    var theme = data?.theme ?? 0;
-    return theme == 2 ? AppDarkTheme.themeData : AppLightTheme.themeData;
+  getLightTheme(_MyAppModel data) {
+    return data.theme == AppConfig.themeDark
+        ? AppDarkTheme.themeData
+        : AppLightTheme.themeData;
   }
 
-  getDarkTheme(_MyAppConfig? data) {
-    var theme = data?.theme ?? 0;
-    return theme == 1 ? AppLightTheme.themeData : AppDarkTheme.themeData;
-  }
-
-  getTitle(_MyAppConfig? data) {
-    return data == null ? "Nas2cloud" : data.appName;
+  getDarkTheme(_MyAppModel data) {
+    return data.theme == AppConfig.themeLight
+        ? AppLightTheme.themeData
+        : AppDarkTheme.themeData;
   }
 }
 
-class _MyAppConfig {
+class _MyAppModel {
   final String appName;
   final int theme;
 
-  _MyAppConfig({required this.appName, required this.theme});
+  _MyAppModel({required this.appName, required this.theme});
+
+  static getDefaultValue() {
+    return _MyAppModel(
+        appName: AppConfig.defaultAppName, theme: AppConfig.themeFollowSystem);
+  }
 }

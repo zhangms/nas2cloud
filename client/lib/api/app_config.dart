@@ -9,8 +9,15 @@ import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
 class AppConfig {
+  static const defaultAppName = "Nas2cloud";
+
+  static const themeFollowSystem = 0;
+  static const themeLight = 1;
+  static const themeDark = 2;
+
   static const appId = "com.zms.nas2cloud";
   static const _themeKey = "app.theme";
+  static const _autouploadWlanKey = "app.autoupload.wlan";
   static const _hostAddressKey = "app.host.address";
   static const _hostStateKey = "app.host.state";
   static const _loginTokenKey = "app.login.token";
@@ -64,7 +71,7 @@ class AppConfig {
   }
 
   static Future<String> getAppName() async {
-    return (await getHostState())?.appName ?? "Nas2cloud";
+    return (await getHostState())?.appName ?? defaultAppName;
   }
 
   static Future<bool> saveUserLoginInfo(logindto.Data data) async {
@@ -108,11 +115,19 @@ class AppConfig {
     }
   }
 
-  static Future<int> getTheme() async {
-    return (await Spu().getInt(_themeKey)) ?? 0;
+  static Future<int> getThemeSetting() async {
+    return (await Spu().getInt(_themeKey)) ?? themeFollowSystem;
   }
 
-  static Future<bool> setTheme(int theme) async {
+  static Future<bool> setThemeSetting(int theme) async {
     return await Spu().setInt(_themeKey, theme);
+  }
+
+  static Future<bool> getAutouploadWlanSetting() async {
+    return (await Spu().getBool(_autouploadWlanKey)) ?? true;
+  }
+
+  static Future<bool> setAutouploadWlanSetting(bool wlan) async {
+    return (await Spu().setBool(_autouploadWlanKey, wlan));
   }
 }

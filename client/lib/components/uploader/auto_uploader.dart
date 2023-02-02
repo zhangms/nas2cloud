@@ -74,10 +74,13 @@ class AutoUploader {
   }
 
   Future<int> executeAutoupload() async {
-    var connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult != ConnectivityResult.wifi) {
-      print("auto upload skip because not wifi");
-      return -1;
+    var autouploadWlan = await AppConfig.getAutouploadWlanSetting();
+    if (autouploadWlan) {
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult != ConnectivityResult.wifi) {
+        print("auto upload skip because not wifi");
+        return -1;
+      }
     }
     if (!await Permission.manageExternalStorage.isGranted) {
       print("auto upload skip because manageExternalStorage is not granted");

@@ -28,7 +28,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> changeTheme(int theme) async {
-    await AppConfig.setTheme(theme);
+    await AppConfig.setThemeSetting(theme);
     notifyListeners();
   }
 }

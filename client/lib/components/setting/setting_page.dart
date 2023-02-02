@@ -35,61 +35,79 @@ class _SettingPageState extends State<SettingPage> {
 
   buildBody() {
     return SafeArea(
-      child: ListView(
-        children: [
-          buildAutoUploadSetting(),
-          ...buildColorSetting(),
-        ],
-      ),
+      child: FutureBuilder<_SettingPageModel>(
+          future: getPageModel(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return AppWidgets.getPageLoadingView();
+            }
+            return ListView(
+              children: [
+                buildAutoUploadSetting(snapshot.data!),
+                ...buildColorSetting(snapshot.data!),
+              ],
+            );
+          }),
     );
   }
 
-  List<Widget> buildColorSetting() {
+  Future<_SettingPageModel> getPageModel() async {
+    return _SettingPageModel(
+      theme: await AppConfig.getThemeSetting(),
+      autoUploaWlan: await AppConfig.getAutouploadWlanSetting(),
+    );
+  }
+
+  List<Widget> buildColorSetting(_SettingPageModel data) {
     return [
       ListTile(
         title: Text("外观"),
       ),
-      FutureBuilder<int>(
-          future: AppConfig.getTheme(),
-          builder: (context, snapshot) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ChoiceChip(
-                  label: Text("跟随系统"),
-                  selected: snapshot.hasData && snapshot.data == 0,
-                  onSelected: (value) {
-                    appState.changeTheme(0);
-                  },
-                ),
-                ChoiceChip(
-                  label: Text("浅色模式"),
-                  selected: snapshot.hasData && snapshot.data == 1,
-                  onSelected: (value) {
-                    appState.changeTheme(1);
-                  },
-                ),
-                ChoiceChip(
-                  label: Text("深色模式"),
-                  selected: snapshot.hasData && snapshot.data == 2,
-                  onSelected: (value) {
-                    appState.changeTheme(2);
-                  },
-                ),
-              ],
-            );
-          }),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ChoiceChip(
+            label: Text("跟随系统"),
+            selected: data.theme == AppConfig.themeFollowSystem,
+            onSelected: (value) {
+              appState.changeTheme(AppConfig.themeFollowSystem);
+            },
+          ),
+          ChoiceChip(
+            label: Text("浅色模式"),
+            selected: data.theme == AppConfig.themeLight,
+            onSelected: (value) {
+              appState.changeTheme(AppConfig.themeLight);
+            },
+          ),
+          ChoiceChip(
+            label: Text("深色模式"),
+            selected: data.theme == AppConfig.themeDark,
+            onSelected: (value) {
+              appState.changeTheme(AppConfig.themeDark);
+            },
+          ),
+        ],
+      ),
     ];
   }
 
-  buildAutoUploadSetting() {
+  buildAutoUploadSetting(_SettingPageModel data) {
     return ListTile(
       title: Text("仅WLAN下自动上传"),
       trailing: Switch(
-          value: true,
+          value: data.autoUploaWlan,
           onChanged: (value) {
-            print("value");
+            AppConfig.setAutouploadWlanSetting(value);
+            setState(() {});
           }),
     );
   }
+}
+
+class _SettingPageModel {
+  final int theme;
+  final bool autoUploaWlan;
+
+  _SettingPageModel({required this.theme, required this.autoUploaWlan});
 }

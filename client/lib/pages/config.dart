@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,7 @@ class _ConfigPageState extends State<ConfigPage> {
     var appState = context.watch<AppState>();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Nas2cloud"),
+        title: Text(AppConfig.defaultAppName),
       ),
       body: Center(
         child: SizedBox(

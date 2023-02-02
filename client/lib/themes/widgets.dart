@@ -44,7 +44,7 @@ class AppWidgets {
         builder: (context, snapshot) {
           return Text(snapshot.hasData
               ? snapshot.data!
-              : (useDefault ?? false ? "Nas2cloud" : ""));
+              : (useDefault ?? false ? AppConfig.defaultAppName : ""));
         });
   }
 }
