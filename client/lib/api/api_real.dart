@@ -216,13 +216,6 @@ class ApiReal extends Api {
     required Stream<List<int>> stream,
   }) async {
     try {
-      Result exists = await getFileExists(joinPath(dest, fileName));
-      if (!exists.success) {
-        return exists;
-      }
-      if (exists.message == "true") {
-        return Result(success: false, message: "文件已存在");
-      }
       var uri = Uri.http(await AppConfig.getHostAddress(),
           joinPath("/api/store/upload", dest));
       var request = http.MultipartRequest("POST", uri)

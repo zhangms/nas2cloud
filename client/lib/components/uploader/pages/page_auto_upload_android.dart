@@ -5,6 +5,8 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/pages/local_file_grid_view.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
@@ -35,19 +37,26 @@ class _AndroidAutoUploadConfigWidgetState
 
     Directory directory = Directory(rootdir);
     var files = directory.listSync();
-    Map<String, AutoUploadConfig> configMap = {};
+    Map<String, _AutoUploadConfigWrapper> configMap = {};
     for (var config in await AutoUploader().getConfigList()) {
-      configMap[config.path] = config;
+      int total = await UploadRepository.platform
+          .findCountByChannel(channel: config.uploadChannel);
+      int complete = await UploadRepository.platform.findCountByChannel(
+          channel: config.uploadChannel,
+          status: [UploadStatus.successed.name, UploadStatus.failed.name]);
+      configMap[config.path] = _AutoUploadConfigWrapper(
+          config: config, total: total, complete: complete);
     }
-    List<AutoUploadConfig> result = [];
+    List<_AutoUploadConfigWrapper> result = [];
     for (var f in files) {
       if (await isSupportedAutoUploadDir(f)) {
         var cfg = configMap[f.path] ??
-            AutoUploadConfig(
-                basepath: rootdir,
-                name: p.basename(f.path),
-                path: f.path,
-                autoupload: false);
+            _AutoUploadConfigWrapper(
+                config: AutoUploadConfig(
+                    basepath: rootdir,
+                    name: p.basename(f.path),
+                    path: f.path,
+                    autoupload: false));
         result.add(cfg);
       }
     }
@@ -70,17 +79,17 @@ class _AndroidAutoUploadConfigWidgetState
             leading: cfg.autoupload ? Icon(Icons.cloud) : Icon(Icons.cloud_off),
             trailing: Icon(Icons.navigate_next),
             title: Text(cfg.name),
-            subtitle: cfg.remote != null ? Text(cfg.remote!) : null,
+            subtitle: cfg.description != null ? Text(cfg.description!) : null,
             onTap: () => showConfig(cfg),
           ),
       ],
     );
   }
 
-  showConfig(AutoUploadConfig cfg) {
+  showConfig(_AutoUploadConfigWrapper cfg) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => _ConfigView(cfg, onSave),
+        builder: (context) => _ConfigView(cfg.config, onSave),
       ),
     );
   }
@@ -106,7 +115,7 @@ class _AndroidAutoUploadConfigWidgetState
     return true;
   }
 
-  int configSorter(AutoUploadConfig a, AutoUploadConfig b) {
+  int configSorter(_AutoUploadConfigWrapper a, b) {
     if (a.autoupload && !b.autoupload) {
       return -1;
     }
@@ -119,8 +128,32 @@ class _AndroidAutoUploadConfigWidgetState
 
 class _AndroidAutoUploadConfig {
   bool storageGrant = false;
-  List<AutoUploadConfig> configs;
+  List<_AutoUploadConfigWrapper> configs;
   _AndroidAutoUploadConfig(this.storageGrant, this.configs);
+}
+
+class _AutoUploadConfigWrapper {
+  AutoUploadConfig config;
+  int? total;
+  int? complete;
+
+  String get name => config.name;
+  String get path => config.path;
+  String get basepath => config.basepath;
+  String? get remote => config.remote;
+  bool get autoupload => config.autoupload;
+
+  _AutoUploadConfigWrapper({required this.config, this.total, this.complete});
+
+  String? get description {
+    if (!autoupload) {
+      return remote;
+    }
+    if ((total ?? 0) > 0) {
+      return "$remote ($complete/$total)";
+    }
+    return remote;
+  }
 }
 
 class _ConfigView extends StatefulWidget {

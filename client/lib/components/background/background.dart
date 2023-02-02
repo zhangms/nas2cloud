@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:workmanager/workmanager.dart';
@@ -43,7 +42,7 @@ class BackgroundProcessor {
     }
     _inited = true;
     await Workmanager()
-        .initialize(backgroundCallbackDispatcher, isInDebugMode: isInDebugMode);
+        .initialize(backgroundCallbackDispatcher, isInDebugMode: kDebugMode);
     print("background processor init complete");
   }
 

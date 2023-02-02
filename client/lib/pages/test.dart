@@ -3,6 +3,7 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/login_response/data.dart' as userdata;
 import 'package:nas2cloud/api/dto/state_response/data.dart' as statdata;
 import 'package:nas2cloud/components/notification/notification.dart';
+import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
@@ -16,20 +17,31 @@ class TestPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // ElevatedButton(onPressed: () => mock(), child: Text("MOCK")),
-            // SizedBox(
-            //   height: 30,
-            // ),
-            // ElevatedButton(onPressed: () => clean(), child: Text("CLEAN")),
-            // SizedBox(
-            //   height: 30,
-            // ),
-            ElevatedButton(onPressed: () => exec(context), child: Text("EXEC")),
-            SizedBox(
-              height: 30,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(onPressed: () => mock(), child: Text("MOCK")),
+                SizedBox(
+                  width: 30,
+                ),
+                ElevatedButton(onPressed: () => clean(), child: Text("CLEAN")),
+              ],
             ),
-            ElevatedButton(
-                onPressed: () => gohome(context), child: Text("HOME")),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                    onPressed: () => exec(context), child: Text("EXEC")),
+                SizedBox(
+                  width: 30,
+                ),
+                ElevatedButton(
+                    onPressed: () => gohome(context), child: Text("HOME")),
+              ],
+            )
           ],
         ),
       ),
@@ -42,8 +54,8 @@ class TestPage extends StatelessWidget {
   }
 
   mock() async {
-    await saveAppState();
     LocalNotification.platform.send(id: 1, title: "Hello", body: "world");
+    await saveAppState();
     await initUploadData();
   }
 
@@ -95,15 +107,21 @@ class TestPage extends StatelessWidget {
 
   initUploadData() async {
     await FileUploader.platform.cancelAndClearAll();
-    var clearCount = await UploadRepository.platform.clearAll();
-    print("UploadRepository clearAll : $clearCount");
+
+    var config = AutoUploadConfig(
+        name: "Download",
+        path: "/storage/emulated/0/Download",
+        basepath: "/storage/emulated/0",
+        remote: "/abc",
+        autoupload: true);
+    AutoUploader().saveConfig(config);
 
     for (var state in UploadStatus.values) {
       for (var i = 0; i < 2; i++) {
         var entry = FileUploader.toUploadEntry(
-            channel: "test",
-            filepath: "/hello/abc${state.name}_$i.png",
-            relativeFrom: "/hello",
+            channel: config.uploadChannel,
+            filepath: "${config.path}/${state.name}_$i.png",
+            relativeFrom: config.basepath,
             remote: "/abc");
         entry.status = state.name;
         await UploadRepository.platform.saveIfNotExists(entry);
@@ -112,9 +130,10 @@ class TestPage extends StatelessWidget {
   }
 
   clean() async {
+    await FileUploader.platform.cancelAndClearAll();
+    await AutoUploader().clearConfig();
+    await AppConfig.useMockApi(false);
     await AppConfig.clearUserLogin();
     await AppConfig.clearHostAddress();
-    await AppConfig.useMockApi(false);
-    await FileUploader.platform.cancelAndClearAll();
   }
 }

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/pages/home.dart';
+import 'package:nas2cloud/pages/test.dart';
 import 'package:nas2cloud/themes/app_theme.dark.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  print("isInDebugMode: $isInDebugMode");
   AppConfig.initialize().then(
     (value) => runApp(MyApp()),
   );
@@ -25,8 +24,8 @@ class MyApp extends StatelessWidget {
         title: "Nas2cloud",
         theme: AppLightTheme.themeData,
         darkTheme: AppDarkTheme.themeData,
-        home: HomePage(),
-        // home: TestPage(),
+        // home: HomePage(),
+        home: TestPage(),
         routes: <String, WidgetBuilder>{
           "/home": (_) => HomePage(),
         },

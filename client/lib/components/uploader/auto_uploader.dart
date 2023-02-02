@@ -8,6 +8,7 @@ import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:nas2cloud/utils/spu.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AutoUploader {
   static const String _key = "app.autoupload.config";
@@ -64,10 +65,22 @@ class AutoUploader {
         .toList();
   }
 
+  Future<void> clearConfig() async {
+    var key = await _getKey();
+    if (key == null) {
+      return;
+    }
+    await Spu().remove(key);
+  }
+
   Future<int> executeAutoupload() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult != ConnectivityResult.wifi) {
       print("auto upload skip because not wifi");
+      return -1;
+    }
+    if (!await Permission.manageExternalStorage.isGranted) {
+      print("auto upload skip because manageExternalStorage is not granted");
       return -1;
     }
     List<AutoUploadConfig> configs = await getConfigList();

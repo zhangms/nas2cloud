@@ -43,4 +43,11 @@ class UploadRepoSP extends UploadRepository {
   Future<int> deleteByStatus(String status) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<int> findCountByChannel(
+      {required String channel, List<String>? status}) {
+    // TODO: implement findCountByChannel
+    throw UnimplementedError();
+  }
 }

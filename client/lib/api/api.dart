@@ -9,12 +9,6 @@ import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:path/path.dart' as p;
 
-bool get isInDebugMode {
-  bool inDebugMode = false;
-  assert(inDebugMode = true); //如果debug模式下会触发赋值
-  return inDebugMode;
-}
-
 abstract class Api {
   static Api _real = ApiReal();
   static Api _mock = ApiMock();

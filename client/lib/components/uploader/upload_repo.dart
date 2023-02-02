@@ -37,4 +37,7 @@ abstract class UploadRepository {
       {required String status, required int page, required int pageSize});
 
   Future<int> deleteByStatus(String status);
+
+  Future<int> findCountByChannel(
+      {required String channel, List<String>? status});
 }

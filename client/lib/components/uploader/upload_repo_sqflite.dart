@@ -162,4 +162,20 @@ class UploadRepoSqflite extends UploadRepository {
     return await database
         .delete("t_upload_entry", where: "status=?", whereArgs: [status]);
   }
+
+  @override
+  Future<int> findCountByChannel(
+      {required String channel, List<String>? status}) async {
+    var database = await _open();
+    var sql = "select count(1) from t_upload_entry where channel=?";
+    var args = [];
+    args.add(channel);
+    if (status != null && status.isNotEmpty) {
+      sql +=
+          " and status in(${List.generate(status.length, (index) => "?").join(",")})";
+      args.addAll(status);
+    }
+    var ret = await database.rawQuery(sql, args);
+    return Sqflite.firstIntValue(ret) ?? 0;
+  }
 }
