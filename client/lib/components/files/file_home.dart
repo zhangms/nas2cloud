@@ -6,6 +6,7 @@ import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/files/file_list.dart';
+import 'package:nas2cloud/components/setting/setting_page.dart';
 import 'package:nas2cloud/components/uploader/pages/page_auto_upload.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
@@ -126,9 +127,25 @@ class _FileHomePageState extends State<FileHomePage> {
         ),
         buildPhoto(),
         buildAutoUpload(),
+        buildSetting(),
         Divider(),
         buildLogout(appState),
       ],
+    );
+  }
+
+  buildSetting() {
+    return ListTile(
+      title: Text("设置"),
+      leading: const Icon(Icons.settings),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SettingPage(),
+          ),
+        );
+      },
     );
   }
 
