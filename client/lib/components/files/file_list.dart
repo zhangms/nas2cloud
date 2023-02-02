@@ -67,8 +67,9 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   onUploadResultChange(UploadEntry entry) {
-    if (UploadStatus.match(entry.status, UploadStatus.successed) &&
-        entry.dest == widget.path) {
+    if (entry.dest == widget.path &&
+        "uploadPath" == entry.channel &&
+        UploadStatus.match(entry.status, UploadStatus.successed)) {
       resetFetch("creTime_desc");
     }
   }
