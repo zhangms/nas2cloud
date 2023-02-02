@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"nas2cloud/conf"
 	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/libs/errs"
@@ -37,7 +38,8 @@ func init() {
 	fileWatcher = &fileWatchSvc{
 		eventQueue: make(chan *fileEvent, 1024),
 	}
-	for i := 0; i < 10; i++ {
+	processor := conf.GetIntValue("processor.count.filewatch", 1)
+	for i := 0; i < processor; i++ {
 		go fileWatcher.process(i)
 	}
 }

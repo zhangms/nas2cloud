@@ -24,10 +24,11 @@ func init() {
 	flag.StringVar(&action, "action", "start", "")
 	flag.IntVar(&port, "port", 8080, "")
 	flag.Parse()
-	if IsActionStart() {
-		flag.PrintDefaults()
-		logger.Info("profile active", profile)
+	if !IsActionStart() {
+		return
 	}
+	flag.PrintDefaults()
+	logger.Info("profile active", profile)
 }
 
 func GetProfileActive() string {

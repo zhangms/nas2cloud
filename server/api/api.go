@@ -200,7 +200,6 @@ const keyToken = "X-AUTH-TOKEN"
 const keyDevice = "X-DEVICE"
 
 func getRequestSign(c *fiber.Ctx) (token, device, mode string) {
-
 	sign := getHeaderSign(c)
 	if sign != nil {
 		return sign[keyToken], sign[keyDevice], "rw"

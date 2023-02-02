@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"nas2cloud/conf"
 	"nas2cloud/env"
 	"nas2cloud/libs/img"
 	"nas2cloud/libs/logger"
@@ -34,6 +35,7 @@ func init() {
 	}
 	thumbSvc = &ThumbnailSvc{
 		supportType: map[string]thumbnail{
+			".JPGX": &imgThumbnail{},
 			".JPG":  &ffmpegThumbnail{},
 			".JPEG": &ffmpegThumbnail{},
 			".PNG":  &ffmpegThumbnail{},
@@ -47,7 +49,8 @@ func init() {
 		thumbWidth:  50,
 		thumbHeight: 50,
 	}
-	for i := 0; i < 20; i++ {
+	processor := conf.GetIntValue("processor.count.filethumb", 1)
+	for i := 0; i < processor; i++ {
 		go thumbSvc.process(i)
 	}
 }
