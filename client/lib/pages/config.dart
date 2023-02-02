@@ -57,7 +57,7 @@ class _ConfigPageState extends State<ConfigPage> {
     print("address:$address");
     var response = await Api().getServerStatus(address);
     if (response.success) {
-      await AppConfig.saveHostAddress(address);
+      await AppConfig.saveServerAddress(address);
       await AppConfig.saveServerStatus(response.data!);
       setState(() {
         errorMessage = "";

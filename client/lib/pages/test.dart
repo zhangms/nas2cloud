@@ -92,8 +92,8 @@ class TestPage extends StatelessWidget {
   }
 
   saveAppState() async {
-    await AppConfig.saveHostAddress("192.168.31.175:8080");
-    var hostAddress = await AppConfig.getHostAddress();
+    await AppConfig.saveServerAddress("192.168.31.175:8080");
+    var hostAddress = await AppConfig.getServerAddress();
     print("hostAddress---->$hostAddress");
     await AppConfig.saveUserLoginInfo(userdata.Data(
         username: "zms",
@@ -106,7 +106,7 @@ class TestPage extends StatelessWidget {
       publicKey: "",
       userName: "zms",
     ));
-    var hoststate = await AppConfig.getHostState();
+    var hoststate = await AppConfig.getServerStatus();
     print("hoststate------>$hoststate");
     await AppConfig.useMockApi(true);
     print("mockapi------>${AppConfig.isUseMockApi()}");

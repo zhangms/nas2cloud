@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/pages/local_file_grid_view.dart';
@@ -74,6 +75,7 @@ class _AndroidAutoUploadConfigWidgetState
     }
     return ListView(
       children: [
+        buildAutoUploadSetting(),
         for (var cfg in config.configs)
           ListTile(
             leading: cfg.autoupload ? Icon(Icons.cloud) : Icon(Icons.cloud_off),
@@ -83,6 +85,25 @@ class _AndroidAutoUploadConfigWidgetState
             onTap: () => showConfig(cfg),
           ),
       ],
+    );
+  }
+
+  buildAutoUploadSetting() {
+    return ListTile(
+      title: Text("仅WLAN下自动上传"),
+      trailing: FutureBuilder<bool>(
+          future: AppConfig.getAutouploadWlanSetting(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Text("");
+            }
+            return Switch(
+                value: snapshot.data!,
+                onChanged: (value) {
+                  AppConfig.setAutouploadWlanSetting(value);
+                  setState(() {});
+                });
+          }),
     );
   }
 

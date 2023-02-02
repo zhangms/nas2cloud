@@ -5,7 +5,7 @@
     "mountType": "local",
     "endpoint": "/Users/ZMS/Thumb",
     "authorize": "ALL",
-    "mode": "r",
+    "mode": "rw",
     "hidden": true
   },
   {

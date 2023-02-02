@@ -49,11 +49,11 @@ class AppConfig {
     return _useMockApi;
   }
 
-  static Future<bool> saveHostAddress(String address) async {
+  static Future<bool> saveServerAddress(String address) async {
     return await Spu().setString(_serverAddressKey, address);
   }
 
-  static Future<String> getHostAddress() async {
+  static Future<String> getServerAddress() async {
     return await Spu().getString(_serverAddressKey) ?? "";
   }
 
@@ -65,13 +65,13 @@ class AppConfig {
     return await Spu().setString(_serverStatusKey, state.toJson());
   }
 
-  static Future<statedto.Data?> getHostState() async {
+  static Future<statedto.Data?> getServerStatus() async {
     final String? str = await Spu().getString(_serverStatusKey);
     return str == null ? null : statedto.Data.fromJson(str);
   }
 
   static Future<String> getAppName() async {
-    return (await getHostState())?.appName ?? defaultAppName;
+    return (await getServerStatus())?.appName ?? defaultAppName;
   }
 
   static Future<bool> saveUserLoginInfo(logindto.Data data) async {
@@ -101,8 +101,13 @@ class AppConfig {
   }
 
   static Future<void> clearServerAddress() async {
-    await Spu().remove(_serverStatusKey);
+    await clearServerStatus();
+    await clearUserLogin();
     await Spu().remove(_serverAddressKey);
+  }
+
+  static Future<void> clearServerStatus() async {
+    await Spu().remove(_serverStatusKey);
   }
 
   static Future<void> clearUserLogin() async {

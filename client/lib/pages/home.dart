@@ -1,58 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
-import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/files/file_home.dart';
-import 'package:nas2cloud/pages/config.dart';
-import 'package:nas2cloud/pages/login.dart';
-import 'package:nas2cloud/themes/widgets.dart';
-import 'package:provider/provider.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
+import 'package:nas2cloud/pages/home_drawer.dart';
 
-class HomePage extends StatelessWidget {
+import '../themes/widgets.dart';
+
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    context.watch<AppState>();
-    return FutureBuilder<StateResponse>(
-        future: Api().tryGetServerStatus(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return buildLoading();
-          }
-          return getPage(snapshot.data!);
-        });
-  }
-
-  Widget buildLoading() {
     return Scaffold(
       appBar: buildAppBar(),
-      body: AppWidgets.getPageLoadingView(),
+      drawer: Drawer(
+        child: SafeArea(
+          child: HomeDrawer(logout),
+        ),
+      ),
+      body: buildBody(),
     );
   }
 
   buildAppBar() {
     return AppBar(
-      leading: Icon(Icons.menu),
-      title: AppWidgets.getAppNameText(useDefault: true),
+      leading: Builder(builder: (context) {
+        return IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        );
+      }),
+      title: AppWidgets.getAppNameText(),
     );
   }
 
-  Widget errorPage(String? message) {
-    return Scaffold(
-      appBar: buildAppBar(),
-      body: AppWidgets.getPageErrorView(message ?? "ERROR"),
-    );
+  buildBody() {
+    return FutureBuilder<StateResponse>(
+        future: Api().tryGetServerStatus(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return AppWidgets.getPageLoadingView();
+          }
+          var status = snapshot.data!;
+          if (!status.success) {
+            return AppWidgets.getPageErrorView(status.message!);
+          }
+          if (status.data?.userName?.isEmpty ?? true) {
+            return buildLoginRequired();
+          }
+          return FileHomePage();
+        });
   }
 
-  Widget getPage(StateResponse resp) {
-    if (resp.message == "HOST_NOT_CONFIGED") {
-      return ConfigPage();
-    }
-    if (!resp.success) {
-      return errorPage(resp.message);
-    }
-    if (resp.data?.userName?.isEmpty ?? true) {
-      return LoginPage();
-    }
-    return FileHomePage();
+  logout() async {
+    await FileUploader.platform.cancelAndClearAll();
+    await AppConfig.clearUserLogin();
+    setState(() {
+      Navigator.of(context).pushReplacementNamed("/login");
+    });
+  }
+
+  buildLoginRequired() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("登录已过期，需要重新登录"),
+          SizedBox(height: 16),
+          ElevatedButton(onPressed: () => logout(), child: Text("重新登录")),
+        ],
+      ),
+    );
   }
 }

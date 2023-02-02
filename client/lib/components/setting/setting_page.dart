@@ -43,7 +43,6 @@ class _SettingPageState extends State<SettingPage> {
             }
             return ListView(
               children: [
-                buildAutoUploadSetting(snapshot.data!),
                 ...buildColorSetting(snapshot.data!),
               ],
             );
@@ -54,7 +53,6 @@ class _SettingPageState extends State<SettingPage> {
   Future<_SettingPageModel> getPageModel() async {
     return _SettingPageModel(
       theme: await AppConfig.getThemeSetting(),
-      autoUploaWlan: await AppConfig.getAutouploadWlanSetting(),
     );
   }
 
@@ -91,23 +89,10 @@ class _SettingPageState extends State<SettingPage> {
       ),
     ];
   }
-
-  buildAutoUploadSetting(_SettingPageModel data) {
-    return ListTile(
-      title: Text("仅WLAN下自动上传"),
-      trailing: Switch(
-          value: data.autoUploaWlan,
-          onChanged: (value) {
-            AppConfig.setAutouploadWlanSetting(value);
-            setState(() {});
-          }),
-    );
-  }
 }
 
 class _SettingPageModel {
   final int theme;
-  final bool autoUploaWlan;
 
-  _SettingPageModel({required this.theme, required this.autoUploaWlan});
+  _SettingPageModel({required this.theme});
 }

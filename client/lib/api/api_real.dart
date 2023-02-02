@@ -33,7 +33,7 @@ class ApiReal extends Api {
   };
 
   static Future<Encrypter?> _getEncrypter() async {
-    String? content = (await AppConfig.getHostState())?.publicKey;
+    String? content = (await AppConfig.getServerStatus())?.publicKey;
     if (content == null || content.isEmpty) {
       return null;
     }
@@ -75,7 +75,7 @@ class ApiReal extends Api {
     if (!await AppConfig.isServerAddressConfiged()) {
       return path;
     }
-    String address = await AppConfig.getHostAddress();
+    String address = await AppConfig.getServerAddress();
     return Uri.http(address, path).toString();
   }
 
@@ -84,8 +84,8 @@ class ApiReal extends Api {
     if (!await AppConfig.isServerAddressConfiged()) {
       return path;
     }
-    var state = await AppConfig.getHostState();
-    var hostAddress = await AppConfig.getHostAddress();
+    var state = await AppConfig.getServerStatus();
+    var hostAddress = await AppConfig.getServerAddress();
     String address = state?.staticAddress ?? hostAddress;
     return Uri.http(address, path).toString();
   }
@@ -107,7 +107,7 @@ class ApiReal extends Api {
         "message": "HOST_NOT_CONFIGED",
       });
     }
-    var state = await getServerStatus(await AppConfig.getHostAddress());
+    var state = await getServerStatus(await AppConfig.getServerAddress());
     if (state.success) {
       await AppConfig.saveServerStatus(state.data!);
     }
@@ -131,7 +131,7 @@ class ApiReal extends Api {
   Future<LoginResponse> postLogin(
       {required String username, required String password}) async {
     try {
-      var url = Uri.http(await AppConfig.getHostAddress(), "/api/user/login");
+      var url = Uri.http(await AppConfig.getServerAddress(), "/api/user/login");
       var headers = await httpHeaders();
       Response resp = await http.post(url,
           headers: headers,
@@ -149,7 +149,7 @@ class ApiReal extends Api {
   @override
   Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
     try {
-      var url = Uri.http(await AppConfig.getHostAddress(), "/api/store/walk");
+      var url = Uri.http(await AppConfig.getServerAddress(), "/api/store/walk");
       Response resp = await http.post(url,
           headers: await httpHeaders(), body: reqeust.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
@@ -162,8 +162,8 @@ class ApiReal extends Api {
   @override
   Future<Result> postCreateFolder(String path, String folderName) async {
     try {
-      var url =
-          Uri.http(await AppConfig.getHostAddress(), "/api/store/createFolder");
+      var url = Uri.http(
+          await AppConfig.getServerAddress(), "/api/store/createFolder");
       Response resp = await http.post(url,
           headers: await httpHeaders(),
           body: jsonEncode({
@@ -180,8 +180,8 @@ class ApiReal extends Api {
   @override
   Future<Result> postDeleteFile(String fullPath) async {
     try {
-      var url =
-          Uri.http(await AppConfig.getHostAddress(), "/api/store/deleteFiles");
+      var url = Uri.http(
+          await AppConfig.getServerAddress(), "/api/store/deleteFiles");
       Response resp = await http.post(url,
           headers: await httpHeaders(),
           body: jsonEncode({
@@ -197,7 +197,7 @@ class ApiReal extends Api {
   @override
   Future<Result> getFileExists(String fullPath) async {
     try {
-      var url = Uri.http(await AppConfig.getHostAddress(),
+      var url = Uri.http(await AppConfig.getServerAddress(),
           joinPath("/api/store/fileExists", fullPath));
       Response resp = await http.get(url, headers: await httpHeaders());
       return Result.fromJson(utf8.decode(resp.bodyBytes));
@@ -216,7 +216,7 @@ class ApiReal extends Api {
     required Stream<List<int>> stream,
   }) async {
     try {
-      var uri = Uri.http(await AppConfig.getHostAddress(),
+      var uri = Uri.http(await AppConfig.getServerAddress(),
           joinPath("/api/store/upload", dest));
       var request = http.MultipartRequest("POST", uri)
         ..headers.addAll(await httpHeaders())
@@ -234,7 +234,7 @@ class ApiReal extends Api {
   @override
   Future<RangeData> rangeGetStatic(String path, int start, int end) async {
     try {
-      var url = Uri.http(await AppConfig.getHostAddress(), path);
+      var url = Uri.http(await AppConfig.getServerAddress(), path);
       Map<String, String> headers = {"Range": "bytes=$start-$end"};
       var authHeader = await httpHeaders();
       headers.addAll(authHeader);

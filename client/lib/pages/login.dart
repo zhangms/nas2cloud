@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
 
@@ -16,7 +15,6 @@ class _LoginPageState extends State<LoginPage> {
   var username = TextEditingController();
   var password = TextEditingController();
   var errorMessage = "";
-  late AppState appState;
 
   @override
   Widget build(BuildContext context) {
