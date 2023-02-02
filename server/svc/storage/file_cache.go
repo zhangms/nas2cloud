@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"errors"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -36,6 +37,9 @@ func (r *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
 	str, err := cache.Get(key)
 	if err != nil {
 		return nil, err
+	}
+	if len(str) == 0 {
+		return nil, nil
 	}
 	obj := &vfs.ObjectInfo{}
 	err = json.Unmarshal([]byte(str), obj)
@@ -192,9 +196,15 @@ func (r *fileCacheMgr) delete(path string) error {
 }
 
 func (r *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
-	info, err := vfs.Info(userRoles, file)
+	info, err := r.get(file)
+	if info == nil && err == nil {
+		info, err = vfs.Info(userRoles, file)
+	}
 	if err != nil {
 		return err
+	}
+	if info == nil {
+		return errors.New("file not exists:" + file)
 	}
 	info.Size = size
 	return r.save(info)
