@@ -26,4 +26,9 @@ class AppState extends ChangeNotifier {
     await AppConfig.clearUserLogin();
     notifyListeners();
   }
+
+  Future<void> changeTheme(int theme) async {
+    await AppConfig.setTheme(theme);
+    notifyListeners();
+  }
 }

@@ -10,10 +10,12 @@ import 'package:nas2cloud/utils/spu.dart';
 
 class AppConfig {
   static const appId = "com.zms.nas2cloud";
+  static const _themeKey = "app.theme";
   static const _hostAddressKey = "app.host.address";
   static const _hostStateKey = "app.host.state";
   static const _loginTokenKey = "app.login.token";
   static const _useMockApiKey = "app.usemockapi";
+
   static bool _useMockApi = false;
 
   static Future<void> initialize() async {
@@ -104,5 +106,13 @@ class AppConfig {
         await Spu().remove(key);
       }
     }
+  }
+
+  static Future<int> getTheme() async {
+    return (await Spu().getInt(_themeKey)) ?? 0;
+  }
+
+  static Future<bool> setTheme(int theme) async {
+    return await Spu().setInt(_themeKey, theme);
   }
 }
