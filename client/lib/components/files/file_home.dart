@@ -89,11 +89,7 @@ class _FileHomePageState extends State<FileHomePage> {
           },
         );
       }),
-      title: FutureBuilder<String>(
-          future: AppConfig.getAppName(),
-          builder: (context, snapshot) {
-            return Text(snapshot.hasData ? snapshot.data! : "");
-          }),
+      title: AppWidgets.getAppNameText(),
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/login_response/data.dart' as userdata;
 import 'package:nas2cloud/api/dto/state_response/data.dart' as statdata;
 import 'package:nas2cloud/components/notification/notification.dart';
+import 'package:nas2cloud/components/setting/setting_page.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
@@ -81,7 +82,13 @@ class TestPage extends StatelessWidget {
     // FlutterUploader().progress.forEach((element) {
     //   print("uploader-->$element");
     // });
-    AutoUploader().executeAutoupload();
+    // AutoUploader().executeAutoupload();
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => SettingPage(),
+      ),
+    );
   }
 
   saveAppState() async {

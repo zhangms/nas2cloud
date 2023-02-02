@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
 import 'package:provider/provider.dart';
 
@@ -62,13 +62,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   buildAppBar() {
-    return AppBar(
-      title: FutureBuilder<String>(
-          future: AppConfig.getAppName(),
-          builder: (context, snapshot) {
-            return Text(snapshot.hasData ? snapshot.data! : "Nas2coud");
-          }),
-    );
+    return AppBar(title: AppWidgets.getAppNameText(useDefault: true));
   }
 
   setErrorMsg(String message) {

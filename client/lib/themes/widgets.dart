@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/app_config.dart';
 
 class AppWidgets {
   static Widget getPageLoadingView() {
@@ -35,6 +36,16 @@ class AppWidgets {
 
   static Widget getRepeatRotation(Widget child, int rotationDuration) {
     return RepeatRotation(child, rotationDuration);
+  }
+
+  static getAppNameText({bool? useDefault}) {
+    return FutureBuilder<String>(
+        future: AppConfig.getAppName(),
+        builder: (context, snapshot) {
+          return Text(snapshot.hasData
+              ? snapshot.data!
+              : (useDefault ?? false ? "Nas2cloud" : ""));
+        });
   }
 }
 

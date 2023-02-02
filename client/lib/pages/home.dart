@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/files/file_home.dart';
@@ -33,11 +32,7 @@ class HomePage extends StatelessWidget {
   buildAppBar() {
     return AppBar(
       leading: Icon(Icons.menu),
-      title: FutureBuilder<String>(
-          future: AppConfig.getAppName(),
-          builder: (context, snapshot) {
-            return Text(snapshot.hasData ? snapshot.data! : "Nas2coud");
-          }),
+      title: AppWidgets.getAppNameText(useDefault: true),
     );
   }
 
