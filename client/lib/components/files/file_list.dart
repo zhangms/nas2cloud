@@ -254,9 +254,7 @@ class _FileListPageState extends State<FileListPage> {
             child: Text("显示当前位置"),
           ),
           PopupMenuItem(
-            onTap: (() {
-              popAll();
-            }),
+            onTap: () => popAll(),
             child: Text("回到首页"),
           ),
         ];
@@ -266,7 +264,7 @@ class _FileListPageState extends State<FileListPage> {
 
   Future<void> popAll() async {
     var nav = Navigator.of(context);
-    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/'));
+    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/home'));
   }
 
   buildCreateFolderDialog(BuildContext context) {

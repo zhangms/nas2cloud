@@ -18,8 +18,8 @@ class AppConfig {
   static const appId = "com.zms.nas2cloud";
   static const _themeKey = "app.theme";
   static const _autouploadWlanKey = "app.autoupload.wlan";
-  static const _hostAddressKey = "app.host.address";
-  static const _hostStateKey = "app.host.state";
+  static const _serverAddressKey = "app.server.address";
+  static const _serverStatusKey = "app.server.status";
   static const _loginTokenKey = "app.login.token";
   static const _useMockApiKey = "app.usemockapi";
 
@@ -50,23 +50,23 @@ class AppConfig {
   }
 
   static Future<bool> saveHostAddress(String address) async {
-    return await Spu().setString(_hostAddressKey, address);
+    return await Spu().setString(_serverAddressKey, address);
   }
 
   static Future<String> getHostAddress() async {
-    return await Spu().getString(_hostAddressKey) ?? "";
+    return await Spu().getString(_serverAddressKey) ?? "";
   }
 
-  static Future<bool> isHostAddressConfiged() async {
-    return (await Spu().getString(_hostAddressKey)) != null;
+  static Future<bool> isServerAddressConfiged() async {
+    return (await Spu().getString(_serverAddressKey)) != null;
   }
 
-  static Future<bool> saveHostState(statedto.Data state) async {
-    return await Spu().setString(_hostStateKey, state.toJson());
+  static Future<bool> saveServerStatus(statedto.Data state) async {
+    return await Spu().setString(_serverStatusKey, state.toJson());
   }
 
   static Future<statedto.Data?> getHostState() async {
-    final String? str = await Spu().getString(_hostStateKey);
+    final String? str = await Spu().getString(_serverStatusKey);
     return str == null ? null : statedto.Data.fromJson(str);
   }
 
@@ -100,16 +100,16 @@ class AppConfig {
     return info?.username;
   }
 
-  static Future<void> clearHostAddress() async {
-    await Spu().remove(_hostStateKey);
-    await Spu().remove(_hostAddressKey);
+  static Future<void> clearServerAddress() async {
+    await Spu().remove(_serverStatusKey);
+    await Spu().remove(_serverAddressKey);
   }
 
   static Future<void> clearUserLogin() async {
     await Spu().remove(_loginTokenKey);
     var keys = await Spu().getKeys();
     for (var key in keys) {
-      if (key != _hostAddressKey) {
+      if (key != _serverAddressKey) {
         await Spu().remove(key);
       }
     }

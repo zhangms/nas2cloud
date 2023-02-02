@@ -37,9 +37,9 @@ abstract class Api {
 
   Future<String> signUrl(String url);
 
-  Future<StateResponse> getHostStateIfConfiged();
+  Future<StateResponse> tryGetServerStatus();
 
-  Future<StateResponse> getHostState(String address);
+  Future<StateResponse> getServerStatus(String address);
 
   Future<LoginResponse> postLogin(
       {required String username, required String password});

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
-import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    appState = context.watch<AppState>();
     return Scaffold(
       appBar: buildAppBar(),
       body: buildBody(),
@@ -51,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height: 20,
                   ),
-                  buildResetHostButton(),
+                  buildResetServerAddressButton(),
                 ],
               ),
             ),
@@ -71,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  login(AppState appState) async {
+  login() async {
     setErrorMsg("");
     if (!_loginFormKey.currentState!.validate()) {
       return;
@@ -84,25 +83,27 @@ class _LoginPageState extends State<LoginPage> {
       setErrorMsg(response.message ?? "Error");
       return;
     }
-    await appState.login(response.data!);
+    await AppConfig.saveUserLoginInfo(response.data!);
+    var status = await Api().tryGetServerStatus();
+    if (!status.success) {
+      setErrorMsg(status.message ?? "Error");
+      return;
+    }
+    await AppConfig.saveServerStatus(status.data!);
+    setState(() {
+      Navigator.of(context).pushReplacementNamed("/home");
+    });
   }
 
   Widget buildLoginButton() {
-    var appState = context.watch<AppState>();
     return Column(
       children: [
         Text(errorMessage),
-        SizedBox(
-          height: 20,
-        ),
+        SizedBox(height: 20),
         SizedBox(
           width: 200,
           height: 45,
-          child: ElevatedButton(
-              onPressed: (() {
-                login(appState);
-              }),
-              child: Text("登录")),
+          child: ElevatedButton(onPressed: (() => login()), child: Text("登录")),
         ),
       ],
     );
@@ -150,11 +151,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  buildResetHostButton() {
+  buildResetServerAddressButton() {
     return TextButton(
-        onPressed: (() {
-          appState.clearHostAddress();
-        }),
-        child: Text("重设服务器地址"));
+        onPressed: (() => resetServerAddress()), child: Text("重设服务器地址"));
+  }
+
+  resetServerAddress() async {
+    await AppConfig.clearServerAddress();
+    setState(() {
+      Navigator.of(context).pushReplacementNamed("/config");
+    });
   }
 }

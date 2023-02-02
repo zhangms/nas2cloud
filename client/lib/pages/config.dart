@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
-import 'package:provider/provider.dart';
 
 class ConfigPage extends StatefulWidget {
   @override
@@ -16,7 +14,6 @@ class _ConfigPageState extends State<ConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<AppState>();
     return Scaffold(
       appBar: AppBar(
         title: Text(AppConfig.defaultAppName),
@@ -30,16 +27,10 @@ class _ConfigPageState extends State<ConfigPage> {
                 errorText: errorMessage,
                 labelText: "服务器地址",
                 suffixIcon: IconButton(
-                    onPressed: (() {
-                      onNext(appState);
-                    }),
+                    onPressed: (() => onNext()),
                     icon: Icon(Icons.arrow_forward))),
-            onSubmitted: (value) {
-              onNext(appState);
-            },
-            onChanged: (value) {
-              clearError();
-            },
+            onSubmitted: (value) => onNext(),
+            onChanged: (value) => clearError(),
           ),
         ),
       ),
@@ -58,16 +49,20 @@ class _ConfigPageState extends State<ConfigPage> {
     });
   }
 
-  onNext(AppState appState) async {
+  onNext() async {
     var address = addressTextController.text;
     if (address.startsWith("http://")) {
       address = address.substring("http://".length);
     }
     print("address:$address");
-    var response = await Api().getHostState(address);
+    var response = await Api().getServerStatus(address);
     if (response.success) {
-      clearError();
-      appState.updateHostState(address, response.data!);
+      await AppConfig.saveHostAddress(address);
+      await AppConfig.saveServerStatus(response.data!);
+      setState(() {
+        errorMessage = "";
+        Navigator.of(context).pushReplacementNamed("/login");
+      });
     } else {
       error(message: response.message ?? "ERROR");
     }

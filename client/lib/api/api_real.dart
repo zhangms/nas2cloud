@@ -72,7 +72,7 @@ class ApiReal extends Api {
 
   @override
   Future<String> getApiUrl(String path) async {
-    if (!await AppConfig.isHostAddressConfiged()) {
+    if (!await AppConfig.isServerAddressConfiged()) {
       return path;
     }
     String address = await AppConfig.getHostAddress();
@@ -81,7 +81,7 @@ class ApiReal extends Api {
 
   @override
   Future<String> getStaticFileUrl(String path) async {
-    if (!await AppConfig.isHostAddressConfiged()) {
+    if (!await AppConfig.isServerAddressConfiged()) {
       return path;
     }
     var state = await AppConfig.getHostState();
@@ -100,22 +100,22 @@ class ApiReal extends Api {
   }
 
   @override
-  Future<StateResponse> getHostStateIfConfiged() async {
-    if (!await AppConfig.isHostAddressConfiged()) {
+  Future<StateResponse> tryGetServerStatus() async {
+    if (!await AppConfig.isServerAddressConfiged()) {
       return StateResponse.fromMap({
         "success": true,
         "message": "HOST_NOT_CONFIGED",
       });
     }
-    var state = await getHostState(await AppConfig.getHostAddress());
+    var state = await getServerStatus(await AppConfig.getHostAddress());
     if (state.success) {
-      await AppConfig.saveHostState(state.data!);
+      await AppConfig.saveServerStatus(state.data!);
     }
     return state;
   }
 
   @override
-  Future<StateResponse> getHostState(String address) async {
+  Future<StateResponse> getServerStatus(String address) async {
     try {
       var url = Uri.http(address, "api/state");
       var headers = await httpHeaders();

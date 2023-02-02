@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/pages/config.dart';
 import 'package:nas2cloud/pages/home.dart';
+import 'package:nas2cloud/pages/login.dart';
+import 'package:nas2cloud/pages/splash.dart';
+import 'package:nas2cloud/pages/test.dart';
 import 'package:nas2cloud/themes/app_theme.dark.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
 import 'package:provider/provider.dart';
@@ -39,12 +43,14 @@ class _MyAppState extends State<_MyApp> {
           _MyAppModel data = snapshot.data ?? _MyAppModel.getDefaultValue();
           return MaterialApp(
             title: data.appName,
-            home: HomePage(),
-            // home: TestPage(),
+            home: SplashPage(),
             theme: getLightTheme(data),
             darkTheme: getDarkTheme(data),
             routes: <String, WidgetBuilder>{
               "/home": (_) => HomePage(),
+              "/login": (_) => LoginPage(),
+              "/config": (_) => ConfigPage(),
+              "/test": (_) => TestPage(),
             },
           );
         });

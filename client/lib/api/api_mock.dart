@@ -27,7 +27,7 @@ class ApiMock extends Api {
   }
 
   @override
-  Future<StateResponse> getHostState(String address) async {
+  Future<StateResponse> getServerStatus(String address) async {
     return StateResponse.fromMap({
       "success": true,
       "message": "OK",
@@ -40,8 +40,8 @@ class ApiMock extends Api {
   }
 
   @override
-  Future<StateResponse> getHostStateIfConfiged() async {
-    return await getHostState("xxx");
+  Future<StateResponse> tryGetServerStatus() async {
+    return await getServerStatus("xxx");
   }
 
   @override

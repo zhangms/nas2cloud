@@ -101,7 +101,7 @@ class TestPage extends StatelessWidget {
         createTime: DateTime.now().toString()));
     var loginInfo = await AppConfig.getUserLoginInfo();
     print("loginInfo--->$loginInfo");
-    await AppConfig.saveHostState(statdata.Data(
+    await AppConfig.saveServerStatus(statdata.Data(
       appName: "HELLO",
       publicKey: "",
       userName: "zms",
@@ -141,6 +141,6 @@ class TestPage extends StatelessWidget {
     await AutoUploader().clearConfig();
     await AppConfig.useMockApi(false);
     await AppConfig.clearUserLogin();
-    await AppConfig.clearHostAddress();
+    await AppConfig.clearServerAddress();
   }
 }
