@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -25,9 +26,7 @@ class _SettingPageState extends State<SettingPage> {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
+        onPressed: () => AppNav.pop(context),
       ),
       title: AppWidgets.getAppNameText(),
     );

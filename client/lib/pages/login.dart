@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
 
@@ -89,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     await AppConfig.saveServerStatus(status.data!);
     setState(() {
-      Navigator.of(context).pushReplacementNamed("/home");
+      AppNav.gohome(context);
     });
   }
 
@@ -157,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
   resetServerAddress() async {
     await AppConfig.clearServerAddress();
     setState(() {
-      Navigator.of(context).pushReplacementNamed("/config");
+      AppNav.goServerAddressConfig(context);
     });
   }
 }

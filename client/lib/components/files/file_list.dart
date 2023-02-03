@@ -16,6 +16,7 @@ import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 
@@ -255,17 +256,12 @@ class _FileListPageState extends State<FileListPage> {
             child: Text("显示当前位置"),
           ),
           PopupMenuItem(
-            onTap: () => popAll(),
+            onTap: () => AppNav.gohome(context),
             child: Text("回到首页"),
           ),
         ];
       },
     );
-  }
-
-  Future<void> popAll() async {
-    var nav = Navigator.of(context);
-    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/home'));
   }
 
   buildCreateFolderDialog(BuildContext context) {
@@ -432,12 +428,7 @@ class _FileListPageState extends State<FileListPage> {
 
   void openNewPage(Widget widget, {String? name}) {
     clearMessage();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        settings: RouteSettings(name: name),
-        builder: (context) => widget,
-      ),
-    );
+    AppNav.open(context, widget);
   }
 
   openUploadTaskPage() {
@@ -448,7 +439,7 @@ class _FileListPageState extends State<FileListPage> {
 
   void pop() {
     clearMessage();
-    Navigator.of(context).pop();
+    AppNav.pop(context);
   }
 
   void showItemDeleteConfirm(File item) {

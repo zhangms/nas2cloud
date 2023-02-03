@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/utils/adaptive.dart';
 
 class ConfigPage extends StatefulWidget {
@@ -61,7 +62,7 @@ class _ConfigPageState extends State<ConfigPage> {
       await AppConfig.saveServerStatus(response.data!);
       setState(() {
         errorMessage = "";
-        Navigator.of(context).pushReplacementNamed("/login");
+        AppNav.goLogin(context);
       });
     } else {
       error(message: response.message ?? "ERROR");

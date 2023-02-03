@@ -5,6 +5,7 @@ import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/components/gallery/pdf_viewer.dart';
 import 'package:nas2cloud/components/gallery/text_reader.dart';
 import 'package:nas2cloud/components/gallery/video_player.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:photo_view/photo_view.dart';
@@ -143,9 +144,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
+        onPressed: () => AppNav.pop(context),
       ),
       title: Text("($index/${widget.files.length})${item.name}"),
     );

@@ -4,6 +4,7 @@ import 'package:nas2cloud/api/dto/file_walk_request.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
 import 'package:nas2cloud/components/files/file_list.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 class FileHomePage extends StatelessWidget {
@@ -46,11 +47,7 @@ class FileHomePage extends StatelessWidget {
       trailing: Icon(Icons.navigate_next),
       onTap: () {
         if (item.type == "DIR") {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => FileListPage(item.path, item.name),
-            ),
-          );
+          AppNav.open(context, FileListPage(item.path, item.name));
         }
       },
     );

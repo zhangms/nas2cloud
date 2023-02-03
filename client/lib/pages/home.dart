@@ -5,6 +5,7 @@ import 'package:nas2cloud/api/dto/state_response/state_response.dart';
 import 'package:nas2cloud/components/files/file_home.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/pages/home_drawer.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 
 import '../themes/widgets.dart';
 
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     await FileUploader.platform.cancelAndClearAll();
     await AppConfig.clearUserLogin();
     setState(() {
-      Navigator.of(context).pushReplacementNamed("/login");
+      AppNav.goLogin(context);
     });
   }
 

@@ -8,6 +8,7 @@ import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/pages/local_file_grid_view.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
@@ -112,11 +113,7 @@ class _AndroidAutoUploadConfigWidgetState
   }
 
   showConfig(_AutoUploadConfigWrapper cfg) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => _ConfigView(cfg.config, onSave),
-      ),
-    );
+    AppNav.open(context, _ConfigView(cfg.config, onSave));
   }
 
   onSave(AutoUploadConfig config) async {
@@ -217,8 +214,7 @@ class _ConfigViewState extends State<_ConfigView> {
       appBar: AppBar(
         title: Text(stateConfig.name),
         leading: IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(Icons.close)),
+            onPressed: () => AppNav.pop(context), icon: Icon(Icons.close)),
         actions: [IconButton(onPressed: () => save(), icon: Icon(Icons.done))],
       ),
       body: buildBody(),
@@ -242,7 +238,7 @@ class _ConfigViewState extends State<_ConfigView> {
     stateConfig.remote = remoteLocation.text;
     widget.save(stateConfig);
     setState(() {
-      Navigator.of(context).pop();
+      AppNav.pop(context);
     });
   }
 

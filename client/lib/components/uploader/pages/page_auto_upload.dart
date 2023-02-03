@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 import 'page_auto_upload_android.dart';
@@ -28,9 +29,7 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
         icon: Icon(
           Icons.arrow_back,
         ),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
+        onPressed: () => AppNav.pop(context),
       ),
       title: Text("自动上传"),
       actions: [buildMoreMenu()],
@@ -70,11 +69,7 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
 
   openUploadTaskPage() {
     Future.delayed(const Duration(milliseconds: 100), (() {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => FileUploadTaskPage(),
-        ),
-      );
+      AppNav.open(context, FileUploadTaskPage());
     }));
   }
 

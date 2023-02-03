@@ -9,6 +9,7 @@ import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 
 class TestPage extends StatelessWidget {
   @override
@@ -50,8 +51,7 @@ class TestPage extends StatelessWidget {
   }
 
   gohome(BuildContext context) {
-    var nav = Navigator.of(context);
-    nav.pushNamedAndRemoveUntil("/home", ModalRoute.withName('/'));
+    AppNav.gohome(context);
   }
 
   mock() async {
@@ -73,22 +73,7 @@ class TestPage extends StatelessWidget {
   }
 
   exec(BuildContext context) async {
-    // Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (context) => FileUploadTaskPage(),
-    //   ),
-    // );
-
-    // FlutterUploader().progress.forEach((element) {
-    //   print("uploader-->$element");
-    // });
-    // AutoUploader().executeAutoupload();
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SettingPage(),
-      ),
-    );
+    AppNav.open(context, SettingPage());
   }
 
   saveAppState() async {

@@ -4,6 +4,7 @@ import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/data_size.dart';
 import 'package:path/path.dart' as p;
@@ -76,7 +77,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
           Icons.arrow_back,
         ),
         onPressed: () {
-          Navigator.of(context).pop();
+          AppNav.pop(context);
         },
       ),
       title: Text("文件上传任务"),

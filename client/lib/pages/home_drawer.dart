@@ -4,6 +4,7 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/setting/setting_page.dart';
 import 'package:nas2cloud/components/uploader/pages/page_auto_upload.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -63,12 +64,8 @@ class _HomeDrawerState extends State<HomeDrawer> {
       title: Text("设置"),
       leading: const Icon(Icons.settings),
       onTap: () {
-        Navigator.pop(context);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => SettingPage(),
-          ),
-        );
+        AppNav.pop(context);
+        AppNav.open(context, SettingPage());
       },
     );
   }
@@ -78,7 +75,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       title: Text("退出登录"),
       leading: const Icon(Icons.logout),
       onTap: () {
-        Navigator.pop(context);
+        AppNav.pop(context);
         showDialog(
             context: context,
             builder: ((context) {
@@ -88,12 +85,12 @@ class _HomeDrawerState extends State<HomeDrawer> {
                 actions: [
                   TextButton(
                       onPressed: (() {
-                        Navigator.of(context).pop();
+                        AppNav.pop(context);
                       }),
                       child: Text("取消")),
                   TextButton(
                       onPressed: (() {
-                        Navigator.of(context).pop();
+                        AppNav.pop(context);
                         widget.logoutCallback();
                       }),
                       child: Text("确定")),
@@ -109,12 +106,8 @@ class _HomeDrawerState extends State<HomeDrawer> {
       title: Text("自动上传"),
       leading: const Icon(Icons.cloud_upload),
       onTap: () {
-        Navigator.pop(context);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => AutoUploadPage(),
-          ),
-        );
+        AppNav.pop(context);
+        AppNav.open(context, AutoUploadPage());
       },
     );
   }
@@ -124,7 +117,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       title: Text("照片"),
       leading: const Icon(Icons.image),
       onTap: () {
-        Navigator.pop(context);
+        AppNav.pop(context);
         showMessage("尚未支持");
       },
     );

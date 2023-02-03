@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -22,14 +23,14 @@ class _SplashPageState extends State<SplashPage> {
     var test = await Future.value(true);
     if (test) {
       setState(() {
-        Navigator.of(context).pushReplacementNamed("/test");
+        AppNav.goTest(context);
       });
       return;
     }
     var serverConfiged = await AppConfig.isServerAddressConfiged();
     if (!serverConfiged) {
       setState(() {
-        Navigator.of(context).pushReplacementNamed("/config");
+        AppNav.goServerAddressConfig(context);
       });
       return;
     }
@@ -37,14 +38,14 @@ class _SplashPageState extends State<SplashPage> {
     var userLogged = await AppConfig.isUserLogged();
     if (!userLogged) {
       setState(() {
-        Navigator.of(context).pushReplacementNamed("/login");
+        AppNav.goLogin(context);
       });
       return;
     }
     var home = await Future.value(true);
     if (home) {
       setState(() {
-        Navigator.of(context).pushReplacementNamed("/home");
+        AppNav.gohome(context);
       });
     }
   }
