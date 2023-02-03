@@ -52,6 +52,13 @@ build_appweb_local(){
     cp -r client/build/web/*  release/local/app
 }
 
+build_apk() {
+    cd client
+    flutter build apk
+    cd ..
+    cp client/build/app/outputs/apk/release/app-release.apk release
+}
+
 install() {
     if [ "$BUILD_TYPE" == "local" ]; then
         install_local
@@ -73,6 +80,9 @@ main(){
     ;;
     appweb)
         build_appweb
+    ;;
+    apk)
+        build_apk
     ;;
     install)
         install
