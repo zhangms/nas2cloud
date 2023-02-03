@@ -63,6 +63,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
     return ListTile(
       title: Text("设置"),
       leading: const Icon(Icons.settings),
+      trailing: Icon(Icons.navigate_next),
       onTap: () {
         AppNav.pop(context);
         AppNav.openPage(context, SettingPage());
@@ -105,6 +106,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
     return ListTile(
       title: Text("自动上传"),
       leading: const Icon(Icons.cloud_upload),
+      trailing: Icon(Icons.navigate_next),
       onTap: () {
         AppNav.pop(context);
         AppNav.openPage(context, AutoUploadPage());
@@ -116,6 +118,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
     return ListTile(
       title: Text("照片"),
       leading: const Icon(Icons.image),
+      trailing: Icon(Icons.navigate_next),
       onTap: () {
         AppNav.pop(context);
         showMessage("尚未支持");
