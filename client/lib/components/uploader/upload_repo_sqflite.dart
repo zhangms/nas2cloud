@@ -148,6 +148,7 @@ class UploadRepoSqflite extends UploadRepository {
     var resultSet = await database.query("t_upload_entry",
         where: "status=?",
         whereArgs: [status],
+        orderBy: "id desc",
         offset: page * pageSize,
         limit: pageSize);
     var list = await Stream.fromIterable(resultSet)

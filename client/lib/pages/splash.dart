@@ -19,6 +19,13 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> loadServerStatus() async {
+    var test = await Future.value(true);
+    if (test) {
+      setState(() {
+        Navigator.of(context).pushReplacementNamed("/test");
+      });
+      return;
+    }
     var serverConfiged = await AppConfig.isServerAddressConfiged();
     if (!serverConfiged) {
       setState(() {
@@ -34,8 +41,11 @@ class _SplashPageState extends State<SplashPage> {
       });
       return;
     }
-    setState(() {
-      Navigator.of(context).pushReplacementNamed("/home");
-    });
+    var home = await Future.value(true);
+    if (home) {
+      setState(() {
+        Navigator.of(context).pushReplacementNamed("/home");
+      });
+    }
   }
 }

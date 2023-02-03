@@ -76,6 +76,10 @@ class _AndroidAutoUploadConfigWidgetState
     return ListView(
       children: [
         buildAutoUploadSetting(),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Divider(),
+        ),
         for (var cfg in config.configs)
           ListTile(
             leading: cfg.autoupload ? Icon(Icons.cloud) : Icon(Icons.cloud_off),

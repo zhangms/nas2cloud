@@ -159,19 +159,23 @@ Future<void> handleUploadTaskStatus({
   switch (statusName) {
     case "Enqueued":
     case "Paused":
-      var result = entry.copyWith(
-        status: UploadStatus.waiting.name,
-        message: "$statusName:$message",
-      );
-      await UploadRepository.platform.update(result);
+      if (!UploadStatus.match(entry.status, UploadStatus.waiting)) {
+        var result = entry.copyWith(
+          status: UploadStatus.waiting.name,
+          message: "$statusName:$message",
+        );
+        await UploadRepository.platform.update(result);
+      }
       LocalNotification.platform.clear(id: entry.id ?? 0);
       break;
     case "Running":
-      var result = entry.copyWith(
-        status: UploadStatus.uploading.name,
-        message: "$statusName:$message,$progress",
-      );
-      await UploadRepository.platform.update(result);
+      if (!UploadStatus.match(entry.status, UploadStatus.uploading)) {
+        var result = entry.copyWith(
+          status: UploadStatus.uploading.name,
+          message: "$statusName:$message,$progress",
+        );
+        await UploadRepository.platform.update(result);
+      }
       if (progress != null) {
         LocalNotification.platform.progress(
             id: entry.id ?? 0,
@@ -181,24 +185,28 @@ Future<void> handleUploadTaskStatus({
       }
       break;
     case "Completed":
-      var result = entry.copyWith(
-        status: UploadStatus.successed.name,
-        endUploadTime: DateTime.now().millisecondsSinceEpoch,
-        message: "$statusName:$message,$progress",
-      );
-      await UploadRepository.platform.update(result);
-      FileUploader.notifyListeners(result);
+      if (!UploadStatus.match(entry.status, UploadStatus.successed)) {
+        var result = entry.copyWith(
+          status: UploadStatus.successed.name,
+          endUploadTime: DateTime.now().millisecondsSinceEpoch,
+          message: "$statusName:$message,$progress",
+        );
+        await UploadRepository.platform.update(result);
+        FileUploader.notifyListeners(result);
+      }
       LocalNotification.platform.clear(id: entry.id ?? 0);
       break;
     case "Failed":
     case "Cancelled":
-      var result = entry.copyWith(
-        status: UploadStatus.failed.name,
-        endUploadTime: DateTime.now().millisecondsSinceEpoch,
-        message: "$statusName:$message,$progress",
-      );
-      await UploadRepository.platform.update(result);
-      FileUploader.notifyListeners(result);
+      if (!UploadStatus.match(entry.status, UploadStatus.failed)) {
+        var result = entry.copyWith(
+          status: UploadStatus.failed.name,
+          endUploadTime: DateTime.now().millisecondsSinceEpoch,
+          message: "$statusName:$message,$progress",
+        );
+        await UploadRepository.platform.update(result);
+        FileUploader.notifyListeners(result);
+      }
       LocalNotification.platform.send(
           id: entry.id ?? 0,
           title: p.basename(entry.src),
