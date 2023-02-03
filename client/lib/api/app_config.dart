@@ -111,13 +111,13 @@ class AppConfig {
   }
 
   static Future<void> clearUserLogin() async {
-    await Spu().remove(_loginTokenKey);
     var keys = await Spu().getKeys();
     for (var key in keys) {
-      if (key != _serverAddressKey) {
+      if (key != _serverAddressKey && key != _loginTokenKey) {
         await Spu().remove(key);
       }
     }
+    await Spu().remove(_loginTokenKey);
   }
 
   static Future<int> getThemeSetting() async {

@@ -4,7 +4,6 @@ import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
-import 'package:uuid/uuid.dart';
 
 class WebUploader extends FileUploader {
   @override
@@ -43,8 +42,7 @@ class WebUploader extends FileUploader {
     if (savedEntry == null) {
       return false;
     }
-
-    var taskId = Uuid().v1();
+    var taskId = "${entry.src}:${entry.dest}";
     if (savedEntry.size / 1024 / 1024 >= 500) {
       var ret = savedEntry.copyWith(
         uploadTaskId: taskId,
