@@ -15,6 +15,20 @@
             ]
         },
         {
+            "name": "client mock",
+            "type": "dart",
+            "request": "launch",
+            "program": "client/lib/main.dart",
+            "args": [
+                "--web-port",
+                "3000"
+            ],
+            "toolArgs": [
+                "--dart-define",
+                "mock=true"
+            ]
+        },
+        {
             "name": "server",
             "type": "go",
             "request": "launch",

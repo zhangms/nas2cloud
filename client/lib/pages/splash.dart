@@ -20,8 +20,8 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> loadServerStatus() async {
-    var test = await Future.value(true);
-    if (test) {
+    const mock = String.fromEnvironment("mock");
+    if (mock == "true") {
       setState(() {
         AppNav.goTest(context);
       });
