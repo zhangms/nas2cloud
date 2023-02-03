@@ -16,3 +16,16 @@ func TestNav(t *testing.T) {
 	// data, _ := json.Marshal(nav)
 	// fmt.Println(string(data))
 }
+
+func TestDefer(t *testing.T) {
+	v := testdefer()
+	println(v)
+}
+
+func testdefer() (i int) {
+	defer func() {
+		i = 20
+	}()
+	i = 10
+	return i
+}
