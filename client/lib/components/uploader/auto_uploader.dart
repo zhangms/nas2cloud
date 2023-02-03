@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
@@ -74,6 +75,9 @@ class AutoUploader {
   }
 
   Future<int> executeAutoupload() async {
+    if (kIsWeb) {
+      return -1;
+    }
     var autouploadWlan = await AppConfig.getAutouploadWlanSetting();
     if (autouploadWlan) {
       var connectivityResult = await Connectivity().checkConnectivity();
@@ -105,7 +109,7 @@ class AutoUploader {
         .map((file) => file.path)
         .where((file) => !FileHelper.isHidden(file))
         .where((file) => !FileSystemEntity.isDirectorySync(file))) {
-      var entry = FileUploader.toUploadEntry(
+      var entry = FileUploader.createEntryByFilepath(
         channel: config.uploadChannel,
         filepath: file,
         relativeFrom: config.basepath,

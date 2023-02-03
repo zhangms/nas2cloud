@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/components/notification/notification.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
@@ -25,8 +24,8 @@ class PathUploader extends FileUploader {
 
   @override
   Future<bool> uploadPath({required String src, required String dest}) async {
-    var entry = FileUploader.toUploadEntry(
-        channel: "uploadPath",
+    var entry = FileUploader.createEntryByFilepath(
+        channel: "upload",
         filepath: src,
         relativeFrom: p.dirname(src),
         remote: dest);
@@ -36,30 +35,8 @@ class PathUploader extends FileUploader {
   @override
   Future<bool> enqueue(UploadEntry entry) async {
     _syncTaskState();
-
-    var savedEntry = await UploadRepository.platform.saveIfNotExists(entry);
-    if (savedEntry.uploadTaskId != "none") {
-      return false;
-    }
-    var fileName = p.basename(savedEntry.src);
-    Result checkResult =
-        await Api().getFileExists(Api().joinPath(savedEntry.dest, fileName));
-    if (!checkResult.success) {
-      UploadRepository.platform.update(savedEntry.copyWith(
-        status: UploadStatus.failed.name,
-        message: "ERROR:${checkResult.message}",
-        beginUploadTime: DateTime.now().millisecondsSinceEpoch,
-        endUploadTime: DateTime.now().millisecondsSinceEpoch,
-      ));
-      return false;
-    }
-    if (checkResult.message == "true") {
-      UploadRepository.platform.update(savedEntry.copyWith(
-        status: UploadStatus.successed.name,
-        message: "remoteExists",
-        beginUploadTime: DateTime.now().millisecondsSinceEpoch,
-        endUploadTime: DateTime.now().millisecondsSinceEpoch,
-      ));
+    var savedEntry = await beforeUploadCheck(entry);
+    if (savedEntry == null) {
       return false;
     }
     var url = await Api()
@@ -72,7 +49,7 @@ class PathUploader extends FileUploader {
         method: UploadMethod.POST,
         headers: headers,
         data: {"lastModified": "${savedEntry.lastModified}"},
-        tag: fileName,
+        tag: p.basename(savedEntry.src),
       ),
     );
     UploadRepository.platform.update(savedEntry.copyWith(
@@ -83,12 +60,6 @@ class PathUploader extends FileUploader {
       uploadTaskId: taskId,
     ));
     return true;
-  }
-
-  @override
-  Future<bool> uploadEntryStream(
-      {required UploadEntry entry, required Stream<List<int>> stream}) {
-    throw UnimplementedError("use uploadPath");
   }
 
   @override
@@ -159,23 +130,17 @@ Future<void> handleUploadTaskStatus({
   switch (statusName) {
     case "Enqueued":
     case "Paused":
-      if (!UploadStatus.match(entry.status, UploadStatus.waiting)) {
-        var result = entry.copyWith(
-          status: UploadStatus.waiting.name,
-          message: "$statusName:$message",
-        );
-        await UploadRepository.platform.update(result);
-      }
       LocalNotification.platform.clear(id: entry.id ?? 0);
+      if (UploadStatus.match(entry.status, UploadStatus.waiting)) {
+        return;
+      }
+      var result = entry.copyWith(
+        status: UploadStatus.waiting.name,
+        message: "$statusName:$message",
+      );
+      await UploadRepository.platform.update(result);
       break;
     case "Running":
-      if (!UploadStatus.match(entry.status, UploadStatus.uploading)) {
-        var result = entry.copyWith(
-          status: UploadStatus.uploading.name,
-          message: "$statusName:$message,$progress",
-        );
-        await UploadRepository.platform.update(result);
-      }
       if (progress != null) {
         LocalNotification.platform.progress(
             id: entry.id ?? 0,
@@ -183,30 +148,40 @@ Future<void> handleUploadTaskStatus({
             body: "",
             progress: progress);
       }
+      if (UploadStatus.match(entry.status, UploadStatus.uploading)) {
+        return;
+      }
+      var result = entry.copyWith(
+        status: UploadStatus.uploading.name,
+        message: "$statusName:$message,$progress",
+      );
+      await UploadRepository.platform.update(result);
       break;
     case "Completed":
-      if (!UploadStatus.match(entry.status, UploadStatus.successed)) {
-        var result = entry.copyWith(
-          status: UploadStatus.successed.name,
-          endUploadTime: DateTime.now().millisecondsSinceEpoch,
-          message: "$statusName:$message,$progress",
-        );
-        await UploadRepository.platform.update(result);
-        FileUploader.notifyListeners(result);
-      }
       LocalNotification.platform.clear(id: entry.id ?? 0);
+      if (UploadStatus.match(entry.status, UploadStatus.successed)) {
+        return;
+      }
+      var result = entry.copyWith(
+        status: UploadStatus.successed.name,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+        message: "$statusName:$message,$progress",
+      );
+      await UploadRepository.platform.update(result);
+      FileUploader.notifyListeners(result);
       break;
     case "Failed":
     case "Cancelled":
-      if (!UploadStatus.match(entry.status, UploadStatus.failed)) {
-        var result = entry.copyWith(
-          status: UploadStatus.failed.name,
-          endUploadTime: DateTime.now().millisecondsSinceEpoch,
-          message: "$statusName:$message,$progress",
-        );
-        await UploadRepository.platform.update(result);
-        FileUploader.notifyListeners(result);
+      if (UploadStatus.match(entry.status, UploadStatus.failed)) {
+        return;
       }
+      var result = entry.copyWith(
+        status: UploadStatus.failed.name,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+        message: "$statusName:$message,$progress",
+      );
+      await UploadRepository.platform.update(result);
+      FileUploader.notifyListeners(result);
       LocalNotification.platform.send(
           id: entry.id ?? 0,
           title: p.basename(entry.src),

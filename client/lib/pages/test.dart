@@ -110,7 +110,7 @@ class TestPage extends StatelessWidget {
 
     for (var state in UploadStatus.values) {
       for (var i = 0; i < 2; i++) {
-        var entry = FileUploader.toUploadEntry(
+        var entry = FileUploader.createEntryByFilepath(
             channel: config.uploadChannel,
             filepath: "${config.path}/${state.name}_$i.png",
             relativeFrom: config.basepath,

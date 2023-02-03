@@ -3,7 +3,6 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/api/dto/page_data.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -93,15 +92,6 @@ class UploadRepoSqflite extends UploadRepository {
     }
     var id = await database.insert("t_upload_entry", entry.toMap());
     return entry.copyWith(id: id);
-  }
-
-  @override
-  Future<int> getWaitingCount(String channel) async {
-    var database = await _open();
-    return Sqflite.firstIntValue(await database.rawQuery(
-            "select count(1) from t_upload_entry where uploadGroupId=? and status=?",
-            [channel, UploadStatus.waiting.name])) ??
-        0;
   }
 
   @override

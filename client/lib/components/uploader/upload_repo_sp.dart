@@ -9,11 +9,6 @@ class UploadRepoSP extends UploadRepository {
   }
 
   @override
-  Future<int> getWaitingCount(String channel) {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<int> update(UploadEntry entry) {
     throw UnimplementedError();
   }

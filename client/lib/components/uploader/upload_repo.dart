@@ -23,8 +23,6 @@ abstract class UploadRepository {
  */
   Future<UploadEntry> saveIfNotExists(UploadEntry entry);
 
-  Future<int> getWaitingCount(String channel);
-
   Future<int> update(UploadEntry entry);
 
   Future<UploadEntry?> findByTaskId(String taskId);

@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/components/uploader/file_uploader_path.dart';
 import 'package:nas2cloud/components/uploader/file_uploader_web.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:path/path.dart' as p;
 
@@ -31,14 +34,11 @@ abstract class FileUploader {
     required Stream<List<int>> stream,
   });
 
-  Future<bool> uploadEntryStream(
-      {required UploadEntry entry, required Stream<List<int>> stream});
-
   Future<bool> uploadPath({required String src, required String dest});
 
   Future<bool> enqueue(UploadEntry entry);
 
-  static UploadEntry toUploadEntry({
+  static UploadEntry createEntryByFilepath({
     required String channel,
     required String filepath,
     required String relativeFrom,
@@ -83,4 +83,34 @@ abstract class FileUploader {
   }
 
   Future<void> clearTask(UploadStatus status);
+
+  @protected
+  Future<UploadEntry?> beforeUploadCheck(UploadEntry entry) async {
+    var savedEntry = await UploadRepository.platform.saveIfNotExists(entry);
+    if (savedEntry.uploadTaskId != "none") {
+      return null;
+    }
+    Result checkResult = await Api().getFileExists(
+      Api().joinPath(savedEntry.dest, p.basename(savedEntry.src)),
+    );
+    if (!checkResult.success) {
+      UploadRepository.platform.update(savedEntry.copyWith(
+        status: UploadStatus.failed.name,
+        message: "ERROR:${checkResult.message}",
+        beginUploadTime: DateTime.now().millisecondsSinceEpoch,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+      return null;
+    }
+    if (checkResult.message == "true") {
+      UploadRepository.platform.update(savedEntry.copyWith(
+        status: UploadStatus.successed.name,
+        message: "remoteExists",
+        beginUploadTime: DateTime.now().millisecondsSinceEpoch,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+      return null;
+    }
+    return savedEntry;
+  }
 }
