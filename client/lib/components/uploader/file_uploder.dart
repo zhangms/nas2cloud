@@ -95,6 +95,7 @@ abstract class FileUploader {
     );
     if (!checkResult.success) {
       UploadRepository.platform.update(savedEntry.copyWith(
+        uploadTaskId: "${savedEntry.src}:${savedEntry.dest}",
         status: UploadStatus.failed.name,
         message: "ERROR:${checkResult.message}",
         beginUploadTime: DateTime.now().millisecondsSinceEpoch,
@@ -104,6 +105,7 @@ abstract class FileUploader {
     }
     if (checkResult.message == "true") {
       UploadRepository.platform.update(savedEntry.copyWith(
+        uploadTaskId: "${savedEntry.src}:${savedEntry.dest}",
         status: UploadStatus.successed.name,
         message: "remoteExists",
         beginUploadTime: DateTime.now().millisecondsSinceEpoch,
