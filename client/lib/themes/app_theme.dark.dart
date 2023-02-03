@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AppDarkTheme {
-  static final themeData =
-      ThemeData.from(colorScheme: ColorScheme.dark(), useMaterial3: true);
+  static final _baseTheme =
+      ThemeData(brightness: Brightness.dark, useMaterial3: true);
+
+  static final themeData = _baseTheme.copyWith();
 }

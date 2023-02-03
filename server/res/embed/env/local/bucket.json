@@ -33,7 +33,7 @@
     "id": "Family",
     "name": "Family",
     "mountType": "local",
-    "endpoint": "/Volumes/Y/Mount",
+    "endpoint": "/Volumes/X/Mount",
     "authorize": "admin,family",
     "mode": "rw",
     "hidden": false
