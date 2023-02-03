@@ -69,12 +69,17 @@ class UploadRepoSP extends UploadRepository {
     var keys = await Stream.fromIterable(await Spu().getKeys())
         .where((event) => event.startsWith(_keyPrefix))
         .toList();
-    var list = await Stream.fromIterable(keys)
-        .map((event) => UploadEntry.fromJson(event))
-        .where((event) => status == event.status)
-        .skip(page * pageSize)
-        .take(pageSize)
-        .toList();
+
+    List<UploadEntry> list = [];
+    for (var key in keys) {
+      var value = await Spu().getString(key);
+      if (value != null) {
+        var entry = UploadEntry.fromJson(value);
+        if (entry.status == status) {
+          list.add(entry);
+        }
+      }
+    }
     return PageData(page, keys.length, list);
   }
 

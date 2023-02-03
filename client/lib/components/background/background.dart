@@ -33,8 +33,12 @@ class BackgroundProcessor {
 
   bool _inited = false;
 
+  bool isNotSupport() {
+    return kIsWeb;
+  }
+
   Future<void> initialize() async {
-    if (kIsWeb) {
+    if (isNotSupport()) {
       return;
     }
     if (_inited) {
@@ -47,6 +51,9 @@ class BackgroundProcessor {
   }
 
   Future<void> registerAutoUploadTask() async {
+    if (isNotSupport()) {
+      return;
+    }
     await Workmanager().registerPeriodicTask(
       "${AppConfig.appId}.periodic-autoupload-task",
       autoUploadTaskName,
@@ -59,6 +66,9 @@ class BackgroundProcessor {
   }
 
   Future<void> executeOnceAutoUploadTask() async {
+    if (isNotSupport()) {
+      return;
+    }
     var n = DateTime.now();
     var key = "${n.year}-${n.month}-${n.day} ${n.hour}:${n.minute}";
     await Workmanager().registerOneOffTask(

@@ -147,7 +147,6 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   Widget buildBodyView(AsyncSnapshot<FileWalkResponse> snapshot) {
-    print("build body");
     if (total < 0) {
       return AppWidgets.getPageLoadingView();
     }
