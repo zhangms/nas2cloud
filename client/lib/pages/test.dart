@@ -73,7 +73,7 @@ class TestPage extends StatelessWidget {
   }
 
   exec(BuildContext context) async {
-    AppNav.open(context, SettingPage());
+    AppNav.openPage(context, SettingPage());
   }
 
   saveAppState() async {

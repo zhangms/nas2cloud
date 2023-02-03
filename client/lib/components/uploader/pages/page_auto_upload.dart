@@ -69,7 +69,7 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
 
   openUploadTaskPage() {
     Future.delayed(const Duration(milliseconds: 100), (() {
-      AppNav.open(context, FileUploadTaskPage());
+      AppNav.openPage(context, FileUploadTaskPage());
     }));
   }
 

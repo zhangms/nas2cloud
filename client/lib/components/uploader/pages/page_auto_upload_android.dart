@@ -113,7 +113,7 @@ class _AndroidAutoUploadConfigWidgetState
   }
 
   showConfig(_AutoUploadConfigWrapper cfg) {
-    AppNav.open(context, _ConfigView(cfg.config, onSave));
+    AppNav.openPage(context, _ConfigView(cfg.config, onSave));
   }
 
   onSave(AutoUploadConfig config) async {

@@ -428,7 +428,7 @@ class _FileListPageState extends State<FileListPage> {
 
   void openNewPage(Widget widget, {String? name}) {
     clearMessage();
-    AppNav.open(context, widget);
+    AppNav.openPage(context, widget);
   }
 
   openUploadTaskPage() {

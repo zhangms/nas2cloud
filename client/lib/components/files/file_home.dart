@@ -47,7 +47,7 @@ class FileHomePage extends StatelessWidget {
       trailing: Icon(Icons.navigate_next),
       onTap: () {
         if (item.type == "DIR") {
-          AppNav.open(context, FileListPage(item.path, item.name));
+          AppNav.openPage(context, FileListPage(item.path, item.name));
         }
       },
     );

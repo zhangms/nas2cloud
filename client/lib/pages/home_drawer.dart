@@ -65,7 +65,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       leading: const Icon(Icons.settings),
       onTap: () {
         AppNav.pop(context);
-        AppNav.open(context, SettingPage());
+        AppNav.openPage(context, SettingPage());
       },
     );
   }
@@ -107,7 +107,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       leading: const Icon(Icons.cloud_upload),
       onTap: () {
         AppNav.pop(context);
-        AppNav.open(context, AutoUploadPage());
+        AppNav.openPage(context, AutoUploadPage());
       },
     );
   }
