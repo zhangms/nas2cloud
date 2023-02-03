@@ -58,7 +58,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
     super.dispose();
   }
 
-  onUploadStatusChange(UploadEntry entry) {
+  onUploadStatusChange(UploadEntry? entry) {
     setState(() {});
   }
 

@@ -72,27 +72,35 @@ class WebUploader extends FileUploader {
     return true;
   }
 
-  onUploadResponse(UploadEntry entry, Result value) {
-    UploadRepository.platform.update(entry.copyWith(
+  onUploadResponse(UploadEntry entry, Result value) async {
+    var result = entry.copyWith(
       status: value.success
           ? UploadStatus.successed.name
           : UploadStatus.failed.name,
       message: value.message,
-    ));
+    );
+    await UploadRepository.platform.update(result);
+    FileUploader.notifyListeners(result);
   }
 
-  onUploadError(UploadEntry entry, Object? error, StackTrace stackTrace) {
-    UploadRepository.platform.update(entry.copyWith(
+  onUploadError(UploadEntry entry, Object? error, StackTrace stackTrace) async {
+    var result = entry.copyWith(
       status: UploadStatus.failed.name,
       message: "ERROR:$error",
-    ));
+    );
+    await UploadRepository.platform.update(result);
+    FileUploader.notifyListeners(result);
   }
 
   @override
-  Future<void> cancelAndClearAll() async {}
+  Future<void> cancelAndClearAll() async {
+    await UploadRepository.platform.clearAll();
+    FileUploader.notifyListeners(null);
+  }
 
   @override
-  Future<void> clearTask(UploadStatus status) {
-    throw UnimplementedError();
+  Future<void> clearTask(UploadStatus status) async {
+    await UploadRepository.platform.deleteByStatus(status.name);
+    FileUploader.notifyListeners(null);
   }
 }

@@ -67,8 +67,9 @@ class _FileListPageState extends State<FileListPage> {
     super.dispose();
   }
 
-  onUploadResultChange(UploadEntry entry) {
-    if (entry.dest == widget.path &&
+  onUploadResultChange(UploadEntry? entry) {
+    if (entry != null &&
+        entry.dest == widget.path &&
         "upload" == entry.channel &&
         UploadStatus.match(entry.status, UploadStatus.successed)) {
       resetFetch("creTime_desc");

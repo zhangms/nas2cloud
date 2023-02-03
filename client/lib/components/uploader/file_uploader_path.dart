@@ -76,12 +76,14 @@ class PathUploader extends FileUploader {
     await FlutterUploader().cancelAll();
     await FlutterUploader().clearUploads();
     await UploadRepository.platform.clearAll();
+    FileUploader.notifyListeners(null);
   }
 
   @override
   Future<void> clearTask(UploadStatus status) async {
     await FlutterUploader().clearUploads();
     await UploadRepository.platform.deleteByStatus(status.name);
+    FileUploader.notifyListeners(null);
   }
 
   void _syncTaskState() async {

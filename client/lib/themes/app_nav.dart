@@ -3,25 +3,25 @@ import 'package:flutter/material.dart';
 class AppNav {
   static gohome(BuildContext context) async {
     var nav = Navigator.of(context);
-    await popAll(context);
+    while (await nav.maybePop()) {}
     nav.pushReplacementNamed("/home");
   }
 
   static goLogin(BuildContext context) async {
     var nav = Navigator.of(context);
-    await popAll(context);
+    while (await nav.maybePop()) {}
     nav.pushReplacementNamed("/login");
   }
 
   static goServerAddressConfig(BuildContext context) async {
     var nav = Navigator.of(context);
-    await popAll(context);
+    while (await nav.maybePop()) {}
     nav.pushReplacementNamed("/config");
   }
 
   static goTest(BuildContext context) async {
     var nav = Navigator.of(context);
-    await popAll(context);
+    while (await nav.maybePop()) {}
     nav.pushReplacementNamed("/test");
   }
 
@@ -44,12 +44,5 @@ class AppNav {
         );
       },
     ));
-  }
-
-  static Future<void> popAll(BuildContext context) async {
-    var nav = Navigator.of(context);
-    while (await nav.maybePop()) {
-      nav.pop();
-    }
   }
 }
