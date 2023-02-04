@@ -2,6 +2,7 @@
 
 ACTION=$1
 BUILD_TYPE=$2
+BUILD_NUMBER=$3
 
 
 usage(){
@@ -54,8 +55,10 @@ build_appweb_local(){
 
 build_apk() {
     cd client
-    flutter build apk
+    flutter build apk --build-number=${BUILD_NUMBER} --build-name=${BUILD_TYPE}
     cd ..
+
+    rm -rf release/client
     mkdir -p release/client
     cp client/build/app/outputs/apk/release/app-release.apk release/client/nas2cloud-v${BUILD_TYPE}.apk
     echo "{\"android\":\"nas2cloud-v${BUILD_TYPE}.apk;v${BUILD_TYPE}\"}" > release/client/release.json
