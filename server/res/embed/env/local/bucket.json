@@ -34,7 +34,7 @@
     "name": "Releases",
     "mountType": "local",
     "endpoint": "/Users/ZMS/NAS/Releases",
-    "authorize": "ALL",
+    "authorize": "PUBLIC",
     "mode": "r",
     "hidden": true
   },
