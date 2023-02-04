@@ -47,6 +47,17 @@ class AppWidgets {
               : (useDefault ?? false ? AppConfig.defaultAppName : ""));
         });
   }
+
+  static void clearMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+  }
+
+  static void showMessage(BuildContext context, String message) {
+    clearMessage(context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
 }
 
 class RepeatRotation extends StatefulWidget {

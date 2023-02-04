@@ -121,20 +121,9 @@ class _HomeDrawerState extends State<HomeDrawer> {
       trailing: Icon(Icons.navigate_next),
       onTap: () {
         AppNav.pop(context);
-        showMessage("尚未支持");
+        AppWidgets.showMessage(context, "尚未支持");
       },
     );
-  }
-
-  void clearMessage() {
-    ScaffoldMessenger.of(context).clearSnackBars();
-  }
-
-  void showMessage(String message) {
-    clearMessage();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
   }
 
   Future<_DrawerModel> getDrawerModel() async {

@@ -52,6 +52,8 @@ abstract class Api {
 
   Future<Result> getFileExists(String fullPath);
 
+  Future<Result> getCheckUpdates();
+
   Future<Result> uploadStream({
     required String dest,
     required String fileName,

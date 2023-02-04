@@ -1,8 +1,11 @@
 package api
 
 import (
+	"encoding/json"
+	"nas2cloud/libs/vfs"
 	"nas2cloud/svc/sign"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -35,4 +38,20 @@ func (*StateController) State(c *fiber.Ctx) error {
 		resp.UserAvatar = u.Avatar
 	}
 	return SendOK(c, resp)
+}
+
+func (*StateController) CheckUpdates(c *fiber.Ctx) error {
+	var bucket = "/Releases"
+	data, err := vfs.Read("root", bucket+"/release.json")
+	if err != nil {
+		return SendMsg(c, "no_updates")
+	}
+	mp := make(map[string]string)
+	json.Unmarshal(data, &mp)
+	device := strings.Split(c.Get(keyDevice), ",")
+	release, ok := mp[device[0]]
+	if !ok {
+		return SendMsg(c, "no_updates")
+	}
+	return SendMsg(c, bucket+"/"+release)
 }

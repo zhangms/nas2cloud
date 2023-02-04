@@ -246,4 +246,17 @@ class ApiReal extends Api {
       return RangeData("UNKNOWN", 0, null);
     }
   }
+
+  @override
+  Future<Result> getCheckUpdates() async {
+    try {
+      var url =
+          Uri.http(await AppConfig.getServerAddress(), "/api/checkupdates");
+      Response resp = await http.get(url, headers: await httpHeaders());
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
+  }
 }

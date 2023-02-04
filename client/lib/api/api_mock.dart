@@ -125,4 +125,12 @@ class ApiMock extends Api {
       "message": "OK",
     });
   }
+
+  @override
+  Future<Result> getCheckUpdates() async {
+    return Result.fromMap({
+      "success": true,
+      "message": "no uploads",
+    });
+  }
 }

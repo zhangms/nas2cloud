@@ -337,7 +337,9 @@ class _FileListPageState extends State<FileListPage> {
     }
     Result result = await Api().postCreateFolder(widget.path, floderName);
     if (!result.success) {
-      showMessage(result.message!);
+      setState(() {
+        AppWidgets.showMessage(context, result.message!);
+      });
       return;
     }
     resetFetch("creTime_desc");
@@ -347,13 +349,15 @@ class _FileListPageState extends State<FileListPage> {
     print("delete $path");
     Result result = await Api().postDeleteFile(path);
     if (!result.success) {
-      showMessage(result.message!);
+      setState(() {
+        AppWidgets.showMessage(context, result.message!);
+      });
       return;
     }
     items.removeWhere((element) => element.path == path);
     total -= 1;
-    showMessage("删除成功");
     setState(() {
+      AppWidgets.showMessage(context, "删除成功");
       fetchWhenBuild = false;
     });
   }
@@ -364,7 +368,9 @@ class _FileListPageState extends State<FileListPage> {
     }
     var path = await Api().getStaticFileUrl(item.path);
     Downloader.platform.download(path);
-    showMessage("已开始下载, 请从状态栏查看下载进度");
+    setState(() {
+      AppWidgets.showMessage(context, "已开始下载, 请从状态栏查看下载进度");
+    });
   }
 
   Future<void> nativeUpload() async {
@@ -407,7 +413,7 @@ class _FileListPageState extends State<FileListPage> {
     } else if (FileHelper.isMusic(item.ext)) {
       playMusic(item);
     } else {
-      showMessage("不支持查看该类型的文件");
+      AppWidgets.showMessage(context, "不支持查看该类型的文件");
     }
   }
 
@@ -427,7 +433,7 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   void openNewPage(Widget widget, {String? name}) {
-    clearMessage();
+    AppWidgets.clearMessage(context);
     AppNav.openPage(context, widget);
   }
 
@@ -438,7 +444,7 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   void pop() {
-    clearMessage();
+    AppWidgets.clearMessage(context);
     AppNav.pop(context);
   }
 
@@ -466,16 +472,6 @@ class _FileListPageState extends State<FileListPage> {
             );
           }));
     });
-  }
-
-  clearMessage() {
-    ScaffoldMessenger.of(context).clearSnackBars();
-  }
-
-  void showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
   }
 
   Future<void> webUpload() async {

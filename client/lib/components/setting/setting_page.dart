@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
+import 'package:nas2cloud/api/dto/result.dart';
 import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/components/downloader/downloader.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:provider/provider.dart';
@@ -89,12 +92,65 @@ class _SettingPageState extends State<SettingPage> {
         ),
       ),
       Divider(),
-      ListTile(
-        title: Text("检查更新"),
-        trailing: Icon(Icons.navigate_next),
-      ),
+      buildCheckUpdates(),
     ];
   }
+
+  static const String noUpdates = "no_updates";
+
+  buildCheckUpdates() {
+    return FutureBuilder<Result>(
+        future: Api().getCheckUpdates(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return ListTile(
+              title: Text("更新检查中..."),
+            );
+          }
+          var updates = _getUpdates(snapshot.data!);
+          if (!updates.hasUpdate) {
+            return ListTile(
+              title: Text("已是最新版本"),
+            );
+          }
+          return ListTile(
+            title: Text("下载最新版本"),
+            trailing: Icon(Icons.navigate_next),
+            onTap: () => downloadUpdate(updates),
+          );
+        });
+  }
+
+  _Update _getUpdates(Result result) {
+    if (!result.success) {
+      return _Update("", "", false);
+    }
+    var msg = result.message ?? noUpdates;
+    if (msg == noUpdates) {
+      return _Update("", "", false);
+    }
+    var list = msg.split(";");
+    if (list.length < 2 || list[1] == AppConfig.currentAppVersion) {
+      return _Update("", "", false);
+    }
+    return _Update(list[0], list[1], true);
+  }
+
+  downloadUpdate(_Update updates) async {
+    Downloader.platform
+        .download(await Api().getStaticFileUrl(updates.downlink));
+    setState(() {
+      AppWidgets.showMessage(context, "已开始下载，从状态栏查看下载进度");
+    });
+  }
+}
+
+class _Update {
+  String downlink;
+  String version;
+  bool hasUpdate;
+
+  _Update(this.downlink, this.version, this.hasUpdate);
 }
 
 class _SettingPageModel {
