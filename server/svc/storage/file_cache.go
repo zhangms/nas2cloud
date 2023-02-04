@@ -76,7 +76,7 @@ func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 			return err
 		}
 	}
-	logger.Info("save file cache", item.Path, libs.ReadableDataSize(item.Size))
+	logger.Info("save file cache", item.Path)
 	return nil
 }
 

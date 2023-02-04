@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"os/exec"
@@ -46,7 +47,8 @@ func (d *diskUsage) duAllParent(path string) ([]*pathSize, error) {
 	return ret, nil
 }
 
-func (d *diskUsage) du(local string) int64 {
+func (d *diskUsage) du(local string) (size int64) {
+
 	start := time.Now()
 	defer func() {
 		end := time.Now()
@@ -54,7 +56,7 @@ func (d *diskUsage) du(local string) int64 {
 		if err != nil {
 			logger.Error("du error", local, "rt", end.Sub(start).Milliseconds(), "(ms)", err)
 		} else {
-			logger.Info("du ", local, "rt", end.Sub(start).Milliseconds(), "(ms)")
+			logger.Info("du ", local, libs.ReadableDataSize(size), "rt", end.Sub(start).Milliseconds(), "(ms)")
 		}
 	}()
 	cmd := exec.Command("du", "-sk", local)
@@ -63,9 +65,10 @@ func (d *diskUsage) du(local string) int64 {
 		panic(err)
 	}
 	sp := strings.SplitN(string(data), string(rune(9)), 2)
-	size, err := strconv.Atoi(strings.TrimSpace(sp[0]))
+	sizei, err := strconv.Atoi(strings.TrimSpace(sp[0]))
 	if err != nil {
 		panic(err)
 	}
-	return int64(size) * 1024
+	size = int64(sizei) * 1024
+	return
 }
