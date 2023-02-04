@@ -3,9 +3,23 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/setting/event_change_theme.dart';
 import 'package:nas2cloud/event/bus.dart';
 
-class SettingThemeWidget extends StatelessWidget {
-  final int theme;
-  SettingThemeWidget(this.theme);
+class SettingThemeWidget extends StatefulWidget {
+  @override
+  State<SettingThemeWidget> createState() => _SettingThemeWidgetState();
+}
+
+class _SettingThemeWidgetState extends State<SettingThemeWidget> {
+  int myTheme = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    AppConfig.getThemeSetting().then((value) {
+      setState(() {
+        myTheme = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +34,17 @@ class SettingThemeWidget extends StatelessWidget {
             children: [
               ChoiceChip(
                 label: Text("跟随系统"),
-                selected: theme == AppConfig.themeFollowSystem,
+                selected: myTheme == AppConfig.themeFollowSystem,
                 onSelected: (value) => changeTheme(AppConfig.themeFollowSystem),
               ),
               ChoiceChip(
                 label: Text("浅色模式"),
-                selected: theme == AppConfig.themeLight,
+                selected: myTheme == AppConfig.themeLight,
                 onSelected: (value) => changeTheme(AppConfig.themeLight),
               ),
               ChoiceChip(
                 label: Text("深色模式"),
-                selected: theme == AppConfig.themeDark,
+                selected: myTheme == AppConfig.themeDark,
                 onSelected: (value) => changeTheme(AppConfig.themeDark),
               ),
             ],
@@ -42,6 +56,9 @@ class SettingThemeWidget extends StatelessWidget {
 
   changeTheme(int theme) async {
     await AppConfig.setThemeSetting(theme);
-    eventBus.fire(EventChangeTheme(theme));
+    setState(() {
+      myTheme = theme;
+      eventBus.fire(EventChangeTheme(theme));
+    });
   }
 }
