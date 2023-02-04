@@ -22,13 +22,11 @@ CREATE TABLE t_upload_entry (
     message TEXT
 );
 
-CREATE UNIQUE INDEX t_upload_entry_index1 on t_upload_entry (src);
+CREATE UNIQUE INDEX t_upload_entry_index1 on t_upload_entry (src, dest);
 
-CREATE UNIQUE INDEX t_upload_entry_index2 on t_upload_entry (src, dest);
+CREATE INDEX t_upload_entry_index2 on t_upload_entry (channel);
 
-CREATE INDEX t_upload_entry_index3 on t_upload_entry (channel);
-
-CREATE INDEX t_upload_entry_index4 on t_upload_entry (uploadTaskId);
+CREATE INDEX t_upload_entry_index3 on t_upload_entry (uploadTaskId);
 
 ''';
 
@@ -155,7 +153,7 @@ class UploadRepoSqflite extends UploadRepository {
   }
 
   @override
-  Future<int> findCountByChannel(
+  Future<int> countByChannel(
       {required String channel, List<String>? status}) async {
     var database = await _open();
     var sql = "select count(1) from t_upload_entry where channel=?";
@@ -167,6 +165,19 @@ class UploadRepoSqflite extends UploadRepository {
       args.addAll(status);
     }
     var ret = await database.rawQuery(sql, args);
+    return Sqflite.firstIntValue(ret) ?? 0;
+  }
+
+  @override
+  Future<int> countByStatus(List<String> status) async {
+    if (status.isEmpty) {
+      return 0;
+    }
+    var database = await _open();
+    var sql = "select count(1) from t_upload_entry where ";
+    sql +=
+        "  status in(${List.generate(status.length, (index) => "?").join(",")})";
+    var ret = await database.rawQuery(sql, status);
     return Sqflite.firstIntValue(ret) ?? 0;
   }
 }

@@ -70,13 +70,12 @@ class BackgroundProcessor {
       return;
     }
     var n = DateTime.now();
-    var key = "${n.year}-${n.month}-${n.day} ${n.hour}:${n.minute}";
     await Workmanager().registerOneOffTask(
-      "${AppConfig.appId}_upload_$key",
+      "${AppConfig.appId}.once-autoupload-task",
       autoUploadTaskName,
       initialDelay: Duration(seconds: 10),
       existingWorkPolicy: ExistingWorkPolicy.keep,
-      inputData: {"type": "once:$key"},
+      inputData: {"type": "once"},
       tag: autoUploadTaskName,
     );
     print("once auto upload task registed");

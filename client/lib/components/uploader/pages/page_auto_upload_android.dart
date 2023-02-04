@@ -5,7 +5,9 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
+import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/pages/local_file_grid_view.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
@@ -21,6 +23,18 @@ class AndroidAutoUploadConfigWidget extends StatefulWidget {
 
 class _AndroidAutoUploadConfigWidgetState
     extends State<AndroidAutoUploadConfigWidget> {
+  @override
+  void initState() {
+    super.initState();
+    FileUploader.addListener(onUploadChange);
+  }
+
+  @override
+  void dispose() {
+    FileUploader.removeListener(onUploadChange);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<_AndroidAutoUploadConfig>(
@@ -42,8 +56,8 @@ class _AndroidAutoUploadConfigWidgetState
     Map<String, _AutoUploadConfigWrapper> configMap = {};
     for (var config in await AutoUploader().getConfigList()) {
       int total = await UploadRepository.platform
-          .findCountByChannel(channel: config.uploadChannel);
-      int complete = await UploadRepository.platform.findCountByChannel(
+          .countByChannel(channel: config.uploadChannel);
+      int complete = await UploadRepository.platform.countByChannel(
           channel: config.uploadChannel,
           status: [UploadStatus.successed.name, UploadStatus.failed.name]);
       configMap[config.path] = _AutoUploadConfigWrapper(
@@ -83,10 +97,10 @@ class _AndroidAutoUploadConfigWidgetState
         ),
         for (var cfg in config.configs)
           ListTile(
-            leading: cfg.autoupload ? Icon(Icons.cloud) : Icon(Icons.cloud_off),
+            leading: getConfigLeading(cfg),
             trailing: Icon(Icons.navigate_next),
             title: Text(cfg.name),
-            subtitle: cfg.description != null ? Text(cfg.description!) : null,
+            subtitle: getConfigDiscripeWidget(cfg),
             onTap: () => showConfig(cfg),
           ),
       ],
@@ -146,6 +160,35 @@ class _AndroidAutoUploadConfigWidgetState
     }
     return a.name.toLowerCase().compareTo(b.name.toLowerCase());
   }
+
+  onUploadChange(UploadEntry? entry) {
+    setState(() {});
+  }
+
+  Widget? getConfigDiscripeWidget(_AutoUploadConfigWrapper cfg) {
+    if (!cfg.autoupload || (cfg.total ?? 0) == 0) {
+      if (cfg.remote == null) {
+        return null;
+      }
+      return Text(cfg.remote!);
+    }
+    return Text("${cfg.remote} (${cfg.complete}/${cfg.total})");
+  }
+
+  Widget getConfigLeading(_AutoUploadConfigWrapper cfg) {
+    if (!cfg.autoupload) {
+      return Icon(Icons.cloud_off);
+    }
+    var total = cfg.total ?? -1;
+    var complete = cfg.complete ?? -1;
+    if (total > 0 && total != complete) {
+      return Icon(Icons.cloud_upload);
+    }
+    if (total > 0 && total == complete) {
+      return Icon(Icons.cloud_done);
+    }
+    return Icon(Icons.cloud);
+  }
 }
 
 class _AndroidAutoUploadConfig {
@@ -166,16 +209,6 @@ class _AutoUploadConfigWrapper {
   bool get autoupload => config.autoupload;
 
   _AutoUploadConfigWrapper({required this.config, this.total, this.complete});
-
-  String? get description {
-    if (!autoupload) {
-      return remote;
-    }
-    if ((total ?? 0) > 0) {
-      return "$remote ($complete/$total)";
-    }
-    return remote;
-  }
 }
 
 class _ConfigView extends StatefulWidget {

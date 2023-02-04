@@ -8,6 +8,8 @@ import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:nas2cloud/utils/spu.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -102,9 +104,24 @@ class AutoUploader {
   }
 
   Future<int> _executeAutoupload(AutoUploadConfig config) async {
-    var start = DateTime.now();
+    DateTime start = DateTime.now();
+    List<UploadEntry> waiting = await _getWillUploadEntries(config);
+    var escape = DateTime.now().difference(start).inMilliseconds;
+    await Api().postTraceLog(
+        "willUpload:${config.path}, length:${waiting.length},escape: $escape");
+
+    var enqueued = await _enqueue(waiting);
+    escape = DateTime.now().difference(start).inMilliseconds;
+    await Api().postTraceLog(
+        "enqueueUploadComplete:${config.path},enqueued:$enqueued,escape: $escape");
+
+    return enqueued;
+  }
+
+  Future<List<UploadEntry>> _getWillUploadEntries(
+      AutoUploadConfig config) async {
     var directory = Directory(config.path);
-    var enqueuedCount = 0;
+    List<UploadEntry> waiting = [];
     await for (final file in directory
         .list(recursive: true, followLinks: true)
         .map((file) => file.path)
@@ -116,21 +133,24 @@ class AutoUploader {
         relativeFrom: config.basepath,
         remote: config.remote!,
       );
-      var begin = DateTime.now();
-      var enqueued = await FileUploader.platform.enqueue(entry);
-      var timeEscape = DateTime.now().difference(begin).inMilliseconds;
-      if (enqueued) {
-        enqueuedCount++;
-        var log =
-            "enqueue auto upload : ${entry.src}, ${entry.dest}, $enqueuedCount, $timeEscape(ms)";
-        print(log);
-        await Api().postTraceLog(log);
+      var saved = await UploadRepository.platform.saveIfNotExists(entry);
+      if (saved.uploadTaskId == "none") {
+        waiting.add(saved);
+        if (waiting.length >= 2048) {
+          break;
+        }
       }
     }
-    var log =
-        "enqueueUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}";
-    print(log);
-    await Api().postTraceLog(log);
-    return enqueuedCount;
+    return waiting;
+  }
+
+  Future<int> _enqueue(List<UploadEntry> waiting) async {
+    int enqueued = 0;
+    for (var entry in waiting) {
+      if (await FileUploader.platform.enqueue(entry)) {
+        enqueued++;
+      }
+    }
+    return enqueued;
   }
 }

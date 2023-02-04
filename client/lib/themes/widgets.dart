@@ -34,7 +34,7 @@ class AppWidgets {
     );
   }
 
-  static Widget getRepeatRotation(Widget child, int rotationDuration) {
+  static Widget repeatRotation(Widget child, int rotationDuration) {
     return RepeatRotation(child, rotationDuration);
   }
 
@@ -62,9 +62,9 @@ class AppWidgets {
 
 class RepeatRotation extends StatefulWidget {
   final Widget child;
-  final int rotationDuration;
+  final int duration;
 
-  RepeatRotation(this.child, this.rotationDuration);
+  RepeatRotation(this.child, this.duration);
 
   @override
   State<RepeatRotation> createState() => _RepeatRotationState();
@@ -79,7 +79,7 @@ class _RepeatRotationState extends State<RepeatRotation>
     super.initState();
     _repeatAniController = AnimationController(vsync: this)
       ..drive(Tween(begin: 0, end: 1))
-      ..duration = Duration(milliseconds: widget.rotationDuration)
+      ..duration = Duration(milliseconds: widget.duration)
       ..repeat();
   }
 

@@ -178,7 +178,7 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
       case UploadStatus.waiting:
         return Icon(Icons.pending);
       case UploadStatus.uploading:
-        return AppWidgets.getRepeatRotation(Icon(Icons.autorenew), 1000);
+        return AppWidgets.repeatRotation(Icon(Icons.autorenew), 1000);
       case UploadStatus.successed:
         return Icon(Icons.done);
       case UploadStatus.failed:

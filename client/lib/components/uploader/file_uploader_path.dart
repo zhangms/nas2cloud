@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/components/notification/notification.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:path/path.dart' as p;
+
+import '../notification/notification.dart';
 
 class PathUploader extends FileUploader {
   static bool _initialized = false;
@@ -142,87 +143,84 @@ Future<void> _handleUploadTaskStatus(
     case "Enqueued":
     case "Paused":
       await _handleWaiting(entry, entryStatus, statusName);
-      return;
+      break;
     case "Running":
       await _handleRunning(entry, entryStatus, statusName, progress);
-      return;
+      break;
     case "Completed":
       await _handleComplete(entry, entryStatus, statusName, message);
-      return;
+      break;
     case "Failed":
     case "Cancelled":
       await _handleFailed(entry, entryStatus, statusName, message);
-      return;
+      break;
+    default:
+      break;
   }
 }
 
 Future<void> _handleFailed(UploadEntry entry, UploadStatus entryStatus,
     String statusName, String? message) async {
-  if (entryStatus.groupIndex >= UploadStatus.failed.groupIndex) {
-    return;
+  if (entryStatus.groupIndex < UploadStatus.failed.groupIndex) {
+    var result = entry.copyWith(
+      status: UploadStatus.failed.name,
+      endUploadTime: DateTime.now().millisecondsSinceEpoch,
+      message: "$statusName:$message",
+    );
+    await UploadRepository.platform.update(result);
+    FileUploader.notifyListeners(result);
+    _sendNotification(result, entryStatus);
   }
-  var result = entry.copyWith(
-    status: UploadStatus.failed.name,
-    endUploadTime: DateTime.now().millisecondsSinceEpoch,
-    message: "$statusName:$message",
-  );
-  await UploadRepository.platform.update(result);
-  FileUploader.notifyListeners(result);
-  LocalNotification.platform.send(
-      id: entry.id ?? 0, title: p.basename(entry.src), body: "上传失败：$message");
 }
 
 Future<void> _handleComplete(UploadEntry entry, UploadStatus entryStatus,
     String statusName, String? message) async {
-  await LocalNotification.platform.progress(
-    id: entry.id ?? 0,
-    title: p.basename(entry.src),
-    body: "",
-    progress: 100,
-  );
-  await LocalNotification.platform.clear(id: entry.id ?? 0);
-  if (entryStatus.groupIndex >= UploadStatus.successed.groupIndex) {
-    return;
+  if (entryStatus.groupIndex < UploadStatus.successed.groupIndex) {
+    var result = entry.copyWith(
+      status: UploadStatus.successed.name,
+      endUploadTime: DateTime.now().millisecondsSinceEpoch,
+      message: "$statusName:$message",
+    );
+    await UploadRepository.platform.update(result);
+
+    _sendNotification(result, entryStatus);
   }
-  var result = entry.copyWith(
-    status: UploadStatus.successed.name,
-    endUploadTime: DateTime.now().millisecondsSinceEpoch,
-    message: "$statusName:$message",
-  );
-  await UploadRepository.platform.update(result);
-  FileUploader.notifyListeners(result);
 }
 
 Future<void> _handleRunning(UploadEntry entry, UploadStatus entryStatus,
     String statusName, int? progress) async {
-  if (entryStatus.groupIndex >= UploadStatus.uploading.groupIndex) {
-    return;
+  if (entryStatus.groupIndex < UploadStatus.uploading.groupIndex) {
+    var result = entry.copyWith(
+      status: UploadStatus.uploading.name,
+      beginUploadTime: DateTime.now().millisecondsSinceEpoch,
+      message: "$statusName:$progress",
+    );
+    await UploadRepository.platform.update(result);
+    _sendNotification(result, entryStatus);
   }
-  if (progress != null) {
-    LocalNotification.platform.progress(
-        id: entry.id ?? 0,
-        title: p.basename(entry.src),
-        body: "",
-        progress: progress);
-  }
-  var result = entry.copyWith(
-    status: UploadStatus.uploading.name,
-    beginUploadTime: DateTime.now().millisecondsSinceEpoch,
-    message: "$statusName:$progress",
-  );
-  await UploadRepository.platform.update(result);
-  return;
 }
 
 Future<void> _handleWaiting(
     UploadEntry entry, UploadStatus entryStatus, String statusName) async {
-  LocalNotification.platform.clear(id: entry.id ?? 0);
-  if (entryStatus.groupIndex >= UploadStatus.waiting.groupIndex) {
-    return;
+  if (entryStatus.groupIndex < UploadStatus.waiting.groupIndex) {
+    var result = entry.copyWith(
+      status: UploadStatus.waiting.name,
+      message: statusName,
+    );
+    await UploadRepository.platform.update(result);
+    // _sendNotification(result, entryStatus);
   }
-  var result = entry.copyWith(
-    status: UploadStatus.waiting.name,
-    message: statusName,
-  );
-  await UploadRepository.platform.update(result);
+}
+
+Future<void> _sendNotification(
+    UploadEntry entry, UploadStatus entryStatus) async {
+  FileUploader.notifyListeners(entry);
+  var count = await UploadRepository.platform
+      .countByStatus([UploadStatus.waiting.name, UploadStatus.uploading.name]);
+  if (count == 0) {
+    await LocalNotification.platform.clear(id: 1024);
+  } else {
+    LocalNotification.platform
+        .send(id: 1024, title: "上传中...", body: "还剩$count个文件等待上传");
+  }
 }

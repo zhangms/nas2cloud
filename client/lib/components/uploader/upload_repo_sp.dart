@@ -103,8 +103,12 @@ class UploadRepoSP extends UploadRepository {
   }
 
   @override
-  Future<int> findCountByChannel(
-      {required String channel, List<String>? status}) {
+  Future<int> countByChannel({required String channel, List<String>? status}) {
     throw UnimplementedError();
+  }
+
+  @override
+  Future<int> countByStatus(List<String> status) {
+    return Future.value(0);
   }
 }

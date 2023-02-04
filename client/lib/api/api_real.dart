@@ -264,10 +264,13 @@ class ApiReal extends Api {
   Future<Result> postTraceLog(String log) async {
     try {
       var url = Uri.http(await AppConfig.getServerAddress(), "/api/traceLog");
+      var platform = platformName();
+      var appVersion = AppConfig.currentAppVersion;
+      var userName = await AppConfig.getLoginUserName() ?? "_";
       Response resp = await http.post(url,
           headers: await httpHeaders(),
           body: jsonEncode({
-            "log": "${platformName()}|${AppConfig.currentAppVersion}|$log",
+            "log": "$platform|$appVersion|$userName|$log",
           }));
       return Result.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
