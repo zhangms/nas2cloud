@@ -47,7 +47,6 @@ func (d *diskUsage) duAllParent(path string) ([]*pathSize, error) {
 }
 
 func (d *diskUsage) du(local string) int64 {
-	logger.Info("du start", local)
 	start := time.Now()
 	defer func() {
 		end := time.Now()
@@ -55,7 +54,7 @@ func (d *diskUsage) du(local string) int64 {
 		if err != nil {
 			logger.Error("du error", local, "rt", end.Sub(start).Milliseconds(), "(ms)", err)
 		} else {
-			logger.Info("du end  ", local, "rt", end.Sub(start).Milliseconds(), "(ms)")
+			logger.Info("du ", local, "rt", end.Sub(start).Milliseconds(), "(ms)")
 		}
 	}()
 	cmd := exec.Command("du", "-sk", local)
