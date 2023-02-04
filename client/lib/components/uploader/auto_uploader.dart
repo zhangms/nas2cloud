@@ -127,8 +127,10 @@ class AutoUploader {
         Api().postTraceLog(log);
       }
     }
-    print(
-        "enqueueUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}");
+    var log =
+        "enqueueUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}";
+    print(log);
+    Api().postTraceLog(log);
     return enqueuedCount;
   }
 }
