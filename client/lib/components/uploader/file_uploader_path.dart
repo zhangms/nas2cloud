@@ -38,6 +38,7 @@ class PathUploader extends FileUploader {
     _syncTaskState();
     var savedEntry = await beforeUploadCheck(entry);
     if (savedEntry == null) {
+      _sendNotification(entry);
       return false;
     }
     var url = await Api()
@@ -169,7 +170,7 @@ Future<void> _handleFailed(UploadEntry entry, UploadStatus entryStatus,
     );
     await UploadRepository.platform.update(result);
     FileUploader.notifyListeners(result);
-    _sendNotification(result, entryStatus);
+    _sendNotification(result);
   }
 }
 
@@ -182,8 +183,7 @@ Future<void> _handleComplete(UploadEntry entry, UploadStatus entryStatus,
       message: "$statusName:$message",
     );
     await UploadRepository.platform.update(result);
-
-    _sendNotification(result, entryStatus);
+    _sendNotification(result);
   }
 }
 
@@ -196,7 +196,7 @@ Future<void> _handleRunning(UploadEntry entry, UploadStatus entryStatus,
       message: "$statusName:$progress",
     );
     await UploadRepository.platform.update(result);
-    _sendNotification(result, entryStatus);
+    _sendNotification(result);
   }
 }
 
@@ -212,8 +212,7 @@ Future<void> _handleWaiting(
   }
 }
 
-Future<void> _sendNotification(
-    UploadEntry entry, UploadStatus entryStatus) async {
+Future<void> _sendNotification(UploadEntry entry) async {
   FileUploader.notifyListeners(entry);
   var count = await UploadRepository.platform
       .countByStatus([UploadStatus.waiting.name, UploadStatus.uploading.name]);
