@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/app.dart';
+import 'package:nas2cloud/components/setting/event_change_theme.dart';
+import 'package:nas2cloud/event/bus.dart';
 import 'package:nas2cloud/pages/config.dart';
 import 'package:nas2cloud/pages/home.dart';
 import 'package:nas2cloud/pages/login.dart';
@@ -8,7 +9,6 @@ import 'package:nas2cloud/pages/splash.dart';
 import 'package:nas2cloud/pages/test.dart';
 import 'package:nas2cloud/themes/app_theme.dark.dart';
 import 'package:nas2cloud/themes/app_theme_light.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   AppConfig.initialize().then(
@@ -16,36 +16,33 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AppState(),
-      child: _MyApp(),
-    );
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    eventBus.on<EventChangeTheme>().listen((event) {
+      setState(() {});
+    });
   }
-}
 
-class _MyApp extends StatefulWidget {
-  @override
-  State<_MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<_MyApp> {
   @override
   Widget build(BuildContext context) {
-    context.watch<AppState>();
     return FutureBuilder<_MyAppModel>(
-        future: getMyAppConfig(),
+        future: getMyAppModel(),
         builder: (context, snapshot) {
-          _MyAppModel data = snapshot.data ?? _MyAppModel.getDefaultValue();
+          _MyAppModel data = snapshot.data ?? _MyAppModel.defaultValue();
           return MaterialApp(
             title: data.appName,
             home: SplashPage(),
-            theme: getLightTheme(data),
-            darkTheme: getDarkTheme(data),
+            theme: data.ligthTheme,
+            darkTheme: data.darkTheme,
             routes: <String, WidgetBuilder>{
               "/home": (_) => HomePage(),
               "/login": (_) => LoginPage(),
@@ -56,34 +53,30 @@ class _MyAppState extends State<_MyApp> {
         });
   }
 
-  Future<_MyAppModel> getMyAppConfig() async {
+  Future<_MyAppModel> getMyAppModel() async {
     return _MyAppModel(
       appName: await AppConfig.getAppName(),
       theme: await AppConfig.getThemeSetting(),
     );
   }
-
-  getLightTheme(_MyAppModel data) {
-    return data.theme == AppConfig.themeDark
-        ? AppDarkTheme.themeData
-        : AppLightTheme.themeData;
-  }
-
-  getDarkTheme(_MyAppModel data) {
-    return data.theme == AppConfig.themeLight
-        ? AppLightTheme.themeData
-        : AppDarkTheme.themeData;
-  }
 }
 
 class _MyAppModel {
+  static defaultValue() {
+    return _MyAppModel(
+        appName: AppConfig.defaultAppName, theme: AppConfig.themeFollowSystem);
+  }
+
   final String appName;
   final int theme;
 
   _MyAppModel({required this.appName, required this.theme});
 
-  static getDefaultValue() {
-    return _MyAppModel(
-        appName: AppConfig.defaultAppName, theme: AppConfig.themeFollowSystem);
-  }
+  ThemeData get darkTheme => theme == AppConfig.themeLight
+      ? AppLightTheme.themeData
+      : AppDarkTheme.themeData;
+
+  ThemeData get ligthTheme => theme == AppConfig.themeDark
+      ? AppDarkTheme.themeData
+      : AppLightTheme.themeData;
 }

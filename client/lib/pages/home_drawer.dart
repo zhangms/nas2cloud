@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/app.dart';
 import 'package:nas2cloud/components/setting/setting_page.dart';
 import 'package:nas2cloud/components/uploader/pages/page_auto_upload.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
-import 'package:provider/provider.dart';
 
 class HomeDrawer extends StatefulWidget {
   final Function logoutCallback;
@@ -18,11 +16,8 @@ class HomeDrawer extends StatefulWidget {
 }
 
 class _HomeDrawerState extends State<HomeDrawer> {
-  late AppState appState;
-
   @override
   Widget build(BuildContext context) {
-    appState = context.watch<AppState>();
     return FutureBuilder<_DrawerModel>(
         future: getDrawerModel(),
         builder: (context, snapshot) {
