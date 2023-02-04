@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   logout() async {
-    await FileUploader.platform.cancelAndClearAll();
+    await FileUploader.platform.cancelAllRunning();
     await AppConfig.clearUserLogin();
     setState(() {
       AppNav.goLogin(context);

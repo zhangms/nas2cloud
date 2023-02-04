@@ -108,8 +108,8 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
             onTap: () => clearTask(UploadStatus.failed),
           ),
           PopupMenuItem(
-            child: Text("取消并清空所有任务"),
-            onTap: () => cancelAll(),
+            child: Text("取消上传"),
+            onTap: () => cancelAllRunning(),
           ),
         ];
       },
@@ -195,8 +195,8 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
     setState(() {});
   }
 
-  cancelAll() async {
-    await FileUploader.platform.cancelAndClearAll();
+  cancelAllRunning() async {
+    await FileUploader.platform.cancelAllRunning();
     setState(() {});
   }
 }

@@ -93,7 +93,7 @@ class WebUploader extends FileUploader {
   }
 
   @override
-  Future<void> cancelAndClearAll() async {
+  Future<void> cancelAllRunning() async {
     await UploadRepository.platform.clearAll();
     FileUploader.notifyListeners(null);
   }

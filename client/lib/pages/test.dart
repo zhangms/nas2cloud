@@ -98,7 +98,7 @@ class TestPage extends StatelessWidget {
   }
 
   initUploadData() async {
-    await FileUploader.platform.cancelAndClearAll();
+    await FileUploader.platform.cancelAllRunning();
 
     var config = AutoUploadConfig(
         name: "Download",
@@ -122,7 +122,7 @@ class TestPage extends StatelessWidget {
   }
 
   clean() async {
-    await FileUploader.platform.cancelAndClearAll();
+    await FileUploader.platform.cancelAllRunning();
     await AutoUploader().clearConfig();
     await AppConfig.useMockApi(false);
     await AppConfig.clearUserLogin();
