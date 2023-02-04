@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/svc/sign"
 	"net/http"
@@ -41,7 +42,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 }
 
 func (*StateController) CheckUpdates(c *fiber.Ctx) error {
-	var bucket = "/Releases"
+	var bucket = "/client"
 	data, err := vfs.Read("root", bucket+"/release.json")
 	if err != nil {
 		return SendMsg(c, "no_updates")
@@ -54,4 +55,17 @@ func (*StateController) CheckUpdates(c *fiber.Ctx) error {
 		return SendMsg(c, "no_updates")
 	}
 	return SendMsg(c, bucket+"/"+release)
+}
+
+func (*StateController) TraceLog(c *fiber.Ctx) error {
+	type request struct {
+		Log string `json:"log"`
+	}
+	req := &request{}
+	err := json.Unmarshal(c.Body(), req)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	logger.Info("client", req.Log)
+	return SendOK(c, "OK")
 }

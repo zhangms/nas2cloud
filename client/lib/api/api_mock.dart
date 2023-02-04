@@ -133,4 +133,13 @@ class ApiMock extends Api {
       "message": "no uploads",
     });
   }
+
+  @override
+  Future<Result> postTraceLog(String log) async {
+    print("client:$log");
+    return Result.fromMap({
+      "success": true,
+      "message": "OK",
+    });
+  }
 }

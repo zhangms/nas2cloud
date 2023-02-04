@@ -188,6 +188,7 @@ func registerHandler(app *fiber.App) {
 	}))
 	app.All("/api/state", handle(stateController.State))
 	app.Get("/api/checkupdates", handle(stateController.CheckUpdates))
+	app.Post("/api/traceLog", handle(stateController.TraceLog))
 	app.Post("/api/user/login", handle(loginController.Login))
 	app.Post("/api/store/walk", handleLoginRequired(fileController.Walk))
 	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))

@@ -54,6 +54,8 @@ abstract class Api {
 
   Future<Result> getCheckUpdates();
 
+  Future<Result> postTraceLog(String log);
+
   Future<Result> uploadStream({
     required String dest,
     required String fileName,

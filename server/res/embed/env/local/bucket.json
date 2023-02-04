@@ -30,12 +30,12 @@
     "comment": "缩略图"
   },
   {
-    "id": "Releases",
-    "name": "Releases",
+    "id": "client",
+    "name": "client",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/NAS/Releases",
+    "endpoint": "/Users/ZMS/NAS/client",
     "authorize": "PUBLIC",
-    "mode": "r",
+    "mode": "rw",
     "hidden": true
   },
   {

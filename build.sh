@@ -56,7 +56,11 @@ build_apk() {
     cd client
     flutter build apk
     cd ..
-    cp client/build/app/outputs/apk/release/app-release.apk release
+    mkdir -p release/client
+    cp client/build/app/outputs/apk/release/app-release.apk release/client/nas2cloud-v${BUILD_TYPE}.apk
+    echo "{\"android\":\"nas2cloud-v${BUILD_TYPE}.apk;v${BUILD_TYPE}\"}" > release/client/release.json
+    rm -rf /Users/ZMS/NAS/client
+    cp -r release/client /Users/ZMS/NAS/
 }
 
 install() {

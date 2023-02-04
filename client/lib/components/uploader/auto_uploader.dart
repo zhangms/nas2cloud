@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/background/background.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
@@ -115,10 +116,15 @@ class AutoUploader {
         relativeFrom: config.basepath,
         remote: config.remote!,
       );
+      var begin = DateTime.now();
       var enqueued = await FileUploader.platform.enqueue(entry);
+      var timeEscape = DateTime.now().difference(begin).inMilliseconds;
       if (enqueued) {
         enqueuedCount++;
-        print("enqueue auto upload : ${entry.src}, ${entry.dest}");
+        var log =
+            "enqueue auto upload : ${entry.src}, ${entry.dest}, $enqueuedCount, $timeEscape(ms)";
+        print(log);
+        Api().postTraceLog(log);
       }
     }
     print(

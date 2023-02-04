@@ -259,4 +259,20 @@ class ApiReal extends Api {
       return Result.fromMap(_exception);
     }
   }
+
+  @override
+  Future<Result> postTraceLog(String log) async {
+    try {
+      var url = Uri.http(await AppConfig.getServerAddress(), "/api/traceLog");
+      Response resp = await http.post(url,
+          headers: await httpHeaders(),
+          body: jsonEncode({
+            "log": log,
+          }));
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
+  }
 }
