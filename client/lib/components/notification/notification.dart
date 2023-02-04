@@ -19,13 +19,13 @@ abstract class LocalNotification {
 
   Future<void> initialize();
 
-  void send({required int id, required String title, required String body});
+  Future<void> send({required int id, required String title, required String body});
 
-  void progress(
+  Future<void> progress(
       {required int id,
       required String title,
       required String body,
       required int progress});
 
-  void clear({required int id});
+  Future<void> clear({required int id});
 }

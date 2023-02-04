@@ -42,7 +42,7 @@ class NotificationFlutter extends LocalNotification {
   static void notificationTapBackground(NotificationResponse response) {}
 
   @override
-  void send(
+  Future<void> send(
       {required int id, required String title, required String body}) async {
     var androidDetail = AndroidNotificationDetails(
       AppConfig.appId,
@@ -53,11 +53,11 @@ class NotificationFlutter extends LocalNotification {
     var darwin = DarwinNotificationDetails();
     var detail =
         NotificationDetails(android: androidDetail, iOS: darwin, macOS: darwin);
-    _notifier.show(id, title, body, detail);
+    await _notifier.show(id, title, body, detail);
   }
 
   @override
-  void progress(
+  Future<void> progress(
       {required int id,
       required String title,
       required String body,
@@ -76,11 +76,11 @@ class NotificationFlutter extends LocalNotification {
     var darwin = DarwinNotificationDetails();
     var detail =
         NotificationDetails(android: androidDetail, iOS: darwin, macOS: darwin);
-    _notifier.show(id, title, body, detail);
+    await _notifier.show(id, title, body, detail);
   }
 
   @override
-  void clear({required int id}) {
-    _notifier.cancel(id);
+  Future<void> clear({required int id}) async {
+    await _notifier.cancel(id);
   }
 }

@@ -5,15 +5,16 @@ class UnsupportNotification extends LocalNotification {
   Future<void> initialize() async {}
 
   @override
-  void send({required int id, required String title, required String body}) {}
+  Future<void> send(
+      {required int id, required String title, required String body}) async {}
 
   @override
-  void progress(
+  Future<void> progress(
       {required int id,
       required String title,
       required String body,
-      required int progress}) {}
+      required int progress}) async {}
 
   @override
-  void clear({required int id}) {}
+  Future<void> clear({required int id}) async {}
 }
