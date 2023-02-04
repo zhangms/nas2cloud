@@ -53,9 +53,9 @@ func (d *diskUsage) du(local string) int64 {
 		end := time.Now()
 		err := recover()
 		if err != nil {
-			logger.Error("du error", local, "rt", end.Sub(start).Seconds(), "(s)", err)
+			logger.Error("du error", local, "rt", end.Sub(start).Milliseconds(), "(ms)", err)
 		} else {
-			logger.Info("du end  ", local, "rt", end.Sub(start).Seconds(), "(s)")
+			logger.Info("du end  ", local, "rt", end.Sub(start).Milliseconds(), "(ms)")
 		}
 	}()
 	cmd := exec.Command("du", "-sk", local)

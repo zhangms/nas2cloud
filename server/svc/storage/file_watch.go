@@ -4,7 +4,6 @@ import (
 	"errors"
 	"nas2cloud/conf"
 	"nas2cloud/env"
-	"nas2cloud/libs"
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -135,8 +134,6 @@ func (fw *fileWatchSvc) diskUsage(userRoles, path string) {
 		err = fileCache.updateSize(userRoles, du.path, du.size)
 		if err != nil {
 			logger.Error("DU_UPDATE_FILE_SIZE_ERROR", du.path, err)
-		} else {
-			logger.Info("DU_UPDATE_FILE_SIZE", du.path, libs.ReadableDataSize(du.size))
 		}
 	}
 }
