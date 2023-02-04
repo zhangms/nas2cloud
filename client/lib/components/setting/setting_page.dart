@@ -110,11 +110,11 @@ class _SettingPageState extends State<SettingPage> {
           var updates = _getUpdates(snapshot.data!);
           if (!updates.hasUpdate) {
             return ListTile(
-              title: Text("已是最新版本"),
+              title: Text("已是最新版本:${AppConfig.currentAppVersion}"),
             );
           }
           return ListTile(
-            title: Text("下载最新版本"),
+            title: Text("下载最新版本:${updates.version}"),
             trailing: Icon(Icons.navigate_next),
             onTap: () => downloadUpdate(updates),
           );
