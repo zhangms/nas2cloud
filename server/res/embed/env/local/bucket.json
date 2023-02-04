@@ -6,7 +6,7 @@
     "endpoint": "/Users/ZMS/NAS/local/console",
     "authorize": "PUBLIC",
     "hidden": true,
-    "mode": "rw",
+    "mode": "r",
     "comment": "react前端"
   },
   {
@@ -16,7 +16,7 @@
     "endpoint": "/Users/ZMS/NAS/local/app",
     "authorize": "PUBLIC",
     "hidden": true,
-    "mode": "rw",
+    "mode": "r",
     "comment": "flutter app"
   },
   {
@@ -26,8 +26,17 @@
     "endpoint": "/Users/ZMS/NAS/Thumb",
     "authorize": "ALL",
     "hidden": true,
-    "mode": "r",
+    "mode": "rw",
     "comment": "缩略图"
+  },
+  {
+    "id": "Releases",
+    "name": "Releases",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/Releases",
+    "authorize": "ALL",
+    "mode": "r",
+    "hidden": true
   },
   {
     "id": "Family",

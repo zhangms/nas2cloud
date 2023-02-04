@@ -1,5 +1,14 @@
 [
   {
+    "id": "Releases",
+    "name": "Releases",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/Releases",
+    "authorize": "ALL",
+    "mode": "rw",
+    "hidden": true
+  },
+  {
     "id": "thumb",
     "name": "thumb",
     "mountType": "local",

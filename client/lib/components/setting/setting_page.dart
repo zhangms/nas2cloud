@@ -58,33 +58,40 @@ class _SettingPageState extends State<SettingPage> {
   List<Widget> buildColorSetting(_SettingPageModel data) {
     return [
       ListTile(
-        title: Text("外观"),
+        title: Text("外观模式"),
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ChoiceChip(
-            label: Text("跟随系统"),
-            selected: data.theme == AppConfig.themeFollowSystem,
-            onSelected: (value) {
-              appState.changeTheme(AppConfig.themeFollowSystem);
-            },
-          ),
-          ChoiceChip(
-            label: Text("浅色模式"),
-            selected: data.theme == AppConfig.themeLight,
-            onSelected: (value) {
-              appState.changeTheme(AppConfig.themeLight);
-            },
-          ),
-          ChoiceChip(
-            label: Text("深色模式"),
-            selected: data.theme == AppConfig.themeDark,
-            onSelected: (value) {
-              appState.changeTheme(AppConfig.themeDark);
-            },
-          ),
-        ],
+      ListTile(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ChoiceChip(
+              label: Text("跟随系统"),
+              selected: data.theme == AppConfig.themeFollowSystem,
+              onSelected: (value) {
+                appState.changeTheme(AppConfig.themeFollowSystem);
+              },
+            ),
+            ChoiceChip(
+              label: Text("浅色模式"),
+              selected: data.theme == AppConfig.themeLight,
+              onSelected: (value) {
+                appState.changeTheme(AppConfig.themeLight);
+              },
+            ),
+            ChoiceChip(
+              label: Text("深色模式"),
+              selected: data.theme == AppConfig.themeDark,
+              onSelected: (value) {
+                appState.changeTheme(AppConfig.themeDark);
+              },
+            ),
+          ],
+        ),
+      ),
+      Divider(),
+      ListTile(
+        title: Text("检查更新"),
+        trailing: Icon(Icons.navigate_next),
       ),
     ];
   }
