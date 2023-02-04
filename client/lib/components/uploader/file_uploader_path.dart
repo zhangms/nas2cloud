@@ -189,15 +189,19 @@ Future<void> _handleComplete(UploadEntry entry, UploadStatus entryStatus,
 
 Future<void> _handleRunning(UploadEntry entry, UploadStatus entryStatus,
     String statusName, int? progress) async {
+  if (progress != null) {
+    if (progress < 100) {
+      LocalNotification.platform.progress(
+          id: entry.id ?? 0,
+          title: p.basename(entry.src),
+          body: "",
+          progress: progress);
+    } else {
+      LocalNotification.platform.clear(id: entry.id ?? 0);
+    }
+  }
   if (entryStatus.groupIndex >= UploadStatus.uploading.groupIndex) {
     return;
-  }
-  if (progress != null) {
-    LocalNotification.platform.progress(
-        id: entry.id ?? 0,
-        title: p.basename(entry.src),
-        body: "",
-        progress: progress);
   }
   var result = entry.copyWith(
     status: UploadStatus.uploading.name,
