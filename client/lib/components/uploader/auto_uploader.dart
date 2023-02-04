@@ -124,13 +124,13 @@ class AutoUploader {
         var log =
             "enqueue auto upload : ${entry.src}, ${entry.dest}, $enqueuedCount, $timeEscape(ms)";
         print(log);
-        Api().postTraceLog(log);
+        await Api().postTraceLog(log);
       }
     }
     var log =
         "enqueueUploadComplete:${config.path}, escape: ${DateTime.now().difference(start).inMilliseconds}";
     print(log);
-    Api().postTraceLog(log);
+    await Api().postTraceLog(log);
     return enqueuedCount;
   }
 }

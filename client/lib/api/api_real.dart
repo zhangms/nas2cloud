@@ -267,12 +267,19 @@ class ApiReal extends Api {
       Response resp = await http.post(url,
           headers: await httpHeaders(),
           body: jsonEncode({
-            "log": log,
+            "log": "${platformName()}|${AppConfig.currentAppVersion}|$log",
           }));
       return Result.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
       return Result.fromMap(_exception);
     }
+  }
+
+  String platformName() {
+    if (kIsWeb) {
+      return "web";
+    }
+    return "${Platform.operatingSystem},${Platform.operatingSystemVersion}";
   }
 }
