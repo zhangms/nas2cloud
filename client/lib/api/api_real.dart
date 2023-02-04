@@ -28,7 +28,7 @@ class ApiReal extends Api {
   static var _defaultHttpHeaders = {
     "X-DEVICE": kIsWeb
         ? "flutter-app-web,${AppConfig.currentAppVersion}"
-        : "${AppConfig.currentAppVersion},${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version}",
+        : "${Platform.operatingSystem},${Platform.operatingSystemVersion},${Platform.version},${AppConfig.currentAppVersion}",
     "Content-Type": "application/json;charset=UTF-8",
   };
 
