@@ -40,6 +40,7 @@ func init() {
 			".JPEG": &ffmpegThumbnail{},
 			".PNG":  &ffmpegThumbnail{},
 			".GIF":  &ffmpegThumbnail{},
+			".MBP":  &ffmpegThumbnail{},
 			".MP4":  &ffmpegThumbnail{},
 			".MOV":  &ffmpegThumbnail{},
 			".MP3":  &tagThumbnail{thumbUser: "", defaultThumb: "/thumb/music.jpg"},

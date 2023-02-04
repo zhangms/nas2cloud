@@ -4,6 +4,8 @@ class FileHelper {
       case ".JPG":
       case ".JPEG":
       case ".PNG":
+      case ".GIF":
+      case ".BMP":
         return true;
       default:
         return false;
