@@ -9,6 +9,7 @@ usage(){
 build_server() {
     echo "build server $1"
     rm -rf release/bin/nas2cloud
+    mkdir -p release/bin
     cd server
     if [ "$1" == "linux" ]; then
         export CGO_ENABLED=0
@@ -34,6 +35,7 @@ build_console() {
     cd console-react
     npm run build
     cd ..
+    mkdir -p release/console
     rm -rf release/console/*
     cp -r console-react/build/*  release/console
 }
@@ -42,6 +44,7 @@ build_appweb() {
     cd client
     flutter build web --base-href=/app/
     cd ..
+    mkdir -p release/app
     rm -rf release/app/*
     cp -r client/build/web/*  release/app
 }
@@ -51,6 +54,7 @@ build_apk() {
     cd client
     flutter build apk --build-name=$1 --build-number=$2
     cd ..
+    mkdir -p release/client
     rm -rf release/client/*
     cp client/build/app/outputs/apk/release/app-release.apk release/client/nas2cloud-v$1.apk
     echo "{\"android\":\"nas2cloud-v$1.apk;v$1\"}" > release/client/release.json
