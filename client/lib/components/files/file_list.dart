@@ -197,14 +197,7 @@ class _FileListPageState extends State<FileListPage> {
 
   buildAppBar() {
     return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-        ),
-        onPressed: () {
-          pop();
-        },
-      ),
+      leading: AppWidgets.appBarArrowBack(context),
       title: Text(
         widget.name,
       ),

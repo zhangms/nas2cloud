@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 
 class AppWidgets {
   static Widget pageLoadingView() {
@@ -13,6 +14,18 @@ class AppWidgets {
             }
             return Text("");
           }),
+    );
+  }
+
+  static Widget appBarArrowBack(BuildContext context) {
+    return IconButton(
+      icon: Icon(
+        Icons.arrow_back,
+      ),
+      onPressed: () {
+        AppWidgets.clearMessage(context);
+        AppNav.pop(context);
+      },
     );
   }
 

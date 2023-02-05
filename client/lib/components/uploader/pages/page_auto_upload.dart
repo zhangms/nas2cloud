@@ -25,12 +25,7 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
 
   buildAppBar() {
     return AppBar(
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-        ),
-        onPressed: () => AppNav.pop(context),
-      ),
+      leading: AppWidgets.appBarArrowBack(context),
       title: Text("自动上传"),
       actions: [buildMoreMenu()],
     );

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/setting/check_update.dart';
 import 'package:nas2cloud/components/setting/setting_theme.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 class SettingPage extends StatelessWidget {
@@ -15,10 +14,7 @@ class SettingPage extends StatelessWidget {
 
   buildAppBar(BuildContext context) {
     return AppBar(
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => AppNav.pop(context),
-      ),
+      leading: AppWidgets.appBarArrowBack(context),
       title: AppWidgets.getAppNameText(),
     );
   }
