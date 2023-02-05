@@ -3,81 +3,68 @@
 ACTION=$1
 
 usage(){
-    echo "build.sh [server,console, app] [local,docker]"
+    echo "build.sh server/console/appweb/apk/docker"
 }
 
 build_server() {
-    if [ "$BUILD_TYPE" == "local" ]; then
-        build_server_local
-    fi
-}
-
-build_server_local(){
-    echo "build server local"
+    echo "build server $1"
+    rm -rf release/bin/nas2cloud
     cd server
-    go build -o ../release/local/nas2cloud
+    if [ "$1" == "linux" ]; then
+        export CGO_ENABLED=0
+        export GOOS=linux
+        export GOARCH=amd64
+    fi
+    if [ "$1" == "macos" ]; then
+        export CGO_ENABLED=0
+        export GOOS=darwin
+        export GOARCH=amd64
+    fi
+    if [ "$1" == "windows" ]; then
+        export CGO_ENABLED=0
+        export GOOS=windows
+        export GOARCH=amd64
+    fi
+    go build -o ../release/bin/nas2cloud
     cd ..
 }
 
 build_console() {
-    if [ "$BUILD_TYPE" == "local" ]; then
-        build_console_local
-    fi
-}
-
-build_console_local() {
-    echo "build console local"
+    echo "build console"
     cd console-react
     npm run build
     cd ..
-    rm -rf release/local/console
-    mkdir release/local/console
-    cp -r console-react/build/*  release/local/console
+    rm -rf release/console/*
+    cp -r console-react/build/*  release/console
 }
 
 build_appweb() {
-    if [ "$BUILD_TYPE" == "local" ]; then
-        build_appweb_local
-    fi
-}
-
-build_appweb_local(){
     cd client
     flutter build web --base-href=/app/
     cd ..
-    rm -rf release/local/app
-    mkdir release/local/app
-    cp -r client/build/web/*  release/local/app
+    rm -rf release/app/*
+    cp -r client/build/web/*  release/app
 }
 
 build_apk() {
+    echo "build apk $1 $2"
     cd client
-    flutter build apk --build-number=${BUILD_NUMBER} --build-name=${BUILD_TYPE}
+    flutter build apk --build-name=$1 --build-number=$2
     cd ..
-
-    rm -rf release/client
-    mkdir -p release/client
-    cp client/build/app/outputs/apk/release/app-release.apk release/client/nas2cloud-v${BUILD_TYPE}.apk
-    echo "{\"android\":\"nas2cloud-v${BUILD_TYPE}.apk;v${BUILD_TYPE}\"}" > release/client/release.json
-    rm -rf /Users/ZMS/NAS/client
-    cp -r release/client /Users/ZMS/NAS/
+    rm -rf release/client/*
+    cp client/build/app/outputs/apk/release/app-release.apk release/client/nas2cloud-v$1.apk
+    echo "{\"android\":\"nas2cloud-v$1.apk;v$1\"}" > release/client/release.json
 }
 
-install() {
-    if [ "$BUILD_TYPE" == "local" ]; then
-        install_local
-    fi
-}
-
-install_local() {
-    rm -rf /Users/ZMS/NAS/local
-    cp -r release/local /Users/ZMS/NAS/
+build_dcoker() {
+    echo build docker
 }
 
 main(){
     case $ACTION in
     server)
-        build_server
+        echo "useage : ./build.sh server linux/macos/windows"
+        build_server $1
     ;;
     console)
         build_console
@@ -86,17 +73,18 @@ main(){
         build_appweb
     ;;
     apk)
-        build_apk
+        echo "useage : ./build.sh apk versionName versionNumber eg: ./build.sh apk 2.9.2 292"
+        build_apk $1 $2
     ;;
-    install)
-        install
+    docker)
+        build_dcoker
     ;;
     *)
         usage
     ;;
     esac
 }
-main
+main $2 $3 $4 $5 $6 $7 $8 $9
 
 # echo "build server..."
 # cd server
