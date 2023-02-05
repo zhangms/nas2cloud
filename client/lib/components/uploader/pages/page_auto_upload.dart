@@ -38,12 +38,12 @@ class _AutoUploadPageState extends State<AutoUploadPage> {
 
   Widget buildBody() {
     if (kIsWeb) {
-      return AppWidgets.getPageErrorView("浏览器下无法自动上传");
+      return AppWidgets.pageErrorView("浏览器下无法自动上传");
     }
     if (Platform.isAndroid) {
       return AndroidAutoUploadConfigWidget();
     }
-    return AppWidgets.getPageErrorView(
+    return AppWidgets.pageErrorView(
         "尚未支持：${Platform.operatingSystem},${Platform.operatingSystemVersion}");
   }
 

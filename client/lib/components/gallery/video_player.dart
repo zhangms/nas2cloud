@@ -32,7 +32,7 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
         future: getVideoSignUrl(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return AppWidgets.getPageLoadingView();
+            return AppWidgets.pageLoadingView();
           }
           VideoPlayerController controller = _getController(snapshot.data!);
           return Scaffold(
@@ -85,7 +85,7 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
 
   buildVideoView() {
     if (_controller == null) {
-      return AppWidgets.getCenterTextView("Loading...");
+      return AppWidgets.centerTextView("Loading...");
     }
     if (_controller!.value.isInitialized) {
       return AspectRatio(
@@ -97,9 +97,9 @@ class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
       );
     }
     if (_controller!.value.hasError) {
-      return AppWidgets.getPageErrorView(
+      return AppWidgets.pageErrorView(
           _controller!.value.errorDescription ?? "ERROR");
     }
-    return AppWidgets.getCenterTextView("Loading...");
+    return AppWidgets.centerTextView("Loading...");
   }
 }

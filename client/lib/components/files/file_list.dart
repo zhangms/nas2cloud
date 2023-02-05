@@ -149,10 +149,10 @@ class _FileListPageState extends State<FileListPage> {
 
   Widget buildBodyView(AsyncSnapshot<FileWalkResponse> snapshot) {
     if (total < 0) {
-      return AppWidgets.getPageLoadingView();
+      return AppWidgets.pageLoadingView();
     }
     if (total == 0) {
-      return AppWidgets.getPageEmptyView();
+      return AppWidgets.pageEmptyView();
     }
     return ListView.builder(
         itemCount: total,

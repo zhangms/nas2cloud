@@ -22,15 +22,15 @@ class FileHomePage extends StatelessWidget {
   Widget buildBody(
       BuildContext context, AsyncSnapshot<FileWalkResponse> snapshot) {
     if (snapshot.connectionState != ConnectionState.done) {
-      return AppWidgets.getPageLoadingView();
+      return AppWidgets.pageLoadingView();
     }
     var response = snapshot.data!;
     if (!response.success) {
-      return AppWidgets.getPageErrorView(response.message ?? "ERROR");
+      return AppWidgets.pageErrorView(response.message ?? "ERROR");
     }
     var files = response.data?.files ?? [];
     if (files.isEmpty) {
-      return AppWidgets.getPageEmptyView();
+      return AppWidgets.pageEmptyView();
     }
     return ListView(
       children: [

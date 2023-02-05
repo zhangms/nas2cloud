@@ -24,7 +24,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
           if (snapshot.hasData) {
             return buildDrawer(snapshot.data!);
           }
-          return AppWidgets.getPageLoadingView();
+          return AppWidgets.pageLoadingView();
         });
   }
 

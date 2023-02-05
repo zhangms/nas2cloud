@@ -69,7 +69,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
               future: getGalleryItems(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return AppWidgets.getPageLoadingView();
+                  return AppWidgets.pageLoadingView();
                 }
                 galleryItems = snapshot.data!;
                 return PhotoViewGallery.builder(
@@ -112,7 +112,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     var item = galleryItems?[idx];
     if (item == null) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: AppWidgets.getPageErrorView("NotFound"));
+          child: AppWidgets.pageErrorView("NotFound"));
     }
     if (FileHelper.isImage(item.fileExt)) {
       return PhotoViewGalleryPageOptions(
@@ -134,7 +134,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           child: TextReader(item.filepath, item.requestHeader));
     } else {
       return PhotoViewGalleryPageOptions.customChild(
-          child: AppWidgets.getPageErrorView("UNSUPPORT"));
+          child: AppWidgets.pageErrorView("UNSUPPORT"));
     }
   }
 

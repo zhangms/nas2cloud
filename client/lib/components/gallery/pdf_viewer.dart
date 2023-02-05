@@ -14,7 +14,7 @@ class PDFViewer extends StatelessWidget {
       url,
       headers: requestHeader,
       placeholder: (progress) => Center(child: Text("$progress %")),
-      errorWidget: (error) => AppWidgets.getPageErrorView(error.toString()),
+      errorWidget: (error) => AppWidgets.pageErrorView(error.toString()),
     );
   }
 }

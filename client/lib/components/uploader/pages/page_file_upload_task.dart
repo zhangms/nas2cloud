@@ -132,11 +132,11 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
         ),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return AppWidgets.getPageLoadingView();
+            return AppWidgets.pageLoadingView();
           }
           var page = snapshot.data!;
           if (page.data.isEmpty) {
-            return AppWidgets.getCenterTextView("无任务");
+            return AppWidgets.centerTextView("无任务");
           }
           return ListView.builder(
               itemCount: page.data.length,

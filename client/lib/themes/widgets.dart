@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
 
 class AppWidgets {
-  static Widget getPageLoadingView() {
+  static Widget pageLoadingView() {
     return Center(
       child: FutureBuilder<String>(
           future:
@@ -16,19 +16,19 @@ class AppWidgets {
     );
   }
 
-  static Widget getPageEmptyView() {
+  static Widget pageEmptyView() {
     return Center(
       child: Text("Empty"),
     );
   }
 
-  static Widget getCenterTextView(String text) {
+  static Widget centerTextView(String text) {
     return Center(
       child: Text(text),
     );
   }
 
-  static Widget getPageErrorView(String message) {
+  static Widget pageErrorView(String message) {
     return Center(
       child: Text(message),
     );

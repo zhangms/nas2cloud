@@ -47,11 +47,11 @@ class _HomePageState extends State<HomePage> {
         future: Api().tryGetServerStatus(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return AppWidgets.getPageLoadingView();
+            return AppWidgets.pageLoadingView();
           }
           var status = snapshot.data!;
           if (!status.success) {
-            return AppWidgets.getPageErrorView(status.message!);
+            return AppWidgets.pageErrorView(status.message!);
           }
           if (status.data?.userName?.isEmpty ?? true) {
             return buildLoginRequired();

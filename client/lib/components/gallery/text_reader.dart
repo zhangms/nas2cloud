@@ -89,7 +89,7 @@ class _TextReaderState extends State<TextReader> {
   }
 
   Widget buildLoading() {
-    return wrap(AppWidgets.getPageLoadingView());
+    return wrap(AppWidgets.pageLoadingView());
   }
 
   Widget wrap(Widget widget) {

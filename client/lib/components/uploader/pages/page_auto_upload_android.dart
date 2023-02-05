@@ -82,11 +82,11 @@ class _AndroidAutoUploadConfigWidgetState
 
   Widget buildBody(AsyncSnapshot<_AndroidAutoUploadConfig> snapshot) {
     if (!snapshot.hasData) {
-      return AppWidgets.getPageLoadingView();
+      return AppWidgets.pageLoadingView();
     }
     _AndroidAutoUploadConfig config = snapshot.data!;
     if (!config.storageGrant) {
-      return AppWidgets.getPageErrorView("请开启文件访问授权，方可自动上传");
+      return AppWidgets.pageErrorView("请开启文件访问授权，方可自动上传");
     }
     return ListView(
       children: [
