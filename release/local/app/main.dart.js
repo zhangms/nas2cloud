@@ -91952,7 +91952,7 @@ s=a.b
 if(s==null)s="no_updates"
 if(s==="no_updates")return new A.wT("","",!1)
 r=s.split(";")
-if(r.length<2||J.e(r[1],"v2.9.0"))return new A.wT("","",!1)
+if(r.length<2||J.e(r[1],"v2.9.1"))return new A.wT("","",!1)
 return new A.wT(r[0],r[1],!0)},
 yU(a){return this.a91(a)},
 a91(a){var s=0,r=A.q(t.z),q=this,p
@@ -91969,7 +91969,7 @@ $2(a,b){var s,r,q=null,p=b.b
 if(p==null)return A.hc(!1,q,q,q,!0,q,q,!1,q,q,q,!1,q,q,q,q,q,A.aw("\u66f4\u65b0\u68c0\u67e5\u4e2d...",q,q,q,q,q,q,q),q,q)
 s=this.a
 r=s.agq(p)
-if(!r.c)return A.hc(!1,q,q,q,!0,q,q,!1,q,q,q,!1,q,q,q,q,q,A.aw("\u5df2\u662f\u6700\u65b0\u7248\u672c:v2.9.0",q,q,q,q,q,q,q),q,q)
+if(!r.c)return A.hc(!1,q,q,q,!0,q,q,!1,q,q,q,!1,q,q,q,q,q,A.aw("\u5df2\u662f\u6700\u65b0\u7248\u672c:v2.9.1",q,q,q,q,q,q,q),q,q)
 return A.hc(!1,q,q,q,!0,q,q,!1,q,q,new A.ar8(s,r),!1,q,q,q,q,q,A.aw("\u4e0b\u8f7d\u6700\u65b0\u7248\u672c:"+r.b,q,q,q,q,q,q,q),A.bU(B.dD,q,q,q),q)},
 $S:531}
 A.ar8.prototype={
@@ -102922,7 +102922,7 @@ r($,"b51","aQc",()=>new A.a3f())
 r($,"b50","aQb",()=>new A.a3e())
 s($,"b5_","aQa",()=>new A.agP())
 r($,"b4Z","aQ9",()=>{var q=t.N
-return A.a7(["X-DEVICE","flutter-app-web,v2.9.0","Content-Type","application/json;charset=UTF-8"],q,q)})
+return A.a7(["X-DEVICE","flutter-app-web,v2.9.1","Content-Type","application/json;charset=UTF-8"],q,q)})
 r($,"b5c","a2D",()=>new A.a40())
 r($,"b5O","aEf",()=>new A.a87())
 s($,"b7U","aIh",()=>A.aa4(A.a7(["success",!0],t.N,t.z)))
