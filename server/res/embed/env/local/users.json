@@ -9,12 +9,13 @@
     "name": "zms",
     "password": "baobao4321x",
     "roles": "zms,family",
-    "avatar": "/thumb/favorite.jpg",
+    "avatar": "/thumb/avatar_zms.jpg",
     "mode": "rw"
   },
   {
     "name": "pmz",
     "password": "baobao123678",
+    "avatar": "/thumb/avatar_pmz.jpg",
     "roles": "pmz,family",
     "mode": "rw"
   }
