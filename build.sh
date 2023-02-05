@@ -1,12 +1,9 @@
 #!/bin/sh
 
 ACTION=$1
-BUILD_TYPE=$2
-BUILD_NUMBER=$3
-
 
 usage(){
-    echo "build.sh [server,console,app] [local,docker]"
+    echo "build.sh [server,console, app] [local,docker]"
 }
 
 build_server() {
@@ -116,5 +113,3 @@ main
 
 # rm -rf /Users/ZMS/NAS/local
 # cp -r release/local /Users/ZMS/NAS/
-
-
