@@ -43,7 +43,7 @@ func init() {
 			".MBP":  &ffmpegThumbnail{},
 			".MP4":  &ffmpegThumbnail{},
 			".MOV":  &ffmpegThumbnail{},
-			".MP3":  &tagThumbnail{thumbUser: "", defaultThumb: "/thumb/music.jpg"},
+			".MP3":  &tagThumbnail{thumbUser: "", defaultThumb: "/assets/icon_music.jpg"},
 		},
 		queue:       make(chan string, 1024),
 		thumbDir:    "/thumb",

@@ -23,7 +23,17 @@
     "id": "thumb",
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/NAS/Thumb",
+    "endpoint": "/Users/ZMS/NAS/thumb",
+    "authorize": "ALL",
+    "hidden": true,
+    "mode": "rw",
+    "comment": "缩略图"
+  },
+  {
+    "id": "assets",
+    "name": "assets",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/assets",
     "authorize": "ALL",
     "hidden": true,
     "mode": "rw",
@@ -51,7 +61,7 @@
     "id": "userhome_zms",
     "name": "ZMS的文件夹",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/NAS/Users/zms",
+    "endpoint": "/Users/ZMS/NAS/users/zms",
     "authorize": "zms",
     "mode": "rw",
     "hidden": false
@@ -60,7 +70,7 @@
     "id": "userhome_pmz",
     "name": "PMZ的文件夹",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/NAS/Users/pmz",
+    "endpoint": "/Users/ZMS/NAS/users/pmz",
     "authorize": "pmz",
     "mode": "rw",
     "hidden": false
