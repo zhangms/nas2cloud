@@ -63,28 +63,33 @@ func (d *diskUsage) duAllParent(paths []string) ([]*pathSize, error) {
 	for _, localPath := range localPaths {
 		size := d.du(localPath)
 		ps := group[localPath]
-		ps.size = size
-		ret = append(ret, ps)
+		if size > 0 {
+			ps.size = size
+			ret = append(ret, ps)
+		}
 	}
 	return ret, nil
 }
 
 func (d *diskUsage) du(local string) (size int64) {
 	start := time.Now()
+	size = 0
 	defer func() {
 		end := time.Now()
 		err := recover()
 		if err != nil {
+			size = 0
 			logger.Error("du error", local, "rt", end.Sub(start).Milliseconds(), "(ms)", err)
 		} else {
 			logger.Info("du ", local, libs.ReadableDataSize(size), "rt", end.Sub(start).Milliseconds(), "(ms)")
 		}
 	}()
 	if runtime.GOOS == "windows" {
-		return d.duWindows(local)
+		size = d.duWindows(local)
 	} else {
-		return d.duLinux(local)
+		size = d.duLinux(local)
 	}
+	return
 }
 
 func (d *diskUsage) duWindows(local string) int64 {

@@ -65,7 +65,7 @@ func (fw *fileWatchSvc) process(index int) {
 			paths = append(paths, filepath)
 		default:
 			if len(paths) > 0 {
-				fw.diskUsageExec(paths)
+				go fw.diskUsageExec(paths)
 				paths = make([]string, 0)
 			}
 		}
@@ -113,17 +113,17 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
-	fw.diskUsage(event.userRoles, event.path)
+	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processCreate(event *fileEvent) error {
-	fw.diskUsage(event.userRoles, event.path)
+	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processDelete(event *fileEvent) error {
-	fw.diskUsage(event.userRoles, event.path)
+	fw.diskUsage(event.path)
 	return nil
 }
 
@@ -136,7 +136,7 @@ func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
 	return ok, err
 }
 
-func (fw *fileWatchSvc) diskUsage(userRoles, path string) {
+func (fw *fileWatchSvc) diskUsage(path string) {
 	if len(path) > 0 {
 		fw.diskUsageQueue <- path
 	}
