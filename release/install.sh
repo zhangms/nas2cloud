@@ -66,3 +66,5 @@ docker run `
 
 
 # rsync -av /mnt/e/Mount /mnt/f
+
+# sudo rsync -av --size-only /mnt/e/Mount /mnt/f
