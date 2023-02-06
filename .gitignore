@@ -10,5 +10,7 @@ release/console/
 release/bin/
 release/assets/
 release/thumb/
+release/externals/
+release/users/
 
 

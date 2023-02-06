@@ -53,7 +53,7 @@
     "id": "Family",
     "name": "Family",
     "mountType": "local",
-    "endpoint": "/nas2cloud/FamilyMount",
+    "endpoint": "/nas2cloud/externals/Family",
     "authorize": "admin,family",
     "mode": "rw",
     "hidden": false,
