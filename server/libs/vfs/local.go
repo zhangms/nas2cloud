@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/fs"
 	"nas2cloud/libs"
+	"nas2cloud/libs/vfs/vpath"
 	"os"
 	"path"
 	"path/filepath"
@@ -18,7 +19,7 @@ type Local struct {
 // AbsLocal 本地文件的绝对路径
 func (l *Local) AbsLocal(file string) string {
 	if l.bucket != nil {
-		return path.Join(l.bucket.endpoint, file)
+		return filepath.Join(l.bucket.endpoint, file)
 	}
 	p, _ := filepath.Abs(file)
 	return p
@@ -27,7 +28,7 @@ func (l *Local) AbsLocal(file string) string {
 // AbsVirtual vfs中的绝对路径
 func (l *Local) AbsVirtual(file string) string {
 	if l.bucket != nil {
-		return path.Join(l.bucket.Dir(), file)
+		return vpath.Join(l.bucket.Dir(), file)
 	}
 	p, _ := filepath.Abs(file)
 	return p

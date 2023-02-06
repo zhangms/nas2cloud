@@ -8,7 +8,6 @@ import (
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc/cache"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -83,19 +82,19 @@ func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 
 func (r *fileCacheMgr) keyItem(path string) string {
 	cp := vpath.Clean(path)
-	bucket, _ := vpath.GetBucketFile(cp)
+	bucket, _ := vpath.BucketFile(cp)
 	return cache.Join(bucket, r.version, "file", cp)
 }
 
 func (r *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
 	cp := vpath.Clean(parent)
-	bucket, _ := vpath.GetBucketFile(cp)
+	bucket, _ := vpath.BucketFile(cp)
 	return cache.Join(bucket, r.version, "rank", orderField, cp)
 }
 
 func (r *fileCacheMgr) keyWalkFlag(path string) string {
 	cp := vpath.Clean(path)
-	bucket, _ := vpath.GetBucketFile(cp)
+	bucket, _ := vpath.BucketFile(cp)
 	return cache.Join(bucket, fileCache.version, "walk_flag", cp)
 }
 
@@ -168,7 +167,7 @@ func (r *fileCacheMgr) delete(path string) error {
 		return err
 	}
 	for _, child := range children {
-		_, err = cache.Del(r.keyItem(filepath.Join(path, child)))
+		_, err = cache.Del(r.keyItem(vpath.Join(path, child)))
 		if err != nil {
 			return err
 		}

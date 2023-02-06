@@ -96,7 +96,7 @@ func init() {
 }
 
 func GetBucket(role string, file string) (*Bucket, string, error) {
-	bucketId, fileName := vpath.GetBucketFile(file)
+	bucketId, fileName := vpath.BucketFile(file)
 	b := buckets[bucketId]
 	if b == nil {
 		return nil, "", errors.New("Bucket not exists :" + bucketId)

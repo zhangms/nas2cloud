@@ -11,13 +11,21 @@ func Clean(path string) string {
 	p := separator + path
 	p = strings.ReplaceAll(p, "\\", separator)
 	reg, _ := regexp.Compile("/+")
-	return reg.ReplaceAllString(p, separator)
+	p = reg.ReplaceAllString(p, separator)
+	if len(p) > 1 && p[len(p)-1:] == separator {
+		return p[0 : len(p)-1]
+	}
+	return p
 }
 
 func Base(path string) string {
 	p := Clean(path)
 	arr := strings.Split(p, separator)
-	return arr[len(arr)-1]
+	base := arr[len(arr)-1]
+	if len(base) > 1 && base[len(base)-1:] == separator {
+		return base[0 : len(base)-1]
+	}
+	return base
 }
 
 func Dir(path string) string {
@@ -44,7 +52,7 @@ func IsRootDir(p string) bool {
 	return Clean(p) == separator
 }
 
-func GetBucketFile(file string) (string, string) {
+func BucketFile(file string) (string, string) {
 	pth := Clean(file)
 	arr := strings.SplitN(pth, string(separator), 3)
 	if len(arr) == 3 {
@@ -54,9 +62,5 @@ func GetBucketFile(file string) (string, string) {
 }
 
 func Split(path string) (dir, file string) {
-	p := Clean(file)
-	arr := strings.Split(p, separator)
-	parent := arr[0 : len(arr)-1]
-	base := arr[len(arr)-1]
-	return Clean(strings.Join(parent, separator)), base
+	return Dir(path), Base(path)
 }
