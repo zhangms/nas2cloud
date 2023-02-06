@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
+	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/res"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -87,7 +86,7 @@ func init() {
 			id:        conf.Id,
 			name:      conf.Name,
 			mountType: conf.MountType,
-			endpoint:  path.Clean(conf.Endpoint),
+			endpoint:  conf.Endpoint,
 			authorize: conf.Authorize,
 			mode:      conf.Mode,
 			hidden:    conf.Hidden,
@@ -96,17 +95,8 @@ func init() {
 	logger.Info("VFS initialized", len(buckets))
 }
 
-func GetBucketFile(file string) (string, string) {
-	pth := path.Clean(libs.If(path.IsAbs(file), file, "/"+file).(string))
-	arr := strings.SplitN(pth, "/", 3)
-	if len(arr) == 3 {
-		return arr[1], arr[2]
-	}
-	return arr[1], ""
-}
-
 func GetBucket(role string, file string) (*Bucket, string, error) {
-	bucketId, fileName := GetBucketFile(file)
+	bucketId, fileName := vpath.GetBucketFile(file)
 	b := buckets[bucketId]
 	if b == nil {
 		return nil, "", errors.New("Bucket not exists :" + bucketId)
@@ -128,11 +118,6 @@ func GetStore(role string, file string) (Store, string, error) {
 	return &empty{}, f, nil
 }
 
-func IsRootDir(p string) bool {
-	clean := filepath.Clean(p)
-	return clean == "" || clean == "." || clean == "/"
-}
-
 func GetAllBucket() []*Bucket {
 	ret := make([]*Bucket, 0)
 	for _, name := range bucketIds {
@@ -143,7 +128,7 @@ func GetAllBucket() []*Bucket {
 }
 
 func List(role string, file string) ([]*ObjectInfo, error) {
-	if IsRootDir(file) {
+	if vpath.IsRootDir(file) {
 		ret := make([]*ObjectInfo, 0)
 		for _, b := range GetAllBucket() {
 			if !b.authorized(role) {
@@ -168,7 +153,7 @@ func List(role string, file string) ([]*ObjectInfo, error) {
 }
 
 func Info(role string, file string) (*ObjectInfo, error) {
-	if file == "" || file == "/" {
+	if vpath.IsRootDir(file) {
 		return &ObjectInfo{
 			Name:    "/",
 			Path:    "/",

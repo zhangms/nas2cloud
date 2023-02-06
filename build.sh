@@ -15,18 +15,20 @@ build_server() {
         export CGO_ENABLED=0
         export GOOS=linux
         export GOARCH=amd64
+        go build -o ../release/bin/nas2cloud_linux
     fi
     if [ "$1" == "macos" ]; then
         export CGO_ENABLED=0
         export GOOS=darwin
         export GOARCH=amd64
+        go build -o ../release/bin/nas2cloud_macos
     fi
     if [ "$1" == "windows" ]; then
         export CGO_ENABLED=0
         export GOOS=windows
         export GOARCH=amd64
+        go build -o ../release/bin/nas2cloud_win.exe
     fi
-    go build -o ../release/bin/nas2cloud
     cd ..
 }
 
@@ -66,6 +68,16 @@ build_dcoker() {
     docker rm nas2cloud
     docker rmi nas2cloud
     docker build -t nas2cloud .
+    docker save -o ./release/nas2cloud.tar nas2cloud:latest
+}
+
+zip_release() {
+    rm -rf /Users/ZMS/NAS/release
+    rm -rf /Users/ZMS/NAS/release.zip
+    cp -r release /Users/ZMS/NAS/
+    cd /Users/ZMS/NAS
+    zip -r release.zip release
+    cd -
 }
 
 main(){
@@ -86,6 +98,9 @@ main(){
     ;;
     docker)
         build_dcoker
+    ;;
+    zip)
+        zip_release
     ;;
     *)
         usage

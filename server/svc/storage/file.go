@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc"
 	"nas2cloud/svc/user"
-	"path/filepath"
 	"time"
 )
 
@@ -25,8 +25,8 @@ func File() *FileSvc {
 
 func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
 	userRoles := user.GetUserRoles(username)
-	path := filepath.Clean(fullPath)
-	if vfs.IsRootDir(path) {
+	path := vpath.Clean(fullPath)
+	if vpath.IsRootDir(path) {
 		return fs.walkRoot(userRoles)
 	}
 	_, _, err = vfs.GetStore(userRoles, path)
@@ -89,7 +89,7 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 
 func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	userRoles := user.GetUserRoles(username)
-	path := filepath.Clean(fullPath)
+	path := vpath.Clean(fullPath)
 	exi, err := fileCache.exists(path)
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 func (fs *FileSvc) Remove(username string, fullPath []string) error {
 	userRoles := user.GetUserRoles(username)
 	for _, p := range fullPath {
-		path := filepath.Clean(p)
+		path := vpath.Clean(p)
 		err := vfs.Remove(userRoles, path)
 		if err != nil {
 			return err

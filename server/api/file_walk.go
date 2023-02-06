@@ -6,11 +6,11 @@ import (
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc"
 	"nas2cloud/svc/storage"
 	"nas2cloud/svc/user"
 	"net/http"
-	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -107,10 +107,9 @@ func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
 
 func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNav {
 	ret := make([]*fileWalkNav, 0)
-	pp := filepath.Clean(pathName)
-	dir := filepath.Dir(pp)
-	name := filepath.Base(pp)
-	if name == "/" || name == "." {
+	dir := vpath.Dir(pathName)
+	name := vpath.Base(pathName)
+	if len(name) == 0 {
 		return ret
 	}
 	ret = append(ret, &fileWalkNav{
@@ -118,8 +117,8 @@ func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNa
 		Path: "",
 	})
 	for {
-		name = filepath.Base(dir)
-		if name == "/" || name == "." {
+		name = vpath.Base(dir)
+		if len(name) == 0 {
 			break
 		}
 		tmp := append([]*fileWalkNav{}, &fileWalkNav{
@@ -128,10 +127,10 @@ func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNa
 		})
 		tmp = append(tmp, ret...)
 		ret = tmp
-		dir = filepath.Dir(dir)
+		dir = vpath.Dir(dir)
 	}
 	base := ret[0]
-	baseInfo, _ := vfs.Info(u.Roles, base.Name)
+	baseInfo, _ := vfs.Info(u.Roles, base.Path)
 	if baseInfo != nil {
 		base.Name = baseInfo.Name
 	}

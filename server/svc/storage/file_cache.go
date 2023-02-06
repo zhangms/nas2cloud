@@ -6,6 +6,7 @@ import (
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc/cache"
 	"path/filepath"
 	"strconv"
@@ -68,7 +69,7 @@ func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 		return err
 	}
 	//更新在父目录中的位置
-	parent := filepath.Dir(item.Path)
+	parent := vpath.Dir(item.Path)
 	for _, orderField := range r.orderFields {
 		rank := r.keyRankInParent(parent, orderField)
 		_, err = cache.ZAdd(rank, r.getRankScore(item, orderField), item.Name)
@@ -81,20 +82,20 @@ func (r *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 }
 
 func (r *fileCacheMgr) keyItem(path string) string {
-	cp := filepath.Clean(path)
-	bucket, _ := vfs.GetBucketFile(cp)
+	cp := vpath.Clean(path)
+	bucket, _ := vpath.GetBucketFile(cp)
 	return cache.Join(bucket, r.version, "file", cp)
 }
 
 func (r *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
-	cp := filepath.Clean(parent)
-	bucket, _ := vfs.GetBucketFile(cp)
+	cp := vpath.Clean(parent)
+	bucket, _ := vpath.GetBucketFile(cp)
 	return cache.Join(bucket, r.version, "rank", orderField, cp)
 }
 
 func (r *fileCacheMgr) keyWalkFlag(path string) string {
-	cp := filepath.Clean(path)
-	bucket, _ := vfs.GetBucketFile(cp)
+	cp := vpath.Clean(path)
+	bucket, _ := vpath.GetBucketFile(cp)
 	return cache.Join(bucket, fileCache.version, "walk_flag", cp)
 }
 
@@ -154,7 +155,7 @@ func (r *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int
 	}
 	keys := make([]string, 0, len(list))
 	for _, name := range list {
-		keys = append(keys, r.keyItem(filepath.Join(path, name)))
+		keys = append(keys, r.keyItem(vpath.Join(path, name)))
 	}
 	ret, err := cache.MGet(keys...)
 	return ret, total, err
@@ -184,7 +185,7 @@ func (r *fileCacheMgr) delete(path string) error {
 		}
 	}
 	//删除父目录中的引用
-	dir, name := filepath.Split(path)
+	dir, name := vpath.Split(path)
 	for _, orderField := range r.orderFields {
 		rank := r.keyRankInParent(dir, orderField)
 		_, err := cache.ZRem(rank, name)

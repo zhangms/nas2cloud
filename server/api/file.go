@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
+	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc/storage"
 	"net/http"
 	"net/url"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -39,7 +39,7 @@ func (f *FileController) CreateFolder(c *fiber.Ctx) error {
 	if len(folderName) == 0 {
 		return SendError(c, http.StatusBadRequest, "name cant empty")
 	}
-	fullPath := filepath.Join(req.Path, folderName)
+	fullPath := vpath.Join(req.Path, folderName)
 	err = storage.File().MkdirAll(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
@@ -69,8 +69,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 }
 
 func (f *FileController) Exists(c *fiber.Ctx) error {
-	p, _ := url.PathUnescape(c.Params("*"))
-	path := filepath.Clean("/" + p)
+	path, _ := url.PathUnescape(c.Params("*"))
 	u, _ := GetContextUser(c)
 	exists, err := storage.File().Exists(u.Name, path)
 	if err != nil {
@@ -105,8 +104,7 @@ func (f *FileController) ListExists(c *fiber.Ctx) error {
 }
 
 func (f *FileController) Upload(c *fiber.Ctx) error {
-	p, _ := url.PathUnescape(c.Params("*"))
-	path := filepath.Clean("/" + p)
+	path, _ := url.PathUnescape(c.Params("*"))
 	file, err := c.FormFile("file")
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
@@ -115,7 +113,7 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
-	fullPath := filepath.Join(path, file.Filename)
+	fullPath := vpath.Join(path, file.Filename)
 	exists, err := storage.File().Exists(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
