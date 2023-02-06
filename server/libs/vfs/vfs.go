@@ -7,7 +7,6 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/res"
-	"path"
 	"strings"
 	"time"
 )
@@ -51,7 +50,7 @@ func (b *Bucket) MountTypeLocal() bool {
 }
 
 func (b *Bucket) Dir() string {
-	return path.Join("/", b.id)
+	return vpath.Clean(b.id)
 }
 
 func (b *Bucket) Endpoint() string {
@@ -155,8 +154,8 @@ func List(role string, file string) ([]*ObjectInfo, error) {
 func Info(role string, file string) (*ObjectInfo, error) {
 	if vpath.IsRootDir(file) {
 		return &ObjectInfo{
-			Name:    "/",
-			Path:    "/",
+			Name:    vpath.Separator,
+			Path:    vpath.Separator,
 			Hidden:  false,
 			Type:    ObjectTypeDir,
 			ModTime: time.Now(),

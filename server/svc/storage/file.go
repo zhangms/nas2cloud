@@ -55,7 +55,7 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 }
 
 func (fs *FileSvc) walkRoot(userRoles string) ([]*vfs.ObjectInfo, int64, error) {
-	list, er := vfs.List(userRoles, "/")
+	list, er := vfs.List(userRoles, vpath.Separator)
 	if er != nil {
 		return nil, 0, er
 	}
