@@ -10,7 +10,8 @@ import (
 )
 
 type fileWatchSvc struct {
-	eventQueue chan *fileEvent
+	fileEventQueue chan *fileEvent
+	diskUsageQueue chan string
 }
 
 var fileWatcher *fileWatchSvc
@@ -35,7 +36,8 @@ func init() {
 		return
 	}
 	fileWatcher = &fileWatchSvc{
-		eventQueue: make(chan *fileEvent, 1024),
+		fileEventQueue: make(chan *fileEvent, 1024),
+		diskUsageQueue: make(chan string, 1024),
 	}
 	processor := conf.GetIntValue("processor.count.filewatch", 1)
 	for i := 0; i < processor; i++ {
@@ -45,17 +47,27 @@ func init() {
 
 func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
 	if event != nil {
-		fw.eventQueue <- event
+		fw.fileEventQueue <- event
 	}
 }
 
 func (fw *fileWatchSvc) process(index int) {
 	logger.Info("start file watch processor", index)
+	paths := make([]string, 0)
 	for {
-		event := <-fw.eventQueue
-		err := fw.processEvent(event)
-		if err != nil {
-			logger.Error("process event error", event, err)
+		select {
+		case event := <-fw.fileEventQueue:
+			err := fw.processEvent(event)
+			if err != nil {
+				logger.Error("process event error", event, err)
+			}
+		case filepath := <-fw.diskUsageQueue:
+			paths = append(paths, filepath)
+		default:
+			if len(paths) > 0 {
+				fw.diskUsageExec(paths)
+				paths = make([]string, 0)
+			}
 		}
 	}
 }
@@ -125,13 +137,19 @@ func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
 }
 
 func (fw *fileWatchSvc) diskUsage(userRoles, path string) {
-	usage, err := disk.duAllParent(path)
+	if len(path) > 0 {
+		fw.diskUsageQueue <- path
+	}
+}
+
+func (fw *fileWatchSvc) diskUsageExec(paths []string) {
+	usage, err := disk.duAllParent(paths)
 	if err != nil {
-		logger.Error("DU_EXEC_ERROR", path, err)
+		logger.Error("DU_EXEC_ERROR", paths, err)
 		return
 	}
 	for _, du := range usage {
-		err = fileCache.updateSize(userRoles, du.path, du.size)
+		err = fileCache.updateSize(sysUser, du.path, du.size)
 		if err != nil {
 			logger.Error("DU_UPDATE_FILE_SIZE_ERROR", du.path, err)
 		}

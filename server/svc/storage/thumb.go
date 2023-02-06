@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -188,8 +189,8 @@ func (f *ffmpegThumbnail) execLowPerformance(from string, to string, width int, 
 	dir := svc.GetTempDir()
 
 	name := uuid.New().String()
-	origin := path.Join(dir, name+".origin")
-	thumb := path.Join(dir, name)
+	origin := filepath.Join(dir, name+".origin")
+	thumb := filepath.Join(dir, name)
 	err = os.WriteFile(origin, data, fs.ModePerm)
 	if err != nil {
 		return err

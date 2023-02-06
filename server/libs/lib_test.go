@@ -7,6 +7,6 @@ import (
 
 func TestReadableDataSize(t *testing.T) {
 
-	fmt.Println(ReadableDataSize(274019144))
+	fmt.Println(ReadableDataSize(1154198092))
 
 }
