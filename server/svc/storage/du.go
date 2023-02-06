@@ -5,6 +5,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
+	"nas2cloud/svc/cache"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -61,8 +62,12 @@ func (d *diskUsage) duAllParent(paths []string) ([]*pathSize, error) {
 		}
 	}
 	for _, localPath := range localPaths {
-		size := d.du(localPath)
 		ps := group[localPath]
+		ok, _ := cache.SetNXExpire("diskUsage:"+localPath, ps.path+";"+time.Now().String(), cache.DefaultExpireTime)
+		if !ok {
+			continue
+		}
+		size := d.du(localPath)
 		if size > 0 {
 			ps.size = size
 			ret = append(ret, ps)

@@ -59,4 +59,10 @@ docker run `
     -d nas2cloud
 
 
-docker volume create --name Family E:\Mount
+# docker volume create --name Family E:\Mount
+
+#windows启动
+# .\bin\nas2cloud_win.exe -action=start -profile=local -port=8168
+
+
+# rsync -av /mnt/e/Mount /mnt/f
