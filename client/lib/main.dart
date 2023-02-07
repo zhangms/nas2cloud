@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/event/event_change_theme.dart';
 import 'package:nas2cloud/event/bus.dart';
+import 'package:nas2cloud/event/event_change_theme.dart';
 import 'package:nas2cloud/pages/config.dart';
 import 'package:nas2cloud/pages/home.dart';
 import 'package:nas2cloud/pages/login.dart';
@@ -24,12 +26,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late StreamSubscription<EventChangeTheme> subscription;
+
   @override
   void initState() {
     super.initState();
-    eventBus.on<EventChangeTheme>().listen((event) {
+    subscription = eventBus.on<EventChangeTheme>().listen((event) {
       setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
   }
 
   @override

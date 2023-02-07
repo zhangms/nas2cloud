@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
@@ -17,12 +19,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late StreamSubscription<EventLogout> subscription;
+
   @override
   void initState() {
     super.initState();
-    eventBus.on<EventLogout>().listen((event) {
+    subscription = eventBus.on<EventLogout>().listen((event) {
       logout();
     });
+  }
+
+  @override
+  void dispose() {
+    subscription.cancel();
+    super.dispose();
   }
 
   @override
