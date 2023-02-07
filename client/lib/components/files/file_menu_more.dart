@@ -3,12 +3,12 @@ import 'package:nas2cloud/themes/app_nav.dart';
 
 class FileMoreMenu extends StatefulWidget {
   static const _orderByOptions = [
-    {"orderBy": "fileName", "name": "文件名排序"},
-    {"orderBy": "size_asc", "name": "文件从小到大"},
-    {"orderBy": "size_desc", "name": "文件从大到小"},
     {"orderBy": "modTime_desc", "name": "最新修改在前"},
     {"orderBy": "modTime_asc", "name": "最早修改在前"},
     {"orderBy": "creTime_desc", "name": "最新添加"},
+    {"orderBy": "size_asc", "name": "文件从小到大"},
+    {"orderBy": "size_desc", "name": "文件从大到小"},
+    {"orderBy": "fileName", "name": "文件名排序"},
   ];
 
   final String currentPath;

@@ -73,20 +73,40 @@ class ApiMock extends Api {
   }
 
   @override
-  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
-    return FileWalkResponse.fromMap({
-      "success": true,
-      "message": "OK",
-      "data": {
-        "currentStart": 0,
-        "currentStop": 0,
-        "currentPage": 0,
-        "currentPath": reqeust.path,
-        "total": 0,
-        "nav": [],
-        "files": []
-      },
-    });
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) {
+    const total = 10000;
+    var start = reqeust.pageNo * reqeust.pageSize;
+    var end = (reqeust.pageNo + 1) * reqeust.pageSize;
+    List<Map<String, dynamic>> files = [];
+    for (var i = start; i < end; i++) {
+      if (i >= 0 && i < total) {
+        files.add({
+          "name":
+              "file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长$i",
+          "type": "DIR",
+          "path": "path:$i",
+          "size": "123MB",
+          "modTime": "2022-02-02 22:22:22"
+        });
+      } else if (i >= total) {
+        break;
+      }
+    }
+    return Future.delayed(
+        Duration(milliseconds: 200),
+        () => FileWalkResponse.fromMap({
+              "success": true,
+              "message": "OK",
+              "data": {
+                "currentStart": start,
+                "currentStop": end,
+                "currentPage": reqeust.pageNo,
+                "currentPath": reqeust.path,
+                "total": total,
+                "nav": [],
+                "files": files
+              },
+            }));
   }
 
   @override

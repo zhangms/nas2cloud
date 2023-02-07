@@ -1,11 +1,16 @@
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
+import 'package:nas2cloud/components/files/file_data_controller.dart';
 import 'package:nas2cloud/components/files/file_menu_add.dart';
 import 'package:nas2cloud/components/files/file_menu_more.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/widgets.dart';
+import 'package:skeletons/skeletons.dart';
+
+import 'file_menu_item_context.dart';
+import 'file_widgets.dart';
 
 class FileListPage extends StatefulWidget {
   final String path;
@@ -18,21 +23,19 @@ class FileListPage extends StatefulWidget {
 }
 
 class _FileListPageState extends State<FileListPage> {
-  static const _pageSize = 50;
-
-  static final _noDataResponse = FileWalkResponse.fromMap({
-    "success": true,
-  });
-
-  bool initLoading = false;
-  bool moreLoading = false;
-  int total = 0;
+  final ScrollController scrollController = ScrollController();
+  late final FileDataController fileDataController;
 
   @override
   void initState() {
     super.initState();
+    fileDataController = FileDataController(widget.path, "fileName", () {
+      print("callback");
+      setState(() {});
+    });
+    fileDataController.initLoad();
+    print("init load end");
     FileUploader.addListener(onUploadResultChange);
-    // resetState();
   }
 
   @override
@@ -45,19 +48,8 @@ class _FileListPageState extends State<FileListPage> {
     if (entry != null &&
         entry.dest == widget.path &&
         "upload" == entry.channel &&
-        UploadStatus.match(entry.status, UploadStatus.successed)) {
-      // resetFetch("creTime_desc");
-    }
+        UploadStatus.match(entry.status, UploadStatus.successed)) {}
   }
-
-  // void resetState() {
-  //   total = -1;
-  //   currentStop = -1;
-  //   currentPage = -1;
-  //   items = [];
-  //   orderBy = "fileName";
-  //   // orderBy = _orderByOptions[0]["orderBy"]!;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -76,22 +68,47 @@ class _FileListPageState extends State<FileListPage> {
   }
 
   buildBodyView() {
-    if (initLoading) {
+    if (fileDataController.initLoading) {
       return AppWidgets.pageLoadingView();
     }
-    if (total == 0) {
+    if (fileDataController.total == 0) {
       return AppWidgets.pageEmptyView();
     }
-    return ListView.builder(
-        itemCount: total,
-        itemBuilder: ((context, index) {
-          return buildItemView(index);
-        }));
+    return DraggableScrollbar.semicircle(
+      controller: scrollController,
+      child: ListView.builder(
+          controller: scrollController,
+          itemExtent: 64,
+          itemCount: fileDataController.total,
+          itemBuilder: ((context, index) {
+            return buildItemView(index);
+          })),
+    );
   }
 
   buildItemView(int index) {
-    
+    var item = fileDataController.get(index);
+    if (item == null) {
+      return SkeletonListTile(
+        hasSubtitle: true,
+        padding: EdgeInsets.all(8),
+      );
+    }
+    return ListTile(
+      leading: FileWidgets.getItemIcon(item),
+      trailing: FileItemContextMenu(item),
+      title: Text(
+        item.name,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text("${item.modTime}  ${item.size}"),
+      onTap: () {
+        // onItemTap(item);
+      },
+    );
   }
+}
+
 
   // Future<FileWalkResponse> fetchOnBuild() {
   //   if (fetchWhenBuild) {
@@ -293,4 +310,3 @@ class _FileListPageState extends State<FileListPage> {
   //     print(t);
   //   }
   // }
-}

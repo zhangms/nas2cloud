@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/background/background.dart';
+import 'package:nas2cloud/components/files/file_list.dart';
 import 'package:nas2cloud/components/notification/notification.dart';
 import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
 import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+import '../api/dto/login_response/data.dart' as userdata;
+import '../api/dto/state_response/data.dart' as statdata;
 
 class TestPage extends StatelessWidget {
   @override
@@ -73,38 +74,40 @@ class TestPage extends StatelessWidget {
 
   exec(BuildContext context) async {
     // AppNav.openPage(context, SettingPage());
-    var start = DateTime.now();
-    if (await Permission.manageExternalStorage.request().isGranted) {
-      await BackgroundProcessor().executeOnceAutoUploadTask();
-      print(
-          "executeUpload-->${DateTime.now().difference(start).inMilliseconds}");
-    }
+    // var start = DateTime.now();
+    // if (await Permission.manageExternalStorage.request().isGranted) {
+    //   await BackgroundProcessor().executeOnceAutoUploadTask();
+    //   print(
+    //       "executeUpload-->${DateTime.now().difference(start).inMilliseconds}");
+    // }
+    AppNav.openPage(context, FileListPage("/home", "TEST"));
   }
 
   saveAppState() async {
     await AppConfig.saveServerAddress("192.168.31.88:8080");
 
-    var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
-    await AppConfig.saveUserLoginInfo(resp.data!);
-    await Api().tryGetServerStatus();
+    // var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
+    // await AppConfig.saveUserLoginInfo(resp.data!);
+    // await Api().tryGetServerStatus();
 
-    // var hostAddress = await AppConfig.getServerAddress();
-    // print("hostAddress---->$hostAddress");
-    // await AppConfig.saveUserLoginInfo(userdata.Data(
-    //     username: "zms",
-    //     token: "zms-123",
-    //     createTime: DateTime.now().toString()));
-    // var loginInfo = await AppConfig.getUserLoginInfo();
-    // print("loginInfo--->$loginInfo");
-    // await AppConfig.saveServerStatus(statdata.Data(
-    //   appName: "HELLO",
-    //   publicKey: "",
-    //   userName: "zms",
-    // ));
-    // var hoststate = await AppConfig.getServerStatus();
-    // print("hoststate------>$hoststate");
-    // await AppConfig.useMockApi(true);
-    // print("mockapi------>${AppConfig.isUseMockApi()}");
+    var hostAddress = await AppConfig.getServerAddress();
+    print("hostAddress---->$hostAddress");
+    await AppConfig.saveUserLoginInfo(userdata.Data(
+        username: "zms",
+        token: "zms-123",
+        createTime: DateTime.now().toString()));
+    var loginInfo = await AppConfig.getUserLoginInfo();
+    print("loginInfo--->$loginInfo");
+    await AppConfig.saveServerStatus(statdata.Data(
+      appName: "HELLO",
+      publicKey: "",
+      userName: "zms",
+    ));
+    var hoststate = await AppConfig.getServerStatus();
+    print("hoststate------>$hoststate");
+    await AppConfig.useMockApi(true);
+    print("mockapi------>${AppConfig.isUseMockApi()}");
+    AppConfig.setThemeSetting(AppConfig.themeLight);
   }
 
   initUploadData() async {
