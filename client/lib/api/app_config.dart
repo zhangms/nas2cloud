@@ -9,7 +9,7 @@ import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/utils/spu.dart';
 
 class AppConfig {
-  static const currentAppVersion = "v2.9.3";
+  static const currentAppVersion = "v2.9.4";
 
   static const defaultAppName = "Nas2cloud";
 
