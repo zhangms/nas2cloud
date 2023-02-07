@@ -80,7 +80,7 @@ class WebUploader extends FileUploader {
       message: value.message,
     );
     await UploadRepository.platform.update(result);
-    FileUploader.notifyListeners(result);
+    FileUploader.fireEvent(result);
   }
 
   onUploadError(UploadEntry entry, Object? error, StackTrace stackTrace) async {
@@ -89,18 +89,18 @@ class WebUploader extends FileUploader {
       message: "ERROR:$error",
     );
     await UploadRepository.platform.update(result);
-    FileUploader.notifyListeners(result);
+    FileUploader.fireEvent(result);
   }
 
   @override
   Future<void> cancelAllRunning() async {
     await UploadRepository.platform.clearAll();
-    FileUploader.notifyListeners(null);
+    FileUploader.fireEvent(null);
   }
 
   @override
   Future<void> clearTask(UploadStatus status) async {
     await UploadRepository.platform.deleteByStatus(status.name);
-    FileUploader.notifyListeners(null);
+    FileUploader.fireEvent(null);
   }
 }

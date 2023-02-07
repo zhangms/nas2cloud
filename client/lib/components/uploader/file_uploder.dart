@@ -8,6 +8,8 @@ import 'package:nas2cloud/components/uploader/file_uploader_web.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/event/bus.dart';
+import 'package:nas2cloud/event/event_fileupload.dart';
 import 'package:path/path.dart' as p;
 
 abstract class FileUploader {
@@ -64,22 +66,8 @@ abstract class FileUploader {
 
   Future<void> cancelAllRunning();
 
-  static List<Function(UploadEntry? entry)> _listeners = [];
-
-  static void removeListener(Function(UploadEntry? entry) listener) {
-    _listeners.remove(listener);
-    print("uploader remove listener : ${_listeners.length}");
-  }
-
-  static void addListener(Function(UploadEntry? entry) listener) {
-    _listeners.add(listener);
-    print("uploader add listener : ${_listeners.length}");
-  }
-
-  static void notifyListeners(UploadEntry? entry) {
-    for (var listener in _listeners) {
-      listener(entry);
-    }
+  static void fireEvent(UploadEntry? entry) {
+    eventBus.fire(EventFileUpload(entry));
   }
 
   Future<void> clearTask(UploadStatus status);

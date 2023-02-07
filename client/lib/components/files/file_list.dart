@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/files/file_data_controller.dart';
 import 'package:nas2cloud/components/files/file_menu_add.dart';
 import 'package:nas2cloud/components/files/file_menu_more.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/themes/widgets.dart';
@@ -35,12 +34,10 @@ class _FileListPageState extends State<FileListPage> {
     });
     fileDataController.initLoad();
     print("init load end");
-    FileUploader.addListener(onUploadResultChange);
   }
 
   @override
   void dispose() {
-    FileUploader.removeListener(onUploadResultChange);
     super.dispose();
   }
 

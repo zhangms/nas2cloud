@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/dto/page_data.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/event/bus.dart';
+import 'package:nas2cloud/event/event_fileupload.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/data_size.dart';
@@ -37,10 +41,14 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  late StreamSubscription<EventFileUpload> uploadSubscription;
+
   @override
   void initState() {
     super.initState();
-    FileUploader.addListener(onUploadStatusChange);
+    uploadSubscription = eventBus.on<EventFileUpload>().listen((event) {
+      setState(() {});
+    });
     _tabController = TabController(
       initialIndex: 0,
       length: _tabs.length,
@@ -53,13 +61,9 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
 
   @override
   void dispose() {
-    FileUploader.removeListener(onUploadStatusChange);
+    uploadSubscription.cancel();
     _tabController.dispose();
     super.dispose();
-  }
-
-  onUploadStatusChange(UploadEntry? entry) {
-    setState(() {});
   }
 
   @override

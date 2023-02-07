@@ -79,14 +79,14 @@ class PathUploader extends FileUploader {
     await FlutterUploader().clearUploads();
     await UploadRepository.platform.deleteByStatus(UploadStatus.waiting.name);
     await UploadRepository.platform.deleteByStatus(UploadStatus.uploading.name);
-    FileUploader.notifyListeners(null);
+    FileUploader.fireEvent(null);
   }
 
   @override
   Future<void> clearTask(UploadStatus status) async {
     await FlutterUploader().clearUploads();
     await UploadRepository.platform.deleteByStatus(status.name);
-    FileUploader.notifyListeners(null);
+    FileUploader.fireEvent(null);
   }
 
   void _syncTaskState() async {
@@ -169,7 +169,7 @@ Future<void> _handleFailed(UploadEntry entry, UploadStatus entryStatus,
       message: "$statusName:$message",
     );
     await UploadRepository.platform.update(result);
-    FileUploader.notifyListeners(result);
+    FileUploader.fireEvent(result);
     _sendNotification(result);
   }
 }
@@ -213,7 +213,7 @@ Future<void> _handleWaiting(
 }
 
 Future<void> _sendNotification(UploadEntry entry) async {
-  FileUploader.notifyListeners(entry);
+  FileUploader.fireEvent(entry);
   var count = await UploadRepository.platform
       .countByStatus([UploadStatus.waiting.name, UploadStatus.uploading.name]);
   if (count == 0) {
