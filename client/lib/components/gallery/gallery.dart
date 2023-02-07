@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
@@ -14,9 +14,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 class GalleryPhotoViewPage extends StatefulWidget {
   static bool isSupportFileExt(String? ext) {
     if (FileHelper.isImage(ext) || FileHelper.isVideo(ext)) {
-      return true;
-    }
-    if (!kIsWeb && FileHelper.isPDF(ext)) {
       return true;
     }
     if (FileHelper.isText(ext)) {
@@ -114,9 +111,20 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
       return PhotoViewGalleryPageOptions.customChild(
           child: AppWidgets.pageErrorView("NotFound"));
     }
+
+    // CachedNetworkImage(
+    //   imageUrl: "http://via.placeholder.com/350x150",
+    //   progressIndicatorBuilder: (context, url, downloadProgress) =>
+    //       CircularProgressIndicator(value: downloadProgress.progress),
+    //   errorWidget: (context, url, error) => Icon(Icons.error),
+    // );
+
+    // NetworkImage(item.url, headers: item.requestHeader)
+
     if (FileHelper.isImage(item.fileExt)) {
       return PhotoViewGalleryPageOptions(
-          imageProvider: NetworkImage(item.url, headers: item.requestHeader),
+          imageProvider:
+              CachedNetworkImageProvider(item.url, headers: item.requestHeader),
           initialScale: PhotoViewComputedScale.contained,
           minScale: PhotoViewComputedScale.contained * 0.5,
           maxScale: PhotoViewComputedScale.covered * 4.1,

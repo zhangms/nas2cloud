@@ -10,6 +10,7 @@ import 'package:nas2cloud/components/files/file_event.dart';
 import 'package:nas2cloud/components/files/file_menu_add.dart';
 import 'package:nas2cloud/components/files/file_menu_more.dart';
 import 'package:nas2cloud/components/gallery/gallery.dart';
+import 'package:nas2cloud/components/gallery/pdf_viewer.dart';
 import 'package:nas2cloud/components/uploader/upload_entry.dart';
 import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/event/bus.dart';
@@ -161,9 +162,11 @@ class _FileListPageState extends State<FileListPage> {
     }
   }
 
-  void tapItem(int index, File item) {
+  Future<void> tapItem(int index, File item) async {
     if (item.type == "DIR") {
       AppNav.openPage(context, FileListPage(item.path, item.name));
+    } else if (FileHelper.isPDF(item.ext)) {
+      openPDFViewer(item);
     } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
       openGallery(index, item);
     } else if (FileHelper.isMusic(item.ext)) {
@@ -179,7 +182,7 @@ class _FileListPageState extends State<FileListPage> {
     int galleryIndex = 0;
     for (var it in items) {
       if (GalleryPhotoViewPage.isSupportFileExt(it.ext)) {
-        galleryItems.add(item);
+        galleryItems.add(it);
         if (it.path == item.path) {
           galleryIndex = galleryItems.length - 1;
         }
@@ -231,5 +234,13 @@ class _FileListPageState extends State<FileListPage> {
         image: metaImage,
       ),
     );
+  }
+
+  Future<void> openPDFViewer(File item) async {
+    var url = await Api().getStaticFileUrl(item.path);
+    var headers = await Api().httpHeaders();
+    setState(() {
+      AppNav.openPage(context, PDFViewer(url, headers));
+    });
   }
 }
