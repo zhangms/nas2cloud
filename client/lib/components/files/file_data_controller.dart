@@ -83,9 +83,6 @@ class FileDataController {
   Future<FileWalkResponse> _fetch(int page, int retry) async {
     var response = await Api().postFileWalk(FileWalkRequest(
         path: path, pageNo: page, pageSize: _pageSize, orderBy: orderBy));
-    if (!response.success) {
-      return response;
-    }
     if (response.message == "RetryLaterAgain") {
       if (retry >= 5) {
         return FileWalkResponse.fromMap({
@@ -95,6 +92,10 @@ class FileDataController {
       return await Future.delayed(
           Duration(milliseconds: 200), () => _fetch(page, retry + 1));
     }
+    if (!response.success) {
+      return response;
+    }
+
     return response;
   }
 

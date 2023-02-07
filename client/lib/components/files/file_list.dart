@@ -105,6 +105,7 @@ class _FileListPageState extends State<FileListPage> {
     }
     return DraggableScrollbar.semicircle(
       controller: scrollController,
+      backgroundColor: Theme.of(context).colorScheme.background,
       child: ListView.builder(
           controller: scrollController,
           itemExtent: 64,

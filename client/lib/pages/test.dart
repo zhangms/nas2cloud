@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/files/file_list.dart';
 import 'package:nas2cloud/components/notification/notification.dart';
@@ -86,28 +87,28 @@ class TestPage extends StatelessWidget {
   saveAppState() async {
     await AppConfig.saveServerAddress("192.168.31.88:8080");
 
-    // var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
-    // await AppConfig.saveUserLoginInfo(resp.data!);
-    // await Api().tryGetServerStatus();
+    var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
+    await AppConfig.saveUserLoginInfo(resp.data!);
+    await Api().tryGetServerStatus();
 
-    var hostAddress = await AppConfig.getServerAddress();
-    print("hostAddress---->$hostAddress");
-    await AppConfig.saveUserLoginInfo(userdata.Data(
-        username: "zms",
-        token: "zms-123",
-        createTime: DateTime.now().toString()));
-    var loginInfo = await AppConfig.getUserLoginInfo();
-    print("loginInfo--->$loginInfo");
-    await AppConfig.saveServerStatus(statdata.Data(
-      appName: "HELLO",
-      publicKey: "",
-      userName: "zms",
-    ));
-    var hoststate = await AppConfig.getServerStatus();
-    print("hoststate------>$hoststate");
-    await AppConfig.useMockApi(true);
-    print("mockapi------>${AppConfig.isUseMockApi()}");
-    AppConfig.setThemeSetting(AppConfig.themeLight);
+    // var hostAddress = await AppConfig.getServerAddress();
+    // print("hostAddress---->$hostAddress");
+    // await AppConfig.saveUserLoginInfo(userdata.Data(
+    //     username: "zms",
+    //     token: "zms-123",
+    //     createTime: DateTime.now().toString()));
+    // var loginInfo = await AppConfig.getUserLoginInfo();
+    // print("loginInfo--->$loginInfo");
+    // await AppConfig.saveServerStatus(statdata.Data(
+    //   appName: "HELLO",
+    //   publicKey: "",
+    //   userName: "zms",
+    // ));
+    // var hoststate = await AppConfig.getServerStatus();
+    // print("hoststate------>$hoststate");
+    // await AppConfig.useMockApi(true);
+    // print("mockapi------>${AppConfig.isUseMockApi()}");
+    // AppConfig.setThemeSetting(AppConfig.themeLight);
   }
 
   initUploadData() async {

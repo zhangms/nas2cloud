@@ -25,7 +25,9 @@
             ],
             "toolArgs": [
                 "--dart-define",
-                "mock=true"
+                "mock=true",
+                "--android-project-arg",
+                "debug"
             ]
         },
         {
