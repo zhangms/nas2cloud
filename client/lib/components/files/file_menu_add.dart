@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/dto/result.dart';
+import 'package:nas2cloud/components/files/file_event.dart';
 import 'package:nas2cloud/components/uploader/file_uploder.dart';
 import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
+import 'package:nas2cloud/event/bus.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
@@ -152,6 +154,10 @@ class _FileAddMenuState extends State<FileAddMenu> {
       });
       return;
     }
-    // resetFetch("creTime_desc");
+    eventBus.fire(FileEvent(
+      type: FileEventType.createFloder,
+      currentPath: widget.currentPath,
+      source: floderName,
+    ));
   }
 }

@@ -81,8 +81,7 @@ class ApiMock extends Api {
     for (var i = start; i < end; i++) {
       if (i >= 0 && i < total) {
         files.add({
-          "name":
-              "file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长file文件名称很长$i",
+          "name": "file:$i",
           "type": "DIR",
           "path": "path:$i",
           "size": "123MB",

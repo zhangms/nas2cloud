@@ -1,11 +1,19 @@
+import 'dart:async';
+
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
 import 'package:nas2cloud/components/files/file_data_controller.dart';
+import 'package:nas2cloud/components/files/file_event.dart';
 import 'package:nas2cloud/components/files/file_menu_add.dart';
 import 'package:nas2cloud/components/files/file_menu_more.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
+import 'package:nas2cloud/components/gallery/gallery.dart';
+import 'package:nas2cloud/event/bus.dart';
+import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
+import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:skeletons/skeletons.dart';
 
 import 'file_menu_item_context.dart';
@@ -23,29 +31,33 @@ class FileListPage extends StatefulWidget {
 
 class _FileListPageState extends State<FileListPage> {
   final ScrollController scrollController = ScrollController();
-  late final FileDataController fileDataController;
+  late final StreamSubscription<FileEvent> fileEventSubscription;
+  late FileDataController fileDataController;
+
+  late String orderBy;
 
   @override
   void initState() {
     super.initState();
-    fileDataController = FileDataController(widget.path, "fileName", () {
-      print("callback");
-      setState(() {});
+    initLoad("modTime_desc");
+    fileEventSubscription = eventBus.on<FileEvent>().listen((event) {
+      processFileEvent(event);
     });
+  }
+
+  void initLoad(String sort) {
+    orderBy = sort;
+    fileDataController = FileDataController(
+      path: widget.path,
+      orderBy: sort,
+    );
     fileDataController.initLoad();
-    print("init load end");
   }
 
   @override
   void dispose() {
+    fileEventSubscription.cancel();
     super.dispose();
-  }
-
-  onUploadResultChange(UploadEntry? entry) {
-    if (entry != null &&
-        entry.dest == widget.path &&
-        "upload" == entry.channel &&
-        UploadStatus.match(entry.status, UploadStatus.successed)) {}
   }
 
   @override
@@ -60,7 +72,7 @@ class _FileListPageState extends State<FileListPage> {
     return AppBar(
       leading: AppWidgets.appBarArrowBack(context),
       title: Text(widget.name),
-      actions: [FileAddMenu(widget.path), FileMoreMenu(widget.path)],
+      actions: [FileAddMenu(widget.path), FileMoreMenu(widget.path, orderBy)],
     );
   }
 
@@ -93,217 +105,110 @@ class _FileListPageState extends State<FileListPage> {
     }
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
-      trailing: FileItemContextMenu(item),
+      trailing: FileItemContextMenu(index, item, widget.path),
       title: Text(
         item.name,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text("${item.modTime}  ${item.size}"),
-      onTap: () {
-        // onItemTap(item);
-      },
+      subtitle: Text("${item.modTime} ${item.size}"),
+      onTap: () => tapItem(index, item),
+    );
+  }
+
+  void processFileEvent(FileEvent event) {
+    if (event.currentPath != widget.path) {
+      return;
+    }
+    switch (event.type) {
+      case FileEventType.loaded:
+        setState(() {});
+        break;
+      case FileEventType.createFloder:
+        setState(() {
+          initLoad("creTime_desc");
+        });
+        break;
+      case FileEventType.orderBy:
+        setState(() {
+          initLoad(event.source!);
+        });
+        break;
+      case FileEventType.delete:
+        var index = int.parse(event.source!);
+        fileDataController.loadIndexPage(index);
+        break;
+    }
+  }
+
+  void tapItem(int index, File item) {
+    if (item.type == "DIR") {
+      AppNav.openPage(context, FileListPage(item.path, item.name));
+    } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
+      openGallery(index, item);
+    } else if (FileHelper.isMusic(item.ext)) {
+      playMusic(index, item);
+    } else {
+      AppWidgets.showMessage(context, "不支持查看该类型的文件");
+    }
+  }
+
+  void openGallery(int index, File item) {
+    var items = fileDataController.getNearestItems(index);
+    List<File> galleryItems = [];
+    int galleryIndex = 0;
+    for (var it in items) {
+      if (GalleryPhotoViewPage.isSupportFileExt(it.ext)) {
+        galleryItems.add(item);
+        if (it.path == item.path) {
+          galleryIndex = galleryItems.length - 1;
+        }
+      }
+    }
+    AppNav.openPage(context, GalleryPhotoViewPage(galleryItems, galleryIndex));
+  }
+
+  static final assetsAudioPlayer = AssetsAudioPlayer();
+
+  Future<void> playMusic(int index, File item) async {
+    var items = fileDataController.getNearestItems(index);
+    List<Audio> playlist = [];
+    int playIndex = 0;
+    for (var it in items) {
+      if (FileHelper.isMusic(it.ext)) {
+        var audio = await buildNetworkAudio(it);
+        playlist.add(audio);
+        if (it.path == item.path) {
+          playIndex = playlist.length - 1;
+        }
+      }
+    }
+    await assetsAudioPlayer.open(
+      Playlist(audios: playlist, startIndex: playIndex),
+      showNotification: true,
+    );
+  }
+
+  Future<Audio> buildNetworkAudio(File it) async {
+    var audioUrl = await Api().getStaticFileUrl(it.path);
+    var httpHeaders = await Api().httpHeaders();
+    MetasImage? metaImage;
+    if (it.thumbnail != null) {
+      var thumbUrl = await Api().getStaticFileUrl(it.thumbnail!);
+      var signThumbUrl = await Api().signUrl(thumbUrl);
+      metaImage = MetasImage.network(signThumbUrl);
+    }
+    var name = it.name;
+    int index = name.lastIndexOf(".");
+    if (index > 0) {
+      name = name.substring(0, index);
+    }
+    return Audio.network(
+      audioUrl,
+      headers: httpHeaders,
+      metas: Metas(
+        title: name,
+        image: metaImage,
+      ),
     );
   }
 }
-
-
-  // Future<FileWalkResponse> fetchOnBuild() {
-  //   if (fetchWhenBuild) {
-  //     fetchWhenBuild = false;
-  //     return fetch(widget.path, currentPage + 1, _pageSize, orderBy);
-  //   }
-  //   return Future.value(_noDataResponse);
-  // }
-
-  // Future<FileWalkResponse> fetch(
-  //     String path, int pageNo, int pageSize, String orderBy) async {
-  //   if (total >= 0 && items.length >= total) {
-  //     return Future.value(_noDataResponse);
-  //   }
-  //   FileWalkRequest request = FileWalkRequest(
-  //     path: path,
-  //     pageNo: pageNo,
-  //     pageSize: pageSize,
-  //     orderBy: orderBy,
-  //   );
-  //   var resp = await Api().postFileWalk(request);
-  //   if (resp.message == "RetryLaterAgain" && fetchRetryCount++ < 5) {
-  //     print("fetch RetryLaterAgain");
-  //     return await Future<FileWalkResponse>.delayed(Duration(milliseconds: 200),
-  //         () {
-  //       return fetch(path, pageNo, pageSize, orderBy);
-  //     });
-  //   }
-  //   fetchRetryCount = 0;
-  //   return resp;
-  // }
-
-  // void mergeFetched(FileWalkResponse resp) {
-  //   var data = resp.data;
-  //   if (total < 0) {
-  //     total = 0;
-  //   }
-  //   if (!resp.success) {
-  //     return;
-  //   }
-  //   if (data == null) {
-  //     return;
-  //   }
-  //   total = data.total;
-  //   currentStop = data.currentStop;
-  //   currentPage = data.currentPage;
-  //   items.addAll(data.files ?? []);
-  // }
-
-  // Widget buildBodyView(AsyncSnapshot<FileWalkResponse> snapshot) {
-  //   if (total < 0) {
-  //     return AppWidgets.pageLoadingView();
-  //   }
-  //   if (total == 0) {
-  //     return AppWidgets.pageEmptyView();
-  //   }
-  //   return ListView.builder(
-  //       itemCount: total,
-  //       itemBuilder: ((context, index) {
-  //         return buildItemView(index);
-  //       }));
-  // }
-
-  // buildItemView(int index) {
-  //   if (items.length - index < 20) {
-  //     fetchNext();
-  //   }
-  //   if (items.length <= index) {
-  //     return ListTile(
-  //       leading: Icon(Icons.hourglass_empty),
-  //     );
-  //   }
-  //   var item = items[index];
-  //   return ListTile(
-  //     leading: FileWidgets.getItemIcon(item),
-  //     trailing: FileItemContextMenu(item),
-  //     title: Text(item.name),
-  //     subtitle: Text("${item.modTime}  ${item.size}"),
-  //     onTap: () {
-  //       onItemTap(item);
-  //     },
-  //   );
-  // }
-
-  // bool fetchingNext = false;
-
-  // Future<void> fetchNext() async {
-  //   if (!fetchingNext && total > 0 && total > items.length) {
-  //     fetchingNext = true;
-  //     var nextPage = currentPage + 1;
-  //     print("fetch next:  $nextPage");
-  //     var resp = await fetch(widget.path, nextPage, _pageSize, orderBy);
-  //     mergeFetched(resp);
-  //     fetchingNext = false;
-  //   }
-  // }
-
-  // buildAppBar() {
-  //   return AppBar(
-  //     leading: AppWidgets.appBarArrowBack(context),
-  //     title: Text(
-  //       widget.name,
-  //     ),
-  //     actions: [FileAddMenu(widget.path), FileMoreMenu(widget.path)],
-  //   );
-  // }
-
-  // resetFetch(String order) {
-  //   setState(() {
-  //     resetState();
-  //     orderBy = order;
-  //     fetchWhenBuild = true;
-  //   });
-  // }
-
-  // void onItemTap(File item) {
-  //   if (item.type == "DIR") {
-  //     openNewPage(FileListPage(item.path, item.name));
-  //   } else if (GalleryPhotoViewPage.isSupportFileExt(item.ext)) {
-  //     openGallery(item);
-  //   } else if (FileHelper.isMusic(item.ext)) {
-  //     playMusic(item);
-  //   } else {
-  //     AppWidgets.showMessage(context, "不支持查看该类型的文件");
-  //   }
-  // }
-
-  // void openGallery(File item) {
-  //   List<File> images = [];
-  //   int index = 0;
-  //   for (var i = 0; i < items.length; i++) {
-  //     var it = items[i];
-  //     if (GalleryPhotoViewPage.isSupportFileExt(it.ext)) {
-  //       images.add(it);
-  //       if (it.path == item.path) {
-  //         index = images.length - 1;
-  //       }
-  //     }
-  //   }
-  //   openNewPage(GalleryPhotoViewPage(images, index));
-  // }
-
-  // void openNewPage(Widget widget, {String? name}) {
-  //   AppWidgets.clearMessage(context);
-  //   AppNav.openPage(context, widget);
-  // }
-
-  // void pop() {
-  //   AppWidgets.clearMessage(context);
-  //   AppNav.pop(context);
-  // }
-
-  // static final assetsAudioPlayer = AssetsAudioPlayer();
-
-  // Future<void> playMusic(File item) async {
-  //   try {
-  //     List<Audio> playlist = [];
-  //     var playIndex = 0;
-  //     bool playIndexFinded = false;
-  //     for (var it in items) {
-  //       var name = it.name;
-  //       int index = name.lastIndexOf(".");
-  //       if (index > 0) {
-  //         name = name.substring(0, index);
-  //       }
-  //       if (FileHelper.isMusic(it.ext)) {
-  //         var audioUrl = await Api().getStaticFileUrl(it.path);
-  //         var httpHeaders = await Api().httpHeaders();
-  //         var audioThumb =
-  //             await Api().signUrl(await Api().getStaticFileUrl(it.thumbnail!));
-  //         playlist.add(Audio.network(
-  //           audioUrl,
-  //           headers: httpHeaders,
-  //           metas: Metas(
-  //             title: name,
-  //             image: () {
-  //               if (it.thumbnail == null) {
-  //                 return null;
-  //               }
-  //               return MetasImage.network(audioThumb);
-  //             }(),
-  //           ),
-  //         ));
-  //         if (it.path == item.path) {
-  //           playIndexFinded = true;
-  //         } else if (!playIndexFinded) {
-  //           playIndex++;
-  //         }
-  //       }
-  //     }
-  //     if (!playIndexFinded) {
-  //       playIndex = 0;
-  //     }
-  //     await assetsAudioPlayer.open(
-  //       Playlist(audios: playlist, startIndex: playIndex),
-  //       showNotification: true,
-  //     );
-  //   } catch (t) {
-  //     print(t);
-  //   }
-  // }

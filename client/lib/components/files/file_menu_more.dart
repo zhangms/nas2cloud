@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/files/file_event.dart';
+import 'package:nas2cloud/event/bus.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 
 class FileMoreMenu extends StatefulWidget {
@@ -12,20 +14,18 @@ class FileMoreMenu extends StatefulWidget {
   ];
 
   final String currentPath;
+  final String orderBy;
 
-  FileMoreMenu(this.currentPath);
+  FileMoreMenu(this.currentPath, this.orderBy);
 
   @override
   State<FileMoreMenu> createState() => _FileMoreMenuState();
 }
 
 class _FileMoreMenuState extends State<FileMoreMenu> {
-  late String orderBy;
-
   @override
   void initState() {
     super.initState();
-    orderBy = "fileName";
   }
 
   @override
@@ -36,13 +36,7 @@ class _FileMoreMenuState extends State<FileMoreMenu> {
       ),
       itemBuilder: (context) {
         return [
-          for (var i = 0; i < FileMoreMenu._orderByOptions.length; i++)
-            PopupMenuItem(
-              enabled: FileMoreMenu._orderByOptions[i]["orderBy"]! != orderBy,
-              child: Text(FileMoreMenu._orderByOptions[i]["name"]!),
-              onTap: () =>
-                  changeOrderBy(FileMoreMenu._orderByOptions[i]["orderBy"]!),
-            ),
+          ...buildOrderByMenu(),
           PopupMenuDivider(),
           PopupMenuItem(
             onTap: (() => showCurrentPath()),
@@ -58,21 +52,38 @@ class _FileMoreMenuState extends State<FileMoreMenu> {
   }
 
   changeOrderBy(String order) {
-    // if (orderBy != order) {
-    //   resetFetch(order);
-    // }
+    if (widget.orderBy != order) {
+      eventBus.fire(FileEvent(
+        type: FileEventType.orderBy,
+        currentPath: widget.currentPath,
+        source: order,
+      ));
+    }
   }
 
   void showCurrentPath() {
-    // Future.delayed(Duration(milliseconds: 10), () {
-    //   showDialog(
-    //       context: context,
-    //       builder: ((context) {
-    //         return AlertDialog(
-    //           title: Text("当前位置"),
-    //           content: SelectableText(widget.path),
-    //         );
-    //       }));
-    // });
+    Future.delayed(Duration(milliseconds: 10), () {
+      showDialog(
+          context: context,
+          builder: ((context) {
+            return AlertDialog(
+              title: Text("当前位置"),
+              content: SelectableText(widget.currentPath),
+            );
+          }));
+    });
+  }
+
+  List<PopupMenuItem<Text>> buildOrderByMenu() {
+    List<PopupMenuItem<Text>> ret = [];
+    for (var i = 0; i < FileMoreMenu._orderByOptions.length; i++) {
+      var menu = PopupMenuItem<Text>(
+        enabled: FileMoreMenu._orderByOptions[i]["orderBy"]! != widget.orderBy,
+        child: Text(FileMoreMenu._orderByOptions[i]["name"]!),
+        onTap: () => changeOrderBy(FileMoreMenu._orderByOptions[i]["orderBy"]!),
+      );
+      ret.add(menu);
+    }
+    return ret;
   }
 }
