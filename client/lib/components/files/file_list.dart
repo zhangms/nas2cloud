@@ -10,7 +10,10 @@ import 'package:nas2cloud/components/files/file_event.dart';
 import 'package:nas2cloud/components/files/file_menu_add.dart';
 import 'package:nas2cloud/components/files/file_menu_more.dart';
 import 'package:nas2cloud/components/gallery/gallery.dart';
+import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:nas2cloud/event/bus.dart';
+import 'package:nas2cloud/event/event_fileupload.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 import 'package:nas2cloud/utils/file_helper.dart';
@@ -32,6 +35,7 @@ class FileListPage extends StatefulWidget {
 class _FileListPageState extends State<FileListPage> {
   final ScrollController scrollController = ScrollController();
   late final StreamSubscription<FileEvent> fileEventSubscription;
+  late final StreamSubscription<EventFileUpload> eventFileUploadSubscription;
   late FileDataController fileDataController;
 
   late String orderBy;
@@ -40,9 +44,24 @@ class _FileListPageState extends State<FileListPage> {
   void initState() {
     super.initState();
     initLoad("modTime_desc");
+    eventFileUploadSubscription =
+        eventBus.on<EventFileUpload>().listen((event) {
+      onUploadResultChange(event.entry);
+    });
     fileEventSubscription = eventBus.on<FileEvent>().listen((event) {
       processFileEvent(event);
     });
+  }
+
+  onUploadResultChange(UploadEntry? entry) {
+    if (entry != null &&
+        entry.dest == widget.path &&
+        "upload" == entry.channel &&
+        UploadStatus.match(entry.status, UploadStatus.successed)) {
+      setState(() {
+        initLoad("creTime_desc");
+      });
+    }
   }
 
   void initLoad(String sort) {
@@ -56,6 +75,7 @@ class _FileListPageState extends State<FileListPage> {
 
   @override
   void dispose() {
+    eventFileUploadSubscription.cancel();
     fileEventSubscription.cancel();
     super.dispose();
   }
