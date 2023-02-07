@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/setting/event_change_theme.dart';
+import 'package:nas2cloud/event/event_change_theme.dart';
 import 'package:nas2cloud/event/bus.dart';
 import 'package:nas2cloud/pages/config.dart';
 import 'package:nas2cloud/pages/home.dart';

@@ -3,13 +3,13 @@ import 'package:nas2cloud/api/api.dart';
 import 'package:nas2cloud/api/app_config.dart';
 import 'package:nas2cloud/components/setting/setting_page.dart';
 import 'package:nas2cloud/components/uploader/pages/page_auto_upload.dart';
+import 'package:nas2cloud/event/bus.dart';
+import 'package:nas2cloud/event/event_logout.dart';
 import 'package:nas2cloud/themes/app_nav.dart';
 import 'package:nas2cloud/themes/widgets.dart';
 
 class HomeDrawer extends StatefulWidget {
-  final Function logoutCallback;
-
-  HomeDrawer(this.logoutCallback);
+  HomeDrawer();
 
   @override
   State<HomeDrawer> createState() => _HomeDrawerState();
@@ -87,7 +87,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
                   TextButton(
                       onPressed: (() {
                         AppNav.pop(context);
-                        widget.logoutCallback();
+                        eventBus.fire(EventLogout());
                       }),
                       child: Text("确定")),
                 ],

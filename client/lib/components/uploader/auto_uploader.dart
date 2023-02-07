@@ -15,7 +15,8 @@ import 'package:nas2cloud/utils/spu.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AutoUploader {
-  static const String _key = "app.autoupload.config";
+  static const String _configKey = "app.autoupload.config";
+  static const _wlanConfigKey = "app.autoupload.wlan";
 
   static AutoUploader _instance = AutoUploader._private();
 
@@ -27,16 +28,16 @@ class AutoUploader {
     await BackgroundProcessor().registerAutoUploadTask();
   }
 
-  Future<String?> _getKey() async {
+  static Future<String?> _wrapConfigKey(String key) async {
     var userName = await AppConfig.getLoginUserName();
     if (userName == null) {
       return null;
     }
-    return "$_key.$userName";
+    return "$key.$userName";
   }
 
   Future<bool> saveConfig(AutoUploadConfig config) async {
-    var key = await _getKey();
+    var key = await _wrapConfigKey(_configKey);
     if (key == null) {
       return false;
     }
@@ -58,8 +59,16 @@ class AutoUploader {
     return await Spu().setStringList(key, ret);
   }
 
+  Future<void> clearConfig() async {
+    var key = await _wrapConfigKey(_configKey);
+    if (key == null) {
+      return;
+    }
+    await Spu().remove(key);
+  }
+
   Future<List<AutoUploadConfig>> getConfigList() async {
-    var key = await _getKey();
+    var key = await _wrapConfigKey(_configKey);
     if (key == null) {
       return [];
     }
@@ -69,19 +78,27 @@ class AutoUploader {
         .toList();
   }
 
-  Future<void> clearConfig() async {
-    var key = await _getKey();
+  static Future<bool> getAutouploadWlanSetting() async {
+    var key = await _wrapConfigKey(_wlanConfigKey);
     if (key == null) {
-      return;
+      return true;
     }
-    await Spu().remove(key);
+    return (await Spu().getBool(_wlanConfigKey)) ?? true;
+  }
+
+  static Future<bool> setAutouploadWlanSetting(bool wlan) async {
+    var key = await _wrapConfigKey(_wlanConfigKey);
+    if (key == null) {
+      return false;
+    }
+    return (await Spu().setBool(key, wlan));
   }
 
   Future<int> executeAutoupload() async {
     if (kIsWeb) {
       return -1;
     }
-    var autouploadWlan = await AppConfig.getAutouploadWlanSetting();
+    var autouploadWlan = await getAutouploadWlanSetting();
     if (autouploadWlan) {
       var connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult != ConnectivityResult.wifi) {

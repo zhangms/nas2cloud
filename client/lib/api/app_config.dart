@@ -19,7 +19,6 @@ class AppConfig {
 
   static const appId = "com.zms.nas2cloud";
   static const _themeKey = "app.theme";
-  static const _autouploadWlanKey = "app.autoupload.wlan";
   static const _serverAddressKey = "app.server.address";
   static const _serverStatusKey = "app.server.status";
   static const _loginTokenKey = "app.login.token";
@@ -113,12 +112,9 @@ class AppConfig {
   }
 
   static Future<void> clearUserLogin() async {
-    var keys = await Spu().getKeys();
-    for (var key in keys) {
-      if (key != _serverAddressKey && key != _loginTokenKey) {
-        await Spu().remove(key);
-      }
-    }
+    await Spu().remove(_useMockApiKey);
+    await Spu().remove(_themeKey);
+    await Spu().remove(_serverStatusKey);
     await Spu().remove(_loginTokenKey);
   }
 
@@ -128,13 +124,5 @@ class AppConfig {
 
   static Future<bool> setThemeSetting(int theme) async {
     return await Spu().setInt(_themeKey, theme);
-  }
-
-  static Future<bool> getAutouploadWlanSetting() async {
-    return (await Spu().getBool(_autouploadWlanKey)) ?? true;
-  }
-
-  static Future<bool> setAutouploadWlanSetting(bool wlan) async {
-    return (await Spu().setBool(_autouploadWlanKey, wlan));
   }
 }
