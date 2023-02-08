@@ -23,8 +23,8 @@ var fileCache = &fileCacheMgr{
 	orderFields: []string{"fileName", "modTime", "creTime", "size"},
 }
 
-func (f *fileCacheMgr) exists(path string) (bool, error) {
-	key := f.keyItem(path)
+func (fc *fileCacheMgr) exists(path string) (bool, error) {
+	key := fc.keyItem(path)
 	count, err := cache.Exists(key)
 	if err != nil {
 		return false, err
@@ -32,8 +32,8 @@ func (f *fileCacheMgr) exists(path string) (bool, error) {
 	return count == 1, nil
 }
 
-func (f *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
-	key := f.keyItem(path)
+func (fc *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
+	key := fc.keyItem(path)
 	str, err := cache.Get(key)
 	if err != nil {
 		return nil, err
@@ -49,29 +49,29 @@ func (f *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
 	return obj, nil
 }
 
-func (f *fileCacheMgr) saveIfAbsent(item *vfs.ObjectInfo) error {
-	exists, _ := f.exists(item.Path)
+func (fc *fileCacheMgr) saveIfAbsent(item *vfs.ObjectInfo) error {
+	exists, _ := fc.exists(item.Path)
 	if exists {
 		return nil
 	}
-	return f.save(item)
+	return fc.save(item)
 }
 
-func (f *fileCacheMgr) save(item *vfs.ObjectInfo) error {
+func (fc *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 	data, err := json.Marshal(item)
 	if err != nil {
 		return err
 	}
-	key := f.keyItem(item.Path)
+	key := fc.keyItem(item.Path)
 	_, err = cache.Set(key, string(data))
 	if err != nil {
 		return err
 	}
 	//更新在父目录中的位置
 	parent := vpath.Dir(item.Path)
-	for _, orderField := range f.orderFields {
-		rank := f.keyRankInParent(parent, orderField)
-		_, err = cache.ZAdd(rank, f.getRankScore(item, orderField), item.Name)
+	for _, orderField := range fc.orderFields {
+		rank := fc.keyRankInParent(parent, orderField)
+		_, err = cache.ZAdd(rank, fc.getRankScore(item, orderField), item.Name)
 		if err != nil {
 			return err
 		}
@@ -80,31 +80,31 @@ func (f *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 	return nil
 }
 
-func (f *fileCacheMgr) keyItem(path string) string {
+func (fc *fileCacheMgr) keyItem(path string) string {
 	cp := vpath.Clean(path)
 	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, f.version, "file", cp)
+	return cache.Join(bucket, fc.version, "file", cp)
 }
 
-func (f *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
+func (fc *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
 	cp := vpath.Clean(parent)
 	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, f.version, "rank", orderField, cp)
+	return cache.Join(bucket, fc.version, "rank", orderField, cp)
 }
 
-func (f *fileCacheMgr) keyWalkFlag(path string) string {
+func (fc *fileCacheMgr) keyWalkFlag(path string) string {
 	cp := vpath.Clean(path)
 	bucket, _ := vpath.BucketFile(cp)
 	return cache.Join(bucket, fileCache.version, "walk_flag", cp)
 }
 
-func (f *fileCacheMgr) walkFlag(path string) (bool, error) {
-	flag := f.keyWalkFlag(path)
+func (fc *fileCacheMgr) walkFlag(path string) (bool, error) {
+	flag := fc.keyWalkFlag(path)
 	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
 	return ok, err
 }
 
-func (f *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
+func (fc *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
 		if item.Type == vfs.ObjectTypeDir {
@@ -127,7 +127,7 @@ func (f *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 
 	}
 }
 
-func (f *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
+func (fc *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
 	arr := strings.Split(orderBy, "_")
 	fieldName := arr[0]
 	sort := libs.IF(len(arr) > 1, func() any {
@@ -135,7 +135,7 @@ func (f *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int
 	}, func() any {
 		return "asc"
 	}).(string)
-	key := f.keyRankInParent(path, fieldName)
+	key := fc.keyRankInParent(path, fieldName)
 	total, err := cache.ZCard(key)
 	if err != nil {
 		return nil, 0, err
@@ -154,39 +154,39 @@ func (f *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int
 	}
 	keys := make([]string, 0, len(list))
 	for _, name := range list {
-		keys = append(keys, f.keyItem(vpath.Join(path, name)))
+		keys = append(keys, fc.keyItem(vpath.Join(path, name)))
 	}
 	ret, err := cache.MGet(keys...)
 	return ret, total, err
 }
 
-func (f *fileCacheMgr) delete(path string) error {
+func (fc *fileCacheMgr) delete(path string) error {
 	//删除子文件
-	children, err := cache.ZRange(f.keyRankInParent(path, "fileName"), 0, -1)
+	children, err := cache.ZRange(fc.keyRankInParent(path, "fileName"), 0, -1)
 	if err != nil {
 		return err
 	}
 	for _, child := range children {
-		_, err = cache.Del(f.keyItem(vpath.Join(path, child)))
+		_, err = cache.Del(fc.keyItem(vpath.Join(path, child)))
 		if err != nil {
 			return err
 		}
 	}
 	//删除自己
-	_, err = cache.Del(f.keyItem(path))
+	_, err = cache.Del(fc.keyItem(path))
 	if err != nil {
 		return err
 	}
-	for _, field := range f.orderFields {
-		_, err = cache.Del(f.keyRankInParent(path, field))
+	for _, field := range fc.orderFields {
+		_, err = cache.Del(fc.keyRankInParent(path, field))
 		if err != nil {
 			return err
 		}
 	}
 	//删除父目录中的引用
 	dir, name := vpath.Split(path)
-	for _, orderField := range f.orderFields {
-		rank := f.keyRankInParent(dir, orderField)
+	for _, orderField := range fc.orderFields {
+		rank := fc.keyRankInParent(dir, orderField)
 		_, err := cache.ZRem(rank, name)
 		if err != nil {
 			return err
@@ -195,8 +195,8 @@ func (f *fileCacheMgr) delete(path string) error {
 	return nil
 }
 
-func (f *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
-	info, err := f.get(file)
+func (fc *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
+	info, err := fc.get(file)
 	if info == nil && err == nil {
 		info, err = vfs.Info(userRoles, file)
 	}
@@ -207,5 +207,5 @@ func (f *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
 		return errors.New("file not exists:" + file)
 	}
 	info.Size = size
-	return f.save(info)
+	return fc.save(info)
 }
