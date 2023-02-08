@@ -54,9 +54,9 @@ class _CheckUpdateWidgetState extends State<CheckUpdateWidget> {
   _download(_AppUpdate updates) async {
     Downloader.platform
         .download(await Api().getStaticFileUrl(updates.downlink));
-    setState(() {
+    if (mounted) {
       AppWidgets.showMessage(context, "已开始下载，从状态栏查看下载进度");
-    });
+    }
   }
 }
 

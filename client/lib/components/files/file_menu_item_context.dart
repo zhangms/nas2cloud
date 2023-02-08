@@ -54,9 +54,9 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     }
     var path = await Api().getStaticFileUrl(item.path);
     Downloader.platform.download(path);
-    setState(() {
+    if (mounted) {
       AppWidgets.showMessage(context, "已开始下载, 请从状态栏查看下载进度");
-    });
+    }
   }
 
   void showItemDeleteConfirm(File item) {
@@ -89,9 +89,9 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     print("delete ${item.path}");
     Result result = await Api().postDeleteFile(item.path);
     if (!result.success) {
-      setState(() {
+      if (mounted) {
         AppWidgets.showMessage(context, result.message!);
-      });
+      }
       return;
     }
     eventBus.fire(FileEvent(
@@ -100,9 +100,9 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
       source: "${widget.index}",
       item: item,
     ));
-    setState(() {
+    if (mounted) {
       AppWidgets.showMessage(context, "删除成功");
-    });
+    }
   }
 
   void pop() {

@@ -149,9 +149,9 @@ class _FileAddMenuState extends State<FileAddMenu> {
     Result result =
         await Api().postCreateFolder(widget.currentPath, floderName);
     if (!result.success) {
-      setState(() {
+      if (mounted) {
         AppWidgets.showMessage(context, result.message!);
-      });
+      }
       return;
     }
     eventBus.fire(FileEvent(

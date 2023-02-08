@@ -171,7 +171,7 @@ class _FileListPageState extends State<FileListPage> {
       openGallery(index, item);
     } else if (FileHelper.isMusic(item.ext)) {
       playMusic(index, item);
-    } else {
+    } else if (mounted) {
       AppWidgets.showMessage(context, "不支持查看该类型的文件");
     }
   }
@@ -239,8 +239,8 @@ class _FileListPageState extends State<FileListPage> {
   Future<void> openPDFViewer(File item) async {
     var url = await Api().getStaticFileUrl(item.path);
     var headers = await Api().httpHeaders();
-    setState(() {
+    if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
-    });
+    }
   }
 }
