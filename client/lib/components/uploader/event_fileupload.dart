@@ -1,4 +1,4 @@
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
+import 'upload_entry.dart';
 
 class EventFileUpload {
   UploadEntry? entry;

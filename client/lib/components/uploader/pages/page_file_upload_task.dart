@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 
 import '../../../api/dto/page_data.dart';
 import '../../../event/bus.dart';
-import '../../../event/event_fileupload.dart';
+import '../event_fileupload.dart';
 import '../../../themes/app_nav.dart';
 import '../../../themes/widgets.dart';
 import '../../../utils/data_size.dart';

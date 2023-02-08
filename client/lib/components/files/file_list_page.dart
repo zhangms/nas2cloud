@@ -21,7 +21,13 @@ class FileListPage extends StatelessWidget {
         title: Text(name),
         actions: [FileAddMenu(path), FileMoreMenu(path, initOrderBy)],
       ),
-      body: SafeArea(child: FileListView(path, pageSize, initOrderBy)),
+      body: SafeArea(
+          child: FileListView(
+        path: path,
+        pageSize: pageSize,
+        orderByInitValue: initOrderBy,
+        showFileAction: true,
+      )),
     );
   }
 }

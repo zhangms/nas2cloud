@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
           child: HomeDrawer(),
         ),
       ),
-      body: buildBody(),
+      body: SafeArea(child: buildBody()),
     );
   }
 
@@ -76,7 +76,12 @@ class _HomePageState extends State<HomePage> {
           if (status.data?.userName?.isEmpty ?? true) {
             return buildLoginRequired();
           }
-          return FileListView("/", 50, "fileName");
+          return FileListView(
+            path: "/",
+            pageSize: 50,
+            showFileAction: false,
+            orderByInitValue: "fileName",
+          );
         });
   }
 

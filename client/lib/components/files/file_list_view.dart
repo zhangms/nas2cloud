@@ -8,12 +8,12 @@ import 'package:skeletons/skeletons.dart';
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
 import '../../event/bus.dart';
-import '../../event/event_fileupload.dart';
 import '../../themes/app_nav.dart';
 import '../../themes/widgets.dart';
 import '../../utils/file_helper.dart';
 import '../gallery/gallery.dart';
 import '../gallery/pdf_viewer.dart';
+import '../uploader/event_fileupload.dart';
 import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import 'file_data_controller.dart';
@@ -26,8 +26,13 @@ class FileListView extends StatefulWidget {
   final String path;
   final int pageSize;
   final String orderByInitValue;
+  final bool showFileAction;
 
-  FileListView(this.path, this.pageSize, this.orderByInitValue);
+  FileListView(
+      {required this.path,
+      required this.pageSize,
+      required this.orderByInitValue,
+      required this.showFileAction});
 
   @override
   State<FileListView> createState() => _FileListViewState();
@@ -61,17 +66,6 @@ class _FileListViewState extends State<FileListView> {
     super.dispose();
   }
 
-  processFileUploadEvent(UploadEntry? entry) {
-    if (entry != null &&
-        entry.dest == widget.path &&
-        "upload" == entry.channel &&
-        UploadStatus.match(entry.status, UploadStatus.successed)) {
-      setState(() {
-        initLoad("creTime_desc");
-      });
-    }
-  }
-
   void initLoad(String sort) {
     orderBy = sort;
     fileDataController = FileDataController(
@@ -85,7 +79,7 @@ class _FileListViewState extends State<FileListView> {
   @override
   Widget build(BuildContext context) {
     if (fileDataController.initLoading) {
-      return buildLoading();
+      return SkeletonListView();
     }
     if (fileDataController.total == 0) {
       return AppWidgets.pageEmptyView();
@@ -106,11 +100,16 @@ class _FileListViewState extends State<FileListView> {
   buildItemView(int index) {
     var item = fileDataController.get(index);
     if (item == null) {
-      return skeletonListTile();
+      return SkeletonListTile(
+        hasSubtitle: true,
+        padding: EdgeInsets.all(8),
+      );
     }
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
-      trailing: FileItemContextMenu(index, item, widget.path),
+      trailing: widget.showFileAction
+          ? FileItemContextMenu(index, item, widget.path)
+          : null,
       title: Text(
         item.name,
         overflow: TextOverflow.ellipsis,
@@ -118,6 +117,15 @@ class _FileListViewState extends State<FileListView> {
       subtitle: Text("${item.modTime} ${item.size}"),
       onTap: () => tapItem(index, item),
     );
+  }
+
+  processFileUploadEvent(UploadEntry? entry) {
+    if (entry != null &&
+        entry.dest == widget.path &&
+        "upload" == entry.channel &&
+        UploadStatus.match(entry.status, UploadStatus.successed)) {
+      initLoad("creTime_desc");
+    }
   }
 
   void processFileEvent(FileEvent event) {
@@ -221,18 +229,5 @@ class _FileListViewState extends State<FileListView> {
     if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
     }
-  }
-
-  Widget buildLoading() {
-    return ListView(
-      children: [for (var i = 0; i < 3; i++) skeletonListTile()],
-    );
-  }
-
-  skeletonListTile() {
-    return SkeletonListTile(
-      hasSubtitle: true,
-      padding: EdgeInsets.all(8),
-    );
   }
 }
