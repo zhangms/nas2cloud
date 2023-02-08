@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/setting/setting_page.dart';
-import 'package:nas2cloud/components/uploader/pages/page_auto_upload.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_logout.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
+
+import '../api/api.dart';
+import '../api/app_config.dart';
+import '../components/setting/setting_page.dart';
+import '../components/uploader/pages/page_auto_upload.dart';
+import '../event/bus.dart';
+import '../event/event_logout.dart';
+import '../themes/app_nav.dart';
+import '../themes/widgets.dart';
 
 class HomeDrawer extends StatefulWidget {
   HomeDrawer();

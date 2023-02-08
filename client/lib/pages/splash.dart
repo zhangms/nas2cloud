@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
+import '../api/app_config.dart';
+import '../themes/app_nav.dart';
 
 class SplashPage extends StatefulWidget {
   @override

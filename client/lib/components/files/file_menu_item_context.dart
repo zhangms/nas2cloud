@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/components/downloader/downloader.dart';
-import 'package:nas2cloud/components/files/file_event.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
+
+import '../../api/api.dart';
+import '../../api/dto/file_walk_response/file.dart';
+import '../../api/dto/result.dart';
+import '../../event/bus.dart';
+import '../../themes/app_nav.dart';
+import '../../themes/widgets.dart';
+import '../downloader/downloader.dart';
+import 'file_event.dart';
 
 class FileItemContextMenu extends StatefulWidget {
   final int index;

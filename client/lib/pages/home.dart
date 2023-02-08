@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/api/dto/state_response/state_response.dart';
-import 'package:nas2cloud/components/files/file_home.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_logout.dart';
-import 'package:nas2cloud/pages/home_drawer.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
 
+import '../api/api.dart';
+import '../api/app_config.dart';
+import '../api/dto/state_response/state_response.dart';
+import '../components/files/file_list_view.dart';
+import '../components/uploader/file_uploder.dart';
+import '../event/bus.dart';
+import '../event/event_logout.dart';
+import '../pages/home_drawer.dart';
+import '../themes/app_nav.dart';
 import '../themes/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
           if (status.data?.userName?.isEmpty ?? true) {
             return buildLoginRequired();
           }
-          return FileHomePage();
+          return FileListView("/", 50, "fileName");
         });
   }
 

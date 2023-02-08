@@ -1,9 +1,9 @@
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
+import '../../api/api.dart';
+import '../../api/dto/result.dart';
+import 'file_uploder.dart';
+import 'upload_entry.dart';
+import 'upload_repo.dart';
+import 'upload_status.dart';
 
 class WebUploader extends FileUploader {
   @override

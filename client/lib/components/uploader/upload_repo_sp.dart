@@ -1,7 +1,7 @@
-import 'package:nas2cloud/api/dto/page_data.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/utils/spu.dart';
+import '../../api/dto/page_data.dart';
+import '../../utils/spu.dart';
+import 'upload_entry.dart';
+import 'upload_repo.dart';
 
 class UploadRepoSP extends UploadRepository {
   static const _keyPrefix = "app.upload.entry";

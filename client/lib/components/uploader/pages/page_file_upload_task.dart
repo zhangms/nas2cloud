@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/dto/page_data.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_fileupload.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
-import 'package:nas2cloud/utils/data_size.dart';
 import 'package:path/path.dart' as p;
+
+import '../../../api/dto/page_data.dart';
+import '../../../event/bus.dart';
+import '../../../event/event_fileupload.dart';
+import '../../../themes/app_nav.dart';
+import '../../../themes/widgets.dart';
+import '../../../utils/data_size.dart';
+import '../file_uploder.dart';
+import '../upload_entry.dart';
+import '../upload_repo.dart';
+import '../upload_status.dart';
 
 class FileUploadTaskPage extends StatefulWidget {
   @override

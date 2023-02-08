@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
-import 'package:nas2cloud/utils/adaptive.dart';
+
+import '../api/api.dart';
+import '../api/app_config.dart';
+import '../themes/app_nav.dart';
+import '../themes/widgets.dart';
+import '../utils/adaptive.dart';
 
 class LoginPage extends StatefulWidget {
   @override

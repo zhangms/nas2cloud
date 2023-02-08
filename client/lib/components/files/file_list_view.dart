@@ -3,37 +3,37 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/components/files/file_data_controller.dart';
-import 'package:nas2cloud/components/files/file_event.dart';
-import 'package:nas2cloud/components/files/file_menu_add.dart';
-import 'package:nas2cloud/components/files/file_menu_more.dart';
-import 'package:nas2cloud/components/gallery/gallery.dart';
-import 'package:nas2cloud/components/gallery/pdf_viewer.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_fileupload.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
-import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:skeletons/skeletons.dart';
 
+import '../../api/api.dart';
+import '../../api/dto/file_walk_response/file.dart';
+import '../../event/bus.dart';
+import '../../event/event_fileupload.dart';
+import '../../themes/app_nav.dart';
+import '../../themes/widgets.dart';
+import '../../utils/file_helper.dart';
+import '../gallery/gallery.dart';
+import '../gallery/pdf_viewer.dart';
+import '../uploader/upload_entry.dart';
+import '../uploader/upload_status.dart';
+import 'file_data_controller.dart';
+import 'file_event.dart';
+import 'file_list_page.dart';
 import 'file_menu_item_context.dart';
 import 'file_widgets.dart';
 
-class FileListPage extends StatefulWidget {
+class FileListView extends StatefulWidget {
   final String path;
-  final String name;
+  final int pageSize;
+  final String orderByInitValue;
 
-  FileListPage(this.path, this.name);
+  FileListView(this.path, this.pageSize, this.orderByInitValue);
 
   @override
-  State<FileListPage> createState() => _FileListPageState();
+  State<FileListView> createState() => _FileListViewState();
 }
 
-class _FileListPageState extends State<FileListPage> {
+class _FileListViewState extends State<FileListView> {
   final ScrollController scrollController = ScrollController();
   late final StreamSubscription<FileEvent> fileEventSubscription;
   late final StreamSubscription<EventFileUpload> eventFileUploadSubscription;
@@ -44,17 +44,24 @@ class _FileListPageState extends State<FileListPage> {
   @override
   void initState() {
     super.initState();
-    initLoad("modTime_desc");
     eventFileUploadSubscription =
         eventBus.on<EventFileUpload>().listen((event) {
-      onUploadResultChange(event.entry);
+      processFileUploadEvent(event.entry);
     });
     fileEventSubscription = eventBus.on<FileEvent>().listen((event) {
       processFileEvent(event);
     });
+    initLoad(widget.orderByInitValue);
   }
 
-  onUploadResultChange(UploadEntry? entry) {
+  @override
+  void dispose() {
+    eventFileUploadSubscription.cancel();
+    fileEventSubscription.cancel();
+    super.dispose();
+  }
+
+  processFileUploadEvent(UploadEntry? entry) {
     if (entry != null &&
         entry.dest == widget.path &&
         "upload" == entry.channel &&
@@ -70,36 +77,15 @@ class _FileListPageState extends State<FileListPage> {
     fileDataController = FileDataController(
       path: widget.path,
       orderBy: sort,
+      pageSize: widget.pageSize,
     );
     fileDataController.initLoad();
   }
 
   @override
-  void dispose() {
-    eventFileUploadSubscription.cancel();
-    fileEventSubscription.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(),
-      body: SafeArea(child: buildBodyView()),
-    );
-  }
-
-  buildAppBar() {
-    return AppBar(
-      leading: AppWidgets.appBarArrowBack(context),
-      title: Text(widget.name),
-      actions: [FileAddMenu(widget.path), FileMoreMenu(widget.path, orderBy)],
-    );
-  }
-
-  buildBodyView() {
     if (fileDataController.initLoading) {
-      return AppWidgets.pageLoadingView();
+      return buildLoading();
     }
     if (fileDataController.total == 0) {
       return AppWidgets.pageEmptyView();
@@ -120,10 +106,7 @@ class _FileListPageState extends State<FileListPage> {
   buildItemView(int index) {
     var item = fileDataController.get(index);
     if (item == null) {
-      return SkeletonListTile(
-        hasSubtitle: true,
-        padding: EdgeInsets.all(8),
-      );
+      return skeletonListTile();
     }
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
@@ -146,14 +129,10 @@ class _FileListPageState extends State<FileListPage> {
         setState(() {});
         break;
       case FileEventType.createFloder:
-        setState(() {
-          initLoad("creTime_desc");
-        });
+        initLoad("creTime_desc");
         break;
       case FileEventType.orderBy:
-        setState(() {
-          initLoad(event.source!);
-        });
+        initLoad(event.source!);
         break;
       case FileEventType.delete:
         var index = int.parse(event.source!);
@@ -242,5 +221,18 @@ class _FileListPageState extends State<FileListPage> {
     if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
     }
+  }
+
+  Widget buildLoading() {
+    return ListView(
+      children: [for (var i = 0; i < 3; i++) skeletonListTile()],
+    );
+  }
+
+  skeletonListTile() {
+    return SkeletonListTile(
+      hasSubtitle: true,
+      padding: EdgeInsets.all(8),
+    );
   }
 }

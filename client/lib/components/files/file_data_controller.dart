@@ -1,19 +1,22 @@
 import 'dart:math';
 
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/file_walk_request.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
-import 'package:nas2cloud/components/files/file_event.dart';
-import 'package:nas2cloud/event/bus.dart';
+import '../../api/api.dart';
+import '../../api/dto/file_walk_request.dart';
+import '../../api/dto/file_walk_response/file.dart';
+import '../../api/dto/file_walk_response/file_walk_response.dart';
+import '../../components/files/file_event.dart';
+import '../../event/bus.dart';
 
 class FileDataController {
-  static const int _pageSize = 50;
-
   final String path;
   final String orderBy;
+  final int pageSize;
 
-  FileDataController({required this.path, required this.orderBy});
+  FileDataController({
+    required this.path,
+    required this.orderBy,
+    required this.pageSize,
+  });
 
   bool _initLoading = false;
   bool _loading = false;
@@ -40,14 +43,14 @@ class FileDataController {
 
   void loadIndexPage(int index) {
     _dataMap.clear();
-    final int page = index ~/ _pageSize;
+    final int page = index ~/ pageSize;
     _loadMore(page);
   }
 
   int _latestPage = -1;
 
   void _tryLoadMore(final int index) {
-    final int page = index ~/ _pageSize;
+    final int page = index ~/ pageSize;
     _latestPage = page;
     Future.delayed(Duration(milliseconds: 100), () {
       if (page == _latestPage && _dataMap[index] == null) {
@@ -82,7 +85,7 @@ class FileDataController {
 
   Future<FileWalkResponse> _fetch(int page, int retry) async {
     var response = await Api().postFileWalk(FileWalkRequest(
-        path: path, pageNo: page, pageSize: _pageSize, orderBy: orderBy));
+        path: path, pageNo: page, pageSize: pageSize, orderBy: orderBy));
     if (response.message == "RetryLaterAgain") {
       if (retry >= 5) {
         return FileWalkResponse.fromMap({
@@ -100,8 +103,8 @@ class FileDataController {
   }
 
   List<File> getNearestItems(int index) {
-    int start = max(index - _pageSize, 0);
-    int end = max(index + _pageSize, _total);
+    int start = max(index - pageSize, 0);
+    int end = max(index + pageSize, _total);
     List<File> list = [];
     for (var i = start; i < end; i++) {
       var item = _dataMap[i];

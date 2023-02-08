@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/themes/widgets.dart';
 import 'package:video_player/video_player.dart';
+
+import '../../api/api.dart';
+import '../../themes/widgets.dart';
 
 class VideoPlayerWapper extends StatefulWidget {
   final String videoUrl;

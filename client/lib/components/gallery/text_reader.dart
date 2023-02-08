@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/themes/widgets.dart';
+
+import '../../api/api.dart';
+import '../../themes/widgets.dart';
 
 class TextReader extends StatefulWidget {
   final String url;

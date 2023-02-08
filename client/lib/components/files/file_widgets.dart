@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/utils/file_helper.dart';
+
+import '../../api/api.dart';
+import '../../api/dto/file_walk_response/file.dart';
+import '../../utils/file_helper.dart';
 
 class FileWidgets {
   static Widget getItemIcon(File item) {

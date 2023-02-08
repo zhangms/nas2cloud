@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
+
+import '../api/app_config.dart';
+import 'app_nav.dart';
 
 class AppWidgets {
   static Widget pageLoadingView() {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/setting/check_update.dart';
-import 'package:nas2cloud/components/setting/setting_theme.dart';
-import 'package:nas2cloud/themes/widgets.dart';
+
+import '../../themes/widgets.dart';
+import 'check_update.dart';
+import 'setting_theme.dart';
 
 class SettingPage extends StatelessWidget {
   @override

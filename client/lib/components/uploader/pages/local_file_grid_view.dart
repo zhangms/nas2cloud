@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/utils/file_helper.dart';
 import 'package:path/path.dart' as p;
+
+import '../../../utils/file_helper.dart';
 
 class LocalDirListGridView extends StatelessWidget {
   final String dir;

@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
 import 'package:path/path.dart' as p;
 
+import '../../api/api.dart';
 import '../notification/notification.dart';
+import 'file_uploder.dart';
+import 'upload_entry.dart';
+import 'upload_repo.dart';
+import 'upload_status.dart';
 
 class PathUploader extends FileUploader {
   static bool _initialized = false;

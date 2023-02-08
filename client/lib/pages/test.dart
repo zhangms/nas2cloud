@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/files/file_list.dart';
-import 'package:nas2cloud/components/notification/notification.dart';
-import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
-import 'package:nas2cloud/components/uploader/auto_uploader.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
 
-import '../api/dto/login_response/data.dart' as userdata;
-import '../api/dto/state_response/data.dart' as statdata;
+import '../api/api.dart';
+import '../api/app_config.dart';
+import '../components/files/file_list_page.dart';
+import '../components/notification/notification.dart';
+import '../components/uploader/auto_upload_config.dart';
+import '../components/uploader/auto_uploader.dart';
+import '../components/uploader/file_uploder.dart';
+import '../components/uploader/upload_repo.dart';
+import '../themes/app_nav.dart';
+
+// import '../api/dto/login_response/data.dart' as userdata;
+// import '../api/dto/state_response/data.dart' as statdata;
 
 class TestPage extends StatelessWidget {
   @override

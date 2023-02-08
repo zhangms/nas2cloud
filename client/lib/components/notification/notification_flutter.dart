@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/notification/notification.dart';
+
+import '../../api/app_config.dart';
+import 'notification.dart';
 
 class NotificationFlutter extends LocalNotification {
   static final FlutterLocalNotificationsPlugin _notifier =

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/files/file_event.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
+
+import '../../event/bus.dart';
+import '../../themes/app_nav.dart';
+import 'file_event.dart';
 
 class FileMoreMenu extends StatefulWidget {
   static const _orderByOptions = [
@@ -14,18 +15,21 @@ class FileMoreMenu extends StatefulWidget {
   ];
 
   final String currentPath;
-  final String orderBy;
+  final String orderByInitValue;
 
-  FileMoreMenu(this.currentPath, this.orderBy);
+  FileMoreMenu(this.currentPath, this.orderByInitValue);
 
   @override
   State<FileMoreMenu> createState() => _FileMoreMenuState();
 }
 
 class _FileMoreMenuState extends State<FileMoreMenu> {
+  late String orderby;
+
   @override
   void initState() {
     super.initState();
+    orderby = widget.orderByInitValue;
   }
 
   @override
@@ -52,12 +56,15 @@ class _FileMoreMenuState extends State<FileMoreMenu> {
   }
 
   changeOrderBy(String order) {
-    if (widget.orderBy != order) {
-      eventBus.fire(FileEvent(
-        type: FileEventType.orderBy,
-        currentPath: widget.currentPath,
-        source: order,
-      ));
+    if (orderby != order) {
+      setState(() {
+        orderby = order;
+        eventBus.fire(FileEvent(
+          type: FileEventType.orderBy,
+          currentPath: widget.currentPath,
+          source: order,
+        ));
+      });
     }
   }
 
@@ -78,7 +85,7 @@ class _FileMoreMenuState extends State<FileMoreMenu> {
     List<PopupMenuItem<Text>> ret = [];
     for (var i = 0; i < FileMoreMenu._orderByOptions.length; i++) {
       var menu = PopupMenuItem<Text>(
-        enabled: FileMoreMenu._orderByOptions[i]["orderBy"]! != widget.orderBy,
+        enabled: FileMoreMenu._orderByOptions[i]["orderBy"]! != orderby,
         child: Text(FileMoreMenu._orderByOptions[i]["name"]!),
         onTap: () => changeOrderBy(FileMoreMenu._orderByOptions[i]["orderBy"]!),
       );

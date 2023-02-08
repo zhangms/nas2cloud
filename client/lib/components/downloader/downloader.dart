@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:nas2cloud/api/api.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../api/api.dart';
 
 class Downloader {
   static Downloader _instance = Downloader._private();

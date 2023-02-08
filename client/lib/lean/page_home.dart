@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/lean/page_favorites.dart';
-import 'package:nas2cloud/lean/page_generator.dart';
+
+import 'page_favorites.dart';
+import 'page_generator.dart';
 
 class MyHomePage extends StatefulWidget {
   @override

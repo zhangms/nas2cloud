@@ -1,9 +1,9 @@
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/file_walk_request.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file_walk_response.dart';
-import 'package:nas2cloud/api/dto/login_response/login_response.dart';
-import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/api/dto/state_response/state_response.dart';
+import 'api.dart';
+import 'dto/file_walk_request.dart';
+import 'dto/file_walk_response/file_walk_response.dart';
+import 'dto/login_response/login_response.dart';
+import 'dto/result.dart';
+import 'dto/state_response/state_response.dart';
 
 class ApiMock extends Api {
   ApiMock() : super.internal();

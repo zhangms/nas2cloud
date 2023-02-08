@@ -3,16 +3,17 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/background/background.dart';
-import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/utils/file_helper.dart';
-import 'package:nas2cloud/utils/spu.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../api/api.dart';
+import '../../api/app_config.dart';
+import '../../utils/file_helper.dart';
+import '../../utils/spu.dart';
+import '../background/background.dart';
+import 'auto_upload_config.dart';
+import 'file_uploder.dart';
+import 'upload_entry.dart';
+import 'upload_repo.dart';
 
 class AutoUploader {
   static const String _configKey = "app.autoupload.config";

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:nas2cloud/components/notification/notification_flutter.dart';
-import 'package:nas2cloud/components/notification/notification_unsupport.dart';
+
+import 'notification_flutter.dart';
+import 'notification_unsupport.dart';
 
 abstract class LocalNotification {
   static LocalNotification _instance = _platform();
@@ -19,7 +20,8 @@ abstract class LocalNotification {
 
   Future<void> initialize();
 
-  Future<void> send({required int id, required String title, required String body});
+  Future<void> send(
+      {required int id, required String title, required String body});
 
   Future<void> progress(
       {required int id,

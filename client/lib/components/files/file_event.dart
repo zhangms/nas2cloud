@@ -1,4 +1,4 @@
-import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
+import '../../api/dto/file_walk_response/file.dart';
 
 class FileEvent {
   final FileEventType type;

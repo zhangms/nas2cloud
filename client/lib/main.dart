@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_change_theme.dart';
-import 'package:nas2cloud/pages/config.dart';
-import 'package:nas2cloud/pages/home.dart';
-import 'package:nas2cloud/pages/login.dart';
-import 'package:nas2cloud/pages/splash.dart';
-import 'package:nas2cloud/pages/test.dart';
-import 'package:nas2cloud/themes/app_theme.dark.dart';
-import 'package:nas2cloud/themes/app_theme_light.dart';
+
+import 'api/app_config.dart';
+import 'event/bus.dart';
+import 'event/event_change_theme.dart';
+import 'pages/config.dart';
+import 'pages/home.dart';
+import 'pages/login.dart';
+import 'pages/splash.dart';
+import 'pages/test.dart';
+import 'themes/app_theme.dark.dart';
+import 'themes/app_theme_light.dart';
 
 void main() {
   AppConfig.initialize().then(

@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:workmanager/workmanager.dart';
+
+import '../../api/app_config.dart';
+import '../uploader/auto_uploader.dart';
 
 const String autoUploadTaskName = "autoupload";
 

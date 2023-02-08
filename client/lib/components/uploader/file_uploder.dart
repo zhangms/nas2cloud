@@ -1,16 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/components/uploader/file_uploader_path.dart';
-import 'package:nas2cloud/components/uploader/file_uploader_web.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_fileupload.dart';
 import 'package:path/path.dart' as p;
+
+import '../../api/api.dart';
+import '../../api/dto/result.dart';
+import '../../event/bus.dart';
+import '../../event/event_fileupload.dart';
+import 'file_uploader_path.dart';
+import 'file_uploader_web.dart';
+import 'upload_entry.dart';
+import 'upload_repo.dart';
+import 'upload_status.dart';
 
 abstract class FileUploader {
   static FileUploader _instance = FileUploader._platform();

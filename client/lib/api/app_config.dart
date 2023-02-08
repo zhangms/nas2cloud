@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/dto/login_response/data.dart' as logindto;
-import 'package:nas2cloud/api/dto/state_response/data.dart' as statedto;
-import 'package:nas2cloud/components/background/background.dart';
-import 'package:nas2cloud/components/downloader/downloader.dart';
-import 'package:nas2cloud/components/notification/notification.dart';
-import 'package:nas2cloud/components/uploader/auto_uploader.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/utils/spu.dart';
+
+import '../components/background/background.dart';
+import '../components/downloader/downloader.dart';
+import '../components/notification/notification.dart';
+import '../components/uploader/auto_uploader.dart';
+import '../components/uploader/file_uploder.dart';
+import '../utils/spu.dart';
+import 'dto/login_response/data.dart' as logindto;
+import 'dto/state_response/data.dart' as statedto;
 
 class AppConfig {
   static const currentAppVersion = "v2.9.4";

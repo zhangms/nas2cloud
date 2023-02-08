@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/event/event_change_theme.dart';
-import 'package:nas2cloud/event/bus.dart';
+
+import '../../api/app_config.dart';
+import '../../event/bus.dart';
+import '../../event/event_change_theme.dart';
 
 class SettingThemeWidget extends StatefulWidget {
   @override

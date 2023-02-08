@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/api/dto/page_data.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+
+import '../../api/app_config.dart';
+import '../../api/dto/page_data.dart';
+import 'upload_entry.dart';
+import 'upload_repo.dart';
 
 const String _initDbSQL = '''
 CREATE TABLE t_upload_entry (

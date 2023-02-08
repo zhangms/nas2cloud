@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/app_config.dart';
-import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/components/downloader/downloader.dart';
-import 'package:nas2cloud/themes/widgets.dart';
+
+import '../../api/api.dart';
+import '../../api/app_config.dart';
+import '../../api/dto/result.dart';
+import '../../themes/widgets.dart';
+import '../downloader/downloader.dart';
 
 class CheckUpdateWidget extends StatefulWidget {
   @override

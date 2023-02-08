@@ -2,18 +2,19 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/components/uploader/auto_upload_config.dart';
-import 'package:nas2cloud/components/uploader/auto_uploader.dart';
-import 'package:nas2cloud/components/uploader/pages/local_file_grid_view.dart';
-import 'package:nas2cloud/components/uploader/upload_repo.dart';
-import 'package:nas2cloud/components/uploader/upload_status.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/event/event_fileupload.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../../api/api.dart';
+import '../../../event/bus.dart';
+import '../../../event/event_fileupload.dart';
+import '../../../themes/app_nav.dart';
+import '../../../themes/widgets.dart';
+import '../auto_upload_config.dart';
+import '../auto_uploader.dart';
+import '../upload_repo.dart';
+import '../upload_status.dart';
+import 'local_file_grid_view.dart';
 
 class AndroidAutoUploadConfigWidget extends StatefulWidget {
   @override

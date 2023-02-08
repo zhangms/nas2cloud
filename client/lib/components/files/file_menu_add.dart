@@ -1,14 +1,15 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/api.dart';
-import 'package:nas2cloud/api/dto/result.dart';
-import 'package:nas2cloud/components/files/file_event.dart';
-import 'package:nas2cloud/components/uploader/file_uploder.dart';
-import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
-import 'package:nas2cloud/event/bus.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
+
+import '../../api/api.dart';
+import '../../api/dto/result.dart';
+import '../../event/bus.dart';
+import '../../themes/app_nav.dart';
+import '../../themes/widgets.dart';
+import '../uploader/file_uploder.dart';
+import '../uploader/pages/page_file_upload_task.dart';
+import 'file_event.dart';
 
 class FileAddMenu extends StatefulWidget {
   final String currentPath;

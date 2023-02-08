@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:nas2cloud/api/dto/page_data.dart';
-import 'package:nas2cloud/components/uploader/upload_entry.dart';
-import 'package:nas2cloud/components/uploader/upload_repo_sp.dart';
-import 'package:nas2cloud/components/uploader/upload_repo_sqflite.dart';
+
+import 'upload_entry.dart';
+import 'upload_repo_sp.dart';
+import 'upload_repo_sqflite.dart';
 
 abstract class UploadRepository {
   static UploadRepository _instance = UploadRepository._private();

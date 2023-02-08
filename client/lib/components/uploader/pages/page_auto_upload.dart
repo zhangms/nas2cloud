@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/background/background.dart';
-import 'package:nas2cloud/components/uploader/pages/page_file_upload_task.dart';
-import 'package:nas2cloud/themes/app_nav.dart';
-import 'package:nas2cloud/themes/widgets.dart';
 
+import '../../../themes/app_nav.dart';
+import '../../../themes/widgets.dart';
+import '../../background/background.dart';
 import 'page_auto_upload_android.dart';
+import 'page_file_upload_task.dart';
 
 class AutoUploadPage extends StatefulWidget {
   @override
