@@ -24,7 +24,7 @@ class ApiReal extends Api {
 
   static String? _rsaPublicKeyContent;
 
-  static Encrypter? _encrypter;
+  static Encrypter? _encryptor;
 
   static var _defaultHttpHeaders = {
     "X-DEVICE": kIsWeb
@@ -33,7 +33,7 @@ class ApiReal extends Api {
     "Content-Type": "application/json;charset=UTF-8",
   };
 
-  static Future<Encrypter?> _getEncrypter() async {
+  static Future<Encrypter?> _getEncryptor() async {
     String? content = (await AppConfig.getServerStatus())?.publicKey;
     if (content == null || content.isEmpty) {
       return null;
@@ -41,14 +41,14 @@ class ApiReal extends Api {
     if (content != _rsaPublicKeyContent) {
       _rsaPublicKeyContent = content;
       var publicKey = _rsaKeyParser.parse(content) as RSAPublicKey;
-      _encrypter = Encrypter(RSA(publicKey: publicKey));
+      _encryptor = Encrypter(RSA(publicKey: publicKey));
     }
-    return _encrypter;
+    return _encryptor;
   }
 
   @override
   Future<String> encrypt(String data) async {
-    var encrypter = await _getEncrypter();
+    var encrypter = await _getEncryptor();
     if (encrypter == null) {
       throw StateError("encrypter is null");
     }
