@@ -12,14 +12,14 @@ const DefaultExpireTime = time.Minute * 10
 
 func Get(key string) (string, error) {
 	str, err := DefaultClient().Get(context.Background(), key).Result()
+	if err == nil {
+		return str, nil
+	}
 	if err == redis.Nil {
 		return "", nil
 	}
-	if err != nil {
-		logger.PrintIfError(err, key)
-		return "", err
-	}
-	return str, nil
+	logger.PrintIfError(err, key)
+	return "", err
 }
 
 func Del(key string) (int64, error) {

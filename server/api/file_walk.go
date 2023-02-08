@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -51,14 +52,14 @@ func (f *FileController) Walk(c *fiber.Ctx) error {
 	u, _ := GetContextUser(c)
 	request := f.walkRequest(c)
 	resp, err := f.walk(u, request)
-	if err == svc.RetryLaterAgain {
+	if err == nil {
+		return SendOK(c, resp)
+	}
+	if errors.Is(err, svc.RetryLaterAgain) {
 		return SendError(c, http.StatusCreated, err.Error())
 	}
-	if err != nil {
-		logger.ErrorStacktrace(err)
-		return SendError(c, http.StatusInternalServerError, "ERROR")
-	}
-	return SendOK(c, resp)
+	logger.ErrorStacktrace(err)
+	return SendError(c, http.StatusInternalServerError, "ERROR")
 }
 
 func (f *FileController) walkRequest(c *fiber.Ctx) *fileWalkRequest {
