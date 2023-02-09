@@ -22,7 +22,7 @@ func init() {
 	}
 }
 
-func GetIntValue(key string, defaultValue int) int {
+func GetInt(key string, defaultValue int) int {
 	value, ok := configMap[key]
 	if !ok {
 		return defaultValue
@@ -32,4 +32,9 @@ func GetIntValue(key string, defaultValue int) int {
 		return defaultValue
 	}
 	return v
+}
+
+func GetString(key string) string {
+	value, _ := configMap[key]
+	return value
 }

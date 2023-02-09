@@ -51,7 +51,7 @@ func init() {
 		thumbWidth:  50,
 		thumbHeight: 50,
 	}
-	processor := conf.GetIntValue("processor.count.filethumb", 1)
+	processor := conf.GetInt("processor.count.filethumb", 1)
 	for i := 0; i < processor; i++ {
 		go thumbSvc.process(i)
 	}

@@ -8,23 +8,23 @@ import (
 	"nas2cloud/svc/cache"
 )
 
-type SignSvc struct {
+type Svc struct {
 }
 
-var signSvc = &SignSvc{}
+var signSvc = &Svc{}
 
-func Sign() *SignSvc {
+func Instance() *Svc {
 	return signSvc
 }
 
 const keyRSAPem = "rsa.pem"
 
-func (d *SignSvc) cacheKey(flag string) string {
+func (ss *Svc) cacheKey(flag string) string {
 	return keyRSAPem + "." + flag
 }
 
-func (d *SignSvc) tryGenerateRSAKey(flag string) error {
-	key := d.cacheKey(flag)
+func (ss *Svc) tryGenerateRSAKey(flag string) error {
+	key := ss.cacheKey(flag)
 	count, err := cache.Exists(key)
 	if err != nil {
 		return err
@@ -45,23 +45,23 @@ func (d *SignSvc) tryGenerateRSAKey(flag string) error {
 	return err
 }
 
-func (d *SignSvc) GetPublicKey(flag string) (string, error) {
-	_, pub, err := d.getRSAKey(flag)
+func (ss *Svc) GetPublicKey(flag string) (string, error) {
+	_, pub, err := ss.getRSAKey(flag)
 	return pub, err
 }
 
-func (d *SignSvc) getRSAKey(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
-	pri, pub, err := d.getRSAKeyImpl(flag)
+func (ss *Svc) getRSAKey(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
+	pri, pub, err := ss.getRSAKeyImpl(flag)
 	logger.PrintIfError(err, "getRSAKey", flag)
 	return pri, pub, err
 }
 
-func (d *SignSvc) getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
-	err = d.tryGenerateRSAKey(flag)
+func (ss *Svc) getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
+	err = ss.tryGenerateRSAKey(flag)
 	if err != nil {
 		return "", "", err
 	}
-	key := d.cacheKey(flag)
+	key := ss.cacheKey(flag)
 	value, err := cache.Get(key)
 	if err != nil {
 		return "", "", err
@@ -77,8 +77,8 @@ func (d *SignSvc) getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey
 	return mp["pri"], mp["pub"], nil
 }
 
-func (d *SignSvc) DecryptToString(flag string, chipertext []byte) (string, error) {
-	pri, _, err := d.getRSAKey(flag)
+func (ss *Svc) DecryptToString(flag string, chipertext []byte) (string, error) {
+	pri, _, err := ss.getRSAKey(flag)
 	if err != nil {
 		return "", err
 	}

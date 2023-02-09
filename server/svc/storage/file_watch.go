@@ -39,7 +39,7 @@ func init() {
 		fileEventQueue: make(chan *fileEvent, 1024),
 		diskUsageQueue: make(chan string, 1024),
 	}
-	processor := conf.GetIntValue("processor.count.filewatch", 1)
+	processor := conf.GetInt("processor.count.filewatch", 1)
 	for i := 0; i < processor; i++ {
 		go fileWatcher.process(i)
 	}
