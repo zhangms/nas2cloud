@@ -206,10 +206,13 @@ func (fc *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
 	if info == nil {
 		return errors.New("file not exists:" + file)
 	}
-	if info.Size == size {
+	sizeOld := info.Size
+	if sizeOld == size {
 		return nil
 	}
 	info.Size = size
-	info.ModTime = time.Now()
+	if sizeOld <= 0 && size > 0 {
+		info.ModTime = time.Now()
+	}
 	return fc.save(info)
 }
