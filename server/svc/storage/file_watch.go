@@ -57,6 +57,7 @@ func (fw *fileWatchSvc) process(index int) {
 	logger.Info("start file watch processor", index)
 	paths := make([]string, 0)
 	duExecuting := &atomic.Bool{}
+	duExecuting.Store(false)
 	for {
 		select {
 		case event := <-fw.fileEventQueue:
@@ -67,7 +68,11 @@ func (fw *fileWatchSvc) process(index int) {
 		case filepath := <-fw.diskUsageQueue:
 			paths = append(paths, filepath)
 		default:
-			if len(paths) == 0 || !duExecuting.CompareAndSwap(false, true) {
+			if len(paths) == 0 {
+				time.Sleep(time.Millisecond * 10)
+				continue
+			}
+			if !duExecuting.CompareAndSwap(false, true) {
 				time.Sleep(time.Millisecond * 10)
 				continue
 			}
