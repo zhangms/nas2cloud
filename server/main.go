@@ -56,7 +56,7 @@ func waitingSignal(app *fiber.App) {
 			logger.Warn("shutdown end", err)
 			os.Exit(0)
 		default:
-			time.Sleep(time.Second)
+			time.Sleep(time.Millisecond * 10)
 		}
 	}
 }

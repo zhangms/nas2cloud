@@ -13,7 +13,6 @@ import (
 
 type fileWatchSvc struct {
 	fileEventQueue chan *fileEvent
-	diskUsageQueue chan string
 }
 
 var fileWatcher *fileWatchSvc
@@ -39,7 +38,6 @@ func init() {
 	}
 	fileWatcher = &fileWatchSvc{
 		fileEventQueue: make(chan *fileEvent, 1024),
-		diskUsageQueue: make(chan string, 1024),
 	}
 	processor := conf.GetInt("processor.count.filewatch", 1)
 	for i := 0; i < processor; i++ {
@@ -55,7 +53,7 @@ func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
 
 func (fw *fileWatchSvc) process(index int) {
 	logger.Info("start file watch processor", index)
-	paths := make([]string, 0)
+	duPaths := make([]string, 0)
 	duExecuting := &atomic.Bool{}
 	duExecuting.Store(false)
 	for {
@@ -64,11 +62,11 @@ func (fw *fileWatchSvc) process(index int) {
 			err := fw.processEvent(event)
 			if err != nil {
 				logger.Error("process event error", event, err)
+			} else {
+				duPaths = append(duPaths, event.path)
 			}
-		case filepath := <-fw.diskUsageQueue:
-			paths = append(paths, filepath)
 		default:
-			if len(paths) == 0 {
+			if len(duPaths) == 0 {
 				time.Sleep(time.Millisecond * 10)
 				continue
 			}
@@ -76,8 +74,9 @@ func (fw *fileWatchSvc) process(index int) {
 				time.Sleep(time.Millisecond * 10)
 				continue
 			}
-			tmp := paths
-			paths = make([]string, 0)
+			tmp := duPaths
+			duPaths = make([]string, 0)
+			logger.Info("du begin--->", tmp)
 			go func() {
 				defer duExecuting.Store(false)
 				fw.diskUsageExec(tmp)
@@ -127,17 +126,14 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
-	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processCreate(event *fileEvent) error {
-	fw.diskUsage(event.path)
 	return nil
 }
 
 func (fw *fileWatchSvc) processDelete(event *fileEvent) error {
-	fw.diskUsage(event.path)
 	return nil
 }
 
@@ -148,12 +144,6 @@ func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
 		return ok, nil
 	}
 	return ok, err
-}
-
-func (fw *fileWatchSvc) diskUsage(path string) {
-	if len(path) > 0 {
-		fw.diskUsageQueue <- path
-	}
 }
 
 func (fw *fileWatchSvc) diskUsageExec(paths []string) {
