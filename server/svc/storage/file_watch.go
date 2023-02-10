@@ -7,6 +7,7 @@ import (
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"sync/atomic"
 	"time"
 )
 
@@ -55,6 +56,7 @@ func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
 func (fw *fileWatchSvc) process(index int) {
 	logger.Info("start file watch processor", index)
 	paths := make([]string, 0)
+	duExecuting := &atomic.Bool{}
 	for {
 		select {
 		case event := <-fw.fileEventQueue:
@@ -65,12 +67,16 @@ func (fw *fileWatchSvc) process(index int) {
 		case filepath := <-fw.diskUsageQueue:
 			paths = append(paths, filepath)
 		default:
-			if len(paths) > 0 {
-				fw.diskUsageExec(paths)
-				paths = make([]string, 0)
-			} else {
-				time.Sleep(time.Millisecond * 100)
+			if len(paths) == 0 || !duExecuting.CompareAndSwap(false, true) {
+				time.Sleep(time.Millisecond * 10)
+				continue
 			}
+			tmp := paths
+			paths = make([]string, 0)
+			go func() {
+				defer duExecuting.Store(false)
+				fw.diskUsageExec(tmp)
+			}()
 		}
 	}
 }

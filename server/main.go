@@ -32,7 +32,7 @@ func main() {
 }
 
 func start() {
-	os.WriteFile(pidFile, []byte(strconv.Itoa(os.Getpid())), fs.ModePerm)
+	_ = os.WriteFile(pidFile, []byte(strconv.Itoa(os.Getpid())), fs.ModePerm)
 	defer os.Remove(pidFile)
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1024 * 1024 * 1024, //1G
@@ -74,5 +74,5 @@ func stop() {
 		logger.Error("stop error", err)
 		return
 	}
-	logger.Info("stop signel send")
+	logger.Info("stop signal send")
 }
