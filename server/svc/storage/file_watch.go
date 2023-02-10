@@ -7,6 +7,7 @@ import (
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"time"
 )
 
 type fileWatchSvc struct {
@@ -67,6 +68,8 @@ func (fw *fileWatchSvc) process(index int) {
 			if len(paths) > 0 {
 				go fw.diskUsageExec(paths)
 				paths = make([]string, 0)
+			} else {
+				time.Sleep(time.Millisecond * 100)
 			}
 		}
 	}
