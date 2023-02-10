@@ -66,7 +66,7 @@ func (fw *fileWatchSvc) process(index int) {
 			paths = append(paths, filepath)
 		default:
 			if len(paths) > 0 {
-				go fw.diskUsageExec(paths)
+				fw.diskUsageExec(paths)
 				paths = make([]string, 0)
 			} else {
 				time.Sleep(time.Millisecond * 100)
