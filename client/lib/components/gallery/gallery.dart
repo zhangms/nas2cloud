@@ -5,8 +5,8 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
-import '../../themes/app_nav.dart';
-import '../../themes/widgets.dart';
+import '../../pub/app_nav.dart';
+import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
 import 'pdf_viewer.dart';
 import 'text_reader.dart';

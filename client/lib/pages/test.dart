@@ -7,9 +7,9 @@ import '../components/files/file_list_page.dart';
 import '../components/notification/notification.dart';
 import '../components/uploader/auto_upload_config.dart';
 import '../components/uploader/auto_uploader.dart';
-import '../components/uploader/file_uploder.dart';
+import '../components/uploader/file_uploader.dart';
 import '../components/uploader/upload_repo.dart';
-import '../themes/app_nav.dart';
+import '../pub/app_nav.dart';
 
 class TestPage extends StatelessWidget {
   @override

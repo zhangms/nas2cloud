@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import '../../api/api.dart';
 import '../../api/dto/result.dart';
 import '../../event/bus.dart';
-import '../../themes/app_nav.dart';
-import '../../themes/widgets.dart';
-import '../uploader/file_uploder.dart';
+import '../../pub/app_message.dart';
+import '../../pub/app_nav.dart';
+import '../uploader/file_uploader.dart';
 import '../uploader/pages/page_file_upload_task.dart';
 import 'file_event.dart';
 
@@ -108,12 +108,12 @@ class _FileAddMenuState extends State<FileAddMenu> {
   }
 
   void openNewPage(Widget page) {
-    AppWidgets.clearMessage(context);
+    AppMessage.clear(context);
     AppNav.openPage(context, page);
   }
 
   void pop() {
-    AppWidgets.clearMessage(context);
+    AppMessage.clear(context);
     AppNav.pop(context);
   }
 
@@ -151,7 +151,7 @@ class _FileAddMenuState extends State<FileAddMenu> {
         await Api().postCreateFolder(widget.currentPath, floderName);
     if (!result.success) {
       if (mounted) {
-        AppWidgets.showMessage(context, result.message!);
+        AppMessage.show(context, result.message!);
       }
       return;
     }

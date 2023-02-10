@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../../themes/app_nav.dart';
-import '../../../themes/widgets.dart';
+import '../../../pub/app_nav.dart';
+import '../../../pub/widgets.dart';
 import '../../background/background.dart';
 import 'page_auto_upload_android.dart';
 import 'page_file_upload_task.dart';

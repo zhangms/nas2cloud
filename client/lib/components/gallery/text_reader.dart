@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../api/api.dart';
-import '../../themes/widgets.dart';
+import '../../pub/widgets.dart';
 
 class TextReader extends StatefulWidget {
   final String url;

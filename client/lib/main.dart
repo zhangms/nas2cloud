@@ -10,8 +10,8 @@ import 'pages/home.dart';
 import 'pages/login.dart';
 import 'pages/splash.dart';
 import 'pages/test.dart';
-import 'themes/app_theme.dark.dart';
-import 'themes/app_theme_light.dart';
+import 'pub/app_theme.dark.dart';
+import 'pub/app_theme_light.dart';
 
 void main() {
   AppConfig.initialize().then(
@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             title: data.appName,
             home: SplashPage(),
-            theme: data.ligthTheme,
+            theme: data.lightTheme,
             darkTheme: data.darkTheme,
             routes: <String, WidgetBuilder>{
               "/home": (_) => HomePage(),
@@ -87,7 +87,7 @@ class _MyAppModel {
       ? AppLightTheme.themeData
       : AppDarkTheme.themeData;
 
-  ThemeData get ligthTheme => theme == AppConfig.themeDark
+  ThemeData get lightTheme => theme == AppConfig.themeDark
       ? AppDarkTheme.themeData
       : AppLightTheme.themeData;
 }

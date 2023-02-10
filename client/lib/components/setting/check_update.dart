@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../api/api.dart';
 import '../../api/app_config.dart';
 import '../../api/dto/result.dart';
-import '../../themes/widgets.dart';
+import '../../pub/app_message.dart';
 import '../downloader/downloader.dart';
 
 class CheckUpdateWidget extends StatefulWidget {
@@ -13,6 +13,7 @@ class CheckUpdateWidget extends StatefulWidget {
 
 class _CheckUpdateWidgetState extends State<CheckUpdateWidget> {
   static const String noUpdates = "no_updates";
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Result>(
@@ -54,17 +55,17 @@ class _CheckUpdateWidgetState extends State<CheckUpdateWidget> {
 
   _download(_AppUpdate updates) async {
     Downloader.platform
-        .download(await Api().getStaticFileUrl(updates.downlink));
+        .download(await Api().getStaticFileUrl(updates.downLink));
     if (mounted) {
-      AppWidgets.showMessage(context, "已开始下载，从状态栏查看下载进度");
+      AppMessage.show(context, "已开始下载，从状态栏查看下载进度");
     }
   }
 }
 
 class _AppUpdate {
-  String downlink;
+  String downLink;
   String version;
   bool hasUpdate;
 
-  _AppUpdate(this.downlink, this.version, this.hasUpdate);
+  _AppUpdate(this.downLink, this.version, this.hasUpdate);
 }

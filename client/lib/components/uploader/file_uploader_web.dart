@@ -1,6 +1,6 @@
 import '../../api/api.dart';
 import '../../api/dto/result.dart';
-import 'file_uploder.dart';
+import 'file_uploader.dart';
 import 'upload_entry.dart';
 import 'upload_repo.dart';
 import 'upload_status.dart';

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/files/file_favorite.dart';
 
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
 import '../../api/dto/result.dart';
 import '../../event/bus.dart';
-import '../../themes/app_nav.dart';
-import '../../themes/widgets.dart';
+import '../../pub/app_message.dart';
+import '../../pub/app_nav.dart';
 import '../downloader/downloader.dart';
 import 'file_event.dart';
 
@@ -29,14 +30,8 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
       ),
       itemBuilder: (context) {
         return [
-          if (widget.item.type != "DIR")
-            PopupMenuItem(
-              child: ListTile(
-                leading: Icon(Icons.download),
-                title: Text("下载"),
-              ),
-              onTap: () => download(widget.item),
-            ),
+          if (widget.item.type != "DIR") buildDownloadMenu(widget.item),
+          if (widget.item.type == "DIR") buildFavoriteMenu(widget.item),
           PopupMenuItem(
             child: ListTile(
               leading: Icon(Icons.delete),
@@ -49,6 +44,16 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     );
   }
 
+  PopupMenuItem<Text> buildDownloadMenu(File item) {
+    return PopupMenuItem(
+      child: ListTile(
+        leading: Icon(Icons.download),
+        title: Text("下载"),
+      ),
+      onTap: () => download(widget.item),
+    );
+  }
+
   void download(File item) async {
     if (item.type == "DIR") {
       return;
@@ -56,7 +61,7 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     var path = await Api().getStaticFileUrl(item.path);
     Downloader.platform.download(path);
     if (mounted) {
-      AppWidgets.showMessage(context, "已开始下载, 请从状态栏查看下载进度");
+      AppMessage.show(context, "已开始下载, 请从状态栏查看下载进度");
     }
   }
 
@@ -91,7 +96,7 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     Result result = await Api().postDeleteFile(item.path);
     if (!result.success) {
       if (mounted) {
-        AppWidgets.showMessage(context, result.message!);
+        AppMessage.show(context, result.message!);
       }
       return;
     }
@@ -102,12 +107,49 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
       item: item,
     ));
     if (mounted) {
-      AppWidgets.showMessage(context, "删除成功");
+      AppMessage.show(context, "删除成功");
     }
   }
 
   void pop() {
-    AppWidgets.clearMessage(context);
+    AppMessage.clear(context);
     AppNav.pop(context);
+  }
+
+  onTapFavorite(File item) async {
+    var isFavorite = await FileFavorite.isFavorite(item.path);
+    if (isFavorite) {
+      FileFavorite.remove(item.path);
+      return;
+    }
+    Future.delayed(const Duration(milliseconds: 100), (() {
+      showDialog(
+        context: context,
+        builder: ((context) => FileFavorite.buildFavoriteDialog(context, item)),
+      );
+    }));
+  }
+
+  PopupMenuItem<Text> buildFavoriteMenu(File item) {
+    return PopupMenuItem(
+      child: FutureBuilder<bool>(
+          future: FileFavorite.isFavorite(item.path),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!) {
+              return ListTile(
+                leading: Icon(Icons.favorite),
+                title: Text("取消收藏"),
+              );
+            }
+            return ListTile(
+              leading: Icon(
+                Icons.favorite,
+                color: Colors.red,
+              ),
+              title: Text("收藏"),
+            );
+          }),
+      onTap: () => onTapFavorite(widget.item),
+    );
   }
 }

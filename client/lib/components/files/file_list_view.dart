@@ -8,8 +8,9 @@ import 'package:skeletons/skeletons.dart';
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
 import '../../event/bus.dart';
-import '../../themes/app_nav.dart';
-import '../../themes/widgets.dart';
+import '../../pub/app_message.dart';
+import '../../pub/app_nav.dart';
+import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
 import '../gallery/gallery.dart';
 import '../gallery/pdf_viewer.dart';
@@ -159,7 +160,7 @@ class _FileListViewState extends State<FileListView> {
     } else if (FileHelper.isMusic(item.ext)) {
       playMusic(index, item);
     } else if (mounted) {
-      AppWidgets.showMessage(context, "不支持查看该类型的文件");
+      AppMessage.show(context, "不支持查看该类型的文件");
     }
   }
 

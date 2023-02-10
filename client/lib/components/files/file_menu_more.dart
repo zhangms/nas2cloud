@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../event/bus.dart';
-import '../../themes/app_nav.dart';
+import '../../pub/app_nav.dart';
 import 'file_event.dart';
 
 class FileMoreMenu extends StatefulWidget {
