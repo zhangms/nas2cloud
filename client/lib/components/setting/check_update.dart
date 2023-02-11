@@ -28,6 +28,7 @@ class _CheckUpdateWidgetState extends State<CheckUpdateWidget> {
           if (!updates.hasUpdate) {
             return ListTile(
               title: Text("已是最新版本:${AppConfig.currentAppVersion}"),
+              onTap: () => _download(updates),
             );
           }
           return ListTile(

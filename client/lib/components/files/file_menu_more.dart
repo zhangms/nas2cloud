@@ -9,7 +9,7 @@ class FileMoreMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<Text>(
+    return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_horiz,
       ),

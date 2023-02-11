@@ -23,7 +23,7 @@ class FileItemContextMenu extends StatefulWidget {
 class _FileItemContextMenuState extends State<FileItemContextMenu> {
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<Text>(
+    return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_horiz_rounded,
       ),
@@ -43,7 +43,7 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     );
   }
 
-  PopupMenuItem<Text> buildDownloadMenu(File item) {
+  PopupMenuItem<String> buildDownloadMenu(File item) {
     return PopupMenuItem(
       child: ListTile(
         leading: Icon(Icons.download),
@@ -115,7 +115,7 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     AppNav.pop(context);
   }
 
-  PopupMenuItem<Text> buildFavoriteMenu(File item) {
+  PopupMenuItem<String> buildFavoriteMenu(File item) {
     if (item.favor ?? false) {
       return PopupMenuItem(
         child: ListTile(

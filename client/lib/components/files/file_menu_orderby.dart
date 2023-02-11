@@ -34,7 +34,7 @@ class _FileOrderByMenuState extends State<FileOrderByMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<Text>(
+    return PopupMenuButton<String>(
       icon: Icon(
         Icons.sort,
       ),
@@ -44,12 +44,15 @@ class _FileOrderByMenuState extends State<FileOrderByMenu> {
     );
   }
 
-  List<PopupMenuItem<Text>> buildOrderByMenu() {
-    List<PopupMenuItem<Text>> ret = [];
+  List<PopupMenuItem<String>> buildOrderByMenu() {
+    List<PopupMenuItem<String>> ret = [];
     for (var i = 0; i < FileOrderByMenu._orderByOptions.length; i++) {
       var option = FileOrderByMenu._orderByOptions[i];
-      var menu = PopupMenuItem<Text>(
-        child: buildOrderByMenuView(option),
+      var menu = PopupMenuItem<String>(
+        child: SizedBox(
+          width: 138,
+          child: buildOrderByMenuView(option),
+        ),
         onTap: () => changeOrderBy(option["orderBy"]!),
       );
       ret.add(menu);

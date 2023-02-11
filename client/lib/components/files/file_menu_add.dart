@@ -23,7 +23,7 @@ class FileAddMenu extends StatefulWidget {
 class _FileAddMenuState extends State<FileAddMenu> {
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<Text>(
+    return PopupMenuButton<String>(
       icon: Icon(
         Icons.add,
       ),
