@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/files/file_favorite.dart';
 
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
@@ -116,40 +115,78 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     AppNav.pop(context);
   }
 
-  onTapFavorite(File item) async {
-    var isFavorite = await FileFavorite.isFavorite(item.path);
-    if (isFavorite) {
-      FileFavorite.remove(item.path);
+  PopupMenuItem<Text> buildFavoriteMenu(File item) {
+    if (item.favor ?? false) {
+      return PopupMenuItem(
+        child: ListTile(
+          leading: Icon(Icons.star),
+          title: Text("取消收藏"),
+        ),
+        onTap: () => onTapFavorite(item),
+      );
+    }
+    return PopupMenuItem(
+      child: ListTile(
+        leading: Icon(
+          Icons.star,
+          color: Colors.yellowAccent,
+        ),
+        title: Text("收藏"),
+      ),
+      onTap: () => onTapFavorite(item),
+    );
+  }
+
+  onTapFavorite(File item) {
+    if (item.favor ?? false) {
+      toggleFavor(item.path, item.favorName ?? "");
       return;
     }
     Future.delayed(const Duration(milliseconds: 100), (() {
       showDialog(
         context: context,
-        builder: ((context) => FileFavorite.buildFavoriteDialog(context, item)),
+        builder: ((context) => buildFavoriteDialog(context, item)),
       );
     }));
   }
 
-  PopupMenuItem<Text> buildFavoriteMenu(File item) {
-    return PopupMenuItem(
-      child: FutureBuilder<bool>(
-          future: FileFavorite.isFavorite(item.path),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!) {
-              return ListTile(
-                leading: Icon(Icons.favorite),
-                title: Text("取消收藏"),
-              );
-            }
-            return ListTile(
-              leading: Icon(
-                Icons.favorite,
-                color: Colors.red,
-              ),
-              title: Text("收藏"),
-            );
-          }),
-      onTap: () => onTapFavorite(widget.item),
+  buildFavoriteDialog(BuildContext context, File item) {
+    var input = TextEditingController();
+    input.text = item.name;
+    return AlertDialog(
+      title: Text("收藏"),
+      content: TextField(
+        controller: input,
+        decoration: InputDecoration(
+          labelText: "收藏名称",
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: (() {
+              input.dispose();
+              AppNav.pop(context);
+            }),
+            child: Text("取消")),
+        TextButton(
+            onPressed: (() {
+              var name = input.text;
+              input.dispose();
+              AppNav.pop(context);
+              toggleFavor(item.path, name);
+            }),
+            child: Text("确定"))
+      ],
     );
+  }
+
+  Future<void> toggleFavor(String fullPath, String favorName) async {
+    await Api().postToggleFavor(fullPath, favorName);
+    eventBus.fire(FileEvent(
+      type: FileEventType.toggleFavor,
+      currentPath: widget.currentPath,
+      source: "${widget.index}",
+      item: widget.item,
+    ));
   }
 }

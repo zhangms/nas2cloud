@@ -130,12 +130,15 @@ class _FileAddMenuState extends State<FileAddMenu> {
       actions: [
         TextButton(
             onPressed: (() {
+              input.dispose();
               pop();
             }),
             child: Text("取消")),
         TextButton(
             onPressed: (() {
-              createFolder(input.text);
+              var name = input.text;
+              input.dispose();
+              createFolder(name);
               pop();
             }),
             child: Text("确定"))
@@ -143,12 +146,12 @@ class _FileAddMenuState extends State<FileAddMenu> {
     );
   }
 
-  Future<void> createFolder(String floderName) async {
-    if (floderName.trim().isEmpty) {
+  Future<void> createFolder(String folderName) async {
+    if (folderName.trim().isEmpty) {
       return;
     }
     Result result =
-        await Api().postCreateFolder(widget.currentPath, floderName);
+        await Api().postCreateFolder(widget.currentPath, folderName);
     if (!result.success) {
       if (mounted) {
         AppMessage.show(context, result.message!);
@@ -156,9 +159,9 @@ class _FileAddMenuState extends State<FileAddMenu> {
       return;
     }
     eventBus.fire(FileEvent(
-      type: FileEventType.createFloder,
+      type: FileEventType.createFolder,
       currentPath: widget.currentPath,
-      source: floderName,
+      source: folderName,
     ));
   }
 }

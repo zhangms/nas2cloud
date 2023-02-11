@@ -16,7 +16,8 @@ class FileEvent {
 
 enum FileEventType {
   loaded,
-  createFloder,
+  createFolder,
   orderBy,
   delete,
+  toggleFavor,
 }

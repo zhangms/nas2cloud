@@ -24,6 +24,7 @@ class FileDataController {
   Map<int, File> _dataMap = {};
 
   bool get initLoading => _initLoading;
+
   int get total => _total;
 
   Future<void> initLoad() async {
@@ -113,5 +114,12 @@ class FileDataController {
       }
     }
     return list;
+  }
+
+  void toggleFavor(int index) {
+    var ret = _dataMap[index];
+    if (ret != null) {
+      ret.favor = !(ret.favor ?? false);
+    }
   }
 }

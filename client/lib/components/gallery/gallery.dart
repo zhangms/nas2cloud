@@ -1,5 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/pub/image_loader.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -121,11 +121,10 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     // );
 
     // NetworkImage(item.url, headers: item.requestHeader)
-
     if (FileHelper.isImage(item.fileExt)) {
       return PhotoViewGalleryPageOptions(
-          imageProvider:
-              CachedNetworkImageProvider(item.url, headers: item.requestHeader),
+          imageProvider: ImageLoader.cacheNetworkImageProvider(
+              item.url, item.requestHeader),
           initialScale: PhotoViewComputedScale.contained,
           minScale: PhotoViewComputedScale.contained * 0.5,
           maxScale: PhotoViewComputedScale.covered * 4.1,

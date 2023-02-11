@@ -12,7 +12,16 @@
     "id": "thumb",
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/Users/ZMS/Thumb",
+    "endpoint": "/Users/ZMS/NAS/thumb",
+    "authorize": "ALL",
+    "mode": "rw",
+    "hidden": true
+  },
+  {
+    "id": "assets",
+    "name": "thumb",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/NAS/assets",
     "authorize": "ALL",
     "mode": "rw",
     "hidden": true

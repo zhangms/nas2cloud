@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/files/file_item_trailing_star.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
@@ -19,8 +20,8 @@ import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import 'file_data_controller.dart';
 import 'file_event.dart';
+import 'file_item_context_menu.dart';
 import 'file_list_page.dart';
-import 'file_menu_item_context.dart';
 import 'file_widgets.dart';
 
 class FileListView extends StatefulWidget {
@@ -109,10 +110,7 @@ class _FileListViewState extends State<FileListView> {
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
       trailing: buildItemTrailing(index, item),
-      title: Text(
-        item.name,
-        overflow: TextOverflow.ellipsis,
-      ),
+      title: buildItemTitle(index, item),
       subtitle: Text("${item.modTime} ${item.size}"),
       onTap: () => tapItem(index, item),
     );
@@ -128,6 +126,11 @@ class _FileListViewState extends State<FileListView> {
   }
 
   void processFileEvent(FileEvent event) {
+    if (widget.fileHome && event.type == FileEventType.toggleFavor) {
+      var index = int.parse(event.source!);
+      fileDataController.loadIndexPage(index);
+      return;
+    }
     if (event.currentPath != widget.path) {
       return;
     }
@@ -135,7 +138,7 @@ class _FileListViewState extends State<FileListView> {
       case FileEventType.loaded:
         setState(() {});
         break;
-      case FileEventType.createFloder:
+      case FileEventType.createFolder:
         initLoad("creTime_desc");
         break;
       case FileEventType.orderBy:
@@ -144,6 +147,11 @@ class _FileListViewState extends State<FileListView> {
       case FileEventType.delete:
         var index = int.parse(event.source!);
         fileDataController.loadIndexPage(index);
+        break;
+      case FileEventType.toggleFavor:
+        var index = int.parse(event.source!);
+        fileDataController.toggleFavor(index);
+        setState(() {});
         break;
     }
   }
@@ -231,6 +239,25 @@ class _FileListViewState extends State<FileListView> {
   }
 
   buildItemTrailing(int index, File item) {
+    if (widget.fileHome) {
+      if (item.favor ?? false) {
+        return FileItemTailingStar(index, item);
+      }
+      return null;
+    }
     return FileItemContextMenu(index, item, widget.path);
+  }
+
+  buildItemTitle(int index, File item) {
+    if ((item.favor ?? false) && widget.fileHome) {
+      return Text(
+        item.favorName ?? item.name,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    return Text(
+      item.name,
+      overflow: TextOverflow.ellipsis,
+    );
   }
 }
