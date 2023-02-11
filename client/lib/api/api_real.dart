@@ -104,7 +104,7 @@ class ApiReal extends Api {
   Future<StateResponse> tryGetServerStatus() async {
     if (!await AppConfig.isServerAddressConfig()) {
       return StateResponse.fromMap({
-        "success": true,
+        "success": false,
         "message": "SERVER_ADDRESS_NOT_CONFIG",
       });
     }
