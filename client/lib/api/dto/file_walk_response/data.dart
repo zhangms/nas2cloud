@@ -62,4 +62,24 @@ class Data {
   ///
   /// Converts [Data] to a JSON string.
   String toJson() => json.encode(toMap());
+
+  Data copyWith({
+    int? currentStart,
+    int? currentStop,
+    int? currentPage,
+    String? currentPath,
+    int? total,
+    List<Nav>? nav,
+    List<File>? files,
+  }) {
+    return Data(
+      currentStart: currentStart ?? this.currentStart,
+      currentStop: currentStop ?? this.currentStop,
+      currentPage: currentPage ?? this.currentPage,
+      currentPath: currentPath ?? this.currentPath,
+      total: total ?? this.total,
+      nav: nav ?? this.nav,
+      files: files ?? this.files,
+    );
+  }
 }

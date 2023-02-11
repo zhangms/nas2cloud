@@ -8,6 +8,8 @@ class File {
   String? size;
   String? modTime;
   String? ext;
+  bool? favor;
+  String? favorName;
 
   File({
     required this.name,
@@ -17,11 +19,13 @@ class File {
     this.size,
     this.modTime,
     this.ext,
+    this.favor,
+    this.favorName,
   });
 
   @override
   String toString() {
-    return 'File(name: $name, path: $path, type: $type, thumbnail: $thumbnail, size: $size, modTime: $modTime, ext: $ext)';
+    return 'File(name: $name, path: $path, type: $type, thumbnail: $thumbnail, size: $size, modTime: $modTime, ext: $ext, favor: $favor, favorName: $favorName)';
   }
 
   factory File.fromMap(Map<String, dynamic> data) => File(
@@ -32,6 +36,8 @@ class File {
         size: data['size'] as String?,
         modTime: data['modTime'] as String?,
         ext: data['ext'] as String?,
+        favor: data['favor'] as bool?,
+        favorName: data['favorName'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
@@ -42,6 +48,8 @@ class File {
         'size': size,
         'modTime': modTime,
         'ext': ext,
+        'favor': favor,
+        'favorName': favorName,
       };
 
   /// `dart:convert`
@@ -55,4 +63,28 @@ class File {
   ///
   /// Converts [File] to a JSON string.
   String toJson() => json.encode(toMap());
+
+  File copyWith({
+    String? name,
+    String? path,
+    String? type,
+    String? thumbnail,
+    String? size,
+    String? modTime,
+    String? ext,
+    bool? favor,
+    String? favorName,
+  }) {
+    return File(
+      name: name ?? this.name,
+      path: path ?? this.path,
+      type: type ?? this.type,
+      thumbnail: thumbnail ?? this.thumbnail,
+      size: size ?? this.size,
+      modTime: modTime ?? this.modTime,
+      ext: ext ?? this.ext,
+      favor: favor ?? this.favor,
+      favorName: favorName ?? this.favorName,
+    );
+  }
 }
