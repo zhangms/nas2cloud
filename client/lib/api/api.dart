@@ -45,7 +45,7 @@ abstract class Api {
   Future<LoginResponse> postLogin(
       {required String username, required String password});
 
-  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust);
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest request);
 
   Future<Result> postCreateFolder(String path, String folderName);
 

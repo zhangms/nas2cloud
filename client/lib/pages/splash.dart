@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../api/app_config.dart';
 import '../pub/app_nav.dart';
 
@@ -27,8 +28,8 @@ class _SplashPageState extends State<SplashPage> {
       });
       return;
     }
-    var serverConfiged = await AppConfig.isServerAddressConfiged();
-    if (!serverConfiged) {
+    var serverAddressConfig = await AppConfig.isServerAddressConfig();
+    if (!serverAddressConfig) {
       setState(() {
         AppNav.goServerAddressConfig(context);
       });

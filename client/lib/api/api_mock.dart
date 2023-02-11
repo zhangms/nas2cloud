@@ -73,10 +73,10 @@ class ApiMock extends Api {
   }
 
   @override
-  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) {
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest request) {
     const total = 10000;
-    var start = reqeust.pageNo * reqeust.pageSize;
-    var end = (reqeust.pageNo + 1) * reqeust.pageSize;
+    var start = request.pageNo * request.pageSize;
+    var end = (request.pageNo + 1) * request.pageSize;
     List<Map<String, dynamic>> files = [];
     for (var i = start; i < end; i++) {
       if (i >= 0 && i < total) {
@@ -99,8 +99,8 @@ class ApiMock extends Api {
               "data": {
                 "currentStart": start,
                 "currentStop": end,
-                "currentPage": reqeust.pageNo,
-                "currentPath": reqeust.path,
+                "currentPage": request.pageNo,
+                "currentPath": request.path,
                 "total": total,
                 "nav": [],
                 "files": files

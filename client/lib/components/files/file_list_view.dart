@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/files/file_item_trailing_star.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
@@ -15,12 +14,13 @@ import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
 import '../gallery/gallery.dart';
 import '../gallery/pdf_viewer.dart';
-import '../uploader/event_fileupload.dart';
+import '../uploader/event_file_upload.dart';
 import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import 'file_data_controller.dart';
 import 'file_event.dart';
 import 'file_item_context_menu.dart';
+import 'file_item_trailing_star.dart';
 import 'file_list_page.dart';
 import 'file_widgets.dart';
 
@@ -30,11 +30,12 @@ class FileListView extends StatefulWidget {
   final String orderByInitValue;
   final bool fileHome;
 
-  FileListView(
-      {required this.path,
-      required this.pageSize,
-      required this.orderByInitValue,
-      required this.fileHome});
+  FileListView({
+    required this.path,
+    required this.pageSize,
+    required this.orderByInitValue,
+    required this.fileHome,
+  });
 
   @override
   State<FileListView> createState() => _FileListViewState();
@@ -107,10 +108,36 @@ class _FileListViewState extends State<FileListView> {
         padding: EdgeInsets.all(8),
       );
     }
+    if (widget.fileHome) {
+      return buildItemViewHome(index, item);
+    } else {
+      return buildItemViewNormal(index, item);
+    }
+  }
+
+  buildItemViewHome(int index, File item) {
+    bool favor = item.favor ?? false;
+    String favorName = item.favorName ?? item.name;
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
-      trailing: buildItemTrailing(index, item),
-      title: buildItemTitle(index, item),
+      trailing: favor ? FileItemTailingStar(index, item) : null,
+      title: Text(
+        favor ? favorName : item.name,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text("${item.modTime} ${item.size}"),
+      onTap: () => tapItem(index, item),
+    );
+  }
+
+  buildItemViewNormal(int index, File item) {
+    return ListTile(
+      leading: FileWidgets.getItemIcon(item),
+      trailing: FileItemContextMenu(index, item, widget.path),
+      title: Text(
+        item.name,
+        overflow: TextOverflow.ellipsis,
+      ),
       subtitle: Text("${item.modTime} ${item.size}"),
       onTap: () => tapItem(index, item),
     );
@@ -236,28 +263,5 @@ class _FileListViewState extends State<FileListView> {
     if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
     }
-  }
-
-  buildItemTrailing(int index, File item) {
-    if (widget.fileHome) {
-      if (item.favor ?? false) {
-        return FileItemTailingStar(index, item);
-      }
-      return null;
-    }
-    return FileItemContextMenu(index, item, widget.path);
-  }
-
-  buildItemTitle(int index, File item) {
-    if ((item.favor ?? false) && widget.fileHome) {
-      return Text(
-        item.favorName ?? item.name,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-    return Text(
-      item.name,
-      overflow: TextOverflow.ellipsis,
-    );
   }
 }

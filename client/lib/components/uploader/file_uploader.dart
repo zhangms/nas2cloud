@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 import '../../api/api.dart';
 import '../../api/dto/result.dart';
 import '../../event/bus.dart';
-import 'event_fileupload.dart';
+import 'event_file_upload.dart';
 import 'file_uploader_path.dart';
 import 'file_uploader_web.dart';
 import 'upload_entry.dart';

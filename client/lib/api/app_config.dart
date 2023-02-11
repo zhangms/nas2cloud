@@ -59,7 +59,7 @@ class AppConfig {
     return await Spu().getString(_serverAddressKey) ?? "";
   }
 
-  static Future<bool> isServerAddressConfiged() async {
+  static Future<bool> isServerAddressConfig() async {
     return (await Spu().getString(_serverAddressKey)) != null;
   }
 

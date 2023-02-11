@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/files/file_home.dart';
+import 'package:skeletons/skeletons.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
@@ -67,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         future: Api().tryGetServerStatus(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return AppWidgets.pageLoadingView();
+            return SkeletonListView();
           }
           var status = snapshot.data!;
           if (!status.success) {

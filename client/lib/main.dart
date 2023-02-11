@@ -75,7 +75,9 @@ class _MyAppState extends State<MyApp> {
 class _MyAppModel {
   static defaultValue() {
     return _MyAppModel(
-        appName: AppConfig.defaultAppName, theme: AppConfig.themeFollowSystem);
+      appName: AppConfig.defaultAppName,
+      theme: AppConfig.themeFollowSystem,
+    );
   }
 
   final String appName;
