@@ -27,13 +27,13 @@ class FileListView extends StatefulWidget {
   final String path;
   final int pageSize;
   final String orderByInitValue;
-  final bool showFileAction;
+  final bool fileHome;
 
   FileListView(
       {required this.path,
       required this.pageSize,
       required this.orderByInitValue,
-      required this.showFileAction});
+      required this.fileHome});
 
   @override
   State<FileListView> createState() => _FileListViewState();
@@ -108,9 +108,7 @@ class _FileListViewState extends State<FileListView> {
     }
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
-      trailing: widget.showFileAction
-          ? FileItemContextMenu(index, item, widget.path)
-          : null,
+      trailing: buildItemTrailing(index, item),
       title: Text(
         item.name,
         overflow: TextOverflow.ellipsis,
@@ -230,5 +228,9 @@ class _FileListViewState extends State<FileListView> {
     if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
     }
+  }
+
+  buildItemTrailing(int index, File item) {
+    return FileItemContextMenu(index, item, widget.path);
   }
 }

@@ -89,11 +89,13 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/traceLog", handle(stateController.TraceLog))
 	app.Post("/api/user/login", handle(loginController.Login))
 	app.Post("/api/store/walk", handleLoginRequired(fileController.Walk))
+	app.Post("/api/store/toggleFavorite", handleLoginRequired(fileController.ToggleFavorite))
 	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))
 	app.Post("/api/store/deleteFiles", handleLoginRequired(fileController.DeleteFiles))
 	app.Get("/api/store/fileExists/*", handleLoginRequired(fileController.Exists))
 	app.Post("/api/store/fileListExists", handleLoginRequired(fileController.ListExists))
 	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
+
 }
 
 func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {

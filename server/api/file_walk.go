@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -46,6 +47,8 @@ type fileWalkItem struct {
 	Size      string `json:"size"`
 	ModTime   string `json:"modTime"`
 	Ext       string `json:"ext"`
+	Favor     bool   `json:"favor"`
+	FavorName string `json:"favorName"`
 }
 
 func (f *FileController) Walk(c *fiber.Ctx) error {
@@ -79,9 +82,13 @@ func (f *FileController) walk(u *user.User, request *fileWalkRequest) (*fileWalk
 	if err != nil {
 		return nil, err
 	}
+	favors, err := storage.File().GetFavorsMap(u.Name)
+	if err != nil {
+		return nil, err
+	}
 	return &fileWalkResult{
 		Nav:          f.parseToNav(u, request.Path),
-		Files:        f.parseToFiles(lst),
+		Files:        f.parseToFiles(lst, favors),
 		Total:        total,
 		CurrentPage:  request.PageNo,
 		CurrentPath:  request.Path,
@@ -90,9 +97,10 @@ func (f *FileController) walk(u *user.User, request *fileWalkRequest) (*fileWalk
 	}, nil
 }
 
-func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
+func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo, favors map[string]string) []*fileWalkItem {
 	items := make([]*fileWalkItem, 0)
 	for _, itm := range lst {
+		favorName, favor := favors[itm.Path]
 		items = append(items, &fileWalkItem{
 			Name:      itm.Name,
 			Path:      itm.Path,
@@ -101,6 +109,8 @@ func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo) []*fileWalkItem {
 			Size:      libs.ReadableDataSize(itm.Size),
 			ModTime:   itm.ModTime.Format("2006-01-02 15:04"),
 			Ext:       itm.Ext,
+			Favor:     favor,
+			FavorName: favorName,
 		})
 	}
 	return items
@@ -136,4 +146,23 @@ func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNa
 		base.Name = baseInfo.Name
 	}
 	return ret
+}
+
+func (f *FileController) ToggleFavorite(c *fiber.Ctx) error {
+	type request struct {
+		Name string `json:"name"`
+		Path string `json:"path"`
+	}
+	req := &request{}
+	err := json.Unmarshal(c.Body(), req)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	u, _ := GetContextUser(c)
+	favor, err := storage.File().ToggleFavorite(u.Name, req.Name, req.Path)
+	if err != nil {
+		logger.ErrorStacktrace(err)
+		return SendError(c, http.StatusInternalServerError, "ERROR")
+	}
+	return SendOK(c, fmt.Sprintf("%v", favor))
 }

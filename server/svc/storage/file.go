@@ -27,7 +27,7 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	userRoles := user.GetUserRoles(username)
 	path := vpath.Clean(fullPath)
 	if vpath.IsRootDir(path) {
-		return fs.walkRoot(userRoles)
+		return fs.walkRoot(username, userRoles)
 	}
 	_, _, err = vfs.GetStore(userRoles, path)
 	if err != nil {
@@ -54,7 +54,11 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	return ret, total, nil
 }
 
-func (fs *FileSvc) walkRoot(userRoles string) ([]*vfs.ObjectInfo, int64, error) {
+func (fs *FileSvc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
+	favors, err := fs.getFavors(username)
+	if err != nil {
+		return nil, 0, err
+	}
 	list, er := vfs.List(userRoles, vpath.Separator)
 	if er != nil {
 		return nil, 0, er
@@ -67,7 +71,10 @@ func (fs *FileSvc) walkRoot(userRoles string) ([]*vfs.ObjectInfo, int64, error) 
 			files = append(files, inf)
 		}
 	}
-	return files, int64(len(files)), nil
+	ret := make([]*vfs.ObjectInfo, 0)
+	ret = append(ret, favors...)
+	ret = append(ret, list...)
+	return ret, int64(len(ret)), nil
 }
 
 func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {

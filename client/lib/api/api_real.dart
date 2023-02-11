@@ -280,6 +280,24 @@ class ApiReal extends Api {
     }
   }
 
+  @override
+  Future<Result> postToggleFavor(String fullPath, String name) async {
+    try {
+      var url = Uri.http(
+          await AppConfig.getServerAddress(), "/api/store/toggleFavorite");
+      Response resp = await http.post(url,
+          headers: await httpHeaders(),
+          body: jsonEncode({
+            "name": name,
+            "path": fullPath,
+          }));
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
+  }
+
   String platformName() {
     if (kIsWeb) {
       return "web";

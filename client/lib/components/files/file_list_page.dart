@@ -26,7 +26,7 @@ class FileListPage extends StatelessWidget {
         path: path,
         pageSize: pageSize,
         orderByInitValue: initOrderBy,
-        showFileAction: true,
+        fileHome: false,
       )),
     );
   }

@@ -57,6 +57,8 @@ abstract class Api {
 
   Future<Result> postTraceLog(String log);
 
+  Future<Result> postToggleFavor(String fullPath, String name);
+
   Future<Result> uploadStream({
     required String dest,
     required String fileName,
@@ -72,5 +74,6 @@ class RangeData {
   String contentType;
   int contentLength;
   Uint8List? content;
+
   RangeData(this.contentType, this.contentLength, this.content);
 }

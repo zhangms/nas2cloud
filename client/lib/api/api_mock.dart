@@ -161,4 +161,12 @@ class ApiMock extends Api {
       "message": "OK",
     });
   }
+
+  @override
+  Future<Result> postToggleFavor(String fullPath, String name) async {
+    return Result.fromMap({
+      "success": true,
+      "message": "true",
+    });
+  }
 }

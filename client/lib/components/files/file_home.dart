@@ -8,7 +8,7 @@ class FileHome extends StatelessWidget {
     return FileListView(
       path: "/",
       pageSize: 50,
-      showFileAction: false,
+      fileHome: true,
       orderByInitValue: "fileName",
     );
   }
