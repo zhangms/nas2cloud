@@ -49,6 +49,10 @@ func registerStatic(app *fiber.App) {
 		if b.MountTypeLocal() {
 			if b.Authorize() == "PUBLIC" {
 				logger.Info("register static public", b.Dir(), b.Endpoint())
+				app.All(b.Dir()+"/*.apk", func(ctx *fiber.Ctx) error {
+					ctx.Set(fiber.HeaderContentType, "application/vnd.android.package-archive")
+					return ctx.Next()
+				})
 				app.Static(b.Dir(), b.Endpoint(), fiber.Static{
 					ByteRange: true,
 				})

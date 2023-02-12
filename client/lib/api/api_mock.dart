@@ -46,7 +46,7 @@ class ApiMock extends Api {
 
   @override
   Future<String> getStaticFileUrl(String path) async {
-    return path;
+    return "http://192.168.31.99:8168/$path";
   }
 
   @override
@@ -149,7 +149,7 @@ class ApiMock extends Api {
   Future<Result> getCheckUpdates() async {
     return Result.fromMap({
       "success": true,
-      "message": "no uploads",
+      "message": "client/nas2cloud-v2.9.7.apk;2.9.8",
     });
   }
 
