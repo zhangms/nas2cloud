@@ -60,18 +60,18 @@ class _FileOrderByMenuState extends State<FileOrderByMenu> {
   buildOrderByMenuView(Map<String, String> option) {
     if (orderByField != option["orderBy"]) {
       return ListTile(
-        title: SizedBox(width: 80, child: Text(option["name"]!)),
+        title: Text(option["name"]!),
       );
     }
     if (orderByDirection == "desc") {
       return ListTile(
-        title: SizedBox(width: 80, child: Text(option["name"]!)),
-        trailing: Icon(Icons.arrow_drop_down),
+        title: Text(option["name"]!),
+        trailing: SizedBox(width: 10, child: Icon(Icons.arrow_drop_down)),
       );
     }
     return ListTile(
-      title: SizedBox(width: 80, child: Text(option["name"]!)),
-      trailing: Icon(Icons.arrow_drop_up),
+      title: Text(option["name"]!),
+      trailing: SizedBox(width: 10, child: Icon(Icons.arrow_drop_up)),
     );
   }
 

@@ -92,7 +92,7 @@ class ApiMock extends Api {
       }
     }
     return Future.delayed(
-        Duration(milliseconds: 2000),
+        Duration(milliseconds: 10),
         () => FileWalkResponse.fromMap({
               "success": true,
               "message": "OK",
