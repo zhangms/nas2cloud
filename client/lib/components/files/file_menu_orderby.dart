@@ -49,10 +49,7 @@ class _FileOrderByMenuState extends State<FileOrderByMenu> {
     for (var i = 0; i < FileOrderByMenu._orderByOptions.length; i++) {
       var option = FileOrderByMenu._orderByOptions[i];
       var menu = PopupMenuItem<String>(
-        child: SizedBox(
-          width: 138,
-          child: buildOrderByMenuView(option),
-        ),
+        child: buildOrderByMenuView(option),
         onTap: () => changeOrderBy(option["orderBy"]!),
       );
       ret.add(menu);
@@ -63,17 +60,17 @@ class _FileOrderByMenuState extends State<FileOrderByMenu> {
   buildOrderByMenuView(Map<String, String> option) {
     if (orderByField != option["orderBy"]) {
       return ListTile(
-        title: Text(option["name"]!),
+        title: SizedBox(width: 80, child: Text(option["name"]!)),
       );
     }
     if (orderByDirection == "desc") {
       return ListTile(
-        title: Text(option["name"]!),
+        title: SizedBox(width: 80, child: Text(option["name"]!)),
         trailing: Icon(Icons.arrow_drop_down),
       );
     }
     return ListTile(
-      title: Text(option["name"]!),
+      title: SizedBox(width: 80, child: Text(option["name"]!)),
       trailing: Icon(Icons.arrow_drop_up),
     );
   }
