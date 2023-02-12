@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/files/file_item_context_menu.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
@@ -19,8 +20,6 @@ import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import 'file_data_controller.dart';
 import 'file_event.dart';
-import 'file_item_context_menu.dart';
-import 'file_item_trailing_star.dart';
 import 'file_list_page.dart';
 import 'file_widgets.dart';
 
@@ -108,38 +107,34 @@ class _FileListViewState extends State<FileListView> {
         padding: EdgeInsets.all(8),
       );
     }
-    if (widget.fileHome) {
-      return buildItemViewHome(index, item);
-    } else {
-      return buildItemViewNormal(index, item);
-    }
-  }
-
-  buildItemViewHome(int index, File item) {
     bool favor = item.favor ?? false;
-    String favorName = item.favorName ?? item.name;
+    String name = item.name;
+    if (favor && widget.fileHome) {
+      name = item.favorName ?? item.name;
+    }
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
-      trailing: favor ? FileItemTailingStar(index, item) : null,
+      trailing: favor
+          ? SizedBox(
+              width: 50,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Colors.orange,
+                  ),
+                  Icon(Icons.navigate_next)
+                ],
+              ),
+            )
+          : Icon(Icons.navigate_next),
       title: Text(
-        favor ? favorName : item.name,
+        name,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text("${item.modTime} ${item.size}"),
       onTap: () => tapItem(index, item),
-    );
-  }
-
-  buildItemViewNormal(int index, File item) {
-    return ListTile(
-      leading: FileWidgets.getItemIcon(item),
-      trailing: FileItemContextMenu(index, item, widget.path),
-      title: Text(
-        item.name,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text("${item.modTime} ${item.size}"),
-      onTap: () => tapItem(index, item),
+      onLongPress: () => showContextMenu(index, item),
     );
   }
 
@@ -263,5 +258,14 @@ class _FileListViewState extends State<FileListView> {
     if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
     }
+  }
+
+  showContextMenu(int index, File item) {
+    if (widget.fileHome && !(item.favor ?? false)) {
+      return;
+    }
+    var builder = FileItemContextMenuBuilder(widget.path, index, item);
+    showDialog(
+        context: context, builder: (context) => builder.buildDialog(context));
   }
 }

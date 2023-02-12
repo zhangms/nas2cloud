@@ -10,7 +10,7 @@ import 'dto/login_response/data.dart' as logindto;
 import 'dto/state_response/data.dart' as statedto;
 
 class AppConfig {
-  static const currentAppVersion = "v2.9.7";
+  static const currentAppVersion = "v2.9.8";
 
   static const defaultAppName = "Nas2cloud";
 

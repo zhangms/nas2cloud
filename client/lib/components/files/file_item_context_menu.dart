@@ -9,62 +9,72 @@ import '../../pub/app_nav.dart';
 import '../downloader/downloader.dart';
 import 'file_event.dart';
 
-class FileItemContextMenu extends StatefulWidget {
+class FileItemContextMenuBuilder {
+  final String currentPath;
   final int index;
   final File item;
-  final String currentPath;
 
-  FileItemContextMenu(this.index, this.item, this.currentPath);
+  FileItemContextMenuBuilder(this.currentPath, this.index, this.item);
 
-  @override
-  State<FileItemContextMenu> createState() => _FileItemContextMenuState();
-}
+  buildDialog(BuildContext context) {
+    return SimpleDialog(
+      children: _buildContextMenu(context),
+    );
+  }
 
-class _FileItemContextMenuState extends State<FileItemContextMenu> {
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.more_horiz_rounded,
-      ),
-      itemBuilder: (context) {
-        return [
-          if (widget.item.type != "DIR") buildDownloadMenu(widget.item),
-          if (widget.item.type == "DIR") buildFavoriteMenu(widget.item),
-          PopupMenuItem(
-            child: ListTile(
-              leading: Icon(Icons.delete),
-              title: Text("删除"),
-            ),
-            onTap: () => showItemDeleteConfirm(widget.item),
+  List<Widget> _buildContextMenu(BuildContext context) {
+    List<Widget> ret = [];
+    if (item.type == "DIR") {
+      if (item.favor ?? false) {
+        ret.add(SimpleDialogOption(
+          onPressed: () => _onPressFavor(context),
+          child: ListTile(
+            leading: Icon(Icons.star),
+            title: Text("取消收藏"),
           ),
-        ];
-      },
-    );
-  }
-
-  PopupMenuItem<String> buildDownloadMenu(File item) {
-    return PopupMenuItem(
+        ));
+      } else {
+        ret.add(SimpleDialogOption(
+          onPressed: () => _onPressFavor(context),
+          child: ListTile(
+            leading: Icon(Icons.star, color: Colors.orange),
+            title: Text("收藏"),
+          ),
+        ));
+      }
+    } else {
+      ret.add(SimpleDialogOption(
+        onPressed: () => _onPressDownload(context),
+        child: ListTile(
+          leading: Icon(Icons.download),
+          title: Text("下载"),
+        ),
+      ));
+    }
+    ret.add(SimpleDialogOption(
+      onPressed: () => _onPressDelete(context),
       child: ListTile(
-        leading: Icon(Icons.download),
-        title: Text("下载"),
+        leading: Icon(Icons.delete),
+        title: Text("删除"),
       ),
-      onTap: () => download(widget.item),
-    );
+    ));
+    return ret;
   }
 
-  void download(File item) async {
+  _onPressDownload(BuildContext context) async {
+    AppNav.pop(context);
     if (item.type == "DIR") {
       return;
     }
     var path = await Api().getStaticFileUrl(item.path);
     Downloader.platform.download(path);
-    if (mounted) {
+    if (context.mounted) {
       AppMessage.show(context, "已开始下载, 请从状态栏查看下载进度");
     }
   }
 
-  void showItemDeleteConfirm(File item) {
+  void _onPressDelete(BuildContext context) {
+    AppNav.pop(context);
     Future.delayed(Duration(milliseconds: 20), () {
       showDialog(
           context: context,
@@ -75,13 +85,13 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
               actions: [
                 TextButton(
                     onPressed: (() {
-                      pop();
+                      AppNav.pop(context);
                     }),
                     child: Text("取消")),
                 TextButton(
                     onPressed: (() {
-                      deleteFile(item);
-                      pop();
+                      AppNav.pop(context);
+                      _deleteFile(context);
                     }),
                     child: Text("确定"))
               ],
@@ -90,56 +100,30 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
     });
   }
 
-  Future<void> deleteFile(File item) async {
+  _deleteFile(BuildContext context) async {
     print("delete ${item.path}");
     Result result = await Api().postDeleteFile(item.path);
     if (!result.success) {
-      if (mounted) {
+      if (context.mounted) {
         AppMessage.show(context, result.message!);
       }
       return;
     }
     eventBus.fire(FileEvent(
       type: FileEventType.delete,
-      currentPath: widget.currentPath,
-      source: "${widget.index}",
+      currentPath: currentPath,
+      source: "$index",
       item: item,
     ));
-    if (mounted) {
+    if (context.mounted) {
       AppMessage.show(context, "删除成功");
     }
   }
 
-  void pop() {
-    AppMessage.clear(context);
+  _onPressFavor(BuildContext context) {
     AppNav.pop(context);
-  }
-
-  PopupMenuItem<String> buildFavoriteMenu(File item) {
     if (item.favor ?? false) {
-      return PopupMenuItem(
-        child: ListTile(
-          leading: Icon(Icons.star),
-          title: Text("取消收藏"),
-        ),
-        onTap: () => onTapFavorite(item),
-      );
-    }
-    return PopupMenuItem(
-      child: ListTile(
-        leading: Icon(
-          Icons.star,
-          color: Colors.yellowAccent,
-        ),
-        title: Text("收藏"),
-      ),
-      onTap: () => onTapFavorite(item),
-    );
-  }
-
-  onTapFavorite(File item) {
-    if (item.favor ?? false) {
-      toggleFavor(item.path, item.favorName ?? "");
+      _toggleFavor(item.path, item.favorName ?? "");
       return;
     }
     Future.delayed(const Duration(milliseconds: 100), (() {
@@ -173,20 +157,20 @@ class _FileItemContextMenuState extends State<FileItemContextMenu> {
               var name = input.text;
               input.dispose();
               AppNav.pop(context);
-              toggleFavor(item.path, name);
+              _toggleFavor(item.path, name);
             }),
             child: Text("确定"))
       ],
     );
   }
 
-  Future<void> toggleFavor(String fullPath, String favorName) async {
+  Future<void> _toggleFavor(String fullPath, String favorName) async {
     await Api().postToggleFavor(fullPath, favorName);
     eventBus.fire(FileEvent(
       type: FileEventType.toggleFavor,
-      currentPath: widget.currentPath,
-      source: "${widget.index}",
-      item: widget.item,
+      currentPath: currentPath,
+      source: "$index",
+      item: item,
     ));
   }
 }

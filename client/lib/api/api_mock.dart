@@ -80,13 +80,25 @@ class ApiMock extends Api {
     List<Map<String, dynamic>> files = [];
     for (var i = start; i < end; i++) {
       if (i >= 0 && i < total) {
-        files.add({
-          "name": "file:$i",
-          "type": "DIR",
-          "path": "path:$i",
-          "size": "123MB",
-          "modTime": "2022-02-02 22:22:22"
-        });
+        if (i % 5 == 0) {
+          files.add({
+            "name": "file:$i",
+            "type": "FILE",
+            "path": "path:$i",
+            "size": "123MB",
+            "modTime": "2022-02-02 22:22:22",
+            "favor": i < 3 ? true : false,
+          });
+        } else {
+          files.add({
+            "name": "file:$i",
+            "type": "DIR",
+            "path": "path:$i",
+            "size": "123MB",
+            "modTime": "2022-02-02 22:22:22",
+            "favor": i < 3 ? true : false,
+          });
+        }
       } else if (i >= total) {
         break;
       }
