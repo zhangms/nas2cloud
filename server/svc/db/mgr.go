@@ -27,7 +27,7 @@ type Config struct {
 }
 
 func init() {
-	if !env.IsActionStart() {
+	if !env.IsStarting() {
 		return
 	}
 

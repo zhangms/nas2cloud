@@ -18,7 +18,7 @@ type corsConfig struct {
 var corsConf *corsConfig
 
 func init() {
-	if !env.IsActionStart() {
+	if !env.IsStarting() {
 		return
 	}
 	data, err := res.ReadEnvConfig("cors.json")

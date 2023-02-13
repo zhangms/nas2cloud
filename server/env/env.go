@@ -2,41 +2,39 @@ package env
 
 import (
 	"flag"
-	"fmt"
 	"nas2cloud/libs/logger"
 	"os"
 	"strings"
 )
 
-var profile = "dev"
-var port = 7001
-var action = "start"
-var testing = false
+var (
+	profile = "dev"
+	port    = 7001
+	action  = "start"
+)
 
 func init() {
 	args := os.Args[1:]
-	fmt.Println(args)
 	if len(args) > 0 && strings.Contains(args[0], "-test") {
-		testing = true
+		action = "test"
 		return
 	}
 	flag.StringVar(&profile, "profile", "dev", "")
 	flag.StringVar(&action, "action", "start", "")
 	flag.IntVar(&port, "port", 8080, "")
 	flag.Parse()
-	if !IsActionStart() {
+	if !IsStarting() {
 		return
 	}
-	flag.PrintDefaults()
-	logger.Info("profile active", profile)
+	logger.Info("starting profile active", profile)
 }
 
 func GetProfileActive() string {
 	return profile
 }
 
-func IsActionStart() bool {
-	return action == "start" && !IsTesting()
+func IsStarting() bool {
+	return action == "start"
 }
 
 func GetAction() string {
@@ -45,8 +43,4 @@ func GetAction() string {
 
 func GetPort() int {
 	return port
-}
-
-func IsTesting() bool {
-	return testing
 }

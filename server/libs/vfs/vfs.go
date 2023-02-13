@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"nas2cloud/env"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/res"
@@ -65,6 +66,9 @@ var buckets map[string]*Bucket
 var bucketIds []string
 
 func init() {
+	if !env.IsStarting() {
+		return
+	}
 	type config struct {
 		Id        string `json:"id"`
 		Name      string `json:"name"`
@@ -91,7 +95,7 @@ func init() {
 			hidden:    conf.Hidden,
 		}
 	}
-	logger.Info("VFS initialized", len(buckets))
+	logger.Info("vfs initialized", len(buckets))
 }
 
 func GetBucket(role string, file string) (*Bucket, string, error) {

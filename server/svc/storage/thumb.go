@@ -31,7 +31,7 @@ func Thumbnail() *ThumbnailSvc {
 }
 
 func init() {
-	if !env.IsActionStart() {
+	if !env.IsStarting() {
 		return
 	}
 	thumbSvc = &ThumbnailSvc{

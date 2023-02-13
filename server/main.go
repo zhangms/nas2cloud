@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/fs"
-	"log"
 	"nas2cloud/api"
 	"nas2cloud/env"
 	"nas2cloud/libs/logger"
@@ -27,7 +27,7 @@ func main() {
 	case "stop":
 		stop()
 	default:
-		log.Println("do nothing", action)
+		flag.PrintDefaults()
 	}
 }
 
