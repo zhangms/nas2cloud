@@ -6,8 +6,9 @@ import '../components/setting/setting_page.dart';
 import '../components/uploader/pages/page_auto_upload.dart';
 import '../event/bus.dart';
 import '../event/event_logout.dart';
-import '../themes/app_nav.dart';
-import '../themes/widgets.dart';
+import '../pub/app_message.dart';
+import '../pub/app_nav.dart';
+import '../pub/widgets.dart';
 
 class HomeDrawer extends StatefulWidget {
   HomeDrawer();
@@ -117,7 +118,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
       trailing: Icon(Icons.navigate_next),
       onTap: () {
         AppNav.pop(context);
-        AppWidgets.showMessage(context, "尚未支持");
+        AppMessage.show(context, "尚未支持");
       },
     );
   }

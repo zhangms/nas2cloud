@@ -73,7 +73,7 @@ class ApiReal extends Api {
 
   @override
   Future<String> getApiUrl(String path) async {
-    if (!await AppConfig.isServerAddressConfiged()) {
+    if (!await AppConfig.isServerAddressConfig()) {
       return path;
     }
     String address = await AppConfig.getServerAddress();
@@ -82,7 +82,7 @@ class ApiReal extends Api {
 
   @override
   Future<String> getStaticFileUrl(String path) async {
-    if (!await AppConfig.isServerAddressConfiged()) {
+    if (!await AppConfig.isServerAddressConfig()) {
       return path;
     }
     var state = await AppConfig.getServerStatus();
@@ -102,10 +102,10 @@ class ApiReal extends Api {
 
   @override
   Future<StateResponse> tryGetServerStatus() async {
-    if (!await AppConfig.isServerAddressConfiged()) {
+    if (!await AppConfig.isServerAddressConfig()) {
       return StateResponse.fromMap({
-        "success": true,
-        "message": "HOST_NOT_CONFIGED",
+        "success": false,
+        "message": "SERVER_ADDRESS_NOT_CONFIG",
       });
     }
     var state = await getServerStatus(await AppConfig.getServerAddress());
@@ -148,11 +148,11 @@ class ApiReal extends Api {
   }
 
   @override
-  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust) async {
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest request) async {
     try {
       var url = Uri.http(await AppConfig.getServerAddress(), "/api/store/walk");
       Response resp = await http.post(url,
-          headers: await httpHeaders(), body: reqeust.toJson());
+          headers: await httpHeaders(), body: request.toJson());
       return FileWalkResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);
@@ -272,6 +272,24 @@ class ApiReal extends Api {
           headers: await httpHeaders(),
           body: jsonEncode({
             "log": "$platform|$appVersion|$userName|$log",
+          }));
+      return Result.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return Result.fromMap(_exception);
+    }
+  }
+
+  @override
+  Future<Result> postToggleFavor(String fullPath, String name) async {
+    try {
+      var url = Uri.http(
+          await AppConfig.getServerAddress(), "/api/store/toggleFavorite");
+      Response resp = await http.post(url,
+          headers: await httpHeaders(),
+          body: jsonEncode({
+            "name": name,
+            "path": fullPath,
           }));
       return Result.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {

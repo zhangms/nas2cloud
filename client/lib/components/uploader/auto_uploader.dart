@@ -11,7 +11,7 @@ import '../../utils/file_helper.dart';
 import '../../utils/spu.dart';
 import '../background/background.dart';
 import 'auto_upload_config.dart';
-import 'file_uploder.dart';
+import 'file_uploader.dart';
 import 'upload_entry.dart';
 import 'upload_repo.dart';
 

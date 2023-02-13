@@ -111,3 +111,33 @@ func ZRem(key string, members ...any) (int64, error) {
 	logger.PrintIfError(err, key)
 	return result, err
 }
+
+func HSet(key string, field string, value string) (int64, error) {
+	result, err := DefaultClient().HSet(context.Background(), key, field, value).Result()
+	logger.PrintIfError(err, key)
+	return result, err
+}
+
+func HSetNX(key string, field string, value string) (bool, error) {
+	result, err := DefaultClient().HSetNX(context.Background(), key, field, value).Result()
+	logger.PrintIfError(err, key)
+	return result, err
+}
+
+func HDel(key string, field ...string) (int64, error) {
+	result, err := DefaultClient().HDel(context.Background(), key, field...).Result()
+	logger.PrintIfError(err, key)
+	return result, err
+}
+
+func HGetAll(key string) (map[string]string, error) {
+	result, err := DefaultClient().HGetAll(context.Background(), key).Result()
+	logger.PrintIfError(err, key)
+	return result, err
+}
+
+func HExists(key string, field string) (bool, error) {
+	result, err := DefaultClient().HExists(context.Background(), key, field).Result()
+	logger.PrintIfError(err, key)
+	return result, err
+}

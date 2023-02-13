@@ -4,13 +4,13 @@ import '../components/background/background.dart';
 import '../components/downloader/downloader.dart';
 import '../components/notification/notification.dart';
 import '../components/uploader/auto_uploader.dart';
-import '../components/uploader/file_uploder.dart';
+import '../components/uploader/file_uploader.dart';
 import '../utils/spu.dart';
 import 'dto/login_response/data.dart' as logindto;
 import 'dto/state_response/data.dart' as statedto;
 
 class AppConfig {
-  static const currentAppVersion = "v2.9.5";
+  static const currentAppVersion = "v2.9.8";
 
   static const defaultAppName = "Nas2cloud";
 
@@ -59,7 +59,7 @@ class AppConfig {
     return await Spu().getString(_serverAddressKey) ?? "";
   }
 
-  static Future<bool> isServerAddressConfiged() async {
+  static Future<bool> isServerAddressConfig() async {
     return (await Spu().getString(_serverAddressKey)) != null;
   }
 

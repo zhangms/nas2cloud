@@ -45,7 +45,7 @@ abstract class Api {
   Future<LoginResponse> postLogin(
       {required String username, required String password});
 
-  Future<FileWalkResponse> postFileWalk(FileWalkRequest reqeust);
+  Future<FileWalkResponse> postFileWalk(FileWalkRequest request);
 
   Future<Result> postCreateFolder(String path, String folderName);
 
@@ -56,6 +56,8 @@ abstract class Api {
   Future<Result> getCheckUpdates();
 
   Future<Result> postTraceLog(String log);
+
+  Future<Result> postToggleFavor(String fullPath, String name);
 
   Future<Result> uploadStream({
     required String dest,
@@ -72,5 +74,6 @@ class RangeData {
   String contentType;
   int contentLength;
   Uint8List? content;
+
   RangeData(this.contentType, this.contentLength, this.content);
 }

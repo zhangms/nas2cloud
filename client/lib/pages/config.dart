@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
-import '../themes/app_nav.dart';
+import '../pub/app_nav.dart';
 import '../utils/adaptive.dart';
 
 class ConfigPage extends StatefulWidget {

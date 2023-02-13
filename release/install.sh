@@ -68,3 +68,5 @@ docker run `
 # rsync -av /mnt/e/Mount /mnt/f
 
 # sudo rsync -av --size-only /mnt/e/Mount /mnt/f
+
+# D:\NAS\release\bin\nas2cloud_win.exe

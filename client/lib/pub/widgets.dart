@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api/app_config.dart';
+import 'app_message.dart';
 import 'app_nav.dart';
 
 class AppWidgets {
@@ -24,7 +25,7 @@ class AppWidgets {
         Icons.arrow_back,
       ),
       onPressed: () {
-        AppWidgets.clearMessage(context);
+        AppMessage.clear(context);
         AppNav.pop(context);
       },
     );
@@ -60,17 +61,6 @@ class AppWidgets {
               ? snapshot.data!
               : (useDefault ?? false ? AppConfig.defaultAppName : ""));
         });
-  }
-
-  static void clearMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-  }
-
-  static void showMessage(BuildContext context, String message) {
-    clearMessage(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-    ));
   }
 }
 

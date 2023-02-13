@@ -3,36 +3,38 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/files/file_item_context_menu.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
 import '../../event/bus.dart';
-import '../../themes/app_nav.dart';
-import '../../themes/widgets.dart';
+import '../../pub/app_message.dart';
+import '../../pub/app_nav.dart';
+import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
 import '../gallery/gallery.dart';
 import '../gallery/pdf_viewer.dart';
-import '../uploader/event_fileupload.dart';
+import '../uploader/event_file_upload.dart';
 import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import 'file_data_controller.dart';
 import 'file_event.dart';
 import 'file_list_page.dart';
-import 'file_menu_item_context.dart';
 import 'file_widgets.dart';
 
 class FileListView extends StatefulWidget {
   final String path;
   final int pageSize;
   final String orderByInitValue;
-  final bool showFileAction;
+  final bool fileHome;
 
-  FileListView(
-      {required this.path,
-      required this.pageSize,
-      required this.orderByInitValue,
-      required this.showFileAction});
+  FileListView({
+    required this.path,
+    required this.pageSize,
+    required this.orderByInitValue,
+    required this.fileHome,
+  });
 
   @override
   State<FileListView> createState() => _FileListViewState();
@@ -105,17 +107,34 @@ class _FileListViewState extends State<FileListView> {
         padding: EdgeInsets.all(8),
       );
     }
+    bool favor = item.favor ?? false;
+    String name = item.name;
+    if (favor && widget.fileHome) {
+      name = item.favorName ?? item.name;
+    }
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
-      trailing: widget.showFileAction
-          ? FileItemContextMenu(index, item, widget.path)
-          : null,
+      trailing: favor
+          ? SizedBox(
+              width: 50,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Colors.orange,
+                  ),
+                  Icon(Icons.navigate_next)
+                ],
+              ),
+            )
+          : Icon(Icons.navigate_next),
       title: Text(
-        item.name,
+        name,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text("${item.modTime} ${item.size}"),
       onTap: () => tapItem(index, item),
+      onLongPress: () => showContextMenu(index, item),
     );
   }
 
@@ -129,6 +148,11 @@ class _FileListViewState extends State<FileListView> {
   }
 
   void processFileEvent(FileEvent event) {
+    if (widget.fileHome && event.type == FileEventType.toggleFavor) {
+      var index = int.parse(event.source!);
+      fileDataController.loadIndexPage(index);
+      return;
+    }
     if (event.currentPath != widget.path) {
       return;
     }
@@ -136,7 +160,7 @@ class _FileListViewState extends State<FileListView> {
       case FileEventType.loaded:
         setState(() {});
         break;
-      case FileEventType.createFloder:
+      case FileEventType.createFolder:
         initLoad("creTime_desc");
         break;
       case FileEventType.orderBy:
@@ -145,6 +169,11 @@ class _FileListViewState extends State<FileListView> {
       case FileEventType.delete:
         var index = int.parse(event.source!);
         fileDataController.loadIndexPage(index);
+        break;
+      case FileEventType.toggleFavor:
+        var index = int.parse(event.source!);
+        fileDataController.toggleFavor(index);
+        setState(() {});
         break;
     }
   }
@@ -159,7 +188,7 @@ class _FileListViewState extends State<FileListView> {
     } else if (FileHelper.isMusic(item.ext)) {
       playMusic(index, item);
     } else if (mounted) {
-      AppWidgets.showMessage(context, "不支持查看该类型的文件");
+      AppMessage.show(context, "不支持查看该类型的文件");
     }
   }
 
@@ -229,5 +258,14 @@ class _FileListViewState extends State<FileListView> {
     if (mounted) {
       AppNav.openPage(context, PDFViewer(url, headers));
     }
+  }
+
+  showContextMenu(int index, File item) {
+    if (widget.fileHome && !(item.favor ?? false)) {
+      return;
+    }
+    var builder = FileItemContextMenuBuilder(widget.path, index, item);
+    showDialog(
+        context: context, builder: (context) => builder.buildDialog(context));
   }
 }

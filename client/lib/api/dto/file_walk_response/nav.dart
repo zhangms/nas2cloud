@@ -30,4 +30,14 @@ class Nav {
   ///
   /// Converts [Nav] to a JSON string.
   String toJson() => json.encode(toMap());
+
+  Nav copyWith({
+    String? path,
+    String? name,
+  }) {
+    return Nav(
+      path: path ?? this.path,
+      name: name ?? this.name,
+    );
+  }
 }

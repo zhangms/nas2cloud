@@ -1,17 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/files/file_home.dart';
+import 'package:skeletons/skeletons.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
 import '../api/dto/state_response/state_response.dart';
-import '../components/files/file_list_view.dart';
-import '../components/uploader/file_uploder.dart';
+import '../components/uploader/file_uploader.dart';
 import '../event/bus.dart';
 import '../event/event_logout.dart';
 import '../pages/home_drawer.dart';
-import '../themes/app_nav.dart';
-import '../themes/widgets.dart';
+import '../pub/app_nav.dart';
+import '../pub/widgets.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -67,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         future: Api().tryGetServerStatus(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return AppWidgets.pageLoadingView();
+            return SkeletonListView();
           }
           var status = snapshot.data!;
           if (!status.success) {
@@ -76,12 +77,7 @@ class _HomePageState extends State<HomePage> {
           if (status.data?.userName?.isEmpty ?? true) {
             return buildLoginRequired();
           }
-          return FileListView(
-            path: "/",
-            pageSize: 50,
-            showFileAction: false,
-            orderByInitValue: "fileName",
-          );
+          return FileHome();
         });
   }
 

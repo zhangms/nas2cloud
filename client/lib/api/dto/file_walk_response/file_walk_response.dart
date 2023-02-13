@@ -41,4 +41,16 @@ class FileWalkResponse {
   ///
   /// Converts [FileWalkResponse] to a JSON string.
   String toJson() => json.encode(toMap());
+
+  FileWalkResponse copyWith({
+    bool? success,
+    String? message,
+    Data? data,
+  }) {
+    return FileWalkResponse(
+      success: success ?? this.success,
+      message: message ?? this.message,
+      data: data ?? this.data,
+    );
+  }
 }

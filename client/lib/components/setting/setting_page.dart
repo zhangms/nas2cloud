@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../themes/widgets.dart';
+import '../../pub/widgets.dart';
 import 'check_update.dart';
 import 'setting_theme.dart';
 

@@ -7,9 +7,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../api/api.dart';
 import '../../../event/bus.dart';
-import '../event_fileupload.dart';
-import '../../../themes/app_nav.dart';
-import '../../../themes/widgets.dart';
+import '../event_file_upload.dart';
+import '../../../pub/app_nav.dart';
+import '../../../pub/widgets.dart';
 import '../auto_upload_config.dart';
 import '../auto_uploader.dart';
 import '../upload_repo.dart';

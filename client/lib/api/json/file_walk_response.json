@@ -1,28 +1,30 @@
 {
-    "r@success": true,
-    "message": "OK",
-    "data": {
-        "r@currentStart": 10,
-        "r@currentStop": 10,
-        "r@currentPage": 2,
-        "r@currentPath": "/A/B",
-        "r@total": 200,
-        "nav": [
-            {
-                "r@path": "xx",
-                "r@name": "xx"
-            }
-        ],
-        "files": [
-            {
-                "r@name": "a.jpg",
-                "r@path": "/A/B/a.jpg",
-                "r@type": "DIR",
-                "thumbnail": "thumbnail",
-                "size": "128GB",
-                "modTime": "2023-12-22",
-                "ext": ".jpg"
-            }
-        ]
-    }
+  "r@success": true,
+  "message": "OK",
+  "data": {
+    "r@currentStart": 10,
+    "r@currentStop": 10,
+    "r@currentPage": 2,
+    "r@currentPath": "/A/B",
+    "r@total": 200,
+    "nav": [
+      {
+        "r@path": "xx",
+        "r@name": "xx"
+      }
+    ],
+    "files": [
+      {
+        "r@name": "a.jpg",
+        "r@path": "/A/B/a.jpg",
+        "r@type": "DIR",
+        "thumbnail": "thumbnail",
+        "size": "128GB",
+        "modTime": "2023-12-22",
+        "ext": ".jpg",
+        "favor": true,
+        "favorName": "hello world"
+      }
+    ]
+  }
 }

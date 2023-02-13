@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 
 import '../../api/api.dart';
 import '../notification/notification.dart';
-import 'file_uploder.dart';
+import 'file_uploader.dart';
 import 'upload_entry.dart';
 import 'upload_repo.dart';
 import 'upload_status.dart';

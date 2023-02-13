@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import '../../api/api.dart';
 import '../../api/dto/result.dart';
 import '../../event/bus.dart';
-import '../../themes/app_nav.dart';
-import '../../themes/widgets.dart';
-import '../uploader/file_uploder.dart';
+import '../../pub/app_message.dart';
+import '../../pub/app_nav.dart';
+import '../uploader/file_uploader.dart';
 import '../uploader/pages/page_file_upload_task.dart';
 import 'file_event.dart';
 
@@ -23,7 +23,7 @@ class FileAddMenu extends StatefulWidget {
 class _FileAddMenuState extends State<FileAddMenu> {
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<Text>(
+    return PopupMenuButton<String>(
       icon: Icon(
         Icons.add,
       ),
@@ -108,12 +108,12 @@ class _FileAddMenuState extends State<FileAddMenu> {
   }
 
   void openNewPage(Widget page) {
-    AppWidgets.clearMessage(context);
+    AppMessage.clear(context);
     AppNav.openPage(context, page);
   }
 
   void pop() {
-    AppWidgets.clearMessage(context);
+    AppMessage.clear(context);
     AppNav.pop(context);
   }
 
@@ -130,12 +130,15 @@ class _FileAddMenuState extends State<FileAddMenu> {
       actions: [
         TextButton(
             onPressed: (() {
+              input.dispose();
               pop();
             }),
             child: Text("取消")),
         TextButton(
             onPressed: (() {
-              createFolder(input.text);
+              var name = input.text;
+              input.dispose();
+              createFolder(name);
               pop();
             }),
             child: Text("确定"))
@@ -143,22 +146,22 @@ class _FileAddMenuState extends State<FileAddMenu> {
     );
   }
 
-  Future<void> createFolder(String floderName) async {
-    if (floderName.trim().isEmpty) {
+  Future<void> createFolder(String folderName) async {
+    if (folderName.trim().isEmpty) {
       return;
     }
     Result result =
-        await Api().postCreateFolder(widget.currentPath, floderName);
+        await Api().postCreateFolder(widget.currentPath, folderName);
     if (!result.success) {
       if (mounted) {
-        AppWidgets.showMessage(context, result.message!);
+        AppMessage.show(context, result.message!);
       }
       return;
     }
     eventBus.fire(FileEvent(
-      type: FileEventType.createFloder,
+      type: FileEventType.createFolder,
       currentPath: widget.currentPath,
-      source: floderName,
+      source: folderName,
     ));
   }
 }

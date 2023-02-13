@@ -1,5 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/pub/image_loader.dart';
 
 import '../../api/api.dart';
 import '../../api/dto/file_walk_response/file.dart';
@@ -80,6 +80,6 @@ class FileWidgets {
   static Future<Widget> _buildImage(String thumbnail) async {
     var url = await Api().getStaticFileUrl(thumbnail);
     var headers = await Api().httpHeaders();
-    return Image(image: CachedNetworkImageProvider(url, headers: headers));
+    return ImageLoader.cacheNetworkImage(url, headers);
   }
 }

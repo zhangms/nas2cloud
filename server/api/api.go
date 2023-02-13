@@ -49,6 +49,10 @@ func registerStatic(app *fiber.App) {
 		if b.MountTypeLocal() {
 			if b.Authorize() == "PUBLIC" {
 				logger.Info("register static public", b.Dir(), b.Endpoint())
+				app.All(b.Dir()+"/*.apk", func(ctx *fiber.Ctx) error {
+					ctx.Set(fiber.HeaderContentType, "application/vnd.android.package-archive")
+					return ctx.Next()
+				})
 				app.Static(b.Dir(), b.Endpoint(), fiber.Static{
 					ByteRange: true,
 				})
@@ -89,11 +93,13 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/traceLog", handle(stateController.TraceLog))
 	app.Post("/api/user/login", handle(loginController.Login))
 	app.Post("/api/store/walk", handleLoginRequired(fileController.Walk))
+	app.Post("/api/store/toggleFavorite", handleLoginRequired(fileController.ToggleFavorite))
 	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))
 	app.Post("/api/store/deleteFiles", handleLoginRequired(fileController.DeleteFiles))
 	app.Get("/api/store/fileExists/*", handleLoginRequired(fileController.Exists))
 	app.Post("/api/store/fileListExists", handleLoginRequired(fileController.ListExists))
 	app.Post("/api/store/upload/*", handleLoginRequired(fileController.Upload))
+
 }
 
 func handleLoginRequired(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {

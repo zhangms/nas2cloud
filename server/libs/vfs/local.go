@@ -145,7 +145,7 @@ func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
 		Hidden:  strings.Index(fi.Name(), ".") == 0,
 		ModTime: modTime,
 		CreTime: modTime,
-		Size:    fi.Size(),
+		Size:    libs.If(fi.IsDir(), int64(-1), fi.Size()).(int64),
 		Ext:     strings.ToUpper(filepath.Ext(fi.Name())),
 	}, nil
 }

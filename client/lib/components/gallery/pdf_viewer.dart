@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
-import '../../themes/widgets.dart';
+import '../../pub/widgets.dart';
 
 class PDFViewer extends StatelessWidget {
   final String url;

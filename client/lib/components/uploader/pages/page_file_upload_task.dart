@@ -5,11 +5,11 @@ import 'package:path/path.dart' as p;
 
 import '../../../api/dto/page_data.dart';
 import '../../../event/bus.dart';
-import '../event_fileupload.dart';
-import '../../../themes/app_nav.dart';
-import '../../../themes/widgets.dart';
+import '../event_file_upload.dart';
+import '../../../pub/app_nav.dart';
+import '../../../pub/widgets.dart';
 import '../../../utils/data_size.dart';
-import '../file_uploder.dart';
+import '../file_uploader.dart';
 import '../upload_entry.dart';
 import '../upload_repo.dart';
 import '../upload_status.dart';
