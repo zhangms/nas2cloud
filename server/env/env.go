@@ -13,7 +13,10 @@ var (
 	action  = "start"
 )
 
+var gitCommit, gitDate string
+
 func init() {
+	logger.Info("gitCommit", gitCommit, "gitDate", gitDate)
 	args := os.Args[1:]
 	if len(args) > 0 && strings.Contains(args[0], "-test") {
 		action = "test"
@@ -27,6 +30,10 @@ func init() {
 		return
 	}
 	logger.Info("starting profile active", profile)
+}
+
+func PrintDefaults() {
+	flag.PrintDefaults()
 }
 
 func GetProfileActive() string {

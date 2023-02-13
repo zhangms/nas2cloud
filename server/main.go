@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io/fs"
 	"nas2cloud/api"
@@ -27,7 +26,7 @@ func main() {
 	case "stop":
 		stop()
 	default:
-		flag.PrintDefaults()
+		env.PrintDefaults()
 	}
 }
 
