@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/urfave/cli/v2"
+	"os"
+	"path/filepath"
 )
 
 var gitCommit, gitDate string
@@ -18,6 +20,5 @@ func NewApp() *cli.App {
 }
 
 func pidFile() string {
-	//return filepath.Join(filepath.Dir(os.Args[0]), "nas2cloud.pid")
-	return "nas2cloud.pid"
+	return filepath.Join(filepath.Dir(os.Args[0]), "nas2cloud.pid")
 }

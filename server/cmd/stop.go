@@ -5,6 +5,7 @@ import (
 	"nas2cloud/libs/logger"
 	"os"
 	"os/exec"
+	"runtime"
 )
 
 var stopCommand = &cli.Command{
@@ -20,7 +21,12 @@ func stop(context *cli.Context) error {
 		return nil
 	}
 	pid := string(data)
-	cmd := exec.Command("kill", pid)
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("tskill", pid)
+	} else {
+		cmd = exec.Command("kill", pid)
+	}
 	_, err = cmd.Output()
 	if err != nil {
 		logger.Error("stop error", err)
