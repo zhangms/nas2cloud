@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"strings"
 )
@@ -19,12 +20,16 @@ type Config struct {
 func DoInit(env string) {
 	data, _ := res.ReadByEnv(env, "redis.json")
 	conf := &Config{}
-	_ = json.Unmarshal(data, conf)
+	err := json.Unmarshal(data, conf)
+	if err != nil {
+		panic(err)
+	}
 	defaultClient = redis.NewClient(&redis.Options{
 		Addr:     conf.Addr,
 		Password: conf.Password,
 		DB:       conf.DB,
 	})
+	logger.Info("redis config loaded...")
 }
 
 func DefaultClient() *redis.Client {

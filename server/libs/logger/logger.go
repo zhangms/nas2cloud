@@ -34,6 +34,10 @@ func Error(v ...any) {
 	printError(skipCaller, v...)
 }
 
+func Fatal(v ...any) {
+	inner.Fatal(v...)
+}
+
 func PrintIfError(err error, v ...any) {
 	if err != nil {
 		args := make([]any, 0, len(v)+1)

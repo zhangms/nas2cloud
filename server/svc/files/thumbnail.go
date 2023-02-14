@@ -1,4 +1,4 @@
-package fs
+package files
 
 import (
 	"crypto/md5"
@@ -45,7 +45,8 @@ func startThumbnails() {
 	}
 	processor := res.GetInt("processor.count.filethumb", 1)
 	for i := 0; i < processor; i++ {
-		go thumbSvc.process(i)
+		logger.Info("thumbnail process started", i)
+		go thumbSvc.process()
 	}
 }
 
@@ -89,8 +90,7 @@ func (t *ThumbnailSvc) dest(file string) string {
 	return filepath.Join(t.dir, hex.EncodeToString(data[0:])+".jpg")
 }
 
-func (t *ThumbnailSvc) process(index int) {
-	logger.Info("start thumbnail process", index)
+func (t *ThumbnailSvc) process() {
 	for {
 		file := <-t.queue
 		dest := t.dest(file)

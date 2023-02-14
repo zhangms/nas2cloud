@@ -1,4 +1,4 @@
-package fs
+package files
 
 import (
 	"nas2cloud/libs/vfs"

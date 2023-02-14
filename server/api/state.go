@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"nas2cloud/conf"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/res"
 	"nas2cloud/svc/sign"
 	"net/http"
 	"strings"
@@ -26,8 +26,8 @@ func (*StateController) State(c *fiber.Ctx) error {
 		PublicKey     string `json:"publicKey,omitempty"`
 	}
 	resp := &Response{
-		AppName:       conf.GetString("app.name"),
-		StaticAddress: conf.GetString("static.domain"),
+		AppName:       res.GetString("app.name"),
+		StaticAddress: res.GetString("static.domain"),
 	}
 	key, err := sign.Instance().GetPublicKey("sys")
 	if err != nil {

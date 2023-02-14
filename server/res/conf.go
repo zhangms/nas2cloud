@@ -11,14 +11,13 @@ var configMap = make(map[string]string)
 func DoInit(env string) {
 	data, err := ReadByEnv(env, "conf.json")
 	if err != nil {
-		logger.Error("conf.json read error", err)
-		return
+		panic(err)
 	}
 	err = json.Unmarshal(data, &configMap)
 	if err != nil {
-		logger.Error("conf.json Unmarshal error", err)
-		return
+		panic(err)
 	}
+	logger.Info("res config loaded...")
 }
 
 func GetInt(key string, defaultValue int) int {

@@ -1,4 +1,4 @@
-package fs
+package files
 
 import (
 	"errors"
@@ -37,7 +37,8 @@ func startWatcher() {
 	}
 	processor := res.GetInt("processor.count.filewatch", 1)
 	for i := 0; i < processor; i++ {
-		go fileWatcher.process(i)
+		logger.Info("file watch processor started", i)
+		go fileWatcher.process()
 	}
 }
 
@@ -47,8 +48,7 @@ func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
 	}
 }
 
-func (fw *fileWatchSvc) process(index int) {
-	logger.Info("start file watch processor", index)
+func (fw *fileWatchSvc) process() {
 	duPaths := make([]string, 0)
 	duExecuting := &atomic.Bool{}
 	duExecuting.Store(false)
