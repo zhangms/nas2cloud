@@ -49,7 +49,7 @@ func (*StateController) CheckUpdates(c *fiber.Ctx) error {
 		return SendMsg(c, "no_updates")
 	}
 	mp := make(map[string]string)
-	json.Unmarshal(data, &mp)
+	_ = json.Unmarshal(data, &mp)
 	device := strings.Split(c.Get(keyDevice), ",")
 	release, ok := mp[device[0]]
 	if !ok {
