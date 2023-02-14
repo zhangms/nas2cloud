@@ -79,7 +79,7 @@ class AutoUploader {
         .toList();
   }
 
-  static Future<bool> getAutouploadWlanSetting() async {
+  static Future<bool> getAutoUploadWlan() async {
     var key = await _wrapConfigKey(_wlanConfigKey);
     if (key == null) {
       return true;
@@ -87,7 +87,7 @@ class AutoUploader {
     return (await Spu().getBool(_wlanConfigKey)) ?? true;
   }
 
-  static Future<bool> setAutouploadWlanSetting(bool wlan) async {
+  static Future<bool> setAutoUploadWlan(bool wlan) async {
     var key = await _wrapConfigKey(_wlanConfigKey);
     if (key == null) {
       return false;
@@ -95,33 +95,49 @@ class AutoUploader {
     return (await Spu().setBool(key, wlan));
   }
 
-  Future<int> executeAutoupload() async {
-    if (kIsWeb) {
-      return -1;
-    }
-    var autouploadWlan = await getAutouploadWlanSetting();
-    if (autouploadWlan) {
-      var connectivityResult = await Connectivity().checkConnectivity();
-      if (connectivityResult != ConnectivityResult.wifi) {
-        print("auto upload skip because not wifi");
-        return -1;
-      }
-    }
-    if (!await Permission.manageExternalStorage.isGranted) {
-      print("auto upload skip because manageExternalStorage is not granted");
+  Future<int> executeAutoUpload() async {
+    if (!(await _checkAutoUploadAble())) {
       return -1;
     }
     List<AutoUploadConfig> configs = await getConfigList();
     var enqueuedCount = 0;
     for (var config in configs) {
       if (config.autoupload) {
-        enqueuedCount += (await _executeAutoupload(config));
+        enqueuedCount += (await _executeAutoUpload(config));
       }
     }
     return enqueuedCount;
   }
 
-  Future<int> _executeAutoupload(AutoUploadConfig config) async {
+  Future<bool> _checkAutoUploadAble() async {
+    if (kIsWeb) {
+      return false;
+    }
+    var autoUploadWlan = await getAutoUploadWlan();
+    if (autoUploadWlan) {
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult != ConnectivityResult.wifi) {
+        print("auto upload skip: not wifi");
+        return false;
+      }
+    }
+    if (!await Permission.manageExternalStorage.isGranted) {
+      print("auto upload skip: manageExternalStorage is not granted");
+      return false;
+    }
+    var status = await Api().tryGetServerStatus();
+    if (!status.success) {
+      print("auto upload skip: server status error ${status.toJson()}");
+      return false;
+    }
+    if ((status.data?.userName ?? "").isEmpty) {
+      print("auto upload skip: user not login ${status.toJson()}");
+      return false;
+    }
+    return true;
+  }
+
+  Future<int> _executeAutoUpload(AutoUploadConfig config) async {
     DateTime start = DateTime.now();
     List<UploadEntry> waiting = await _getWillUploadEntries(config);
     var escape = DateTime.now().difference(start).inMilliseconds;

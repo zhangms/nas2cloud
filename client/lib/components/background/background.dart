@@ -13,7 +13,7 @@ void backgroundCallbackDispatcher() {
       print("Native called background task: $task");
       switch (task) {
         case autoUploadTaskName:
-          var enqueuedCount = await AutoUploader().executeAutoupload();
+          var enqueuedCount = await AutoUploader().executeAutoUpload();
           return enqueuedCount >= 0;
         default:
           return true;

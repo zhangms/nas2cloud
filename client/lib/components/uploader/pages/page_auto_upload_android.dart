@@ -116,7 +116,7 @@ class _AndroidAutoUploadConfigWidgetState
     return ListTile(
       title: Text("仅WLAN下自动上传"),
       trailing: FutureBuilder<bool>(
-          future: AutoUploader.getAutouploadWlanSetting(),
+          future: AutoUploader.getAutoUploadWlan(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Text("");
@@ -124,7 +124,7 @@ class _AndroidAutoUploadConfigWidgetState
             return Switch(
                 value: snapshot.data!,
                 onChanged: (value) {
-                  AutoUploader.setAutouploadWlanSetting(value);
+                  AutoUploader.setAutoUploadWlan(value);
                   setState(() {});
                 });
           }),
