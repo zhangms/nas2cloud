@@ -1,33 +1,10 @@
 package user
 
 import (
-	"encoding/json"
 	"errors"
-	"nas2cloud/libs/logger"
-	"nas2cloud/res"
 	"nas2cloud/svc/cache"
 	"strings"
 )
-
-var users = make(map[string]*User)
-
-func init() {
-	data, err := res.ReadEnvConfig("users.json")
-	if err != nil {
-		logger.ErrorStacktrace(err, "read User conf error")
-		return
-	}
-
-	list := make([]*User, 0)
-	err = json.Unmarshal(data, &list)
-	if err != nil {
-		logger.ErrorStacktrace(err, "unmarshal User.json error")
-		return
-	}
-	for _, u := range list {
-		users[u.Name] = u
-	}
-}
 
 func findUser(name string, password string) *User {
 	usr := users[name]

@@ -16,8 +16,8 @@ type Config struct {
 	DB       int
 }
 
-func init() {
-	data, _ := res.ReadEnvConfig("redis.json")
+func DoInit(env string) {
+	data, _ := res.ReadByEnv(env, "redis.json")
 	conf := &Config{}
 	_ = json.Unmarshal(data, conf)
 	defaultClient = redis.NewClient(&redis.Options{

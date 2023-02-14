@@ -1,16 +1,15 @@
-package conf
+package res
 
 import (
 	"encoding/json"
 	"nas2cloud/libs/logger"
-	"nas2cloud/res"
 	"strconv"
 )
 
 var configMap = make(map[string]string)
 
-func init() {
-	data, err := res.ReadEnvConfig("conf.json")
+func DoInit(env string) {
+	data, err := ReadByEnv(env, "conf.json")
 	if err != nil {
 		logger.Error("conf.json read error", err)
 		return

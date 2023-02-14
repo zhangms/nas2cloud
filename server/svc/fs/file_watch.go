@@ -1,12 +1,11 @@
-package storage
+package fs
 
 import (
 	"errors"
-	"nas2cloud/conf"
-	"nas2cloud/env"
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/res"
 	"sync/atomic"
 	"time"
 )
@@ -32,14 +31,11 @@ type fileEvent struct {
 	path      string
 }
 
-func init() {
-	if !env.IsStarting() {
-		return
-	}
+func startWatcher() {
 	fileWatcher = &fileWatchSvc{
 		fileEventQueue: make(chan *fileEvent, 1024),
 	}
-	processor := conf.GetInt("processor.count.filewatch", 1)
+	processor := res.GetInt("processor.count.filewatch", 1)
 	for i := 0; i < processor; i++ {
 		go fileWatcher.process(i)
 	}

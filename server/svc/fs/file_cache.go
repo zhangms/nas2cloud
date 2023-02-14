@@ -1,4 +1,4 @@
-package storage
+package fs
 
 import (
 	"encoding/json"

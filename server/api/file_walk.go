@@ -9,8 +9,7 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
-	"nas2cloud/svc"
-	"nas2cloud/svc/storage"
+	"nas2cloud/svc/fs"
 	"nas2cloud/svc/user"
 	"net/http"
 
@@ -58,7 +57,7 @@ func (f *FileController) Walk(c *fiber.Ctx) error {
 	if err == nil {
 		return SendOK(c, resp)
 	}
-	if errors.Is(err, svc.RetryLaterAgain) {
+	if errors.Is(err, fs.RetryLaterAgain) {
 		return SendError(c, http.StatusCreated, err.Error())
 	}
 	logger.ErrorStacktrace(err)
@@ -78,11 +77,11 @@ func (f *FileController) walk(u *user.User, request *fileWalkRequest) (*fileWalk
 	pageSize := int(math.Min(100, float64(libs.If(request.PageSize <= 0, 50, request.PageSize).(int))))
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
-	lst, total, err := storage.File().Walk(u.Name, request.Path, request.OrderBy, start, stop)
+	lst, total, err := fs.Service().Walk(u.Name, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}
-	favors, err := storage.File().GetFavorsMap(u.Name)
+	favors, err := fs.Service().GetFavorsMap(u.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +158,7 @@ func (f *FileController) ToggleFavorite(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
 	u, _ := GetContextUser(c)
-	favor, err := storage.File().ToggleFavorite(u.Name, req.Name, req.Path)
+	favor, err := fs.Service().ToggleFavorite(u.Name, req.Name, req.Path)
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		return SendError(c, http.StatusInternalServerError, "ERROR")

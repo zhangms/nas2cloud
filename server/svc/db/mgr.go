@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"nas2cloud/env"
 	"nas2cloud/libs/logger"
 	"nas2cloud/res"
 	"sync"
@@ -26,12 +25,8 @@ type Config struct {
 	Password string
 }
 
-func init() {
-	if !env.IsStarting() {
-		return
-	}
-
-	data, err := res.ReadEnvConfig("db.json")
+func DoInit(env string) {
+	data, err := res.ReadByEnv(env, "db.json")
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		panic(err)

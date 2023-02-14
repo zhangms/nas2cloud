@@ -48,7 +48,7 @@ func parse(tplType string, name string, content string) (tpl, error) {
 }
 
 func template(tplType string, name string, params any) ([]byte, error) {
-	data, err := ReadData("tpl/" + name)
+	data, err := Read("tpl/" + name)
 	if err != nil {
 		return nil, err
 	}

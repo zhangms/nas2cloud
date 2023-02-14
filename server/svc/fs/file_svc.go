@@ -1,4 +1,4 @@
-package storage
+package fs
 
 import (
 	"encoding/json"
@@ -7,23 +7,22 @@ import (
 	"io"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
-	"nas2cloud/svc"
 	"nas2cloud/svc/user"
 	"time"
 )
 
-const sysUser = "root"
-
-type FileSvc struct {
+type Svc struct {
 }
 
-var fileSvc = &FileSvc{}
+var service = &Svc{}
 
-func File() *FileSvc {
-	return fileSvc
+func Service() *Svc {
+	return service
 }
 
-func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
+var RetryLaterAgain = errors.New("RetryLaterAgain")
+
+func (fs *Svc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
 	userRoles := user.GetUserRoles(username)
 	path := vpath.Clean(fullPath)
 	if vpath.IsRootDir(path) {
@@ -43,7 +42,7 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 		return nil, 0, err
 	}
 	if eventFired {
-		return nil, 0, svc.RetryLaterAgain
+		return nil, 0, RetryLaterAgain
 	}
 	arr, total, err := fileCache.zRange(path, orderBy, start, stop)
 	if err != nil {
@@ -54,7 +53,7 @@ func (fs *FileSvc) Walk(username string, fullPath string, orderBy string, start 
 	return ret, total, nil
 }
 
-func (fs *FileSvc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
+func (fs *Svc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
 	favors, err := fs.getFavors(username)
 	if err != nil {
 		return nil, 0, err
@@ -77,7 +76,7 @@ func (fs *FileSvc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int6
 	return ret, int64(len(ret)), nil
 }
 
-func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
+func (fs *Svc) unmarshal(arr []any) []*vfs.ObjectInfo {
 	ret := make([]*vfs.ObjectInfo, 0, len(arr))
 	for _, item := range arr {
 		if item == nil {
@@ -94,7 +93,7 @@ func (fs *FileSvc) unmarshal(arr []any) []*vfs.ObjectInfo {
 	return ret
 }
 
-func (fs *FileSvc) MkdirAll(username, fullPath string) error {
+func (fs *Svc) MkdirAll(username, fullPath string) error {
 	userRoles := user.GetUserRoles(username)
 	path := vpath.Clean(fullPath)
 	exi, err := fileCache.exists(path)
@@ -115,7 +114,7 @@ func (fs *FileSvc) MkdirAll(username, fullPath string) error {
 	return fileCache.save(info)
 }
 
-func (fs *FileSvc) Remove(username string, fullPath []string) error {
+func (fs *Svc) Remove(username string, fullPath []string) error {
 	userRoles := user.GetUserRoles(username)
 	for _, p := range fullPath {
 		path := vpath.Clean(p)
@@ -137,7 +136,7 @@ func (fs *FileSvc) Remove(username string, fullPath []string) error {
 	return nil
 }
 
-func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
+func (fs *Svc) Create(username string, fullPath string, data []byte) error {
 	userRoles := user.GetUserRoles(username)
 	err := vfs.Write(userRoles, fullPath, data)
 	if err != nil {
@@ -161,7 +160,7 @@ func (fs *FileSvc) Create(username string, fullPath string, data []byte) error {
 	return nil
 }
 
-func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) (*vfs.ObjectInfo, error) {
+func (fs *Svc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) (*vfs.ObjectInfo, error) {
 	userRoles := user.GetUserRoles(username)
 	_, err := vfs.Upload(userRoles, fullPath, reader, modTime)
 	if err != nil {
@@ -186,7 +185,7 @@ func (fs *FileSvc) Upload(username string, fullPath string, reader io.Reader, mo
 	return info, err
 }
 
-func (fs *FileSvc) Exists(username string, fullPath string) (bool, error) {
+func (fs *Svc) Exists(username string, fullPath string) (bool, error) {
 	userRoles := user.GetUserRoles(username)
 	_, _, err := vfs.GetStore(userRoles, fullPath)
 	if err != nil {

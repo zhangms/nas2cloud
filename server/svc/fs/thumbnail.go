@@ -1,4 +1,4 @@
-package storage
+package fs
 
 import (
 	"crypto/md5"
@@ -7,12 +7,10 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"nas2cloud/conf"
-	"nas2cloud/env"
 	"nas2cloud/libs/img"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
-	"nas2cloud/svc"
+	"nas2cloud/res"
 	"os"
 	"os/exec"
 	"path"
@@ -26,14 +24,7 @@ import (
 
 var thumbSvc *ThumbnailSvc
 
-func Thumbnail() *ThumbnailSvc {
-	return thumbSvc
-}
-
-func init() {
-	if !env.IsStarting() {
-		return
-	}
+func startThumbnails() {
 	thumbSvc = &ThumbnailSvc{
 		supportType: map[string]thumbnail{
 			".JPGX": &imgThumbnail{},
@@ -44,14 +35,15 @@ func init() {
 			".MBP":  &ffmpegThumbnail{},
 			".MP4":  &ffmpegThumbnail{},
 			".MOV":  &ffmpegThumbnail{},
-			".MP3":  &tagThumbnail{thumbUser: sysUser, defaultThumb: "/assets/icon_music.jpg"},
+			".MP3":  &tagThumbnail{defaultThumbnail: "/assets/icon_music.jpg"},
 		},
-		queue:       make(chan string, 1024),
-		thumbDir:    "/thumb",
-		thumbWidth:  50,
-		thumbHeight: 50,
+		user:   sysUser,
+		queue:  make(chan string, 1024),
+		dir:    "/thumb",
+		width:  50,
+		height: 50,
 	}
-	processor := conf.GetInt("processor.count.filethumb", 1)
+	processor := res.GetInt("processor.count.filethumb", 1)
 	for i := 0; i < processor; i++ {
 		go thumbSvc.process(i)
 	}
@@ -60,18 +52,18 @@ func init() {
 type ThumbnailSvc struct {
 	supportType map[string]thumbnail
 	queue       chan string
-	thumbDir    string
-	thumbUser   string
-	thumbWidth  int
-	thumbHeight int
+	dir         string
+	user        string
+	width       int
+	height      int
 }
 
-func (t *ThumbnailSvc) ThumbUser() string {
-	return t.thumbUser
+func (t *ThumbnailSvc) User() string {
+	return t.user
 }
 
-func (t *ThumbnailSvc) ThumbDir() string {
-	return t.thumbDir
+func (t *ThumbnailSvc) Dir() string {
+	return t.dir
 }
 
 func (t *ThumbnailSvc) Thumbnail(obj *vfs.ObjectInfo) {
@@ -86,23 +78,23 @@ func (t *ThumbnailSvc) BatchThumbnail(infos []*vfs.ObjectInfo) {
 		suffix := strings.ToUpper(path.Ext(inf.Name))
 		_, ok := t.supportType[suffix]
 		if ok {
-			inf.Preview = t.getThumbName(inf.Path)
+			inf.Preview = t.dest(inf.Path)
 			t.queue <- inf.Path
 		}
 	}
 }
 
-func (t *ThumbnailSvc) getThumbName(file string) string {
+func (t *ThumbnailSvc) dest(file string) string {
 	data := md5.Sum([]byte(file))
-	return path.Join(t.thumbDir, hex.EncodeToString(data[0:])+".jpg")
+	return filepath.Join(t.dir, hex.EncodeToString(data[0:])+".jpg")
 }
 
 func (t *ThumbnailSvc) process(index int) {
 	logger.Info("start thumbnail process", index)
 	for {
 		file := <-t.queue
-		thumbName := t.getThumbName(file)
-		if vfs.Exists(t.thumbUser, thumbName) {
+		dest := t.dest(file)
+		if vfs.Exists(t.user, dest) {
 			continue
 		}
 		suffix := strings.ToUpper(path.Ext(file))
@@ -110,25 +102,24 @@ func (t *ThumbnailSvc) process(index int) {
 		if thumb == nil {
 			continue
 		}
-		err := thumb.exec(file, thumbName, t.thumbWidth, t.thumbHeight)
+		err := thumb.exec(t.user, file, dest, t.width, t.height)
 		if err != nil {
-			logger.Error("image thumb error", reflect.TypeOf(thumb), file, thumbName, err)
+			logger.Error("image thumb error", reflect.TypeOf(thumb), file, dest, err)
 		} else {
-			logger.Info("image thumb", file, thumbName)
+			logger.Info("image thumb", file, dest)
 		}
 	}
 }
 
 type thumbnail interface {
-	exec(from string, to string, width int, height int) error
+	exec(user string, from string, to string, width int, height int) error
 }
 
 type imgThumbnail struct {
-	thumbUser string
 }
 
-func (i *imgThumbnail) exec(from string, to string, width int, height int) error {
-	data, err := vfs.Read(i.thumbUser, from)
+func (i *imgThumbnail) exec(user string, from string, to string, width int, height int) error {
+	data, err := vfs.Read(user, from)
 	if err != nil {
 		return err
 	}
@@ -136,7 +127,7 @@ func (i *imgThumbnail) exec(from string, to string, width int, height int) error
 	if err != nil {
 		return err
 	}
-	err = vfs.Write(i.thumbUser, to, t)
+	err = vfs.Write(user, to, t)
 	if err != nil {
 		return err
 	}
@@ -146,17 +137,17 @@ func (i *imgThumbnail) exec(from string, to string, width int, height int) error
 type ffmpegThumbnail struct {
 }
 
-func (f *ffmpegThumbnail) exec(from string, to string, width int, height int) error {
-	err, tryLowPerformance := f.execHighPerformance(from, to, width, height)
+func (f *ffmpegThumbnail) exec(user string, from string, to string, width int, height int) error {
+	err, tryLowPerformance := f.execHighPerformance(user, from, to, width, height)
 	if tryLowPerformance {
 		logger.Info("ffmpegThumbnail execLowPerformance", from, to)
-		return f.execLowPerformance(from, to, width, height)
+		return f.execLowPerformance(user, from, to, width, height)
 	}
 	return err
 }
 
-func (f *ffmpegThumbnail) execHighPerformance(from string, to string, width int, height int) (err error, tryLowPerformance bool) {
-	storeFrom, fromName, err := vfs.GetStore(sysUser, from)
+func (f *ffmpegThumbnail) execHighPerformance(user string, from string, to string, width int, height int) (err error, tryLowPerformance bool) {
+	storeFrom, fromName, err := vfs.GetStore(user, from)
 	if err != nil {
 		return err, false
 	}
@@ -165,7 +156,7 @@ func (f *ffmpegThumbnail) execHighPerformance(from string, to string, width int,
 	default:
 		return errors.New("from not support high performance"), true
 	}
-	storeTo, toName, err := vfs.GetStore(sysUser, to)
+	storeTo, toName, err := vfs.GetStore(user, to)
 	if err != nil {
 		return err, false
 	}
@@ -181,12 +172,12 @@ func (f *ffmpegThumbnail) execHighPerformance(from string, to string, width int,
 		height), false
 }
 
-func (f *ffmpegThumbnail) execLowPerformance(from string, to string, width int, height int) error {
-	data, err := vfs.Read(sysUser, from)
+func (f *ffmpegThumbnail) execLowPerformance(user string, from string, to string, width int, height int) error {
+	data, err := vfs.Read(user, from)
 	if err != nil {
 		return err
 	}
-	dir := svc.GetTempDir()
+	dir := GetTempDir()
 
 	name := uuid.New().String()
 	origin := filepath.Join(dir, name+".origin")
@@ -205,7 +196,7 @@ func (f *ffmpegThumbnail) execLowPerformance(from string, to string, width int, 
 	if err != nil {
 		return err
 	}
-	err = vfs.Write(sysUser, to, thumbData)
+	err = vfs.Write(user, to, thumbData)
 	if err != nil {
 		return err
 	}
@@ -233,18 +224,17 @@ func (f *ffmpegThumbnail) ffmpeg(from string, to string, width int, height int) 
 }
 
 type tagThumbnail struct {
-	thumbUser    string
-	defaultThumb string
+	defaultThumbnail string
 }
 
-func (t *tagThumbnail) exec(from string, to string, width int, height int) error {
-	err := t.execFromTag(from, to)
+func (t *tagThumbnail) exec(user string, from string, to string, width int, height int) error {
+	err := t.execFromTag(user, from, to)
 	if err != nil {
-		data, err := vfs.Read(t.thumbUser, t.defaultThumb)
+		data, err := vfs.Read(user, t.defaultThumbnail)
 		if err != nil {
 			return err
 		}
-		err = vfs.Write(t.thumbUser, to, data)
+		err = vfs.Write(user, to, data)
 		if err != nil {
 			return err
 		}
@@ -252,8 +242,8 @@ func (t *tagThumbnail) exec(from string, to string, width int, height int) error
 	return nil
 }
 
-func (t *tagThumbnail) execFromTag(from string, to string) error {
-	reader, err := vfs.Open(t.thumbUser, from)
+func (t *tagThumbnail) execFromTag(user string, from string, to string) error {
+	reader, err := vfs.Open(user, from)
 	if err != nil {
 		return err
 	}
@@ -270,7 +260,7 @@ func (t *tagThumbnail) execFromTag(from string, to string) error {
 		if pic == nil {
 			return errors.New("no pic")
 		}
-		err = vfs.Write(sysUser, to, pic.Data)
+		err = vfs.Write(user, to, pic.Data)
 		if err != nil {
 			return err
 		}

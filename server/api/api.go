@@ -13,8 +13,9 @@ import (
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-func Register(app *fiber.App) {
+func DoInit(env string, app *fiber.App) {
 	initLogger(app)
+	initCROS(env)
 	registerStatic(app)
 	registerHandler(app)
 }

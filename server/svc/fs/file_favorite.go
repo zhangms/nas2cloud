@@ -1,4 +1,4 @@
-package storage
+package fs
 
 import (
 	"nas2cloud/libs/vfs"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (fs *FileSvc) ToggleFavorite(username, favorName, fullPath string) (bool, error) {
+func (fs *Svc) ToggleFavorite(username, favorName, fullPath string) (bool, error) {
 	key := fs.keyFavor(username)
 	exists, err := cache.HExists(key, fullPath)
 	if err != nil {
@@ -22,16 +22,16 @@ func (fs *FileSvc) ToggleFavorite(username, favorName, fullPath string) (bool, e
 	}
 }
 
-func (fs *FileSvc) keyFavor(username string) string {
+func (fs *Svc) keyFavor(username string) string {
 	return cache.Join(username, "favorite_files")
 }
 
-func (fs *FileSvc) GetFavorsMap(username string) (map[string]string, error) {
+func (fs *Svc) GetFavorsMap(username string) (map[string]string, error) {
 	key := fs.keyFavor(username)
 	return cache.HGetAll(key)
 }
 
-func (fs *FileSvc) getFavors(username string) ([]*vfs.ObjectInfo, error) {
+func (fs *Svc) getFavors(username string) ([]*vfs.ObjectInfo, error) {
 	key := fs.keyFavor(username)
 	mp, err := cache.HGetAll(key)
 	if err != nil {

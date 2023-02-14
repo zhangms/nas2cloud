@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"nas2cloud/env"
 	"nas2cloud/libs"
 	"nas2cloud/res"
 )
@@ -17,11 +16,8 @@ type corsConfig struct {
 
 var corsConf *corsConfig
 
-func init() {
-	if !env.IsStarting() {
-		return
-	}
-	data, err := res.ReadEnvConfig("cors.json")
+func initCROS(env string) {
+	data, err := res.ReadByEnv(env, "cors.json")
 	if err != nil {
 		panic(err)
 	}

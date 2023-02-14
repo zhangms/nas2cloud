@@ -6,7 +6,7 @@ import (
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs/vpath"
-	"nas2cloud/svc/storage"
+	"nas2cloud/svc/fs"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -40,7 +40,7 @@ func (f *FileController) CreateFolder(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, "name cant empty")
 	}
 	fullPath := vpath.Join(req.Path, folderName)
-	err = storage.File().MkdirAll(u.Name, fullPath)
+	err = fs.Service().MkdirAll(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
@@ -60,7 +60,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
-	err = storage.File().Remove(u.Name, req.Path)
+	err = fs.Service().Remove(u.Name, req.Path)
 	if err != nil {
 		logger.ErrorStacktrace(err, req.Path)
 		return SendError(c, http.StatusForbidden, "file can't delete")
@@ -71,7 +71,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 func (f *FileController) Exists(c *fiber.Ctx) error {
 	path, _ := url.PathUnescape(c.Params("*"))
 	u, _ := GetContextUser(c)
-	exists, err := storage.File().Exists(u.Name, path)
+	exists, err := fs.Service().Exists(u.Name, path)
 	if err != nil {
 		return SendError(c, http.StatusForbidden, err.Error())
 	}
@@ -90,7 +90,7 @@ func (f *FileController) ListExists(c *fiber.Ctx) error {
 	u, _ := GetContextUser(c)
 	ret := make([]int, 0, len(req.Path))
 	for _, v := range req.Path {
-		exists, err := storage.File().Exists(u.Name, v)
+		exists, err := fs.Service().Exists(u.Name, v)
 		if err != nil {
 			return SendError(c, http.StatusForbidden, err.Error())
 		}
@@ -114,7 +114,7 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
 	fullPath := vpath.Join(path, file.Filename)
-	exists, err := storage.File().Exists(u.Name, fullPath)
+	exists, err := fs.Service().Exists(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
@@ -132,7 +132,7 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 	if err != nil {
 		lastModified = time.Now().UnixMilli()
 	}
-	info, err := storage.File().Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
+	info, err := fs.Service().Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
