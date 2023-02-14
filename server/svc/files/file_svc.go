@@ -49,7 +49,6 @@ func (fs *Svc) Walk(username string, fullPath string, orderBy string, start int6
 		return nil, 0, err
 	}
 	ret := fs.unmarshal(arr)
-	thumbSvc.Batch(ret)
 	return ret, total, nil
 }
 
@@ -146,7 +145,6 @@ func (fs *Svc) Create(username string, fullPath string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	thumbSvc.Gen(info)
 	err = fileCache.save(info)
 	if err != nil {
 		return err

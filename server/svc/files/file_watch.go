@@ -122,10 +122,16 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
+	thumbSvc.Batch(files)
 	return nil
 }
 
 func (fw *fileWatchSvc) processCreate(event *fileEvent) error {
+	info, err := vfs.Info(event.userRoles, event.path)
+	if err != nil {
+		return err
+	}
+	thumbSvc.Gen(info)
 	return nil
 }
 

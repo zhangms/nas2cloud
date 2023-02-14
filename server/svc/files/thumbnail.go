@@ -38,7 +38,7 @@ func startThumbnails() {
 			".MP3":  &tagThumbnail{defaultThumbnail: "/assets/icon_music.jpg"},
 		},
 		user:   sysUser,
-		queue:  make(chan string, 1024),
+		queue:  make(chan string, 10240),
 		bucket: "thumb",
 		width:  50,
 		height: 50,
