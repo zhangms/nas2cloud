@@ -16,14 +16,12 @@ func TestBase(t *testing.T) {
 	fmt.Println("----->", Base(str))
 }
 
-
 func TestDir(t *testing.T) {
 	str := "/hello/world"
 	fmt.Println("----->", Dir(str))
 }
 
-
 func TestExt(t *testing.T) {
-	str := "/hello/world.png"
+	str := "world.png"
 	fmt.Println("----->", Ext(str))
 }

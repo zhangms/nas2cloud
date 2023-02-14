@@ -212,3 +212,13 @@ func (fc *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
 	info.Size = size
 	return fc.save(info)
 }
+
+func (fc *fileCacheMgr) updatePreview(file string, preview string) {
+	info, _ := fc.get(file)
+	if info != nil {
+		info.Preview = preview
+		if err := fc.save(info); err != nil {
+			logger.Error("updatePreview error", err)
+		}
+	}
+}

@@ -39,7 +39,7 @@ func Ext(path string) string {
 	p := Clean(path)
 	index := strings.LastIndex(p, ".")
 	if index > 0 {
-		return strings.ToUpper(path[index:])
+		return strings.ToUpper(p[index:])
 	}
 	return ""
 }

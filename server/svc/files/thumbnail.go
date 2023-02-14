@@ -10,10 +10,10 @@ import (
 	"nas2cloud/libs/img"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/res"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -39,7 +39,7 @@ func startThumbnails() {
 		},
 		user:   sysUser,
 		queue:  make(chan string, 1024),
-		dir:    "/thumb",
+		bucket: "thumb",
 		width:  50,
 		height: 50,
 	}
@@ -53,60 +53,56 @@ func startThumbnails() {
 type ThumbnailSvc struct {
 	supportType map[string]thumbnail
 	queue       chan string
-	dir         string
+	bucket      string
 	user        string
 	width       int
 	height      int
 }
 
-func (t *ThumbnailSvc) User() string {
-	return t.user
+func (t *ThumbnailSvc) Gen(obj *vfs.ObjectInfo) {
+	t.Batch([]*vfs.ObjectInfo{obj})
 }
 
-func (t *ThumbnailSvc) Dir() string {
-	return t.dir
-}
-
-func (t *ThumbnailSvc) Thumbnail(obj *vfs.ObjectInfo) {
-	t.BatchThumbnail([]*vfs.ObjectInfo{obj})
-}
-
-func (t *ThumbnailSvc) BatchThumbnail(infos []*vfs.ObjectInfo) {
+func (t *ThumbnailSvc) Batch(infos []*vfs.ObjectInfo) {
 	for _, inf := range infos {
 		if inf.Hidden || inf.Type != vfs.ObjectTypeFile {
 			continue
 		}
-		suffix := strings.ToUpper(path.Ext(inf.Name))
+		if len(inf.Preview) > 0 {
+			continue
+		}
+		suffix := strings.ToUpper(vpath.Ext(inf.Name))
 		_, ok := t.supportType[suffix]
 		if ok {
-			inf.Preview = t.dest(inf.Path)
 			t.queue <- inf.Path
 		}
 	}
 }
 
-func (t *ThumbnailSvc) dest(file string) string {
+func (t *ThumbnailSvc) getThumbDest(file string) string {
 	data := md5.Sum([]byte(file))
-	return filepath.Join(t.dir, hex.EncodeToString(data[0:])+".jpg")
+	thumbName := hex.EncodeToString(data[0:]) + ".jpg"
+	return vpath.Join(t.bucket, thumbName)
 }
 
 func (t *ThumbnailSvc) process() {
 	for {
-		file := <-t.queue
-		dest := t.dest(file)
-		if vfs.Exists(t.user, dest) {
-			continue
-		}
-		suffix := strings.ToUpper(path.Ext(file))
+		path := <-t.queue
+		suffix := strings.ToUpper(vpath.Ext(path))
 		thumb := t.supportType[suffix]
 		if thumb == nil {
 			continue
 		}
-		err := thumb.exec(t.user, file, dest, t.width, t.height)
-		if err != nil {
-			logger.Error("image thumb error", reflect.TypeOf(thumb), file, dest, err)
+		dest := t.getThumbDest(path)
+		if vfs.Exists(t.user, dest) {
+			fileCache.updatePreview(path, dest)
+			continue
+		}
+		if err := thumb.exec(t.user, path, dest, t.width, t.height); err != nil {
+			logger.Error("image thumb error", reflect.TypeOf(thumb), path, dest, err)
 		} else {
-			logger.Info("image thumb", file, dest)
+			fileCache.updatePreview(path, dest)
+			logger.Info("image thumb", path, dest)
 		}
 	}
 }
