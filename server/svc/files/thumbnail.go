@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/dhowden/tag"
+	"github.com/google/uuid"
 	"io"
 	"io/fs"
 	"nas2cloud/libs/img"
@@ -18,16 +20,10 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
-	"time"
-
-	"github.com/dhowden/tag"
-	"github.com/google/uuid"
 )
 
-var thumbSvc *ThumbnailSvc
-
 func startThumbnails(ctx context.Context) {
-	thumbSvc = &ThumbnailSvc{
+	thumb = &ThumbnailSvc{
 		supportType: map[string]thumbnail{
 			".JPGX": &imgThumbnail{},
 			".JPG":  &ffmpegThumbnail{},
@@ -47,9 +43,11 @@ func startThumbnails(ctx context.Context) {
 	}
 	count := res.GetInt("processor.count.filethumb", 1)
 	for i := 0; i < count; i++ {
-		go thumbSvc.process(i, ctx)
+		go thumb.process(i, ctx)
 	}
 }
+
+var thumb *ThumbnailSvc
 
 type ThumbnailSvc struct {
 	supportType map[string]thumbnail
@@ -60,11 +58,11 @@ type ThumbnailSvc struct {
 	height      int
 }
 
-func (t *ThumbnailSvc) Gen(obj *vfs.ObjectInfo) {
-	t.Batch([]*vfs.ObjectInfo{obj})
+func (t *ThumbnailSvc) post(obj *vfs.ObjectInfo) {
+	t.posts([]*vfs.ObjectInfo{obj})
 }
 
-func (t *ThumbnailSvc) Batch(infos []*vfs.ObjectInfo) {
+func (t *ThumbnailSvc) posts(infos []*vfs.ObjectInfo) {
 	for _, inf := range infos {
 		if inf.Hidden || inf.Type != vfs.ObjectTypeFile {
 			continue
@@ -110,8 +108,6 @@ func (t *ThumbnailSvc) process(index int, ctx context.Context) {
 				fileCache.updatePreview(path, dest)
 				logger.Info("image thumb", path, dest)
 			}
-		default:
-			time.Sleep(time.Millisecond * 10)
 		}
 	}
 }

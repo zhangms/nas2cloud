@@ -13,11 +13,33 @@ import (
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-func DoInit(env string, app *fiber.App) {
-	initLogger(app)
+var fiberApp *fiber.App
+var done chan error
+
+func StartHttpServer(env string, port int) {
+	fiberApp = fiber.New(fiber.Config{
+		BodyLimit: 1024 * 1024 * 1024, //1G
+	})
 	initCROS(env)
-	registerStatic(app)
-	registerHandler(app)
+	initLogger(fiberApp)
+	registerStatic(fiberApp)
+	registerHandler(fiberApp)
+	done = make(chan error)
+	go func() {
+		err := fiberApp.Listen(fmt.Sprintf(":%d", port))
+		if err != nil {
+			done <- err
+		}
+		close(done)
+	}()
+}
+
+func Done() <-chan error {
+	return done
+}
+
+func Shutdown() error {
+	return fiberApp.Shutdown()
 }
 
 func initLogger(app *fiber.App) {

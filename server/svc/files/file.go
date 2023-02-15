@@ -27,5 +27,6 @@ func DoInit(env string, ctx context.Context) {
 		vfs.Load(env)
 		startWatcher(ctx)
 		startThumbnails(ctx)
+		startDiskUsage(ctx)
 	})
 }

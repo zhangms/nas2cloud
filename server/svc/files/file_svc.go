@@ -32,7 +32,7 @@ func (fs *Svc) Walk(username string, fullPath string, orderBy string, start int6
 	if err != nil {
 		return nil, 0, err
 	}
-	eventFired, err := fileWatcher.tryFireWalkEvent(&fileEvent{
+	eventFired, err := watch.tryFireWalkEvent(&fileEvent{
 		eventType: eventWalk,
 		userName:  username,
 		userRoles: userRoles,
@@ -125,7 +125,7 @@ func (fs *Svc) Remove(username string, fullPath []string) error {
 		if err != nil {
 			return err
 		}
-		fileWatcher.fireEvent(&fileEvent{
+		watch.fireEvent(&fileEvent{
 			eventType: eventDelete,
 			userName:  username,
 			userRoles: userRoles,
@@ -149,7 +149,7 @@ func (fs *Svc) Create(username string, fullPath string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	fileWatcher.fireEvent(&fileEvent{
+	watch.fireEvent(&fileEvent{
 		eventType: eventCreate,
 		userName:  username,
 		userRoles: userRoles,
@@ -169,12 +169,12 @@ func (fs *Svc) Upload(username string, fullPath string, reader io.Reader, modTim
 		return nil, err
 	}
 	info.CreTime = time.Now()
-	thumbSvc.Gen(info)
+	thumb.post(info)
 	err = fileCache.save(info)
 	if err != nil {
 		return nil, err
 	}
-	fileWatcher.fireEvent(&fileEvent{
+	watch.fireEvent(&fileEvent{
 		eventType: eventCreate,
 		userName:  username,
 		userRoles: userRoles,

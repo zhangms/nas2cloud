@@ -22,7 +22,7 @@ func NewApp() *cli.App {
 
 func pidFile() string {
 	dir := filepath.Dir(os.Args[0])
-	if strings.Index(dir, "go-build") > 0 {
+	if strings.Index(dir, "go-build") > 0 || strings.Index(dir, "GoLand") > 0 {
 		return "nas2cloud.pid"
 	}
 	return filepath.Join(dir, "nas2cloud.pid")

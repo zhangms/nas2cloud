@@ -84,7 +84,7 @@ func caller(skip int) string {
 		return ""
 	}
 	_, shotName := path.Split(file)
-	return fmt.Sprintf("%s:%d ", shotName, line)
+	return fmt.Sprintf("%16s:%-4d ", shotName, line)
 }
 
 func msg(tag string, v ...any) any {

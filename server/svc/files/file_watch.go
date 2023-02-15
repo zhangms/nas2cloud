@@ -7,15 +7,13 @@ import (
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/res"
-	"sync/atomic"
-	"time"
 )
 
-type fileWatchSvc struct {
-	fileEventQueue chan *fileEvent
+type watcher struct {
+	eventQueue chan *fileEvent
 }
 
-var fileWatcher *fileWatchSvc
+var watch *watcher
 
 type fileEventType string
 
@@ -33,59 +31,37 @@ type fileEvent struct {
 }
 
 func startWatcher(ctx context.Context) {
-	fileWatcher = &fileWatchSvc{
-		fileEventQueue: make(chan *fileEvent, 1024),
+	watch = &watcher{
+		eventQueue: make(chan *fileEvent, 1024),
 	}
 	count := res.GetInt("processor.count.filewatch", 1)
 	for i := 0; i < count; i++ {
-		go fileWatcher.process(i, ctx)
+		go watch.process(i, ctx)
 	}
 }
 
-func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
+func (fw *watcher) fireEvent(event *fileEvent) {
 	if event != nil {
-		fw.fileEventQueue <- event
+		fw.eventQueue <- event
 	}
 }
 
-func (fw *fileWatchSvc) process(index int, ctx context.Context) {
+func (fw *watcher) process(index int, ctx context.Context) {
 	logger.Info("file watch processor started", index)
-	duPaths := make([]string, 0)
-	duExecuting := &atomic.Bool{}
-	duExecuting.Store(false)
 	for {
 		select {
 		case <-ctx.Done():
 			logger.Info("file watch processor stopped", index)
 			return
-		case event := <-fw.fileEventQueue:
-			err := fw.processEvent(event)
-			if err != nil {
+		case event := <-fw.eventQueue:
+			if err := fw.processEvent(event); err != nil {
 				logger.Error("process event error", event, err)
-			} else {
-				duPaths = append(duPaths, event.path)
 			}
-		default:
-			if len(duPaths) == 0 {
-				time.Sleep(time.Millisecond * 10)
-				continue
-			}
-			if !duExecuting.CompareAndSwap(false, true) {
-				time.Sleep(time.Millisecond * 10)
-				continue
-			}
-			tmp := duPaths
-			duPaths = make([]string, 0)
-			logger.Info("du begin--->", tmp)
-			go func() {
-				defer duExecuting.Store(false)
-				fw.diskUsageExec(tmp)
-			}()
 		}
 	}
 }
 
-func (fw *fileWatchSvc) processEvent(event *fileEvent) error {
+func (fw *watcher) processEvent(event *fileEvent) error {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -104,7 +80,7 @@ func (fw *fileWatchSvc) processEvent(event *fileEvent) error {
 	}
 }
 
-func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
+func (fw *watcher) processWalk(event *fileEvent) error {
 	info, err := vfs.Info(event.userRoles, event.path)
 	if err != nil {
 		return err
@@ -126,42 +102,31 @@ func (fw *fileWatchSvc) processWalk(event *fileEvent) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
-	thumbSvc.Batch(files)
+	thumb.posts(files)
+	du.post(event.path)
 	return nil
 }
 
-func (fw *fileWatchSvc) processCreate(event *fileEvent) error {
+func (fw *watcher) processCreate(event *fileEvent) error {
 	info, err := vfs.Info(event.userRoles, event.path)
 	if err != nil {
 		return err
 	}
-	thumbSvc.Gen(info)
+	thumb.post(info)
+	du.post(event.path)
 	return nil
 }
 
-func (fw *fileWatchSvc) processDelete(event *fileEvent) error {
+func (fw *watcher) processDelete(event *fileEvent) error {
+	du.post(event.path)
 	return nil
 }
 
-func (fw *fileWatchSvc) tryFireWalkEvent(event *fileEvent) (bool, error) {
+func (fw *watcher) tryFireWalkEvent(event *fileEvent) (bool, error) {
 	ok, err := fileCache.walkFlag(event.path)
 	if ok {
 		fw.fireEvent(event)
 		return ok, nil
 	}
 	return ok, err
-}
-
-func (fw *fileWatchSvc) diskUsageExec(paths []string) {
-	usage, err := disk.duAllParent(paths)
-	if err != nil {
-		logger.Error("DU_EXEC_ERROR", paths, err)
-		return
-	}
-	for _, du := range usage {
-		err = fileCache.updateSize(sysUser, du.path, du.size)
-		if err != nil {
-			logger.Error("DU_UPDATE_FILE_SIZE_ERROR", du.path, err)
-		}
-	}
 }

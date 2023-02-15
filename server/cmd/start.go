@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"nas2cloud/api"
 	"nas2cloud/libs/logger"
@@ -14,7 +13,6 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
-	"sync/atomic"
 	"syscall"
 	"time"
 )
@@ -63,18 +61,8 @@ func start(cliCtx *cli.Context) error {
 	cache.DoInit(flags.profile)
 	files.DoInit(flags.profile, ctx)
 	user.DoInit(flags.profile)
-	fiberApp := fiber.New(fiber.Config{
-		BodyLimit: 1024 * 1024 * 1024, //1G
-	})
-	api.DoInit(flags.profile, fiberApp)
-	startError.Store(false)
-	go waitingSignal(fiberApp)
-	err := fiberApp.Listen(fmt.Sprintf(":%d", flags.port))
-	if err != nil {
-		startError.Store(true)
-		return err
-	}
-	return nil
+	api.StartHttpServer(flags.profile, flags.port)
+	return waitingSignal()
 }
 
 func getFlags(cliCtx *cli.Context) startFlags {
@@ -88,33 +76,41 @@ func getFlags(cliCtx *cli.Context) startFlags {
 	return flags
 }
 
-var startError = &atomic.Bool{}
-
-func waitingSignal(fiberApp *fiber.App) {
+func waitingSignal() error {
 	pid := pidFile()
+	_, err := os.Stat(pid)
+	if err == nil || os.IsExist(err) {
+		logger.Error("pid file exists already, system will exit!")
+		shutdown()
+		return nil
+	}
 	if err := os.WriteFile(pid, []byte(strconv.Itoa(os.Getpid())), os.ModePerm); err != nil {
-		logger.Warn("pid file write error", err)
+		logger.Warn("pid file write error, system will exit!", err)
+		shutdown()
+		return nil
 	}
 	defer func() {
 		_ = os.Remove(pid)
 	}()
-	sig := make(chan os.Signal, 2)
-	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
+	signals := make(chan os.Signal, 2)
+	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	for {
-		if startError.Load() {
-			cancelFunc()
-			logger.Error("start error exit")
-			break
-		}
 		select {
-		case <-sig:
+		case <-signals:
 			logger.Warn("RECEIVE_TERM_SIGNAL", "system will shutdown...")
-			cancelFunc()
-			_ = os.Remove(pid)
-			err := fiberApp.ShutdownWithTimeout(time.Second)
+			shutdown()
+		case err := <-api.Done():
 			logger.Warn("SHUTDOWN", err)
-		default:
-			time.Sleep(time.Millisecond * 10)
+			return nil
 		}
 	}
+}
+
+func shutdown() {
+	cancelFunc()
+	time.Sleep(time.Millisecond * 20)
+	if err := api.Shutdown(); err != nil {
+		logger.Error("api server shutdown error")
+	}
+
 }
