@@ -48,7 +48,8 @@ class FileWidgets {
           _getItemThumbnail(item),
           Icon(
             Icons.play_arrow,
-            color: Colors.blue,
+            size: 36,
+            color: Color.fromARGB(128, 28, 49, 139),
           )
         ],
       ),
