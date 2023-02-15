@@ -42,14 +42,13 @@ class FileWidgets {
 
   static Widget _getItemThumbnailVideo(File item) {
     return SizedBox(
-      height: 40,
-      width: 40,
       child: Stack(
         alignment: Alignment.center,
         children: [
           _getItemThumbnail(item),
           Icon(
             Icons.play_arrow,
+            color: Colors.blue,
           )
         ],
       ),

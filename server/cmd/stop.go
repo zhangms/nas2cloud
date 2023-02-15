@@ -4,8 +4,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"nas2cloud/libs/logger"
 	"os"
-	"os/exec"
-	"runtime"
+	"strconv"
+	"syscall"
 )
 
 var stopCommand = &cli.Command{
@@ -20,18 +20,22 @@ func stop(cliCtx *cli.Context) error {
 		logger.Error("not find pid file,cant stop", pidFile())
 		return nil
 	}
-	pid := string(data)
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("tskill", pid)
-	} else {
-		cmd = exec.Command("kill", pid)
-	}
-	_, err = cmd.Output()
+	pid, err := strconv.Atoi(string(data))
 	if err != nil {
-		logger.Error("stop error", err)
+		logger.Error("pid error :", err)
 		return nil
 	}
-	logger.Info("stop signal send")
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		logger.Error("cant find pid", err)
+		return nil
+	}
+	if err = process.Signal(syscall.SIGINT); err != nil {
+		e2 := process.Kill()
+		_ = os.Remove(pidFile())
+		logger.Error("send signal error and kill", err, e2)
+	} else {
+		logger.Info("stop signal send")
+	}
 	return nil
 }

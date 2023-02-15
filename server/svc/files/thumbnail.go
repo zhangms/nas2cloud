@@ -98,6 +98,14 @@ func (t *ThumbnailSvc) process(index int, ctx context.Context) {
 				continue
 			}
 			dest := t.getThumbDest(path)
+			inf, err := fileCache.get(path)
+			if err != nil {
+				logger.Error("image thumb file info get error", err)
+				continue
+			}
+			if inf != nil && inf.Preview == dest {
+				continue
+			}
 			if vfs.Exists(t.user, dest) {
 				fileCache.updatePreview(path, dest)
 				continue
