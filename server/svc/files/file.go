@@ -1,6 +1,7 @@
 package files
 
 import (
+	"context"
 	"io/fs"
 	"nas2cloud/libs/vfs"
 	"os"
@@ -21,10 +22,10 @@ func GetTempDir() string {
 
 var initOnce = &sync.Once{}
 
-func DoInit(env string) {
+func DoInit(env string, ctx context.Context) {
 	initOnce.Do(func() {
 		vfs.Load(env)
-		startWatcher()
-		startThumbnails()
+		startWatcher(ctx)
+		startThumbnails(ctx)
 	})
 }

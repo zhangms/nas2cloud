@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
@@ -18,21 +19,26 @@ import (
 	"time"
 )
 
-const (
-	defaultPort    = 8080
-	defaultProfile = "dev"
-)
+type startFlags struct {
+	port    int
+	profile string
+}
+
+var defaultFlags = startFlags{
+	port:    8080,
+	profile: "dev",
+}
 
 var startFlagPort = &cli.IntFlag{
 	Name:        "port",
 	Usage:       "http server port",
-	DefaultText: fmt.Sprintf("%d", defaultPort),
+	DefaultText: fmt.Sprintf("%d", defaultFlags.port),
 }
 
 var startFlagProfile = &cli.StringFlag{
 	Name:        "profile",
 	Usage:       "environment profile",
-	DefaultText: defaultProfile,
+	DefaultText: defaultFlags.profile,
 }
 
 var startCommand = &cli.Command{
@@ -44,35 +50,42 @@ var startCommand = &cli.Command{
 	Action: start,
 }
 
-func start(context *cli.Context) error {
-	profile := defaultProfile
-	port := defaultPort
-	if context.IsSet(startFlagProfile.Name) {
-		profile = context.String(startFlagProfile.Name)
-	}
-	if context.IsSet(startFlagPort.Name) {
-		port = context.Int(startFlagPort.Name)
-	}
+var cancelFunc context.CancelFunc
 
-	logger.Info("profile active", profile)
-	logger.Info("http port", port)
+func start(cliCtx *cli.Context) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancelFunc = cancel
+	flags := getFlags(cliCtx)
+	logger.Info("profile active", flags.profile)
+	logger.Info("http port", flags.port)
 	logger.Info("gitCommit", gitCommit, gitDate)
-	res.DoInit(profile)
-	cache.DoInit(profile)
-	files.DoInit(profile)
-	user.DoInit(profile)
+	res.DoInit(flags.profile)
+	cache.DoInit(flags.profile)
+	files.DoInit(flags.profile, ctx)
+	user.DoInit(flags.profile)
 	fiberApp := fiber.New(fiber.Config{
 		BodyLimit: 1024 * 1024 * 1024, //1G
 	})
-	api.DoInit(profile, fiberApp)
+	api.DoInit(flags.profile, fiberApp)
 	startError.Store(false)
 	go waitingSignal(fiberApp)
-	err := fiberApp.Listen(fmt.Sprintf(":%d", port))
+	err := fiberApp.Listen(fmt.Sprintf(":%d", flags.port))
 	if err != nil {
 		startError.Store(true)
 		return err
 	}
 	return nil
+}
+
+func getFlags(cliCtx *cli.Context) startFlags {
+	flags := defaultFlags
+	if cliCtx.IsSet(startFlagProfile.Name) {
+		flags.profile = cliCtx.String(startFlagProfile.Name)
+	}
+	if cliCtx.IsSet(startFlagPort.Name) {
+		flags.port = cliCtx.Int(startFlagPort.Name)
+	}
+	return flags
 }
 
 var startError = &atomic.Bool{}
@@ -89,16 +102,17 @@ func waitingSignal(fiberApp *fiber.App) {
 	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		if startError.Load() {
+			cancelFunc()
 			logger.Error("start error exit")
 			break
 		}
 		select {
 		case <-sig:
 			logger.Warn("RECEIVE_TERM_SIGNAL", "system will shutdown...")
+			cancelFunc()
 			_ = os.Remove(pid)
-			err := fiberApp.Shutdown()
+			err := fiberApp.ShutdownWithTimeout(time.Second)
 			logger.Warn("SHUTDOWN", err)
-			os.Exit(0)
 		default:
 			time.Sleep(time.Millisecond * 10)
 		}

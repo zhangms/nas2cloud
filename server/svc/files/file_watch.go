@@ -1,6 +1,7 @@
 package files
 
 import (
+	"context"
 	"errors"
 	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
@@ -31,14 +32,13 @@ type fileEvent struct {
 	path      string
 }
 
-func startWatcher() {
+func startWatcher(ctx context.Context) {
 	fileWatcher = &fileWatchSvc{
 		fileEventQueue: make(chan *fileEvent, 1024),
 	}
-	processor := res.GetInt("processor.count.filewatch", 1)
-	for i := 0; i < processor; i++ {
-		logger.Info("file watch processor started", i)
-		go fileWatcher.process()
+	count := res.GetInt("processor.count.filewatch", 1)
+	for i := 0; i < count; i++ {
+		go fileWatcher.process(i, ctx)
 	}
 }
 
@@ -48,12 +48,16 @@ func (fw *fileWatchSvc) fireEvent(event *fileEvent) {
 	}
 }
 
-func (fw *fileWatchSvc) process() {
+func (fw *fileWatchSvc) process(index int, ctx context.Context) {
+	logger.Info("file watch processor started", index)
 	duPaths := make([]string, 0)
 	duExecuting := &atomic.Bool{}
 	duExecuting.Store(false)
 	for {
 		select {
+		case <-ctx.Done():
+			logger.Info("file watch processor stopped", index)
+			return
 		case event := <-fw.fileEventQueue:
 			err := fw.processEvent(event)
 			if err != nil {

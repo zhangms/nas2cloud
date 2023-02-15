@@ -14,7 +14,7 @@ var stopCommand = &cli.Command{
 	Action: stop,
 }
 
-func stop(context *cli.Context) error {
+func stop(cliCtx *cli.Context) error {
 	data, err := os.ReadFile(pidFile())
 	if err != nil {
 		logger.Error("not find pid file,cant stop", pidFile())

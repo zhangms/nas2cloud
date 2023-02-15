@@ -1,6 +1,7 @@
 package files
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
@@ -17,6 +18,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/dhowden/tag"
 	"github.com/google/uuid"
@@ -24,7 +26,7 @@ import (
 
 var thumbSvc *ThumbnailSvc
 
-func startThumbnails() {
+func startThumbnails(ctx context.Context) {
 	thumbSvc = &ThumbnailSvc{
 		supportType: map[string]thumbnail{
 			".JPGX": &imgThumbnail{},
@@ -43,10 +45,9 @@ func startThumbnails() {
 		width:  50,
 		height: 50,
 	}
-	processor := res.GetInt("processor.count.filethumb", 1)
-	for i := 0; i < processor; i++ {
-		logger.Info("thumbnail process started", i)
-		go thumbSvc.process()
+	count := res.GetInt("processor.count.filethumb", 1)
+	for i := 0; i < count; i++ {
+		go thumbSvc.process(i, ctx)
 	}
 }
 
@@ -85,24 +86,32 @@ func (t *ThumbnailSvc) getThumbDest(file string) string {
 	return vpath.Join(t.bucket, thumbName)
 }
 
-func (t *ThumbnailSvc) process() {
+func (t *ThumbnailSvc) process(index int, ctx context.Context) {
+	logger.Info("thumbnail process started", index)
 	for {
-		path := <-t.queue
-		suffix := strings.ToUpper(vpath.Ext(path))
-		thumb := t.supportType[suffix]
-		if thumb == nil {
-			continue
-		}
-		dest := t.getThumbDest(path)
-		if vfs.Exists(t.user, dest) {
-			fileCache.updatePreview(path, dest)
-			continue
-		}
-		if err := thumb.exec(t.user, path, dest, t.width, t.height); err != nil {
-			logger.Error("image thumb error", reflect.TypeOf(thumb), path, dest, err)
-		} else {
-			fileCache.updatePreview(path, dest)
-			logger.Info("image thumb", path, dest)
+		select {
+		case <-ctx.Done():
+			logger.Info("thumbnail process stopped", index)
+			return
+		case path := <-t.queue:
+			suffix := strings.ToUpper(vpath.Ext(path))
+			thumb := t.supportType[suffix]
+			if thumb == nil {
+				continue
+			}
+			dest := t.getThumbDest(path)
+			if vfs.Exists(t.user, dest) {
+				fileCache.updatePreview(path, dest)
+				continue
+			}
+			if err := thumb.exec(t.user, path, dest, t.width, t.height); err != nil {
+				logger.Error("image thumb error", reflect.TypeOf(thumb), path, dest, err)
+			} else {
+				fileCache.updatePreview(path, dest)
+				logger.Info("image thumb", path, dest)
+			}
+		default:
+			time.Sleep(time.Millisecond * 10)
 		}
 	}
 }
