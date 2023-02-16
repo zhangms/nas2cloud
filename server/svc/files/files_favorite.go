@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func (fs *Svc) ToggleFavorite(username, favorName, fullPath string) (bool, error) {
-	key := fs.keyFavor(username)
+func ToggleFavorite(username, favorName, fullPath string) (bool, error) {
+	key := keyFavor(username)
 	exists, err := cache.HExists(key, fullPath)
 	if err != nil {
 		return exists, err
@@ -22,24 +22,24 @@ func (fs *Svc) ToggleFavorite(username, favorName, fullPath string) (bool, error
 	}
 }
 
-func (fs *Svc) keyFavor(username string) string {
+func keyFavor(username string) string {
 	return cache.Join(username, "favorite_files")
 }
 
-func (fs *Svc) GetFavorsMap(username string) (map[string]string, error) {
-	key := fs.keyFavor(username)
+func GetFavorsMap(username string) (map[string]string, error) {
+	key := keyFavor(username)
 	return cache.HGetAll(key)
 }
 
-func (fs *Svc) getFavors(username string) ([]*vfs.ObjectInfo, error) {
-	key := fs.keyFavor(username)
+func getFavors(username string) ([]*vfs.ObjectInfo, error) {
+	key := keyFavor(username)
 	mp, err := cache.HGetAll(key)
 	if err != nil {
 		return nil, err
 	}
 	list := make([]*vfs.ObjectInfo, 0)
 	for path, name := range mp {
-		info, _ := fileCache.get(path)
+		info, _ := repo.get(path)
 		if info != nil {
 			info.Name = name
 			list = append(list, info)

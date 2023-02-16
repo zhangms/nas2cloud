@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -77,11 +76,11 @@ func (f *FileController) walk(u *user.User, request *fileWalkRequest) (*fileWalk
 	pageSize := int(math.Min(100, float64(libs.If(request.PageSize <= 0, 50, request.PageSize).(int))))
 	start := int64(request.PageNo * pageSize)
 	stop := int64((request.PageNo+1)*pageSize - 1)
-	lst, total, err := files.Service().Walk(u.Name, request.Path, request.OrderBy, start, stop)
+	lst, total, err := files.Walk(u.Name, request.Path, request.OrderBy, start, stop)
 	if err != nil {
 		return nil, err
 	}
-	favors, err := files.Service().GetFavorsMap(u.Name)
+	favors, err := files.GetFavorsMap(u.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -145,23 +144,4 @@ func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNa
 		base.Name = baseInfo.Name
 	}
 	return ret
-}
-
-func (f *FileController) ToggleFavorite(c *fiber.Ctx) error {
-	type request struct {
-		Name string `json:"name"`
-		Path string `json:"path"`
-	}
-	req := &request{}
-	err := json.Unmarshal(c.Body(), req)
-	if err != nil {
-		return SendError(c, http.StatusBadRequest, err.Error())
-	}
-	u, _ := GetContextUser(c)
-	favor, err := files.Service().ToggleFavorite(u.Name, req.Name, req.Path)
-	if err != nil {
-		logger.ErrorStacktrace(err)
-		return SendError(c, http.StatusInternalServerError, "ERROR")
-	}
-	return SendOK(c, fmt.Sprintf("%v", favor))
 }

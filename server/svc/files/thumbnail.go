@@ -22,8 +22,8 @@ import (
 	"strings"
 )
 
-func startThumbnails(ctx context.Context) {
-	thumb = &ThumbnailSvc{
+func startThumbnailExecutor(ctx context.Context) {
+	thumbExecutor = &thumbnailExecutor{
 		supportType: map[string]thumbnail{
 			".JPGX": &imgThumbnail{},
 			".JPG":  &ffmpegThumbnail{},
@@ -37,19 +37,19 @@ func startThumbnails(ctx context.Context) {
 		},
 		user:   sysUser,
 		queue:  make(chan string, 10240),
-		bucket: "thumb",
+		bucket: "thumbExecutor",
 		width:  50,
 		height: 50,
 	}
 	count := res.GetInt("processor.count.filethumb", 1)
 	for i := 0; i < count; i++ {
-		go thumb.process(i, ctx)
+		go thumbExecutor.process(i, ctx)
 	}
 }
 
-var thumb *ThumbnailSvc
+var thumbExecutor *thumbnailExecutor
 
-type ThumbnailSvc struct {
+type thumbnailExecutor struct {
 	supportType map[string]thumbnail
 	queue       chan string
 	bucket      string
@@ -58,11 +58,11 @@ type ThumbnailSvc struct {
 	height      int
 }
 
-func (t *ThumbnailSvc) post(obj *vfs.ObjectInfo) {
+func (t *thumbnailExecutor) post(obj *vfs.ObjectInfo) {
 	t.posts([]*vfs.ObjectInfo{obj})
 }
 
-func (t *ThumbnailSvc) posts(infos []*vfs.ObjectInfo) {
+func (t *thumbnailExecutor) posts(infos []*vfs.ObjectInfo) {
 	for _, inf := range infos {
 		if inf.Hidden || inf.Type != vfs.ObjectTypeFile {
 			continue
@@ -78,13 +78,13 @@ func (t *ThumbnailSvc) posts(infos []*vfs.ObjectInfo) {
 	}
 }
 
-func (t *ThumbnailSvc) getThumbDest(file string) string {
+func (t *thumbnailExecutor) getThumbDest(file string) string {
 	data := md5.Sum([]byte(file))
 	thumbName := hex.EncodeToString(data[0:]) + ".jpg"
 	return vpath.Join(t.bucket, thumbName)
 }
 
-func (t *ThumbnailSvc) process(index int, ctx context.Context) {
+func (t *thumbnailExecutor) process(index int, ctx context.Context) {
 	logger.Info("thumbnail process started", index)
 	for {
 		select {
@@ -98,23 +98,23 @@ func (t *ThumbnailSvc) process(index int, ctx context.Context) {
 				continue
 			}
 			dest := t.getThumbDest(path)
-			inf, err := fileCache.get(path)
+			inf, err := repo.get(path)
 			if err != nil {
-				logger.Error("image thumb file info get error", err)
+				logger.Error("image thumbExecutor file info get error", err)
 				continue
 			}
 			if inf != nil && inf.Preview == dest {
 				continue
 			}
 			if vfs.Exists(t.user, dest) {
-				fileCache.updatePreview(path, dest)
+				repo.updatePreview(path, dest)
 				continue
 			}
 			if err := thumb.exec(t.user, path, dest, t.width, t.height); err != nil {
-				logger.Error("image thumb error", reflect.TypeOf(thumb), path, dest, err)
+				logger.Error("image thumbExecutor error", reflect.TypeOf(thumb), path, dest, err)
 			} else {
-				fileCache.updatePreview(path, dest)
-				logger.Info("image thumb", path, dest)
+				repo.updatePreview(path, dest)
+				logger.Info("image thumbExecutor", path, dest)
 			}
 		}
 	}
@@ -181,12 +181,22 @@ func (f *ffmpegThumbnail) execHighPerformance(user string, from string, to strin
 		height), false
 }
 
+func getAppName() string {
+	return "nas2cloud"
+}
+
+func getTempDir() string {
+	dir := "." + getAppName() + "/temp"
+	_ = os.MkdirAll(dir, fs.ModePerm)
+	return dir
+}
+
 func (f *ffmpegThumbnail) execLowPerformance(user string, from string, to string, width int, height int) error {
 	data, err := vfs.Read(user, from)
 	if err != nil {
 		return err
 	}
-	dir := GetTempDir()
+	dir := getTempDir()
 
 	name := uuid.New().String()
 	origin := filepath.Join(dir, name+".origin")

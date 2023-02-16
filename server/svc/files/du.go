@@ -56,7 +56,7 @@ func (d *diskUsage) process(index int, ctx context.Context) {
 				continue
 			}
 			for _, ps := range list {
-				if er := fileCache.updateSize(sysUser, ps.path, ps.size); er != nil {
+				if er := repo.updateSize(sysUser, ps.path, ps.size); er != nil {
 					logger.Error("update size error", ps.path, er)
 				}
 			}

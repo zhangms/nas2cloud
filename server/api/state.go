@@ -29,7 +29,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 		AppName:       res.GetString("app.name"),
 		StaticAddress: res.GetString("static.domain"),
 	}
-	key, err := sign.Instance().GetPublicKey("sys")
+	key, err := sign.GetPublicKey("sys")
 	if err != nil {
 		return SendError(c, http.StatusInternalServerError, "SERVER_STATUS_ERROR")
 	}

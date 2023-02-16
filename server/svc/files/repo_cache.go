@@ -3,6 +3,7 @@ package files
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -10,21 +11,15 @@ import (
 	"nas2cloud/svc/cache"
 	"strconv"
 	"strings"
-	"time"
 )
 
-type fileCacheMgr struct {
+type repositoryCache struct {
 	version     string
 	orderFields []string
 }
 
-var fileCache = &fileCacheMgr{
-	version:     "v1",
-	orderFields: []string{"fileName", "modTime", "creTime", "size"},
-}
-
-func (fc *fileCacheMgr) exists(path string) (bool, error) {
-	key := fc.keyItem(path)
+func (repo *repositoryCache) exists(path string) (bool, error) {
+	key := repo.keyItem(path)
 	count, err := cache.Exists(key)
 	if err != nil {
 		return false, err
@@ -32,8 +27,8 @@ func (fc *fileCacheMgr) exists(path string) (bool, error) {
 	return count == 1, nil
 }
 
-func (fc *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
-	key := fc.keyItem(path)
+func (repo *repositoryCache) get(path string) (*vfs.ObjectInfo, error) {
+	key := repo.keyItem(path)
 	str, err := cache.Get(key)
 	if err != nil {
 		return nil, err
@@ -49,29 +44,29 @@ func (fc *fileCacheMgr) get(path string) (*vfs.ObjectInfo, error) {
 	return obj, nil
 }
 
-func (fc *fileCacheMgr) saveIfAbsent(item *vfs.ObjectInfo) error {
-	exists, _ := fc.exists(item.Path)
+func (repo *repositoryCache) saveIfAbsent(item *vfs.ObjectInfo) error {
+	exists, _ := repo.exists(item.Path)
 	if exists {
 		return nil
 	}
-	return fc.save(item)
+	return repo.save(item)
 }
 
-func (fc *fileCacheMgr) save(item *vfs.ObjectInfo) error {
+func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
 	data, err := json.Marshal(item)
 	if err != nil {
 		return err
 	}
-	key := fc.keyItem(item.Path)
+	key := repo.keyItem(item.Path)
 	_, err = cache.Set(key, string(data))
 	if err != nil {
 		return err
 	}
 	//更新在父目录中的位置
 	parent := vpath.Dir(item.Path)
-	for _, orderField := range fc.orderFields {
-		rank := fc.keyRankInParent(parent, orderField)
-		_, err = cache.ZAdd(rank, fc.getRankScore(item, orderField), item.Name)
+	for _, orderField := range repo.orderFields {
+		rank := repo.keyRankInParent(parent, orderField)
+		_, err = cache.ZAdd(rank, repo.getRankScore(item, orderField), item.Name)
 		if err != nil {
 			return err
 		}
@@ -80,31 +75,19 @@ func (fc *fileCacheMgr) save(item *vfs.ObjectInfo) error {
 	return nil
 }
 
-func (fc *fileCacheMgr) keyItem(path string) string {
+func (repo *repositoryCache) keyItem(path string) string {
 	cp := vpath.Clean(path)
 	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, fc.version, "file", cp)
+	return cache.Join(bucket, repo.version, "file", cp)
 }
 
-func (fc *fileCacheMgr) keyRankInParent(parent string, orderField string) string {
+func (repo *repositoryCache) keyRankInParent(parent string, orderField string) string {
 	cp := vpath.Clean(parent)
 	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, fc.version, "rank", orderField, cp)
+	return cache.Join(bucket, repo.version, "rank", orderField, cp)
 }
 
-func (fc *fileCacheMgr) keyWalkFlag(path string) string {
-	cp := vpath.Clean(path)
-	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, fileCache.version, "walk_flag", cp)
-}
-
-func (fc *fileCacheMgr) walkFlag(path string) (bool, error) {
-	flag := fc.keyWalkFlag(path)
-	ok, err := cache.SetNXExpire(flag, time.Now().String(), cache.DefaultExpireTime)
-	return ok, err
-}
-
-func (fc *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64 {
+func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
 		if item.Type == vfs.ObjectTypeDir {
@@ -127,7 +110,7 @@ func (fc *fileCacheMgr) getRankScore(item *vfs.ObjectInfo, field string) float64
 	}
 }
 
-func (fc *fileCacheMgr) zRange(path string, orderBy string, start int64, stop int64) ([]any, int64, error) {
+func (repo *repositoryCache) find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
 	arr := strings.Split(orderBy, "_")
 	fieldName := arr[0]
 	sort := libs.IF(len(arr) > 1, func() any {
@@ -135,13 +118,13 @@ func (fc *fileCacheMgr) zRange(path string, orderBy string, start int64, stop in
 	}, func() any {
 		return "asc"
 	}).(string)
-	key := fc.keyRankInParent(path, fieldName)
+	key := repo.keyRankInParent(path, fieldName)
 	total, err := cache.ZCard(key)
 	if err != nil {
 		return nil, 0, err
 	}
 	if total == 0 {
-		return []any{}, 0, nil
+		return []*vfs.ObjectInfo{}, 0, nil
 	}
 	var list []string
 	if sort == "desc" {
@@ -154,39 +137,56 @@ func (fc *fileCacheMgr) zRange(path string, orderBy string, start int64, stop in
 	}
 	keys := make([]string, 0, len(list))
 	for _, name := range list {
-		keys = append(keys, fc.keyItem(vpath.Join(path, name)))
+		keys = append(keys, repo.keyItem(vpath.Join(path, name)))
 	}
 	ret, err := cache.MGet(keys...)
-	return ret, total, err
+	return repo.unmarshal(ret), total, err
 }
 
-func (fc *fileCacheMgr) delete(path string) error {
+func (repo *repositoryCache) unmarshal(arr []any) []*vfs.ObjectInfo {
+	ret := make([]*vfs.ObjectInfo, 0, len(arr))
+	for _, item := range arr {
+		if item == nil {
+			continue
+		}
+		str := fmt.Sprintf("%v", item)
+		obj := &vfs.ObjectInfo{}
+		e := json.Unmarshal([]byte(str), obj)
+		if e != nil {
+			continue
+		}
+		ret = append(ret, obj)
+	}
+	return ret
+}
+
+func (repo *repositoryCache) delete(path string) error {
 	//删除子文件
-	children, err := cache.ZRange(fc.keyRankInParent(path, "fileName"), 0, -1)
+	children, err := cache.ZRange(repo.keyRankInParent(path, "fileName"), 0, -1)
 	if err != nil {
 		return err
 	}
 	for _, child := range children {
-		_, err = cache.Del(fc.keyItem(vpath.Join(path, child)))
+		_, err = cache.Del(repo.keyItem(vpath.Join(path, child)))
 		if err != nil {
 			return err
 		}
 	}
 	//删除自己
-	_, err = cache.Del(fc.keyItem(path))
+	_, err = cache.Del(repo.keyItem(path))
 	if err != nil {
 		return err
 	}
-	for _, field := range fc.orderFields {
-		_, err = cache.Del(fc.keyRankInParent(path, field))
+	for _, field := range repo.orderFields {
+		_, err = cache.Del(repo.keyRankInParent(path, field))
 		if err != nil {
 			return err
 		}
 	}
 	//删除父目录中的引用
 	dir, name := vpath.Split(path)
-	for _, orderField := range fc.orderFields {
-		rank := fc.keyRankInParent(dir, orderField)
+	for _, orderField := range repo.orderFields {
+		rank := repo.keyRankInParent(dir, orderField)
 		_, err := cache.ZRem(rank, name)
 		if err != nil {
 			return err
@@ -195,8 +195,8 @@ func (fc *fileCacheMgr) delete(path string) error {
 	return nil
 }
 
-func (fc *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
-	info, err := fc.get(file)
+func (repo *repositoryCache) updateSize(userRoles, file string, size int64) error {
+	info, err := repo.get(file)
 	if info == nil && err == nil {
 		info, err = vfs.Info(userRoles, file)
 	}
@@ -210,14 +210,14 @@ func (fc *fileCacheMgr) updateSize(userRoles, file string, size int64) error {
 		return nil
 	}
 	info.Size = size
-	return fc.save(info)
+	return repo.save(info)
 }
 
-func (fc *fileCacheMgr) updatePreview(file string, preview string) {
-	info, _ := fc.get(file)
+func (repo *repositoryCache) updatePreview(file string, preview string) {
+	info, _ := repo.get(file)
 	if info != nil {
 		info.Preview = preview
-		if err := fc.save(info); err != nil {
+		if err := repo.save(info); err != nil {
 			logger.Error("updatePreview error", err)
 		}
 	}

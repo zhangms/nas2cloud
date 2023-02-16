@@ -46,7 +46,7 @@ func TestNumber(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	lst, total, err := Service().Walk("zms", "/Movies", "fileName", 0, 5)
+	lst, total, err := Walk("zms", "/Movies", "fileName", 0, 5)
 	if err != nil {
 		logger.ErrorStacktrace(err)
 		return

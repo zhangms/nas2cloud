@@ -40,7 +40,7 @@ func (f *FileController) CreateFolder(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, "name cant empty")
 	}
 	fullPath := vpath.Join(req.Path, folderName)
-	err = files.Service().MkdirAll(u.Name, fullPath)
+	err = files.MkdirAll(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
@@ -60,7 +60,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 	if !u.WriteMode() {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
-	err = files.Service().Remove(u.Name, req.Path)
+	err = files.Remove(u.Name, req.Path)
 	if err != nil {
 		logger.ErrorStacktrace(err, req.Path)
 		return SendError(c, http.StatusForbidden, "file can't delete")
@@ -71,7 +71,7 @@ func (f *FileController) DeleteFiles(c *fiber.Ctx) error {
 func (f *FileController) Exists(c *fiber.Ctx) error {
 	path, _ := url.PathUnescape(c.Params("*"))
 	u, _ := GetContextUser(c)
-	exists, err := files.Service().Exists(u.Name, path)
+	exists, err := files.Exists(u.Name, path)
 	if err != nil {
 		return SendError(c, http.StatusForbidden, err.Error())
 	}
@@ -90,7 +90,7 @@ func (f *FileController) ListExists(c *fiber.Ctx) error {
 	u, _ := GetContextUser(c)
 	ret := make([]int, 0, len(req.Path))
 	for _, v := range req.Path {
-		exists, err := files.Service().Exists(u.Name, v)
+		exists, err := files.Exists(u.Name, v)
 		if err != nil {
 			return SendError(c, http.StatusForbidden, err.Error())
 		}
@@ -114,7 +114,7 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 		return SendError(c, http.StatusBadRequest, "no auth")
 	}
 	fullPath := vpath.Join(path, file.Filename)
-	exists, err := files.Service().Exists(u.Name, fullPath)
+	exists, err := files.Exists(u.Name, fullPath)
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
@@ -132,9 +132,28 @@ func (f *FileController) Upload(c *fiber.Ctx) error {
 	if err != nil {
 		lastModified = time.Now().UnixMilli()
 	}
-	info, err := files.Service().Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
+	info, err := files.Upload(u.Name, fullPath, stream, time.UnixMilli(lastModified))
 	if err != nil {
 		return SendError(c, http.StatusBadRequest, err.Error())
 	}
 	return SendOK(c, info)
+}
+
+func (f *FileController) ToggleFavorite(c *fiber.Ctx) error {
+	type request struct {
+		Name string `json:"name"`
+		Path string `json:"path"`
+	}
+	req := &request{}
+	err := json.Unmarshal(c.Body(), req)
+	if err != nil {
+		return SendError(c, http.StatusBadRequest, err.Error())
+	}
+	u, _ := GetContextUser(c)
+	favor, err := files.ToggleFavorite(u.Name, req.Name, req.Path)
+	if err != nil {
+		logger.ErrorStacktrace(err)
+		return SendError(c, http.StatusInternalServerError, "ERROR")
+	}
+	return SendOK(c, fmt.Sprintf("%v", favor))
 }

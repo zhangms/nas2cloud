@@ -1,38 +1,42 @@
 package files
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
-	"fmt"
 	"io"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc/user"
+	"sync"
 	"time"
 )
 
-type Svc struct {
-}
+const sysUser = "root"
 
-var service = &Svc{}
-
-func Service() *Svc {
-	return service
-}
+var initOnce = &sync.Once{}
 
 var RetryLaterAgain = errors.New("RetryLaterAgain")
 
-func (fs *Svc) Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
+func DoInit(env string, ctx context.Context) {
+	initOnce.Do(func() {
+		vfs.Load(env)
+		startEventProcessor(ctx)
+		startThumbnailExecutor(ctx)
+		startDiskUsage(ctx)
+	})
+}
+
+func Walk(username string, fullPath string, orderBy string, start int64, stop int64) (files []*vfs.ObjectInfo, total int64, err error) {
 	userRoles := user.GetUserRoles(username)
 	path := vpath.Clean(fullPath)
 	if vpath.IsRootDir(path) {
-		return fs.walkRoot(username, userRoles)
+		return walkRoot(username, userRoles)
 	}
 	_, _, err = vfs.GetStore(userRoles, path)
 	if err != nil {
 		return nil, 0, err
 	}
-	eventFired, err := watch.tryFireWalkEvent(&fileEvent{
+	eventFired, err := evt.tryFireWalk(&event{
 		eventType: eventWalk,
 		userName:  username,
 		userRoles: userRoles,
@@ -44,16 +48,15 @@ func (fs *Svc) Walk(username string, fullPath string, orderBy string, start int6
 	if eventFired {
 		return nil, 0, RetryLaterAgain
 	}
-	arr, total, err := fileCache.zRange(path, orderBy, start, stop)
+	arr, total, err := repo.find(path, orderBy, start, stop)
 	if err != nil {
 		return nil, 0, err
 	}
-	ret := fs.unmarshal(arr)
-	return ret, total, nil
+	return arr, total, nil
 }
 
-func (fs *Svc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
-	favors, err := fs.getFavors(username)
+func walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
+	favors, err := getFavors(username)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -63,8 +66,8 @@ func (fs *Svc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, e
 	}
 	files := make([]*vfs.ObjectInfo, 0)
 	for _, d := range list {
-		_ = fileCache.saveIfAbsent(d)
-		inf, _ := fileCache.get(d.Path)
+		_ = repo.saveIfAbsent(d)
+		inf, _ := repo.get(d.Path)
 		if inf != nil {
 			files = append(files, inf)
 		}
@@ -75,27 +78,10 @@ func (fs *Svc) walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, e
 	return ret, int64(len(ret)), nil
 }
 
-func (fs *Svc) unmarshal(arr []any) []*vfs.ObjectInfo {
-	ret := make([]*vfs.ObjectInfo, 0, len(arr))
-	for _, item := range arr {
-		if item == nil {
-			continue
-		}
-		str := fmt.Sprintf("%v", item)
-		obj := &vfs.ObjectInfo{}
-		e := json.Unmarshal([]byte(str), obj)
-		if e != nil {
-			continue
-		}
-		ret = append(ret, obj)
-	}
-	return ret
-}
-
-func (fs *Svc) MkdirAll(username, fullPath string) error {
+func MkdirAll(username, fullPath string) error {
 	userRoles := user.GetUserRoles(username)
 	path := vpath.Clean(fullPath)
-	exi, err := fileCache.exists(path)
+	exi, err := repo.exists(path)
 	if err != nil {
 		return err
 	}
@@ -110,10 +96,10 @@ func (fs *Svc) MkdirAll(username, fullPath string) error {
 	if err != nil {
 		return err
 	}
-	return fileCache.save(info)
+	return repo.save(info)
 }
 
-func (fs *Svc) Remove(username string, fullPath []string) error {
+func Remove(username string, fullPath []string) error {
 	userRoles := user.GetUserRoles(username)
 	for _, p := range fullPath {
 		path := vpath.Clean(p)
@@ -121,11 +107,11 @@ func (fs *Svc) Remove(username string, fullPath []string) error {
 		if err != nil {
 			return err
 		}
-		err = fileCache.delete(path)
+		err = repo.delete(path)
 		if err != nil {
 			return err
 		}
-		watch.fireEvent(&fileEvent{
+		evt.fire(&event{
 			eventType: eventDelete,
 			userName:  username,
 			userRoles: userRoles,
@@ -135,30 +121,7 @@ func (fs *Svc) Remove(username string, fullPath []string) error {
 	return nil
 }
 
-func (fs *Svc) Create(username string, fullPath string, data []byte) error {
-	userRoles := user.GetUserRoles(username)
-	err := vfs.Write(userRoles, fullPath, data)
-	if err != nil {
-		return err
-	}
-	info, err := vfs.Info(userRoles, fullPath)
-	if err != nil {
-		return err
-	}
-	err = fileCache.save(info)
-	if err != nil {
-		return err
-	}
-	watch.fireEvent(&fileEvent{
-		eventType: eventCreate,
-		userName:  username,
-		userRoles: userRoles,
-		path:      fullPath,
-	})
-	return nil
-}
-
-func (fs *Svc) Upload(username string, fullPath string, reader io.Reader, modTime time.Time) (*vfs.ObjectInfo, error) {
+func Upload(username string, fullPath string, reader io.Reader, modTime time.Time) (*vfs.ObjectInfo, error) {
 	userRoles := user.GetUserRoles(username)
 	_, err := vfs.Upload(userRoles, fullPath, reader, modTime)
 	if err != nil {
@@ -169,12 +132,12 @@ func (fs *Svc) Upload(username string, fullPath string, reader io.Reader, modTim
 		return nil, err
 	}
 	info.CreTime = time.Now()
-	thumb.post(info)
-	err = fileCache.save(info)
+	thumbExecutor.post(info)
+	err = repo.save(info)
 	if err != nil {
 		return nil, err
 	}
-	watch.fireEvent(&fileEvent{
+	evt.fire(&event{
 		eventType: eventCreate,
 		userName:  username,
 		userRoles: userRoles,
@@ -183,13 +146,13 @@ func (fs *Svc) Upload(username string, fullPath string, reader io.Reader, modTim
 	return info, err
 }
 
-func (fs *Svc) Exists(username string, fullPath string) (bool, error) {
+func Exists(username string, fullPath string) (bool, error) {
 	userRoles := user.GetUserRoles(username)
 	_, _, err := vfs.GetStore(userRoles, fullPath)
 	if err != nil {
 		return false, err
 	}
-	exists, err := fileCache.exists(fullPath)
+	exists, err := repo.exists(fullPath)
 	if err != nil {
 		return false, err
 	}
@@ -203,5 +166,5 @@ func (fs *Svc) Exists(username string, fullPath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return true, fileCache.save(info)
+	return true, repo.save(info)
 }

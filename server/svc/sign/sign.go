@@ -8,23 +8,14 @@ import (
 	"nas2cloud/svc/cache"
 )
 
-type Svc struct {
-}
-
-var signSvc = &Svc{}
-
-func Instance() *Svc {
-	return signSvc
-}
-
 const keyRSAPem = "rsa.pem"
 
-func (ss *Svc) cacheKey(flag string) string {
+func cacheKey(flag string) string {
 	return keyRSAPem + "." + flag
 }
 
-func (ss *Svc) tryGenerateRSAKey(flag string) error {
-	key := ss.cacheKey(flag)
+func tryGenerateRSAKey(flag string) error {
+	key := cacheKey(flag)
 	count, err := cache.Exists(key)
 	if err != nil {
 		return err
@@ -45,23 +36,23 @@ func (ss *Svc) tryGenerateRSAKey(flag string) error {
 	return err
 }
 
-func (ss *Svc) GetPublicKey(flag string) (string, error) {
-	_, pub, err := ss.getRSAKey(flag)
+func GetPublicKey(flag string) (string, error) {
+	_, pub, err := getRSAKey(flag)
 	return pub, err
 }
 
-func (ss *Svc) getRSAKey(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
-	pri, pub, err := ss.getRSAKeyImpl(flag)
+func getRSAKey(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
+	pri, pub, err := getRSAKeyImpl(flag)
 	logger.PrintIfError(err, "getRSAKey", flag)
 	return pri, pub, err
 }
 
-func (ss *Svc) getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
-	err = ss.tryGenerateRSAKey(flag)
+func getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey string, err error) {
+	err = tryGenerateRSAKey(flag)
 	if err != nil {
 		return "", "", err
 	}
-	key := ss.cacheKey(flag)
+	key := cacheKey(flag)
 	value, err := cache.Get(key)
 	if err != nil {
 		return "", "", err
@@ -77,8 +68,8 @@ func (ss *Svc) getRSAKeyImpl(flag string) (rsaPrivateKey string, rsaPublicKey st
 	return mp["pri"], mp["pub"], nil
 }
 
-func (ss *Svc) DecryptToString(flag string, chipertext []byte) (string, error) {
-	pri, _, err := ss.getRSAKey(flag)
+func DecryptToString(flag string, chipertext []byte) (string, error) {
+	pri, _, err := getRSAKey(flag)
 	if err != nil {
 		return "", err
 	}
