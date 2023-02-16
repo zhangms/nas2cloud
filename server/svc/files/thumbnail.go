@@ -37,7 +37,7 @@ func startThumbnailExecutor(ctx context.Context) {
 		},
 		user:   sysUser,
 		queue:  make(chan string, 10240),
-		bucket: "thumbExecutor",
+		bucket: "thumb",
 		width:  50,
 		height: 50,
 	}
