@@ -32,6 +32,10 @@ class FileWidgets {
     if (FileHelper.isPDF(ext)) {
       return Icon(Icons.picture_as_pdf);
     }
+    if (FileHelper.isDoc(ext)) {
+      return Icon(Icons.summarize);
+    }
+
     switch (ext) {
       case ".TXT":
         return Icon(Icons.text_snippet);
@@ -47,9 +51,9 @@ class FileWidgets {
         children: [
           _getItemThumbnail(item),
           Icon(
-            Icons.play_arrow,
+            Icons.play_circle,
             size: 36,
-            color: Color.fromARGB(128, 28, 49, 139),
+            color: Color.fromARGB(128, 22, 212, 111),
           )
         ],
       ),

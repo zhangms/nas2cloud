@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/components/files/file_item_context_menu.dart';
+import 'package:nas2cloud/components/gallery/doc_viewer.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
@@ -20,6 +20,7 @@ import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import 'file_data_controller.dart';
 import 'file_event.dart';
+import 'file_item_context_menu.dart';
 import 'file_list_page.dart';
 import 'file_widgets.dart';
 
@@ -187,6 +188,8 @@ class _FileListViewState extends State<FileListView> {
       openGallery(index, item);
     } else if (FileHelper.isMusic(item.ext)) {
       playMusic(index, item);
+    } else if (FileHelper.isDoc(item.ext)) {
+      openDoc(index, item);
     } else if (mounted) {
       AppMessage.show(context, "不支持查看该类型的文件");
     }
@@ -267,5 +270,13 @@ class _FileListViewState extends State<FileListView> {
     var builder = FileItemContextMenuBuilder(widget.path, index, item);
     showDialog(
         context: context, builder: (context) => builder.buildDialog(context));
+  }
+
+  Future<void> openDoc(int index, File item) async {
+    var url = await Api().getStaticFileUrl(item.path);
+    var headers = await Api().httpHeaders();
+    if (mounted) {
+      AppNav.openPage(context, DocViewer(url, headers));
+    }
   }
 }

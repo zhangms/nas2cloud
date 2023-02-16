@@ -22,6 +22,20 @@ class FileHelper {
     }
   }
 
+  static bool isDoc(String? ext) {
+    switch (ext) {
+      case ".DOCX":
+      case ".DOC":
+      case ".XLSX":
+      case ".XLS":
+      case ".PPTX":
+      case ".PPT":
+        return true;
+      default:
+        return false;
+    }
+  }
+
   static bool isVideo(String? ext) {
     switch (ext) {
       case ".MP4":

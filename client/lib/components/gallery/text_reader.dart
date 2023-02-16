@@ -18,7 +18,7 @@ class TextReader extends StatefulWidget {
 class _TextReaderState extends State<TextReader> {
   static const int range = 4096;
 
-  final ScrollController controller = ScrollController();
+  final ScrollController controller = ScrollController(keepScrollOffset: true);
   var start = 0;
   var end = range;
   var more = true;
