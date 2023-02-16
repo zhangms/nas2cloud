@@ -41,7 +41,7 @@ func startThumbnailExecutor(ctx context.Context) {
 		width:  50,
 		height: 50,
 	}
-	count := res.GetInt("processor.count.filethumb", 1)
+	count := res.GetInt("processor.count.file.thumbnail", 1)
 	for i := 0; i < count; i++ {
 		go thumbExecutor.process(i, ctx)
 	}

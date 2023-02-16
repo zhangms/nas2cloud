@@ -37,7 +37,7 @@ func startEventProcessor(ctx context.Context) {
 	evt = &eventProcessor{
 		queue: make(chan *event, 1024),
 	}
-	count := res.GetInt("processor.count.filewatch", 1)
+	count := res.GetInt("processor.count.file.event", 1)
 	for i := 0; i < count; i++ {
 		go evt.process(i, ctx)
 	}
