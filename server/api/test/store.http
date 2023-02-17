@@ -1,10 +1,13 @@
-GET http://localhost:8080/file/list
+POST http://localhost:8080/api/store/walk
 Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
 
 {
-  "username": "zms",
-  "password": "baobao4321x",
-  "device": "http-client"
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
 }
 
 ###

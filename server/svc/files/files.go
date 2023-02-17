@@ -56,10 +56,13 @@ func Walk(username string, fullPath string, orderBy string, start int64, stop in
 }
 
 func walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
+	ret := make([]*vfs.ObjectInfo, 0)
 	favors, err := getFavors(username)
 	if err != nil {
 		return nil, 0, err
 	}
+	ret = append(ret, favors...)
+
 	list, er := vfs.List(userRoles, vpath.Separator)
 	if er != nil {
 		return nil, 0, er
@@ -72,9 +75,7 @@ func walkRoot(username, userRoles string) ([]*vfs.ObjectInfo, int64, error) {
 			files = append(files, inf)
 		}
 	}
-	ret := make([]*vfs.ObjectInfo, 0)
-	ret = append(ret, favors...)
-	ret = append(ret, list...)
+	ret = append(ret, files...)
 	return ret, int64(len(ret)), nil
 }
 
