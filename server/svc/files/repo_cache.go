@@ -11,6 +11,7 @@ import (
 	"nas2cloud/svc/cache"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type repositoryCache struct {
@@ -57,6 +58,17 @@ func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
 	if err != nil {
 		return err
 	}
+	//获取目录的最新修改时间
+	if item.Type == vfs.ObjectTypeDir {
+		keyModTime := repo.keyRankInParent(item.Path, "modTime")
+		score, _, _ := cache.ZMaxScore(keyModTime)
+		if score > 0 {
+			tm, er := time.Parse("20060102150405", fmt.Sprintf("%d", int64(score)))
+			if er != nil {
+				item.ModTime = tm
+			}
+		}
+	}
 	key := repo.keyItem(item.Path)
 	_, err = cache.Set(key, string(data))
 	if err != nil {
@@ -99,11 +111,11 @@ func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) fl
 		return float64(item.Size)
 	case "modTime":
 		str := item.ModTime.Format("20060102150405")
-		val, _ := strconv.Atoi(str)
+		val, _ := strconv.ParseInt(str, 10, 64)
 		return float64(val)
 	case "creTime":
 		str := item.CreTime.Format("20060102150405")
-		val, _ := strconv.Atoi(str)
+		val, _ := strconv.ParseInt(str, 10, 64)
 		return float64(val)
 	default:
 		return 0

@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"nas2cloud/libs/logger"
 	"time"
 
@@ -95,6 +96,19 @@ func ZRevRange(key string, start int64, stop int64) ([]string, error) {
 	result, err := DefaultClient().ZRevRange(context.Background(), key, start, stop).Result()
 	logger.PrintIfError(err, key, start, stop)
 	return result, err
+}
+
+func ZMaxScore(key string) (score float64, member string, err error) {
+	result, err := DefaultClient().ZRevRangeWithScores(context.Background(), key, 0, 1).Result()
+	if err != nil {
+		logger.PrintIfError(err, key, "ZMaxScore")
+		return 0, "", err
+	}
+	if len(result) == 0 {
+		return 0, "", nil
+	}
+	z := result[0]
+	return z.Score, fmt.Sprintf("%s", z.Member), nil
 }
 
 func ZAdd(key string, score float64, member string) (int64, error) {

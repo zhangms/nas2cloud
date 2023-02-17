@@ -4,7 +4,7 @@ X-DEVICE: http-client
 X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
 
 {
-  "path": "/",
+  "path": "/Music",
   "pageNo": 0,
   "pageSize": 50,
   "orderBy": "fileName"
