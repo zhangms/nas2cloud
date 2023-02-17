@@ -133,25 +133,25 @@ class _HomeDrawerState extends State<HomeDrawer> {
         userAvatar: state?.userAvatar == null
             ? null
             : await Api().getStaticFileUrl(state!.userAvatar!),
-        userAvatarBig: state?.userAvatarBig == null
+        userAvatarLarge: state?.userAvatarLarge == null
             ? null
-            : await Api().getStaticFileUrl(state!.userAvatarBig!),
+            : await Api().getStaticFileUrl(state!.userAvatarLarge!),
         userName: state?.userName,
         appName: state?.appName,
         httpHeaders: httpHeaders);
   }
 
   onPressedAvatar(_DrawerModel drawer) {
-    if (drawer.userAvatarBig != null) {
+    if (drawer.userAvatarLarge != null) {
       AppNav.openPage(context,
-          PhotoFullScreenViewer(drawer.userAvatarBig!, drawer.httpHeaders));
+          PhotoFullScreenViewer(drawer.userAvatarLarge!, drawer.httpHeaders));
     }
   }
 }
 
 class _DrawerModel {
   String? userAvatar;
-  String? userAvatarBig;
+  String? userAvatarLarge;
 
   String? userName;
   String? appName;
@@ -159,7 +159,7 @@ class _DrawerModel {
 
   _DrawerModel(
       {this.userAvatar,
-      this.userAvatarBig,
+      this.userAvatarLarge,
       this.userName,
       this.appName,
       this.httpHeaders});

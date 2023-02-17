@@ -20,9 +20,9 @@ class StateResponse {
   }
 
   Map<String, dynamic> toMap() => {
-    'data': data?.toMap(),
-    'message': message,
-    'success': success,
+      'data': data?.toMap(),
+      'message': message,
+      'success': success,
   };
 
   factory StateResponse.fromJson(String data) {
@@ -32,7 +32,7 @@ class StateResponse {
   String toJson() => json.encode(toMap());
 
   @override
-  String toString() {return toJson();}
+  String toString() => toJson();
 
   StateResponse copyWith({
     StateResponseData? data,
@@ -52,7 +52,7 @@ class StateResponseData {
   String publicKey;
   String? staticAddress;
   String? userAvatar;
-  String? userAvatarBig;
+  String? userAvatarLarge;
   String? userName;
 
   StateResponseData({
@@ -60,7 +60,7 @@ class StateResponseData {
     required this.publicKey,
     this.staticAddress,
     this.userAvatar,
-    this.userAvatarBig,
+    this.userAvatarLarge,
     this.userName,
   });
 
@@ -70,18 +70,18 @@ class StateResponseData {
       publicKey: data['publicKey'] as String,
       staticAddress: data['staticAddress'] as String?,
       userAvatar: data['userAvatar'] as String?,
-      userAvatarBig: data['userAvatarBig'] as String?,
+      userAvatarLarge: data['userAvatarLarge'] as String?,
       userName: data['userName'] as String?,
     );
   }
 
   Map<String, dynamic> toMap() => {
-    'appName': appName,
-    'publicKey': publicKey,
-    'staticAddress': staticAddress,
-    'userAvatar': userAvatar,
-    'userAvatarBig': userAvatarBig,
-    'userName': userName,
+      'appName': appName,
+      'publicKey': publicKey,
+      'staticAddress': staticAddress,
+      'userAvatar': userAvatar,
+      'userAvatarLarge': userAvatarLarge,
+      'userName': userName,
   };
 
   factory StateResponseData.fromJson(String data) {
@@ -91,14 +91,14 @@ class StateResponseData {
   String toJson() => json.encode(toMap());
 
   @override
-  String toString() {return toJson();}
+  String toString() => toJson();
 
   StateResponseData copyWith({
     String? appName,
     String? publicKey,
     String? staticAddress,
     String? userAvatar,
-    String? userAvatarBig,
+    String? userAvatarLarge,
     String? userName,
   }) {
     return StateResponseData(
@@ -106,7 +106,7 @@ class StateResponseData {
       publicKey: publicKey ?? this.publicKey,
       staticAddress: staticAddress ?? this.staticAddress,
       userAvatar: userAvatar ?? this.userAvatar,
-      userAvatarBig: userAvatarBig ?? this.userAvatarBig,
+      userAvatarLarge: userAvatarLarge ?? this.userAvatarLarge,
       userName: userName ?? this.userName,
     );
   }

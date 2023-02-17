@@ -22,7 +22,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 		AppName         string `json:"appName,omitempty"`
 		StaticAddress   string `json:"staticAddress,omitempty"`
 		UserAvatar      string `json:"userAvatar,omitempty"`
-		UserAvatarLarge string `json:"userAvatarBig,omitempty"`
+		UserAvatarLarge string `json:"userAvatarLarge,omitempty"`
 		UserName        string `json:"userName,omitempty"`
 		PublicKey       string `json:"publicKey,omitempty"`
 	}
