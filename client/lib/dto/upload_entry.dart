@@ -47,18 +47,18 @@ class UploadEntry {
   }
 
   Map<String, dynamic> toMap() => {
-    'id': id,
-    'beginUploadTime': beginUploadTime,
-    'channel': channel,
-    'createTime': createTime,
-    'dest': dest,
-    'endUploadTime': endUploadTime,
-    'lastModified': lastModified,
-    'message': message,
-    'size': size,
-    'src': src,
-    'status': status,
-    'uploadTaskId': uploadTaskId,
+      'id': id,
+      'beginUploadTime': beginUploadTime,
+      'channel': channel,
+      'createTime': createTime,
+      'dest': dest,
+      'endUploadTime': endUploadTime,
+      'lastModified': lastModified,
+      'message': message,
+      'size': size,
+      'src': src,
+      'status': status,
+      'uploadTaskId': uploadTaskId,
   };
 
   factory UploadEntry.fromJson(String data) {
@@ -68,7 +68,7 @@ class UploadEntry {
   String toJson() => json.encode(toMap());
 
   @override
-  String toString() {return toJson();}
+  String toString() => toJson();
 
   UploadEntry copyWith({
     int? id,

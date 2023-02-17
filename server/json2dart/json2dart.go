@@ -41,8 +41,7 @@ func Exec(input, output, className string) error {
 	return os.WriteFile(outputFile, []byte(strings.Join(content, "\n\n")), os.ModePerm)
 }
 
-const methodIndent = 2
-const step = 2
+const intent = 2
 
 func genDartClass(className string, mp map[string]any, classes *[]string) {
 	keys := make([]string, 0, len(mp))
@@ -54,26 +53,31 @@ func genDartClass(className string, mp map[string]any, classes *[]string) {
 	})
 	fields := getFields(className, keys, mp)
 
-	codeLines := make([]*codeLine, 0)
-	codeLines = append(codeLines, noIndentLine(fmt.Sprintf("class %s {", className)))
-	codeLines = append(codeLines, genFieldsPart(fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genConstructor(className, fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genFromMap(className, fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genToMap(fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genFromJson(className, fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genToJson(className, fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genToString(className, fields, methodIndent)...)
-	codeLines = append(codeLines, emptyLine())
-	codeLines = append(codeLines, genCopyWith(className, fields, methodIndent)...)
-	codeLines = append(codeLines, noIndentLine("}")) //end class
+	bodyLines := make([]*codeLine, 0)
+	bodyLines = append(bodyLines, genFieldsPart(fields)...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genConstructor(className, fields)...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genFromMap(className, fields)...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genToMap(fields)...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genFromJson(className, fields)...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genToJson()...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genToString()...)
+	bodyLines = append(bodyLines, emptyLine())
+	bodyLines = append(bodyLines, genCopyWith(className, fields)...)
+
+	classLines := make([]*codeLine, 0)
+	classLines = append(classLines, line(fmt.Sprintf("class %s {", className)))
+	for _, bodyLine := range bodyLines {
+		classLines = append(classLines, bodyLine.addIndent(intent))
+	}
+	classLines = append(classLines, line("}")) //end class
 	ret := make([]string, 0)
-	for _, line := range codeLines {
+	for _, line := range classLines {
 		ret = append(ret, line.String())
 	}
 	*classes = append(*classes, strings.Join(ret, "\n"))
@@ -91,115 +95,112 @@ func genDartClass(className string, mp map[string]any, classes *[]string) {
 	}
 }
 
-func genCopyWith(className string, fields []*jsonField, indent int) []*codeLine {
+func genCopyWith(className string, fields []*jsonField) []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line(fmt.Sprintf("%s copyWith({", className), indent))
-	bodyIndent := indent + step
+	ret = append(ret, line(fmt.Sprintf("%s copyWith({", className)))
 	for _, field := range fields {
-		ret = append(ret, line(fmt.Sprintf("%s %s,", field.fieldType+"?", field.name), bodyIndent))
+		ret = append(ret, indentLine(fmt.Sprintf("%s %s,", field.fieldType+"?", field.name), intent))
 	}
-	ret = append(ret, line("}) {", indent))
-	ret = append(ret, line(fmt.Sprintf("return %s(", className), bodyIndent))
+	ret = append(ret, line("}) {"))
+	ret = append(ret, indentLine(fmt.Sprintf("return %s(", className), intent))
 	for _, field := range fields {
-		ret = append(ret, line(fmt.Sprintf("%s: %s ?? this.%s,", field.name, field.name, field.name), bodyIndent+step))
+		ret = append(ret, indentLine(fmt.Sprintf("%s: %s ?? this.%s,", field.name, field.name, field.name), intent*2))
 	}
-	ret = append(ret, line(");", bodyIndent))
-	ret = append(ret, line("}", indent))
+	ret = append(ret, indentLine(");", intent))
+	ret = append(ret, line("}"))
 	return ret
 }
 
-func genToString(className string, fields []*jsonField, indent int) []*codeLine {
+func genToString() []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line("@override", indent))
-	ret = append(ret, line("String toString() {return toJson();}", indent))
+	ret = append(ret, line("@override"))
+	ret = append(ret, line("String toString() => toJson();"))
 	return ret
 }
 
-func genToJson(className string, fields []*jsonField, indent int) []*codeLine {
+func genToJson() []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line("String toJson() => json.encode(toMap());", indent))
+	ret = append(ret, line("String toJson() => json.encode(toMap());"))
 	return ret
 }
 
-func genFromJson(className string, fields []*jsonField, indent int) []*codeLine {
+func genFromJson(className string, fields []*jsonField) []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line(fmt.Sprintf("factory %s.fromJson(String data) {", className), indent))
-	ret = append(ret, line(fmt.Sprintf("return %s.fromMap(json.decode(data) as Map<String, dynamic>);", className), indent+step))
-	ret = append(ret, line("}", indent))
+	ret = append(ret, line(fmt.Sprintf("factory %s.fromJson(String data) {", className)))
+	ret = append(ret, indentLine(fmt.Sprintf("return %s.fromMap(json.decode(data) as Map<String, dynamic>);", className), intent))
+	ret = append(ret, line("}"))
 	return ret
 }
 
-func genToMap(fields []*jsonField, indent int) []*codeLine {
+func genToMap(fields []*jsonField) []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line("Map<String, dynamic> toMap() => {", indent))
+	ret = append(ret, line("Map<String, dynamic> toMap() => {"))
 	for _, field := range fields {
-		bodyIndent := indent + step
 		if field.isBuiltinType() {
-			ret = append(ret, line(fmt.Sprintf("'%s': %s,", field.name, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("'%s': %s,", field.name, field.name), intent*2))
 		}
 		if field.isObjectType() && field.required {
-			ret = append(ret, line(fmt.Sprintf("'%s': %s.toMap(),", field.name, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("'%s': %s.toMap(),", field.name, field.name), intent*2))
 		}
 		if field.isObjectType() && !field.required {
-			ret = append(ret, line(fmt.Sprintf("'%s': %s?.toMap(),", field.name, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("'%s': %s?.toMap(),", field.name, field.name), intent*2))
 		}
 		if field.isListType() && field.required {
-			ret = append(ret, line(fmt.Sprintf("'%s': %s.map((e) => e.toMap()).toList(),", field.name, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("'%s': %s.map((e) => e.toMap()).toList(),", field.name, field.name), intent*2))
 		}
 		if field.isListType() && !field.required {
-			ret = append(ret, line(fmt.Sprintf("'%s': %s?.map((e) => e.toMap()).toList(),", field.name, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("'%s': %s?.map((e) => e.toMap()).toList(),", field.name, field.name), intent*2))
 		}
 	}
-	ret = append(ret, line("};", indent))
+	ret = append(ret, line("};"))
 	return ret
 }
 
-func genFromMap(className string, fields []*jsonField, indent int) []*codeLine {
+func genFromMap(className string, fields []*jsonField) []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line(fmt.Sprintf("factory %s.fromMap(Map<String, dynamic> data) {", className), indent))
-	ret = append(ret, line(fmt.Sprintf("return %s(", className), indent+step))
+	ret = append(ret, line(fmt.Sprintf("factory %s.fromMap(Map<String, dynamic> data) {", className)))
+	ret = append(ret, indentLine(fmt.Sprintf("return %s(", className), intent))
 
 	for _, field := range fields {
-		bodyIndent := indent + 2*step
 		if field.isBuiltinType() {
-			ret = append(ret, line(fmt.Sprintf("%s: data['%s'] as %s,", field.name, field.name, field.dartTypeName()), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("%s: data['%s'] as %s,", field.name, field.name, field.dartTypeName()), intent*2))
 		}
 		if field.isObjectType() && field.required {
-			ret = append(ret, line(fmt.Sprintf("%s: %s.fromMap(data['%s'] as Map<String, dynamic>),", field.name, field.innerType, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("%s: %s.fromMap(data['%s'] as Map<String, dynamic>),", field.name, field.innerType, field.name), intent*2))
 		}
 		if field.isObjectType() && !field.required {
-			ret = append(ret, line(fmt.Sprintf("%s: data['%s']==null ? null : %s.fromMap(data['%s'] as Map<String, dynamic>),", field.name, field.name, field.innerType, field.name), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("%s: data['%s']==null ? null : %s.fromMap(data['%s'] as Map<String, dynamic>),", field.name, field.name, field.innerType, field.name), intent*2))
 		}
 		if field.isListType() && field.required {
-			ret = append(ret, line(fmt.Sprintf("%s: (data['%s'] as List<dynamic>).map((e) => %s.fromMap(e as Map<String, dynamic>)).toList(),", field.name, field.name, field.innerType), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("%s: (data['%s'] as List<dynamic>).map((e) => %s.fromMap(e as Map<String, dynamic>)).toList(),", field.name, field.name, field.innerType), intent*2))
 		}
 		if field.isListType() && !field.required {
-			ret = append(ret, line(fmt.Sprintf("%s: (data['%s'] as List<dynamic>?)?.map((e) => %s.fromMap(e as Map<String, dynamic>)).toList(),", field.name, field.name, field.innerType), bodyIndent))
+			ret = append(ret, indentLine(fmt.Sprintf("%s: (data['%s'] as List<dynamic>?)?.map((e) => %s.fromMap(e as Map<String, dynamic>)).toList(),", field.name, field.name, field.innerType), intent*2))
 		}
 	}
-	ret = append(ret, line(");", indent+step))
-	ret = append(ret, line("}", indent))
+	ret = append(ret, indentLine(");", intent))
+	ret = append(ret, line("}"))
 	return ret
 }
 
-func genConstructor(className string, fields []*jsonField, indent int) []*codeLine {
+func genConstructor(className string, fields []*jsonField) []*codeLine {
 	ret := make([]*codeLine, 0)
-	ret = append(ret, line(className+"({", indent))
+	ret = append(ret, line(className+"({"))
 	for _, field := range fields {
 		required := ""
 		if field.required {
 			required = "required "
 		}
-		ret = append(ret, line(fmt.Sprintf("%sthis.%s,", required, field.name), indent+step))
+		ret = append(ret, indentLine(fmt.Sprintf("%sthis.%s,", required, field.name), intent))
 	}
-	ret = append(ret, line("});", indent))
+	ret = append(ret, line("});"))
 	return ret
 }
 
-func genFieldsPart(fields []*jsonField, indent int) []*codeLine {
+func genFieldsPart(fields []*jsonField) []*codeLine {
 	ret := make([]*codeLine, 0)
 	for _, field := range fields {
-		ret = append(ret, line(fmt.Sprintf("%s %s;", field.dartTypeName(), field.name), indent))
+		ret = append(ret, line(fmt.Sprintf("%s %s;", field.dartTypeName(), field.name)))
 	}
 	return ret
 }
@@ -217,12 +218,15 @@ func getFields(className string, keys []string, mp map[string]any) []*jsonField 
 		innerType := ""
 		tpl := mp[key]
 		switch tpl.(type) {
-		case int:
-		case float64:
-			if strings.Index(fmt.Sprintf("%v", tpl), ".") > 0 {
-				fieldType = "double"
-			} else {
+		case int, int8, int16, int32, int64:
+			fieldType = "int"
+		case float32, float64:
+			f := reflect.ValueOf(tpl).Float()
+			i := int64(f)
+			if f-float64(i) < 0.0001 {
 				fieldType = "int"
+			} else {
+				fieldType = "double"
 			}
 		case string:
 			fieldType = "String"
@@ -289,6 +293,14 @@ type codeLine struct {
 	indent  int
 }
 
+func (c *codeLine) addIndent(i int) *codeLine {
+	if strings.TrimSpace(c.content) == "" {
+		return emptyLine()
+	}
+	c.indent += i
+	return c
+}
+
 func (c *codeLine) String() string {
 	return fmt.Sprintf("%s%s", strings.Repeat(" ", c.indent), c.content)
 }
@@ -297,10 +309,10 @@ func emptyLine() *codeLine {
 	return &codeLine{content: "", indent: 0}
 }
 
-func noIndentLine(content string) *codeLine {
+func line(content string) *codeLine {
 	return &codeLine{content: content, indent: 0}
 }
 
-func line(content string, indent int) *codeLine {
+func indentLine(content string, indent int) *codeLine {
 	return &codeLine{content: content, indent: indent}
 }

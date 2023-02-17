@@ -10,22 +10,26 @@ var json2dartCommand = &cli.Command{
 	Usage: "convert json file to dart class",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "className",
-			Usage: "dart class name",
+			Name:     "className",
+			Usage:    "dart class name",
+			Required: true,
 		},
 		&cli.StringFlag{
-			Name:  "in",
-			Usage: "input json file path",
+			Name:     "in",
+			Usage:    "input json file path",
+			Required: true,
 		},
 		&cli.StringFlag{
-			Name:  "out",
-			Usage: "output dart directory",
+			Name:     "out",
+			Usage:    "output dart directory",
+			Required: true,
 		},
 	},
 	Action: func(context *cli.Context) error {
-		if !context.IsSet("in") || !context.IsSet("out") || !context.IsSet("className") {
-			return nil
-		}
-		return json2dart.Exec(context.String("in"), context.String("out"), context.String("className"))
+		return json2dart.Exec(
+			context.String("in"),
+			context.String("out"),
+			context.String("className"),
+		)
 	},
 }

@@ -6,7 +6,7 @@
     "r@size": 123,
     "r@lastModified": 123,
     "r@createTime": 123,
-    "r@beginUploadTime": 123,
+    "r@beginUploadTime": 12345678,
     "r@endUploadTime": 123,
     "r@status": "waiting/uploading/waiting/failed",
     "r@uploadTaskId": "xxx",
