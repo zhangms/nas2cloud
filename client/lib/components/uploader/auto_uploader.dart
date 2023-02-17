@@ -7,12 +7,12 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../api/api.dart';
 import '../../api/app_config.dart';
+import '../../dto/auto_upload_config.dart';
+import '../../dto/upload_entry.dart';
 import '../../utils/file_helper.dart';
 import '../../utils/spu.dart';
 import '../background/background.dart';
-import 'auto_upload_config.dart';
 import 'file_uploader.dart';
-import 'upload_entry.dart';
 import 'upload_repo.dart';
 
 class AutoUploader {

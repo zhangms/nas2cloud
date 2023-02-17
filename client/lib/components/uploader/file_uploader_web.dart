@@ -1,7 +1,7 @@
 import '../../api/api.dart';
-import '../../api/dto/result.dart';
+import '../../dto/result.dart';
+import '../../dto/upload_entry.dart';
 import 'file_uploader.dart';
-import 'upload_entry.dart';
 import 'upload_repo.dart';
 import 'upload_status.dart';
 

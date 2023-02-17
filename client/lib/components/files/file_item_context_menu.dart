@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../api/api.dart';
-import '../../api/dto/file_walk_response/file.dart';
-import '../../api/dto/result.dart';
+import '../../dto/file_walk_response.dart';
+import '../../dto/result.dart';
 import '../../event/bus.dart';
 import '../../pub/app_message.dart';
 import '../../pub/app_nav.dart';
@@ -12,7 +12,7 @@ import 'file_event.dart';
 class FileItemContextMenuBuilder {
   final String currentPath;
   final int index;
-  final File item;
+  final FileWalkResponseDataFiles item;
 
   FileItemContextMenuBuilder(this.currentPath, this.index, this.item);
 
@@ -134,7 +134,7 @@ class FileItemContextMenuBuilder {
     }));
   }
 
-  buildFavoriteDialog(BuildContext context, File item) {
+  buildFavoriteDialog(BuildContext context, FileWalkResponseDataFiles item) {
     var input = TextEditingController();
     input.text = item.name;
     return AlertDialog(

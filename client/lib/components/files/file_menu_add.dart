@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../api/api.dart';
-import '../../api/dto/result.dart';
+import '../../dto/result.dart';
 import '../../event/bus.dart';
 import '../../pub/app_message.dart';
 import '../../pub/app_nav.dart';

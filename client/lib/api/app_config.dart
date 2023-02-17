@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/dto/login_response.dart';
+import 'package:nas2cloud/dto/state_response.dart';
 
 import '../components/background/background.dart';
 import '../components/downloader/downloader.dart';
@@ -6,8 +8,6 @@ import '../components/notification/notification.dart';
 import '../components/uploader/auto_uploader.dart';
 import '../components/uploader/file_uploader.dart';
 import '../utils/spu.dart';
-import 'dto/login_response/data.dart' as logindto;
-import 'dto/state_response/data.dart' as statedto;
 
 class AppConfig {
   static const currentAppVersion = "v2.9.8";
@@ -63,20 +63,20 @@ class AppConfig {
     return (await Spu().getString(_serverAddressKey)) != null;
   }
 
-  static Future<bool> saveServerStatus(statedto.Data state) async {
+  static Future<bool> saveServerStatus(StateResponseData state) async {
     return await Spu().setString(_serverStatusKey, state.toJson());
   }
 
-  static Future<statedto.Data?> getServerStatus() async {
+  static Future<StateResponseData?> getServerStatus() async {
     final String? str = await Spu().getString(_serverStatusKey);
-    return str == null ? null : statedto.Data.fromJson(str);
+    return str == null ? null : StateResponseData.fromJson(str);
   }
 
   static Future<String> getAppName() async {
     return (await getServerStatus())?.appName ?? defaultAppName;
   }
 
-  static Future<bool> saveUserLoginInfo(logindto.Data data) async {
+  static Future<bool> saveUserLoginInfo(LoginResponseData data) async {
     return await Spu().setString(_loginTokenKey, data.toJson());
   }
 
@@ -89,10 +89,10 @@ class AppConfig {
     return tokenData != null;
   }
 
-  static Future<logindto.Data?> getUserLoginInfo() async {
+  static Future<LoginResponseData?> getUserLoginInfo() async {
     final String? tokenData = await Spu().getString(_loginTokenKey);
     if (tokenData != null) {
-      return logindto.Data.fromJson(tokenData);
+      return LoginResponseData.fromJson(tokenData);
     }
     return null;
   }

@@ -3,8 +3,8 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import '../../api/app_config.dart';
-import '../../api/dto/page_data.dart';
-import 'upload_entry.dart';
+import '../../dto/page_data.dart';
+import '../../dto/upload_entry.dart';
 import 'upload_repo.dart';
 
 const String _initDbSQL = '''

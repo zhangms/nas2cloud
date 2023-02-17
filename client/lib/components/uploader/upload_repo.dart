@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../../api/dto/page_data.dart';
-import 'upload_entry.dart';
+import '../../dto/page_data.dart';
+import '../../dto/upload_entry.dart';
 import 'upload_repo_sp.dart';
 import 'upload_repo_sqflite.dart';
 

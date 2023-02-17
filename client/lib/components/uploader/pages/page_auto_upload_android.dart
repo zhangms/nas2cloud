@@ -6,12 +6,12 @@ import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../api/api.dart';
+import '../../../dto/auto_upload_config.dart';
 import '../../../event/bus.dart';
-import '../event_file_upload.dart';
 import '../../../pub/app_nav.dart';
 import '../../../pub/widgets.dart';
-import '../auto_upload_config.dart';
 import '../auto_uploader.dart';
+import '../event_file_upload.dart';
 import '../upload_repo.dart';
 import '../upload_status.dart';
 import 'local_file_grid_view.dart';
@@ -195,6 +195,7 @@ class _AndroidAutoUploadConfigWidgetState
 class _AndroidAutoUploadConfig {
   bool storageGrant = false;
   List<_AutoUploadConfigWrapper> configs;
+
   _AndroidAutoUploadConfig(this.storageGrant, this.configs);
 }
 
@@ -204,9 +205,13 @@ class _AutoUploadConfigWrapper {
   int? complete;
 
   String get name => config.name;
+
   String get path => config.path;
+
   String get basepath => config.basepath;
+
   String? get remote => config.remote;
+
   bool get autoupload => config.autoupload;
 
   _AutoUploadConfigWrapper({required this.config, this.total, this.complete});

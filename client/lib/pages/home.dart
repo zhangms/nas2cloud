@@ -6,8 +6,8 @@ import 'package:skeletons/skeletons.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
-import '../api/dto/state_response/state_response.dart';
 import '../components/uploader/file_uploader.dart';
+import '../dto/state_response.dart';
 import '../event/bus.dart';
 import '../event/event_logout.dart';
 import '../pages/home_drawer.dart';

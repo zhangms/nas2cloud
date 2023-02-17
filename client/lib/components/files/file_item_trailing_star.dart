@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:nas2cloud/api/dto/file_walk_response/file.dart';
-import 'package:nas2cloud/pub/app_nav.dart';
 
 import '../../api/api.dart';
+import '../../dto/file_walk_response.dart';
 import '../../event/bus.dart';
+import '../../pub/app_nav.dart';
 import 'file_event.dart';
 
 class FileItemTailingStar extends StatelessWidget {
   final int index;
-  final File item;
+  final FileWalkResponseDataFiles item;
 
   FileItemTailingStar(this.index, this.item);
 

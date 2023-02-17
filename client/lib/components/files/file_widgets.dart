@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:nas2cloud/pub/image_loader.dart';
 
 import '../../api/api.dart';
-import '../../api/dto/file_walk_response/file.dart';
+import '../../dto/file_walk_response.dart';
 import '../../utils/file_helper.dart';
 
 class FileWidgets {
-  static Widget getItemIcon(File item) {
+  static Widget getItemIcon(FileWalkResponseDataFiles item) {
     if (item.type == "DIR") {
       return Icon(Icons.folder);
     }
@@ -14,9 +14,9 @@ class FileWidgets {
       return _getItemIconByExt(item.ext);
     }
     if (FileHelper.isVideo(item.ext)) {
-      return _getItemThumbnailVideo(item);
+      return _getItemThumbnailVideo(item.thumbnail!);
     }
-    return _getItemThumbnail(item);
+    return _getItemThumbnail(item.thumbnail!);
   }
 
   static Widget _getItemIconByExt(String? ext) {
@@ -44,12 +44,12 @@ class FileWidgets {
     }
   }
 
-  static Widget _getItemThumbnailVideo(File item) {
+  static Widget _getItemThumbnailVideo(String thumb) {
     return SizedBox(
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _getItemThumbnail(item),
+          _getItemThumbnail(thumb),
           Icon(
             Icons.play_circle,
             color: Colors.white,
@@ -59,7 +59,7 @@ class FileWidgets {
     );
   }
 
-  static Widget _getItemThumbnail(File item) {
+  static Widget _getItemThumbnail(String thumb) {
     return Padding(
       padding: const EdgeInsets.only(top: 5, bottom: 5),
       child: SizedBox(
@@ -68,7 +68,7 @@ class FileWidgets {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
           child: FutureBuilder<Widget>(
-              future: _buildImage(item.thumbnail!),
+              future: _buildImage(thumb),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return snapshot.data!;

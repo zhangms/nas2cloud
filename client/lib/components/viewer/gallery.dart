@@ -3,8 +3,6 @@ import 'package:nas2cloud/pub/image_loader.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../../api/api.dart';
-import '../../api/dto/file_walk_response/file.dart';
 import '../../pub/app_nav.dart';
 import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
@@ -23,11 +21,11 @@ class GalleryPhotoViewPage extends StatefulWidget {
     return false;
   }
 
-  final List<File> files;
+  final List<GalleryItem> items;
   final int index;
   final PageController pageController;
 
-  GalleryPhotoViewPage(this.files, this.index)
+  GalleryPhotoViewPage(this.items, this.index)
       : pageController = PageController(initialPage: index);
 
   @override
@@ -60,66 +58,33 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
     return Scaffold(
         appBar: buildAppBar(),
         body: Container(
-          constraints: BoxConstraints.expand(
-            height: MediaQuery.of(context).size.height,
-          ),
-          child: FutureBuilder<List<_GalleryItem>>(
-              future: getGalleryItems(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return AppWidgets.pageLoadingView();
-                }
-                galleryItems = snapshot.data!;
-                return PhotoViewGallery.builder(
-                  backgroundDecoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor),
-                  scrollPhysics: const BouncingScrollPhysics(),
-                  pageController: widget.pageController,
-                  itemCount: galleryItems!.length,
-                  scrollDirection: Axis.horizontal,
-                  builder: buildView,
-                  onPageChanged: (index) {
-                    setState(() {
-                      currentIndex = index;
-                    });
-                  },
-                );
-              }),
-        ));
+            constraints: BoxConstraints.expand(
+              height: MediaQuery.of(context).size.height,
+            ),
+            child: PhotoViewGallery.builder(
+              backgroundDecoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor),
+              scrollPhysics: const BouncingScrollPhysics(),
+              pageController: widget.pageController,
+              itemCount: widget.items.length,
+              scrollDirection: Axis.horizontal,
+              builder: buildView,
+              onPageChanged: (index) {
+                setState(() {
+                  currentIndex = index;
+                });
+              },
+            )));
   }
-
-  Future<List<_GalleryItem>> getGalleryItems() async {
-    List<_GalleryItem> list = [];
-    var headers = await Api().httpHeaders();
-    for (var file in widget.files) {
-      var url = await Api().getStaticFileUrl(file.path);
-      list.add(_GalleryItem(
-        filepath: file.path,
-        fileExt: file.ext,
-        url: url,
-        name: file.name,
-        requestHeader: headers,
-      ));
-    }
-    return list;
-  }
-
-  List<_GalleryItem>? galleryItems;
 
   PhotoViewGalleryPageOptions buildView(BuildContext context, int idx) {
-    var item = galleryItems?[idx];
-    if (item == null) {
-      return PhotoViewGalleryPageOptions.customChild(
-          child: AppWidgets.pageErrorView("NotFound"));
-    }
-
+    var item = widget.items[idx];
     // CachedNetworkImage(
     //   imageUrl: "http://via.placeholder.com/350x150",
     //   progressIndicatorBuilder: (context, url, downloadProgress) =>
     //       CircularProgressIndicator(value: downloadProgress.progress),
     //   errorWidget: (context, url, error) => Icon(Icons.error),
     // );
-
     // NetworkImage(item.url, headers: item.requestHeader)
     if (FileHelper.isImage(item.fileExt)) {
       return PhotoViewGalleryPageOptions(
@@ -133,7 +98,7 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
           scaleStateController: scaleStateController);
     } else if (FileHelper.isVideo(item.fileExt)) {
       return PhotoViewGalleryPageOptions.customChild(
-          child: VideoPlayerWapper(item.url, item.requestHeader));
+          child: VideoPlayerWrapper(item.url, item.requestHeader));
     } else if (FileHelper.isPDF(item.fileExt)) {
       return PhotoViewGalleryPageOptions.customChild(
           child: PDFViewer(item.url, item.requestHeader));
@@ -148,25 +113,25 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
 
   buildAppBar() {
     var index = currentIndex + 1;
-    var item = widget.files[currentIndex];
+    var item = widget.items[currentIndex];
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
         onPressed: () => AppNav.pop(context),
       ),
-      title: Text("($index/${widget.files.length})${item.name}"),
+      title: Text("($index/${widget.items.length})${item.name}"),
     );
   }
 }
 
-class _GalleryItem {
+class GalleryItem {
   String filepath;
   String? fileExt;
   String url;
   String name;
   Map<String, String> requestHeader;
 
-  _GalleryItem(
+  GalleryItem(
       {required this.filepath,
       this.fileExt,
       required this.url,

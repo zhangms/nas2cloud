@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-import '../../../api/dto/page_data.dart';
+import '../../../dto/page_data.dart';
+import '../../../dto/upload_entry.dart';
 import '../../../event/bus.dart';
 import '../event_file_upload.dart';
 import '../../../pub/app_nav.dart';
 import '../../../pub/widgets.dart';
 import '../../../utils/data_size.dart';
 import '../file_uploader.dart';
-import '../upload_entry.dart';
 import '../upload_repo.dart';
 import '../upload_status.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../api/api.dart';
 import '../../api/app_config.dart';
-import '../../api/dto/result.dart';
+import '../../dto/result.dart';
 import '../../pub/app_message.dart';
 import '../downloader/downloader.dart';
 

@@ -16,6 +16,7 @@ func NewApp() *cli.App {
 	app.Commands = []*cli.Command{
 		startCommand,
 		stopCommand,
+		json2dartCommand,
 	}
 	return app
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
+import '../dto/file_walk_request.dart';
+import '../dto/file_walk_response.dart';
+import '../dto/login_response.dart';
+import '../dto/result.dart';
+import '../dto/state_response.dart';
 import 'api_mock.dart';
 import 'api_real.dart';
 import 'app_config.dart';
-import 'dto/file_walk_request.dart';
-import 'dto/file_walk_response/file_walk_response.dart';
-import 'dto/login_response/login_response.dart';
-import 'dto/result.dart';
-import 'dto/state_response/state_response.dart';
 
 abstract class Api {
   static Api _real = ApiReal();

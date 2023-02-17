@@ -1,6 +1,6 @@
-import '../../api/dto/page_data.dart';
+import '../../dto/page_data.dart';
+import '../../dto/upload_entry.dart';
 import '../../utils/spu.dart';
-import 'upload_entry.dart';
 import 'upload_repo.dart';
 
 class UploadRepoSP extends UploadRepository {

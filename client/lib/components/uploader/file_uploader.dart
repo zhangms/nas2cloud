@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
 import '../../api/api.dart';
-import '../../api/dto/result.dart';
+import '../../dto/result.dart';
+import '../../dto/upload_entry.dart';
 import '../../event/bus.dart';
 import 'event_file_upload.dart';
 import 'file_uploader_path.dart';
 import 'file_uploader_web.dart';
-import 'upload_entry.dart';
 import 'upload_repo.dart';
 import 'upload_status.dart';
 

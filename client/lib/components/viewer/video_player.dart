@@ -4,17 +4,17 @@ import 'package:video_player/video_player.dart';
 import '../../api/api.dart';
 import '../../pub/widgets.dart';
 
-class VideoPlayerWapper extends StatefulWidget {
+class VideoPlayerWrapper extends StatefulWidget {
   final String videoUrl;
   final Map<String, String> requestHeader;
 
-  VideoPlayerWapper(this.videoUrl, this.requestHeader);
+  VideoPlayerWrapper(this.videoUrl, this.requestHeader);
 
   @override
-  State<VideoPlayerWapper> createState() => _VideoPlayerWapperState();
+  State<VideoPlayerWrapper> createState() => _VideoPlayerWrapperState();
 }
 
-class _VideoPlayerWapperState extends State<VideoPlayerWapper> {
+class _VideoPlayerWrapperState extends State<VideoPlayerWrapper> {
   VideoPlayerController? _controller;
 
   bool isPlaying = false;

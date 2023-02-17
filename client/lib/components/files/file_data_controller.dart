@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import '../../api/api.dart';
-import '../../api/dto/file_walk_request.dart';
-import '../../api/dto/file_walk_response/file.dart';
-import '../../api/dto/file_walk_response/file_walk_response.dart';
 import '../../components/files/file_event.dart';
+import '../../dto/file_walk_request.dart';
+import '../../dto/file_walk_response.dart';
 import '../../event/bus.dart';
 
 class FileDataController {
@@ -21,7 +20,7 @@ class FileDataController {
   bool _initLoading = false;
   bool _loading = false;
   int _total = 0;
-  Map<int, File> _dataMap = {};
+  Map<int, FileWalkResponseDataFiles> _dataMap = {};
 
   bool get initLoading => _initLoading;
 
@@ -34,7 +33,7 @@ class FileDataController {
     await _loadMore(0);
   }
 
-  File? get(int index) {
+  FileWalkResponseDataFiles? get(int index) {
     var ret = _dataMap[index];
     if (ret == null) {
       _tryLoadMore(index);
@@ -103,10 +102,10 @@ class FileDataController {
     return response;
   }
 
-  List<File> getNearestItems(int index) {
+  List<FileWalkResponseDataFiles> getNearestItems(int index) {
     int start = max(index - pageSize, 0);
     int end = max(index + pageSize, _total);
-    List<File> list = [];
+    List<FileWalkResponseDataFiles> list = [];
     for (var i = start; i < end; i++) {
       var item = _dataMap[i];
       if (item != null) {

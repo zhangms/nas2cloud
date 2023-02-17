@@ -7,13 +7,13 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 
+import '../dto/file_walk_request.dart';
+import '../dto/file_walk_response.dart';
+import '../dto/login_response.dart';
+import '../dto/result.dart';
+import '../dto/state_response.dart';
 import 'api.dart';
 import 'app_config.dart';
-import 'dto/file_walk_request.dart';
-import 'dto/file_walk_response/file_walk_response.dart';
-import 'dto/login_response/login_response.dart';
-import 'dto/result.dart';
-import 'dto/state_response/state_response.dart';
 
 class ApiReal extends Api {
   ApiReal() : super.internal();

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
-import '../api/dto/login_response/data.dart' as userdata;
-import '../api/dto/state_response/data.dart' as statdata;
 import '../components/files/file_list_page.dart';
 import '../components/notification/notification.dart';
-import '../components/uploader/auto_upload_config.dart';
 import '../components/uploader/auto_uploader.dart';
 import '../components/uploader/file_uploader.dart';
 import '../components/uploader/upload_repo.dart';
+import '../dto/auto_upload_config.dart';
+import '../dto/login_response.dart';
+import '../dto/state_response.dart';
 import '../pub/app_nav.dart';
 
 class TestPage extends StatelessWidget {
@@ -64,11 +64,11 @@ class TestPage extends StatelessWidget {
 
     await AppConfig.useMockApi(true);
     await AppConfig.saveServerAddress("192.168.31.88:8080");
-    await AppConfig.saveUserLoginInfo(userdata.Data(
+    await AppConfig.saveUserLoginInfo(LoginResponseData(
         username: "zms",
         token: "zms-123",
         createTime: DateTime.now().toString()));
-    await AppConfig.saveServerStatus(statdata.Data(
+    await AppConfig.saveServerStatus(StateResponseData(
       appName: "HELLO",
       publicKey: "",
       userName: "zms",

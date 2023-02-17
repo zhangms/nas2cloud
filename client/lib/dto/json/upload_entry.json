@@ -4,10 +4,10 @@
     "r@src": "/xxx/xxx.png",
     "r@dest": "/Pic/test",
     "r@size": 123,
-    "r@lastModified": 1234567890,
+    "r@lastModified": 123,
     "r@createTime": 123,
-    "r@beginUploadTime": 1234567890,
-    "r@endUploadTime": 1234567890,
+    "r@beginUploadTime": 123,
+    "r@endUploadTime": 123,
     "r@status": "waiting/uploading/waiting/failed",
     "r@uploadTaskId": "xxx",
     "r@message": "uploading"

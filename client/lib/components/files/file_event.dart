@@ -1,10 +1,10 @@
-import '../../api/dto/file_walk_response/file.dart';
+import '../../dto/file_walk_response.dart';
 
 class FileEvent {
   final FileEventType type;
   final String currentPath;
   final String? source;
-  final File? item;
+  final FileWalkResponseDataFiles? item;
 
   FileEvent({
     required this.type,

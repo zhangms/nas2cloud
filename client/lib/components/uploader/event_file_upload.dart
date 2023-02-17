@@ -1,4 +1,5 @@
-import 'upload_entry.dart';
+
+import '../../dto/upload_entry.dart';
 
 class EventFileUpload {
   UploadEntry? entry;

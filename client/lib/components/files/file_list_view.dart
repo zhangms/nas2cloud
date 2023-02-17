@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
-import '../../api/dto/file_walk_response/file.dart';
+import '../../dto/file_walk_response.dart';
+import '../../dto/upload_entry.dart';
 import '../../event/bus.dart';
 import '../../pub/app_message.dart';
 import '../../pub/app_nav.dart';
 import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
 import '../uploader/event_file_upload.dart';
-import '../uploader/upload_entry.dart';
 import '../uploader/upload_status.dart';
 import '../viewer/doc_viewer.dart';
 import '../viewer/gallery.dart';
@@ -179,7 +179,7 @@ class _FileListViewState extends State<FileListView> {
     }
   }
 
-  Future<void> tapItem(int index, File item) async {
+  Future<void> tapItem(int index, FileWalkResponseDataFiles item) async {
     if (item.type == "DIR") {
       AppNav.openPage(context, FileListPage(item.path, item.name));
     } else if (FileHelper.isPDF(item.ext)) {
@@ -195,24 +195,35 @@ class _FileListViewState extends State<FileListView> {
     }
   }
 
-  void openGallery(int index, File item) {
+  Future<void> openGallery(int index, FileWalkResponseDataFiles item) async {
     var items = fileDataController.getNearestItems(index);
-    List<File> galleryItems = [];
+    List<GalleryItem> galleryItems = [];
     int galleryIndex = 0;
+    var headers = await Api().httpHeaders();
     for (var it in items) {
       if (GalleryPhotoViewPage.isSupportFileExt(it.ext)) {
-        galleryItems.add(it);
+        var url = await Api().getStaticFileUrl(it.path);
+        galleryItems.add(GalleryItem(
+          filepath: it.path,
+          fileExt: it.ext,
+          url: url,
+          name: it.name,
+          requestHeader: headers,
+        ));
         if (it.path == item.path) {
           galleryIndex = galleryItems.length - 1;
         }
       }
     }
-    AppNav.openPage(context, GalleryPhotoViewPage(galleryItems, galleryIndex));
+    if (mounted) {
+      AppNav.openPage(
+          context, GalleryPhotoViewPage(galleryItems, galleryIndex));
+    }
   }
 
   static final assetsAudioPlayer = AssetsAudioPlayer();
 
-  Future<void> playMusic(int index, File item) async {
+  Future<void> playMusic(int index, FileWalkResponseDataFiles item) async {
     var items = fileDataController.getNearestItems(index);
     List<Audio> playlist = [];
     int playIndex = 0;
@@ -231,7 +242,7 @@ class _FileListViewState extends State<FileListView> {
     );
   }
 
-  Future<Audio> buildNetworkAudio(File it) async {
+  Future<Audio> buildNetworkAudio(FileWalkResponseDataFiles it) async {
     var audioUrl = await Api().getStaticFileUrl(it.path);
     var httpHeaders = await Api().httpHeaders();
     MetasImage? metaImage;
@@ -255,7 +266,7 @@ class _FileListViewState extends State<FileListView> {
     );
   }
 
-  Future<void> openPDFViewer(File item) async {
+  Future<void> openPDFViewer(FileWalkResponseDataFiles item) async {
     var url = await Api().getStaticFileUrl(item.path);
     var headers = await Api().httpHeaders();
     if (mounted) {
@@ -263,7 +274,7 @@ class _FileListViewState extends State<FileListView> {
     }
   }
 
-  showContextMenu(int index, File item) {
+  showContextMenu(int index, FileWalkResponseDataFiles item) {
     if (widget.fileHome && !(item.favor ?? false)) {
       return;
     }
@@ -272,7 +283,7 @@ class _FileListViewState extends State<FileListView> {
         context: context, builder: (context) => builder.buildDialog(context));
   }
 
-  Future<void> openDoc(int index, File item) async {
+  Future<void> openDoc(int index, FileWalkResponseDataFiles item) async {
     var url = await Api().getStaticFileUrl(item.path);
     var headers = await Api().httpHeaders();
     if (mounted) {
