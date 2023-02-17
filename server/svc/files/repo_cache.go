@@ -54,20 +54,15 @@ func (repo *repositoryCache) saveIfAbsent(item *vfs.ObjectInfo) error {
 }
 
 func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
+	if item.Type == vfs.ObjectTypeDir {
+		modTime, _ := repo.getDirModTime(item.Path)
+		if modTime != nil {
+			item.ModTime = *modTime
+		}
+	}
 	data, err := json.Marshal(item)
 	if err != nil {
 		return err
-	}
-	//获取目录的最新修改时间
-	if item.Type == vfs.ObjectTypeDir {
-		keyModTime := repo.keyRankInParent(item.Path, "modTime")
-		score, _, _ := cache.ZMaxScore(keyModTime)
-		if score > 0 {
-			tm, er := time.Parse("20060102150405", fmt.Sprintf("%d", int64(score)))
-			if er != nil {
-				item.ModTime = tm
-			}
-		}
 	}
 	key := repo.keyItem(item.Path)
 	_, err = cache.Set(key, string(data))
@@ -219,7 +214,7 @@ func (repo *repositoryCache) updateSize(userRoles, file string, size int64) erro
 		return errors.New("file not exists:" + file)
 	}
 	if info.Size == size {
-		return nil
+		//return nil
 	}
 	info.Size = size
 	return repo.save(info)
@@ -233,4 +228,17 @@ func (repo *repositoryCache) updatePreview(file string, preview string) {
 			logger.Error("updatePreview error", err)
 		}
 	}
+}
+
+func (repo *repositoryCache) getDirModTime(path string) (*time.Time, error) {
+	keyModTime := repo.keyRankInParent(path, "modTime")
+	score, _, _ := cache.ZMaxScore(keyModTime)
+	if score <= 0 {
+		return nil, errors.New("no sub item")
+	}
+	tm, err := time.Parse("20060102150405", fmt.Sprintf("%d", int64(score)))
+	if err != nil {
+		return nil, err
+	}
+	return &tm, nil
 }
