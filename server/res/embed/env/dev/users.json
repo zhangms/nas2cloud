@@ -3,18 +3,22 @@
     "name": "dioscoreae",
     "password": "baobao1234",
     "roles": "admin",
+    "avatar": "/assets/avatar_admin.jpg",
     "mode": "rw"
   },
   {
     "name": "zms",
     "password": "baobao4321x",
     "roles": "zms,family",
-    "avatar": "/thumb/favorite.jpg",
+    "avatar": "/assets/avatar_zms.jpg",
+    "avatarLarge": "/assets/avatar_zms_large.jpg",
     "mode": "rw"
   },
   {
     "name": "pmz",
     "password": "baobao123678",
+    "avatar": "/assets/avatar_pmz.jpg",
+    "avatarLarge": "/assets/avatar_pmz_large.jpg",
     "roles": "pmz,family",
     "mode": "rw"
   }
