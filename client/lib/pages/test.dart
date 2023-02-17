@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
+import '../api/dto/login_response/data.dart' as userdata;
+import '../api/dto/state_response/data.dart' as statdata;
 import '../components/files/file_list_page.dart';
 import '../components/notification/notification.dart';
 import '../components/uploader/auto_upload_config.dart';
@@ -22,6 +24,10 @@ class TestPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(onPressed: () => mock(), child: Text("MOCK")),
+                SizedBox(
+                  width: 30,
+                ),
+                ElevatedButton(onPressed: () => login(), child: Text("LOGIN")),
                 SizedBox(
                   width: 30,
                 ),
@@ -55,7 +61,19 @@ class TestPage extends StatelessWidget {
 
   mock() async {
     LocalNotification.platform.send(id: 1, title: "Hello", body: "world");
-    await saveAppState();
+
+    await AppConfig.useMockApi(true);
+    await AppConfig.saveServerAddress("192.168.31.88:8080");
+    await AppConfig.saveUserLoginInfo(userdata.Data(
+        username: "zms",
+        token: "zms-123",
+        createTime: DateTime.now().toString()));
+    await AppConfig.saveServerStatus(statdata.Data(
+      appName: "HELLO",
+      publicKey: "",
+      userName: "zms",
+    ));
+    AppConfig.setThemeSetting(AppConfig.themeLight);
     await initUploadData();
   }
 
@@ -80,33 +98,6 @@ class TestPage extends StatelessWidget {
     //       "executeUpload-->${DateTime.now().difference(start).inMilliseconds}");
     // }
     AppNav.openPage(context, FileListPage("/home", "TEST"));
-  }
-
-  saveAppState() async {
-    await AppConfig.saveServerAddress("192.168.31.88:8080");
-
-    var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
-    await AppConfig.saveUserLoginInfo(resp.data!);
-    await Api().tryGetServerStatus();
-
-    // var hostAddress = await AppConfig.getServerAddress();
-    // print("hostAddress---->$hostAddress");
-    // await AppConfig.saveUserLoginInfo(userdata.Data(
-    //     username: "zms",
-    //     token: "zms-123",
-    //     createTime: DateTime.now().toString()));
-    // var loginInfo = await AppConfig.getUserLoginInfo();
-    // print("loginInfo--->$loginInfo");
-    // await AppConfig.saveServerStatus(statdata.Data(
-    //   appName: "HELLO",
-    //   publicKey: "",
-    //   userName: "zms",
-    // ));
-    // var hoststate = await AppConfig.getServerStatus();
-    // print("hoststate------>$hoststate");
-    // await AppConfig.useMockApi(true);
-    // print("mockapi------>${AppConfig.isUseMockApi()}");
-    // AppConfig.setThemeSetting(AppConfig.themeLight);
   }
 
   initUploadData() async {
@@ -138,5 +129,12 @@ class TestPage extends StatelessWidget {
     await AppConfig.useMockApi(false);
     await AppConfig.clearUserLogin();
     await AppConfig.clearServerAddress();
+  }
+
+  login() async {
+    await AppConfig.saveServerAddress("192.168.31.88:8080");
+    var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
+    await AppConfig.saveUserLoginInfo(resp.data!);
+    await Api().tryGetServerStatus();
   }
 }

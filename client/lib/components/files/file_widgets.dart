@@ -52,7 +52,6 @@ class FileWidgets {
           _getItemThumbnail(item),
           Icon(
             Icons.play_circle,
-            size: 30,
             color: Colors.white,
           )
         ],

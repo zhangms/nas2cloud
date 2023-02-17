@@ -46,6 +46,9 @@ class ApiMock extends Api {
 
   @override
   Future<String> getStaticFileUrl(String path) async {
+    if (path.startsWith("http")) {
+      return path;
+    }
     return "http://192.168.31.99:8168/$path";
   }
 
@@ -88,6 +91,17 @@ class ApiMock extends Api {
             "size": "123MB",
             "modTime": "2022-02-02 22:22:22",
             "favor": i < 3 ? true : false,
+          });
+        } else if (i % 6 == 0) {
+          files.add({
+            "name": "file:$i",
+            "type": "FILE",
+            "path": "path:$i",
+            "size": "123MB",
+            "modTime": "2022-02-02 22:22:22",
+            "favor": i < 3 ? true : false,
+            "ext": ".MP4",
+            "thumbnail": "/thumb/a.jpg",
           });
         } else {
           files.add({

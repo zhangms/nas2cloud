@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/pub/image_loader.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
@@ -36,16 +37,21 @@ class _HomeDrawerState extends State<HomeDrawer> {
     );
     if (drawer.userAvatar != null) {
       avatar = CircleAvatar(
-        backgroundImage:
-            NetworkImage(drawer.userAvatar!, headers: drawer.httpHeaders),
+        backgroundImage: ImageLoader.cacheNetworkImageProvider(
+            drawer.userAvatar!, drawer.httpHeaders!),
       );
     }
+    ElevatedButton avatarButton = ElevatedButton(
+        onPressed: () {
+          print("hello world");
+        },
+        child: avatar);
     return ListView(
       children: [
         UserAccountsDrawerHeader(
           accountName: Text((drawer.userName ?? "").toUpperCase()),
           accountEmail: Text(drawer.appName ?? ""),
-          currentAccountPicture: avatar,
+          currentAccountPicture: avatarButton,
         ),
         buildPhoto(),
         buildAutoUpload(),

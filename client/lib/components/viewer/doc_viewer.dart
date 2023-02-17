@@ -37,7 +37,7 @@ class _DocViewerState extends State<DocViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FileView(controller: controller),
+      body: SafeArea(child: FileView(controller: controller)),
     );
   }
 }

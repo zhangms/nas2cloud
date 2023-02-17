@@ -12,11 +12,13 @@ class PDFViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PDF().cachedFromUrl(
-        url,
-        headers: requestHeader,
-        placeholder: (progress) => Center(child: Text("$progress %")),
-        errorWidget: (error) => AppWidgets.pageErrorView(error.toString()),
+      body: SafeArea(
+        child: PDF().cachedFromUrl(
+          url,
+          headers: requestHeader,
+          placeholder: (progress) => Center(child: Text("$progress %")),
+          errorWidget: (error) => AppWidgets.pageErrorView(error.toString()),
+        ),
       ),
     );
   }
