@@ -1,0 +1,1 @@
+go run server/main.go json2dart -in xx -out yy -className Abc
