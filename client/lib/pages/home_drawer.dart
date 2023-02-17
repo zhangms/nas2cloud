@@ -42,17 +42,13 @@ class _HomeDrawerState extends State<HomeDrawer> {
             drawer.userAvatar!, drawer.httpHeaders!),
       );
     }
-    ElevatedButton avatarButton = ElevatedButton(
-        onPressed: () {
-          onPressedAvatar(drawer);
-        },
-        child: avatar);
     return ListView(
       children: [
         UserAccountsDrawerHeader(
           accountName: Text((drawer.userName ?? "").toUpperCase()),
           accountEmail: Text(drawer.appName ?? ""),
-          currentAccountPicture: avatarButton,
+          currentAccountPicture: GestureDetector(
+              onTap: () => onPressedAvatar(drawer), child: avatar),
         ),
         buildPhoto(),
         buildAutoUpload(),
