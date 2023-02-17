@@ -4,8 +4,9 @@
   "data": {
     "r@appName": "xx",
     "r@publicKey": "xx",
-    "userName": "zms",
     "staticAddress": "xxx",
-    "userAvatar": "xxx"
+    "userName": "zms",
+    "userAvatar": "xxx",
+    "userAvatarBig": "xxx"
   }
 }

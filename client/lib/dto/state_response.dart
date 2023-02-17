@@ -52,6 +52,7 @@ class StateResponseData {
   String publicKey;
   String? staticAddress;
   String? userAvatar;
+  String? userAvatarBig;
   String? userName;
 
   StateResponseData({
@@ -59,6 +60,7 @@ class StateResponseData {
     required this.publicKey,
     this.staticAddress,
     this.userAvatar,
+    this.userAvatarBig,
     this.userName,
   });
 
@@ -68,6 +70,7 @@ class StateResponseData {
       publicKey: data['publicKey'] as String,
       staticAddress: data['staticAddress'] as String?,
       userAvatar: data['userAvatar'] as String?,
+      userAvatarBig: data['userAvatarBig'] as String?,
       userName: data['userName'] as String?,
     );
   }
@@ -77,6 +80,7 @@ class StateResponseData {
     'publicKey': publicKey,
     'staticAddress': staticAddress,
     'userAvatar': userAvatar,
+    'userAvatarBig': userAvatarBig,
     'userName': userName,
   };
 
@@ -94,6 +98,7 @@ class StateResponseData {
     String? publicKey,
     String? staticAddress,
     String? userAvatar,
+    String? userAvatarBig,
     String? userName,
   }) {
     return StateResponseData(
@@ -101,6 +106,7 @@ class StateResponseData {
       publicKey: publicKey ?? this.publicKey,
       staticAddress: staticAddress ?? this.staticAddress,
       userAvatar: userAvatar ?? this.userAvatar,
+      userAvatarBig: userAvatarBig ?? this.userAvatarBig,
       userName: userName ?? this.userName,
     );
   }

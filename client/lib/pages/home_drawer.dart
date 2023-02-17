@@ -5,6 +5,7 @@ import '../api/api.dart';
 import '../api/app_config.dart';
 import '../components/setting/setting_page.dart';
 import '../components/uploader/pages/page_auto_upload.dart';
+import '../components/viewer/photo_viewer.dart';
 import '../event/bus.dart';
 import '../event/event_logout.dart';
 import '../pub/app_message.dart';
@@ -43,7 +44,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
     }
     ElevatedButton avatarButton = ElevatedButton(
         onPressed: () {
-          print("hello world");
+          onPressedAvatar(drawer);
         },
         child: avatar);
     return ListView(
@@ -131,27 +132,39 @@ class _HomeDrawerState extends State<HomeDrawer> {
 
   Future<_DrawerModel> getDrawerModel() async {
     var state = await AppConfig.getServerStatus();
-    var appName = state?.appName;
-    var userName = state?.userName;
     var httpHeaders = await Api().httpHeaders();
-    var userAvatar = state?.userAvatar;
-    if (userAvatar != null) {
-      userAvatar = await Api().getStaticFileUrl(userAvatar);
-    }
     return _DrawerModel(
-        userAvatar: userAvatar,
-        userName: userName,
-        appName: appName,
+        userAvatar: state?.userAvatar == null
+            ? null
+            : await Api().getStaticFileUrl(state!.userAvatar!),
+        userAvatarBig: state?.userAvatarBig == null
+            ? null
+            : await Api().getStaticFileUrl(state!.userAvatarBig!),
+        userName: state?.userName,
+        appName: state?.appName,
         httpHeaders: httpHeaders);
+  }
+
+  onPressedAvatar(_DrawerModel drawer) {
+    if (drawer.userAvatarBig != null) {
+      AppNav.openPage(context,
+          PhotoFullScreenViewer(drawer.userAvatarBig!, drawer.httpHeaders));
+    }
   }
 }
 
 class _DrawerModel {
   String? userAvatar;
+  String? userAvatarBig;
+
   String? userName;
   String? appName;
   Map<String, String>? httpHeaders;
 
   _DrawerModel(
-      {this.userAvatar, this.userName, this.appName, this.httpHeaders});
+      {this.userAvatar,
+      this.userAvatarBig,
+      this.userName,
+      this.appName,
+      this.httpHeaders});
 }

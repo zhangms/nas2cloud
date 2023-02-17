@@ -72,6 +72,10 @@ class TestPage extends StatelessWidget {
       appName: "HELLO",
       publicKey: "",
       userName: "zms",
+      userAvatar:
+          "http://beebot-pri.oss-cn-beijing.aliyuncs.com/zms/mark/qrcode_stackoverflow.com.png",
+      userAvatarBig:
+          "http://beebot-pri.oss-cn-beijing.aliyuncs.com/zms/mark/qrcode_stackoverflow.com.png",
     ));
     AppConfig.setThemeSetting(AppConfig.themeLight);
     await initUploadData();
