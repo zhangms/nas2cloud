@@ -8,19 +8,21 @@ import (
 )
 
 type User struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	Roles    string `json:"roles"`
-	Mode     string `json:"mode"`
-	Avatar   string `json:"avatar"`
+	Name        string `json:"name"`
+	Password    string `json:"password"`
+	Roles       string `json:"roles"`
+	Mode        string `json:"mode"`
+	Avatar      string `json:"avatar"`
+	AvatarLarge string `json:"avatarLarge"`
 }
 
 func (u *User) Clone() *User {
 	return &User{
-		Name:   u.Name,
-		Roles:  u.Roles,
-		Mode:   u.Mode,
-		Avatar: u.Avatar,
+		Name:        u.Name,
+		Roles:       u.Roles,
+		Mode:        u.Mode,
+		Avatar:      u.Avatar,
+		AvatarLarge: u.AvatarLarge,
 	}
 }
 

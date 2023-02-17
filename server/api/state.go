@@ -19,11 +19,12 @@ var stateController = &StateController{}
 
 func (*StateController) State(c *fiber.Ctx) error {
 	type Response struct {
-		AppName       string `json:"appName,omitempty"`
-		StaticAddress string `json:"staticAddress,omitempty"`
-		UserAvatar    string `json:"userAvatar,omitempty"`
-		UserName      string `json:"userName,omitempty"`
-		PublicKey     string `json:"publicKey,omitempty"`
+		AppName         string `json:"appName,omitempty"`
+		StaticAddress   string `json:"staticAddress,omitempty"`
+		UserAvatar      string `json:"userAvatar,omitempty"`
+		UserAvatarLarge string `json:"userAvatarBig,omitempty"`
+		UserName        string `json:"userName,omitempty"`
+		PublicKey       string `json:"publicKey,omitempty"`
 	}
 	resp := &Response{
 		AppName:       res.GetString("app.name"),
@@ -38,6 +39,7 @@ func (*StateController) State(c *fiber.Ctx) error {
 	if u != nil {
 		resp.UserName = u.Name
 		resp.UserAvatar = u.Avatar
+		resp.UserAvatarLarge = u.AvatarLarge
 	}
 	return SendOK(c, resp)
 }
