@@ -59,10 +59,7 @@ func (l *Local) List(file string) ([]*ObjectInfo, error) {
 		if fi.Name() == "$RECYCLE.BIN" {
 			continue
 		}
-		inf, er := l.infoF(path.Join(l.AbsVirtual(file), fi.Name()), fi)
-		if er != nil {
-			continue
-		}
+		inf := l.infoF(path.Join(l.AbsVirtual(file), fi.Name()), fi)
 		ret = append(ret, inf)
 	}
 	return ret, nil
@@ -73,7 +70,7 @@ func (l *Local) Info(file string) (*ObjectInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	return l.infoF(l.AbsVirtual(file), fi)
+	return l.infoF(l.AbsVirtual(file), fi), nil
 }
 
 func (l *Local) Open(file string) (io.Reader, error) {
@@ -119,7 +116,7 @@ func (l *Local) Remove(file string) error {
 }
 
 func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64, error) {
-	l.MkdirAll(filepath.Dir(file))
+	_ = l.MkdirAll(filepath.Dir(file))
 	writer, err := os.OpenFile(l.AbsLocal(file), os.O_CREATE|os.O_WRONLY, fs.ModePerm)
 	if err != nil {
 		return 0, err
@@ -136,16 +133,22 @@ func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64,
 	return written, nil
 }
 
-func (l *Local) infoF(fullPath string, fi os.FileInfo) (*ObjectInfo, error) {
+func (l *Local) infoF(fullPath string, fi os.FileInfo) *ObjectInfo {
 	modTime := fi.ModTime()
-	return &ObjectInfo{
-		Name:    libs.If(fullPath == l.bucket.Dir(), l.bucket.name, fi.Name()).(string),
-		Path:    fullPath,
-		Type:    libs.If(fi.IsDir(), ObjectTypeDir, ObjectTypeFile).(ObjectType),
-		Hidden:  strings.Index(fi.Name(), ".") == 0,
-		ModTime: modTime,
-		CreTime: modTime,
-		Size:    libs.If(fi.IsDir(), int64(-1), fi.Size()).(int64),
-		Ext:     strings.ToUpper(filepath.Ext(fi.Name())),
-	}, nil
+	inf := &ObjectInfo{
+		Name:   libs.If(fullPath == l.bucket.Dir(), l.bucket.name, fi.Name()).(string),
+		Path:   fullPath,
+		Hidden: strings.Index(fi.Name(), ".") == 0,
+		Ext:    strings.ToUpper(filepath.Ext(fi.Name())),
+	}
+	if fi.IsDir() {
+		inf.Type = ObjectTypeDir
+		inf.Size = -1
+	} else {
+		inf.Type = ObjectTypeFile
+		inf.Size = fi.Size()
+		inf.ModTime = &modTime
+		inf.CreTime = &modTime
+	}
+	return inf
 }

@@ -5,6 +5,9 @@ import "fmt"
 const k = 1024
 
 func ReadableDataSize(size int64) string {
+	if size <= 0 {
+		return ""
+	}
 	value := float64(size) / k
 	if value < 1 {
 		return "<1KB"

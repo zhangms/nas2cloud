@@ -9,7 +9,6 @@ import (
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc/cache"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -50,9 +49,9 @@ func (repo *repositoryCache) saveIfAbsent(item *vfs.ObjectInfo) error {
 
 func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
 	if item.Type == vfs.ObjectTypeDir {
-		modTime, _ := repo.getDirModTime(item.Path)
+		modTime := repo.getDirModTime(item.Path)
 		if modTime != nil {
-			item.ModTime = *modTime
+			item.ModTime = modTime
 		}
 	}
 	data, err := json.Marshal(item)
@@ -66,7 +65,7 @@ func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
 	//更新在父目录中的位置
 	parent := vpath.Dir(item.Path)
 	for _, orderField := range repo.orderFields {
-		rank := repo.keyRankInParent(parent, orderField)
+		rank := repo.keyRank(parent, orderField)
 		if _, err = cache.ZAdd(rank, repo.getRankScore(item, orderField), item.Name); err != nil {
 			return err
 		}
@@ -81,13 +80,11 @@ func (repo *repositoryCache) keyItem(path string) string {
 	return cache.Join(bucket, repo.version, "file", cp)
 }
 
-func (repo *repositoryCache) keyRankInParent(parent string, orderField string) string {
-	cp := vpath.Clean(parent)
+func (repo *repositoryCache) keyRank(path string, orderField string) string {
+	cp := vpath.Clean(path)
 	bucket, _ := vpath.BucketFile(cp)
 	return cache.Join(bucket, repo.version, "rank", orderField, cp)
 }
-
-const timeFormat = "20060102150405"
 
 func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
@@ -100,13 +97,15 @@ func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) fl
 	case "size":
 		return float64(item.Size)
 	case "modTime":
-		str := item.ModTime.Format(timeFormat)
-		val, _ := strconv.ParseInt(str, 10, 64)
-		return float64(val)
+		if item.ModTime == nil {
+			return float64(0)
+		}
+		return float64(item.ModTime.UnixMilli())
 	case "creTime":
-		str := item.CreTime.Format(timeFormat)
-		val, _ := strconv.ParseInt(str, 10, 64)
-		return float64(val)
+		if item.CreTime == nil {
+			return float64(0)
+		}
+		return float64(item.CreTime.UnixMilli())
 	default:
 		return 0
 	}
@@ -120,7 +119,7 @@ func (repo *repositoryCache) find(path string, orderBy string, start int64, stop
 	}, func() any {
 		return "asc"
 	}).(string)
-	key := repo.keyRankInParent(path, fieldName)
+	key := repo.keyRank(path, fieldName)
 	total, err := cache.ZCard(key)
 	if err != nil {
 		return nil, 0, err
@@ -164,7 +163,7 @@ func (repo *repositoryCache) unmarshal(arr []any) []*vfs.ObjectInfo {
 
 func (repo *repositoryCache) delete(path string) error {
 	//删除子文件
-	children, err := cache.ZRange(repo.keyRankInParent(path, "fileName"), 0, -1)
+	children, err := cache.ZRange(repo.keyRank(path, "fileName"), 0, -1)
 	if err != nil {
 		return err
 	}
@@ -180,7 +179,7 @@ func (repo *repositoryCache) delete(path string) error {
 		return err
 	}
 	for _, field := range repo.orderFields {
-		_, err = cache.Del(repo.keyRankInParent(path, field))
+		_, err = cache.Del(repo.keyRank(path, field))
 		if err != nil {
 			return err
 		}
@@ -188,7 +187,7 @@ func (repo *repositoryCache) delete(path string) error {
 	//删除父目录中的引用
 	dir, name := vpath.Split(path)
 	for _, orderField := range repo.orderFields {
-		rank := repo.keyRankInParent(dir, orderField)
+		rank := repo.keyRank(dir, orderField)
 		_, err := cache.ZRem(rank, name)
 		if err != nil {
 			return err
@@ -225,15 +224,12 @@ func (repo *repositoryCache) updatePreview(file string, preview string) {
 	}
 }
 
-func (repo *repositoryCache) getDirModTime(path string) (*time.Time, error) {
-	keyModTime := repo.keyRankInParent(path, "modTime")
+func (repo *repositoryCache) getDirModTime(path string) *time.Time {
+	keyModTime := repo.keyRank(path, "modTime")
 	score, _, _ := cache.ZMaxScore(keyModTime)
 	if score <= 0 {
-		return nil, nil
+		return nil
 	}
-	tm, err := time.Parse(timeFormat, fmt.Sprintf("%d", int64(score)))
-	if err != nil {
-		return nil, err
-	}
-	return &tm, nil
+	tm := time.UnixMilli(int64(score))
+	return &tm
 }

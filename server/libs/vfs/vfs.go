@@ -154,12 +154,10 @@ func List(role string, file string) ([]*ObjectInfo, error) {
 func Info(role string, file string) (*ObjectInfo, error) {
 	if vpath.IsRootDir(file) {
 		return &ObjectInfo{
-			Name:    vpath.Separator,
-			Path:    vpath.Separator,
-			Hidden:  false,
-			Type:    ObjectTypeDir,
-			ModTime: time.Now(),
-			CreTime: time.Now(),
+			Name:   vpath.Separator,
+			Path:   vpath.Separator,
+			Hidden: false,
+			Type:   ObjectTypeDir,
 		}, nil
 	}
 	store, f, err := GetStore(role, file)

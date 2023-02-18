@@ -87,3 +87,12 @@ func TestTag(t *testing.T) {
 		fmt.Println(str)
 	}
 }
+
+func TestTime(t *testing.T) {
+	type TestObject struct {
+		ModTime *time.Time
+	}
+	obj := &TestObject{}
+	data, _ := json.Marshal(obj)
+	fmt.Println(string(data))
+}

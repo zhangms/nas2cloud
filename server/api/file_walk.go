@@ -105,7 +105,11 @@ func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo, favors map[string]s
 			Thumbnail: itm.Preview,
 			Type:      string(itm.Type),
 			Size:      libs.ReadableDataSize(itm.Size),
-			ModTime:   itm.ModTime.Format("2006-01-02 15:04"),
+			ModTime: libs.IF(itm.ModTime == nil, func() any {
+				return ""
+			}, func() any {
+				return itm.ModTime.Format("2006-01-02 15:04")
+			}).(string),
 			Ext:       itm.Ext,
 			Favor:     favor,
 			FavorName: favorName,
