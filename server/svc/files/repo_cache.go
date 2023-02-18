@@ -2,7 +2,6 @@ package files
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
@@ -18,14 +17,14 @@ type repositoryCache struct {
 	orderFields []string
 }
 
-func (repo *repositoryCache) exists(path string) (bool, error) {
-	key := repo.keyItem(path)
+func (r *repositoryCache) exists(path string) (bool, error) {
+	key := r.keyItem(path)
 	count, err := cache.Exists(key)
 	return count == 1, err
 }
 
-func (repo *repositoryCache) get(path string) (*vfs.ObjectInfo, error) {
-	key := repo.keyItem(path)
+func (r *repositoryCache) get(path string) (*vfs.ObjectInfo, error) {
+	key := r.keyItem(path)
 	str, err := cache.Get(key)
 	if err != nil {
 		return nil, err
@@ -40,33 +39,27 @@ func (repo *repositoryCache) get(path string) (*vfs.ObjectInfo, error) {
 	return obj, nil
 }
 
-func (repo *repositoryCache) saveIfAbsent(item *vfs.ObjectInfo) error {
-	if exists, _ := repo.exists(item.Path); exists {
+func (r *repositoryCache) saveIfAbsent(item *vfs.ObjectInfo) error {
+	if exists, _ := r.exists(item.Path); exists {
 		return nil
 	}
-	return repo.save(item)
+	return r.save(item)
 }
 
-func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
-	if item.Type == vfs.ObjectTypeDir {
-		modTime := repo.getDirModTime(item.Path)
-		if modTime != nil {
-			item.ModTime = modTime
-		}
-	}
+func (r *repositoryCache) save(item *vfs.ObjectInfo) error {
 	data, err := json.Marshal(item)
 	if err != nil {
 		return err
 	}
-	key := repo.keyItem(item.Path)
+	key := r.keyItem(item.Path)
 	if _, err = cache.Set(key, string(data)); err != nil {
 		return err
 	}
 	//更新在父目录中的位置
 	parent := vpath.Dir(item.Path)
-	for _, orderField := range repo.orderFields {
-		rank := repo.keyRank(parent, orderField)
-		if _, err = cache.ZAdd(rank, repo.getRankScore(item, orderField), item.Name); err != nil {
+	for _, orderField := range r.orderFields {
+		rank := r.keyRank(parent, orderField)
+		if _, err = cache.ZAdd(rank, r.getRankScore(item, orderField), item.Name); err != nil {
 			return err
 		}
 	}
@@ -74,19 +67,19 @@ func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
 	return nil
 }
 
-func (repo *repositoryCache) keyItem(path string) string {
+func (r *repositoryCache) keyItem(path string) string {
 	cp := vpath.Clean(path)
 	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, repo.version, "file", cp)
+	return cache.Join(bucket, r.version, "file", cp)
 }
 
-func (repo *repositoryCache) keyRank(path string, orderField string) string {
+func (r *repositoryCache) keyRank(path string, orderField string) string {
 	cp := vpath.Clean(path)
 	bucket, _ := vpath.BucketFile(cp)
-	return cache.Join(bucket, repo.version, "rank", orderField, cp)
+	return cache.Join(bucket, r.version, "rank", orderField, cp)
 }
 
-func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float64 {
+func (r *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
 		if item.Type == vfs.ObjectTypeDir {
@@ -111,7 +104,7 @@ func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) fl
 	}
 }
 
-func (repo *repositoryCache) find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
+func (r *repositoryCache) find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
 	arr := strings.Split(orderBy, "_")
 	fieldName := arr[0]
 	sort := libs.IF(len(arr) > 1, func() any {
@@ -119,7 +112,7 @@ func (repo *repositoryCache) find(path string, orderBy string, start int64, stop
 	}, func() any {
 		return "asc"
 	}).(string)
-	key := repo.keyRank(path, fieldName)
+	key := r.keyRank(path, fieldName)
 	total, err := cache.ZCard(key)
 	if err != nil {
 		return nil, 0, err
@@ -138,13 +131,13 @@ func (repo *repositoryCache) find(path string, orderBy string, start int64, stop
 	}
 	keys := make([]string, 0, len(list))
 	for _, name := range list {
-		keys = append(keys, repo.keyItem(vpath.Join(path, name)))
+		keys = append(keys, r.keyItem(vpath.Join(path, name)))
 	}
 	ret, err := cache.MGet(keys...)
-	return repo.unmarshal(ret), total, err
+	return r.unmarshal(ret), total, err
 }
 
-func (repo *repositoryCache) unmarshal(arr []any) []*vfs.ObjectInfo {
+func (r *repositoryCache) unmarshal(arr []any) []*vfs.ObjectInfo {
 	ret := make([]*vfs.ObjectInfo, 0, len(arr))
 	for _, item := range arr {
 		if item == nil {
@@ -161,33 +154,33 @@ func (repo *repositoryCache) unmarshal(arr []any) []*vfs.ObjectInfo {
 	return ret
 }
 
-func (repo *repositoryCache) delete(path string) error {
+func (r *repositoryCache) delete(path string) error {
 	//删除子文件
-	children, err := cache.ZRange(repo.keyRank(path, "fileName"), 0, -1)
+	children, err := cache.ZRange(r.keyRank(path, "fileName"), 0, -1)
 	if err != nil {
 		return err
 	}
 	for _, child := range children {
-		_, err = cache.Del(repo.keyItem(vpath.Join(path, child)))
+		_, err = cache.Del(r.keyItem(vpath.Join(path, child)))
 		if err != nil {
 			return err
 		}
 	}
 	//删除自己
-	_, err = cache.Del(repo.keyItem(path))
+	_, err = cache.Del(r.keyItem(path))
 	if err != nil {
 		return err
 	}
-	for _, field := range repo.orderFields {
-		_, err = cache.Del(repo.keyRank(path, field))
+	for _, field := range r.orderFields {
+		_, err = cache.Del(r.keyRank(path, field))
 		if err != nil {
 			return err
 		}
 	}
 	//删除父目录中的引用
 	dir, name := vpath.Split(path)
-	for _, orderField := range repo.orderFields {
-		rank := repo.keyRank(dir, orderField)
+	for _, orderField := range r.orderFields {
+		rank := r.keyRank(dir, orderField)
 		_, err := cache.ZRem(rank, name)
 		if err != nil {
 			return err
@@ -196,40 +189,37 @@ func (repo *repositoryCache) delete(path string) error {
 	return nil
 }
 
-func (repo *repositoryCache) updateSize(userRoles, file string, size int64) error {
-	info, err := repo.get(file)
-	if info == nil && err == nil {
-		info, err = vfs.Info(userRoles, file)
+func (r *repositoryCache) updateSize(file string, size int64) error {
+	info, _ := r.get(file)
+	if info != nil && info.Size != size {
+		info.Size = size
+		return r.save(info)
 	}
-	if err != nil {
-		return err
-	}
-	if info == nil {
-		return errors.New("file not exists:" + file)
-	}
-	if info.Size == size {
-		return nil
-	}
-	info.Size = size
-	return repo.save(info)
+	return nil
 }
 
-func (repo *repositoryCache) updatePreview(file string, preview string) {
-	info, _ := repo.get(file)
+func (r *repositoryCache) updatePreview(file string, preview string) {
+	info, _ := r.get(file)
 	if info != nil && info.Preview != preview {
 		info.Preview = preview
-		if err := repo.save(info); err != nil {
+		if err := r.save(info); err != nil {
 			logger.Error("updatePreview error", err)
 		}
 	}
 }
 
-func (repo *repositoryCache) getDirModTime(path string) *time.Time {
-	keyModTime := repo.keyRank(path, "modTime")
-	score, _, _ := cache.ZMaxScore(keyModTime)
-	if score <= 0 {
-		return nil
+func (r *repositoryCache) updateModTime(path string) {
+	info, _ := r.get(path)
+	if info != nil && info.Type == vfs.ObjectTypeDir {
+		keyModTime := r.keyRank(path, "modTime")
+		score, _, _ := cache.ZMaxScore(keyModTime)
+		if score <= 0 {
+			return
+		}
+		tm := time.UnixMilli(int64(score))
+		info.ModTime = &tm
+		if err := r.save(info); err != nil {
+			logger.Error("updateModTime error", err)
+		}
 	}
-	tm := time.UnixMilli(int64(score))
-	return &tm
 }

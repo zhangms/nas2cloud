@@ -1,6 +1,8 @@
 package files
 
-import "nas2cloud/libs/vfs"
+import (
+	"nas2cloud/libs/vfs"
+)
 
 type repository interface {
 	exists(path string) (bool, error)
@@ -9,8 +11,9 @@ type repository interface {
 	save(item *vfs.ObjectInfo) error
 	delete(path string) error
 	find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error)
-	updateSize(userRoles, file string, size int64) error
+	updateSize(file string, size int64) error
 	updatePreview(file string, preview string)
+	updateModTime(path string)
 }
 
 var repo repository = &repositoryCache{
