@@ -88,8 +88,7 @@ func (ep *eventProcessor) processWalk(event *event) error {
 	if err != nil {
 		return err
 	}
-	err = repo.saveIfAbsent(info)
-	if err != nil {
+	if err = repo.saveIfAbsent(info); err != nil {
 		return err
 	}
 	files, err := vfs.List(event.userRoles, event.path)

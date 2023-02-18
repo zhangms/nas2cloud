@@ -100,7 +100,7 @@ func (t *thumbnailExecutor) process(index int, ctx context.Context) {
 			dest := t.getThumbDest(path)
 			inf, err := repo.get(path)
 			if err != nil {
-				logger.Error("image thumbExecutor file info get error", err)
+				logger.Error("image thumb file info get error", err)
 				continue
 			}
 			if inf != nil && inf.Preview == dest {
@@ -111,10 +111,10 @@ func (t *thumbnailExecutor) process(index int, ctx context.Context) {
 				continue
 			}
 			if err := thumb.exec(t.user, path, dest, t.width, t.height); err != nil {
-				logger.Error("image thumbExecutor error", reflect.TypeOf(thumb), path, dest, err)
+				logger.Error("image thumb error", reflect.TypeOf(thumb), path, dest, err)
 			} else {
 				repo.updatePreview(path, dest)
-				logger.Info("image thumbExecutor", path, dest)
+				logger.Info("image thumb", path, dest)
 			}
 		}
 	}

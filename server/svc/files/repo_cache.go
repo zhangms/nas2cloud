@@ -22,10 +22,7 @@ type repositoryCache struct {
 func (repo *repositoryCache) exists(path string) (bool, error) {
 	key := repo.keyItem(path)
 	count, err := cache.Exists(key)
-	if err != nil {
-		return false, err
-	}
-	return count == 1, nil
+	return count == 1, err
 }
 
 func (repo *repositoryCache) get(path string) (*vfs.ObjectInfo, error) {
@@ -38,16 +35,14 @@ func (repo *repositoryCache) get(path string) (*vfs.ObjectInfo, error) {
 		return nil, nil
 	}
 	obj := &vfs.ObjectInfo{}
-	err = json.Unmarshal([]byte(str), obj)
-	if err != nil {
+	if err = json.Unmarshal([]byte(str), obj); err != nil {
 		return nil, err
 	}
 	return obj, nil
 }
 
 func (repo *repositoryCache) saveIfAbsent(item *vfs.ObjectInfo) error {
-	exists, _ := repo.exists(item.Path)
-	if exists {
+	if exists, _ := repo.exists(item.Path); exists {
 		return nil
 	}
 	return repo.save(item)
@@ -65,16 +60,14 @@ func (repo *repositoryCache) save(item *vfs.ObjectInfo) error {
 		return err
 	}
 	key := repo.keyItem(item.Path)
-	_, err = cache.Set(key, string(data))
-	if err != nil {
+	if _, err = cache.Set(key, string(data)); err != nil {
 		return err
 	}
 	//更新在父目录中的位置
 	parent := vpath.Dir(item.Path)
 	for _, orderField := range repo.orderFields {
 		rank := repo.keyRankInParent(parent, orderField)
-		_, err = cache.ZAdd(rank, repo.getRankScore(item, orderField), item.Name)
-		if err != nil {
+		if _, err = cache.ZAdd(rank, repo.getRankScore(item, orderField), item.Name); err != nil {
 			return err
 		}
 	}
@@ -94,6 +87,8 @@ func (repo *repositoryCache) keyRankInParent(parent string, orderField string) s
 	return cache.Join(bucket, repo.version, "rank", orderField, cp)
 }
 
+const timeFormat = "20060102150405"
+
 func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float64 {
 	switch field {
 	case "fileName":
@@ -105,11 +100,11 @@ func (repo *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) fl
 	case "size":
 		return float64(item.Size)
 	case "modTime":
-		str := item.ModTime.Format("20060102150405")
+		str := item.ModTime.Format(timeFormat)
 		val, _ := strconv.ParseInt(str, 10, 64)
 		return float64(val)
 	case "creTime":
-		str := item.CreTime.Format("20060102150405")
+		str := item.CreTime.Format(timeFormat)
 		val, _ := strconv.ParseInt(str, 10, 64)
 		return float64(val)
 	default:
@@ -222,7 +217,7 @@ func (repo *repositoryCache) updateSize(userRoles, file string, size int64) erro
 
 func (repo *repositoryCache) updatePreview(file string, preview string) {
 	info, _ := repo.get(file)
-	if info != nil {
+	if info != nil && info.Preview != preview {
 		info.Preview = preview
 		if err := repo.save(info); err != nil {
 			logger.Error("updatePreview error", err)
@@ -234,9 +229,9 @@ func (repo *repositoryCache) getDirModTime(path string) (*time.Time, error) {
 	keyModTime := repo.keyRankInParent(path, "modTime")
 	score, _, _ := cache.ZMaxScore(keyModTime)
 	if score <= 0 {
-		return nil, errors.New("no sub item")
+		return nil, nil
 	}
-	tm, err := time.Parse("20060102150405", fmt.Sprintf("%d", int64(score)))
+	tm, err := time.Parse(timeFormat, fmt.Sprintf("%d", int64(score)))
 	if err != nil {
 		return nil, err
 	}
