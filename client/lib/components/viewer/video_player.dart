@@ -33,12 +33,12 @@ class _VideoPlayerWrapperState extends State<VideoPlayerWrapper> {
         future: getVideoSignUrl(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return AppWidgets.pageLoadingView();
+            return Container();
           }
           VideoPlayerController controller = _getController(snapshot.data!);
           return Scaffold(
             body: Center(
-              child: buildVideoView(),
+              child: buildVideoView(controller),
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
@@ -84,23 +84,20 @@ class _VideoPlayerWrapperState extends State<VideoPlayerWrapper> {
     return _controller!;
   }
 
-  buildVideoView() {
-    if (_controller == null) {
-      return AppWidgets.centerTextView("Loading...");
-    }
-    if (_controller!.value.isInitialized) {
+  Widget buildVideoView(VideoPlayerController controller) {
+    if (controller.value.isInitialized) {
       return AspectRatio(
-        aspectRatio: _controller!.value.aspectRatio,
+        aspectRatio: controller.value.aspectRatio,
         child: Stack(alignment: Alignment.bottomCenter, children: [
-          VideoPlayer(_controller!),
-          VideoProgressIndicator(_controller!, allowScrubbing: true),
+          VideoPlayer(controller),
+          VideoProgressIndicator(controller, allowScrubbing: true),
         ]),
       );
     }
-    if (_controller!.value.hasError) {
+    if (controller.value.hasError) {
       return AppWidgets.pageErrorView(
-          _controller!.value.errorDescription ?? "ERROR");
+          controller.value.errorDescription ?? "ERROR");
     }
-    return AppWidgets.centerTextView("Loading...");
+    return AppWidgets.pageLoadingView();
   }
 }

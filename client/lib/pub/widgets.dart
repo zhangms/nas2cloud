@@ -12,9 +12,9 @@ class AppWidgets {
               Future.delayed(Duration(milliseconds: 200), () => "Loading..."),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Text(snapshot.data ?? "");
+              return CircularProgressIndicator();
             }
-            return Text("");
+            return Container();
           }),
     );
   }
