@@ -96,7 +96,7 @@ func (ep *eventProcessor) processWalk(event *event) error {
 		return err
 	}
 	for _, item := range files {
-		if item.Hidden {
+		if item.Hidden || item.Name == "$RECYCLE.BIN" || item.Name == "desktop.ini" {
 			continue
 		}
 		err = repo.saveIfAbsent(item)

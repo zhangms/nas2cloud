@@ -56,9 +56,6 @@ func (l *Local) List(file string) ([]*ObjectInfo, error) {
 		if er != nil {
 			continue
 		}
-		if fi.Name() == "$RECYCLE.BIN" {
-			continue
-		}
 		inf := l.infoF(path.Join(l.AbsVirtual(file), fi.Name()), fi)
 		ret = append(ret, inf)
 	}

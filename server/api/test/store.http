@@ -1,7 +1,7 @@
 POST http://localhost:8080/api/store/walk
 Content-Type: application/json
 X-DEVICE: http-client
-X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
 
 {
   "path": "/",
