@@ -187,4 +187,48 @@ class AutoUploader {
     }
     return enqueued;
   }
+
+  Future<bool> isFileAutoUploaded(String path) async {
+    var config = await getConfigByFilePath(path);
+    return config != null;
+  }
+
+  Future<AutoUploadConfig?> getConfigByFilePath(String path) async {
+    if (kIsWeb) {
+      return null;
+    }
+    var configs = await getConfigList();
+    for (var config in configs) {
+      if (!config.autoupload || config.remote == null) {
+        continue;
+      }
+      var remote = config.remote!;
+      if (!path.startsWith(remote)) {
+        continue;
+      }
+      var local = "${config.basepath}/${path.substring(remote.length)}";
+      File file = File(local);
+      if (await file.exists()) {
+        return config;
+      }
+    }
+    return null;
+  }
+
+  Future<int> clearTaskByFile(String path) async {
+    var config = await getConfigByFilePath(path);
+    if (config == null) {
+      return 0;
+    }
+    var local = "${config.basepath}/${path.substring(config.remote!.length)}";
+    File file = File(local);
+    var entry = FileUploader.createEntryByFilepath(
+      channel: config.uploadChannel,
+      filepath: file.path,
+      relativeFrom: config.basepath,
+      remote: config.remote!,
+    );
+    return await UploadRepository.platform
+        .deleteBySrcDest(entry.src, entry.dest);
+  }
 }

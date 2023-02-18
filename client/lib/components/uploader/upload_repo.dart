@@ -24,6 +24,8 @@ abstract class UploadRepository {
  */
   Future<UploadEntry> saveIfNotExists(UploadEntry entry);
 
+  Future<int> deleteBySrcDest(String src, String dest);
+
   Future<int> update(UploadEntry entry);
 
   Future<UploadEntry?> findByTaskId(String taskId);

@@ -53,7 +53,7 @@ abstract class FileUploader {
     var stat = file.statSync();
     return UploadEntry(
         channel: channel,
-        src: file.path,
+        src: p.normalize(file.path),
         dest: dest,
         size: stat.size,
         lastModified: stat.modified.millisecondsSinceEpoch,

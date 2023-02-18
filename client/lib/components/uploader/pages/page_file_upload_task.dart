@@ -6,10 +6,10 @@ import 'package:path/path.dart' as p;
 import '../../../dto/page_data.dart';
 import '../../../dto/upload_entry.dart';
 import '../../../event/bus.dart';
-import '../event_file_upload.dart';
 import '../../../pub/app_nav.dart';
 import '../../../pub/widgets.dart';
 import '../../../utils/data_size.dart';
+import '../event_file_upload.dart';
 import '../file_uploader.dart';
 import '../upload_repo.dart';
 import '../upload_status.dart';
@@ -105,10 +105,6 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
       itemBuilder: (context) {
         return [
           PopupMenuItem(
-            child: Text("清空成功任务"),
-            onTap: () => clearTask(UploadStatus.successed),
-          ),
-          PopupMenuItem(
             child: Text("清空失败任务"),
             onTap: () => clearTask(UploadStatus.failed),
           ),
@@ -116,6 +112,14 @@ class _FileUploadTaskPageState extends State<FileUploadTaskPage>
             child: Text("取消上传"),
             onTap: () => cancelAllRunning(),
           ),
+          PopupMenuDivider(),
+          PopupMenuItem(
+              child: Text("清空所有任务"),
+              onTap: () {
+                cancelAllRunning();
+                clearTask(UploadStatus.failed);
+                clearTask(UploadStatus.successed);
+              }),
         ];
       },
     );

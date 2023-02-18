@@ -7,14 +7,21 @@ import '../../event/bus.dart';
 import '../../pub/app_message.dart';
 import '../../pub/app_nav.dart';
 import '../downloader/downloader.dart';
+import '../uploader/auto_uploader.dart';
 import 'file_event.dart';
 
 class FileItemContextMenuBuilder {
   final String currentPath;
   final int index;
   final FileWalkResponseDataFiles item;
+  final bool? isAutoUploaded;
 
-  FileItemContextMenuBuilder(this.currentPath, this.index, this.item);
+  FileItemContextMenuBuilder({
+    required this.currentPath,
+    required this.index,
+    required this.item,
+    this.isAutoUploaded,
+  });
 
   buildDialog(BuildContext context) {
     return SimpleDialog(
@@ -58,6 +65,15 @@ class FileItemContextMenuBuilder {
         title: Text("删除"),
       ),
     ));
+    if ((isAutoUploaded ?? false) && item.type == "FILE") {
+      ret.add(SimpleDialogOption(
+        onPressed: () => _onPressReUpload(context),
+        child: ListTile(
+          leading: Icon(Icons.upload),
+          title: Text("重新自动上传"),
+        ),
+      ));
+    }
     return ret;
   }
 
@@ -91,7 +107,7 @@ class FileItemContextMenuBuilder {
                 TextButton(
                     onPressed: (() {
                       AppNav.pop(context);
-                      _deleteFile(context);
+                      _deleteFile(context, true);
                     }),
                     child: Text("确定"))
               ],
@@ -100,14 +116,14 @@ class FileItemContextMenuBuilder {
     });
   }
 
-  _deleteFile(BuildContext context) async {
+  Future<bool> _deleteFile(BuildContext context, bool notify) async {
     print("delete ${item.path}");
     Result result = await Api().postDeleteFile(item.path);
     if (!result.success) {
       if (context.mounted) {
         AppMessage.show(context, result.message!);
       }
-      return;
+      return false;
     }
     eventBus.fire(FileEvent(
       type: FileEventType.delete,
@@ -115,9 +131,10 @@ class FileItemContextMenuBuilder {
       source: "$index",
       item: item,
     ));
-    if (context.mounted) {
+    if (notify && context.mounted) {
       AppMessage.show(context, "删除成功");
     }
+    return true;
   }
 
   _onPressFavor(BuildContext context) {
@@ -172,5 +189,15 @@ class FileItemContextMenuBuilder {
       source: "$index",
       item: item,
     ));
+  }
+
+  _onPressReUpload(BuildContext context) async {
+    AppNav.pop(context);
+    if (!(isAutoUploaded ?? false)) {
+      return;
+    }
+    await _deleteFile(context, false);
+    int clearTaskCount = await AutoUploader().clearTaskByFile(item.path);
+    print("clearAutoUploadTaskCount-->$clearTaskCount");
   }
 }

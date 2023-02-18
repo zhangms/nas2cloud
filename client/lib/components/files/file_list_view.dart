@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/uploader/auto_uploader.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../../api/api.dart';
@@ -266,13 +267,23 @@ class _FileListViewState extends State<FileListView> {
     }
   }
 
-  showContextMenu(int index, FileWalkResponseDataFiles item) {
+  showContextMenu(int index, FileWalkResponseDataFiles item) async {
     if (widget.fileHome && !(item.favor ?? false)) {
       return;
     }
-    var builder = FileItemContextMenuBuilder(widget.path, index, item);
-    showDialog(
-        context: context, builder: (context) => builder.buildDialog(context));
+    bool isAutoUploaded = await AutoUploader().isFileAutoUploaded(item.path);
+    var builder = FileItemContextMenuBuilder(
+      currentPath: widget.path,
+      index: index,
+      item: item,
+      isAutoUploaded: isAutoUploaded,
+    );
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => builder.buildDialog(context),
+      );
+    }
   }
 
   Future<void> openDoc(int index, FileWalkResponseDataFiles item) async {

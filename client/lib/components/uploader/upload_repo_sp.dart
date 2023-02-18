@@ -11,7 +11,11 @@ class UploadRepoSP extends UploadRepository {
   }
 
   String _getTaskId(UploadEntry entry) {
-    return "${entry.src}:${entry.dest}";
+    return _getTaskIdBySrcDest(entry.src, entry.dest);
+  }
+
+  String _getTaskIdBySrcDest(String src, String dest) {
+    return "$src:$dest";
   }
 
   @override
@@ -23,6 +27,13 @@ class UploadRepoSP extends UploadRepository {
     }
     await Spu().setString(key, entry.toJson());
     return entry;
+  }
+
+  @override
+  Future<int> deleteBySrcDest(String src, String dest) async {
+    var key = _getKey(_getTaskIdBySrcDest(src, dest));
+    var deleted = await Spu().remove(key);
+    return deleted ? 1 : 0;
   }
 
   @override

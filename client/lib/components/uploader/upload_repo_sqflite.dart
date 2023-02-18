@@ -94,6 +94,13 @@ class UploadRepoSqflite extends UploadRepository {
   }
 
   @override
+  Future<int> deleteBySrcDest(String src, String dest) async {
+    var database = await _open();
+    return await database.delete("t_upload_entry",
+        where: "src=? and dest=?", whereArgs: [src, dest]);
+  }
+
+  @override
   Future<int> update(UploadEntry entry) async {
     var database = await _open();
     return await database.update("t_upload_entry", entry.toMap(),
