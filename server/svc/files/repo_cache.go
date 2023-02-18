@@ -214,7 +214,7 @@ func (repo *repositoryCache) updateSize(userRoles, file string, size int64) erro
 		return errors.New("file not exists:" + file)
 	}
 	if info.Size == size {
-		//return nil
+		return nil
 	}
 	info.Size = size
 	return repo.save(info)
