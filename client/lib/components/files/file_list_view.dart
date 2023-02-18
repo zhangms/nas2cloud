@@ -103,16 +103,14 @@ class _FileListViewState extends State<FileListView> {
   buildItemView(int index) {
     var item = fileDataController.get(index);
     if (item == null) {
-      return SkeletonListTile(
-        hasSubtitle: true,
-        padding: EdgeInsets.all(8),
-      );
+      return SkeletonListTile(hasSubtitle: true, padding: EdgeInsets.all(8));
     }
     bool favor = item.favor ?? false;
     String name = item.name;
     if (favor && widget.fileHome) {
       name = item.favorName ?? item.name;
     }
+    var subtitle = "${item.modTime ?? ""} ${item.size ?? ""}".trim();
     return ListTile(
       leading: FileWidgets.getItemIcon(item),
       trailing: favor
@@ -120,20 +118,14 @@ class _FileListViewState extends State<FileListView> {
               width: 50,
               child: Row(
                 children: [
-                  Icon(
-                    Icons.star,
-                    color: Colors.orange,
-                  ),
+                  Icon(Icons.star, color: Colors.orange),
                   Icon(Icons.navigate_next)
                 ],
               ),
             )
           : Icon(Icons.navigate_next),
-      title: Text(
-        name,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text("${item.modTime} ${item.size}"),
+      title: Text(name, overflow: TextOverflow.ellipsis),
+      subtitle: subtitle.isEmpty ? null : Text(subtitle),
       onTap: () => tapItem(index, item),
       onLongPress: () => showContextMenu(index, item),
     );
