@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import 'api/api.dart';
 import 'api/app_config.dart';
 import 'event/bus.dart';
 import 'event/event_change_theme.dart';
@@ -14,9 +16,26 @@ import 'pub/app_theme.dark.dart';
 import 'pub/app_theme_light.dart';
 
 void main() {
-  AppConfig.initialize().then(
-    (value) => runApp(MyApp()),
-  );
+  FlutterError.onError = (detail) => reportError(detail);
+  AppConfig.initialize().then((value) {
+    runZonedGuarded(() {
+      runApp(MyApp());
+    }, (error, stack) {
+      reportError(FlutterErrorDetails(exception: error, stack: stack));
+    });
+  }).onError((error, stackTrace) {
+    reportError(
+        FlutterErrorDetails(exception: error ?? "ERROR", stack: stackTrace));
+  });
+}
+
+void reportError(FlutterErrorDetails errorDetails) {
+  final errorInfo = {
+    "error": errorDetails.exceptionAsString(),
+    "stack": errorDetails.stack.toString(),
+  };
+  print("EXCEPTION:$errorInfo");
+  Api().postTraceLog("EXCEPTION:${json.encode(errorInfo)}");
 }
 
 class MyApp extends StatefulWidget {
