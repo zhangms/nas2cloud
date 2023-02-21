@@ -4,7 +4,6 @@ import 'package:nas2cloud/components/files/file_menu_orderby.dart';
 import '../../pub/widgets.dart';
 import 'file_list_view.dart';
 import 'file_menu_add.dart';
-import 'file_menu_more.dart';
 
 class FileListPage extends StatelessWidget {
   final String path;
@@ -21,9 +20,8 @@ class FileListPage extends StatelessWidget {
         leading: AppWidgets.appBarArrowBack(context),
         title: Text(name),
         actions: [
-          FileAddMenu(path),
           FileOrderByMenu(path, initOrderBy),
-          FileMoreMenu(path)
+          FileAddMenu(path),
         ],
       ),
       body: SafeArea(

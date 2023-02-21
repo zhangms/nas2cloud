@@ -39,8 +39,16 @@ class _FileAddMenuState extends State<FileAddMenu> {
           ),
           PopupMenuDivider(),
           PopupMenuItem(
-            child: Text("文件上传任务列表"),
+            child: Text("上传任务列表"),
             onTap: () => openUploadTaskPage(),
+          ),
+          PopupMenuItem(
+            onTap: (() => showCurrentPath(context)),
+            child: Text("显示当前位置"),
+          ),
+          PopupMenuItem(
+            onTap: () => AppNav.gohome(context),
+            child: Text("回到首页"),
           ),
         ];
       },
@@ -163,5 +171,18 @@ class _FileAddMenuState extends State<FileAddMenu> {
       currentPath: widget.currentPath,
       source: folderName,
     ));
+  }
+
+  void showCurrentPath(BuildContext context) {
+    Future.delayed(Duration(milliseconds: 10), () {
+      showDialog(
+          context: context,
+          builder: ((context) {
+            return AlertDialog(
+              title: Text("当前位置"),
+              content: SelectableText(widget.currentPath),
+            );
+          }));
+    });
   }
 }
