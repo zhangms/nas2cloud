@@ -1,0 +1,77 @@
+GET http://{{es_host}}/index_images/_search/scroll
+Accept: application/json
+
+###
+POST http://{{es_host}}/files/_search
+Content-Type: application/json
+
+
+
+###
+###
+POST http://{{es_host}}/index_images/_mget
+Content-Type: application/json
+
+{
+  "docs": [
+    {
+      "_index": "index_images",
+      "_id": "1"
+    },
+    {
+      "_index": "index_images",
+      "_id": "2"
+    }
+  ]
+}
+
+###
+DELETE http://{{es_host}}/index_images/_doc/2
+Accept: application/json
+
+###
+GET http://{{es_host}}/index_images/_doc/2
+Accept: application/json
+
+### PUT_IF_ABSENT
+POST http://{{es_host}}/index_images/_create/1
+Content-Type: application/json
+
+{
+  "Name": "ABC",
+  "Path": "/path/to/abc.png",
+  "Parent": "/path/to",
+  "Type": "FILE",
+  "Hidden": false,
+  "CreTime": "2022-06-13T23:25:37.982544569+08:00",
+  "ModTime": "2022-06-13T23:25:37.982544569+08:00",
+  "MD5Sum": "1111",
+  "Size": 12343444,
+  "Ext": ".PNG"
+}
+
+### 创建或更新
+POST http://{{es_host}}/index_images/_doc/2
+Content-Type: application/json
+
+{
+  "Name": "ABC",
+  "Path": "/path/to/abc.png",
+  "Parent": "/path/to",
+  "Type": "FILE",
+  "Hidden": false,
+  "CreTime": "2022-06-13T23:25:37.982544569+08:00",
+  "ModTime": "2022-06-13T23:25:37.982544569+08:00",
+  "MD5Sum": "1111",
+  "Size": 12343444,
+  "Ext": ".PNG"
+}
+
+
+###查看mapping
+GET http://{{es_host}}/files/_mapping
+Accept: application/json
+
+###
+DELETE http://{{es_host}}/index_files
+

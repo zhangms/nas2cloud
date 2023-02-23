@@ -9,7 +9,6 @@ import (
 	"nas2cloud/libs/vfs/vpath"
 	"nas2cloud/svc/cache"
 	"strings"
-	"time"
 )
 
 type repositoryCache struct {
@@ -90,15 +89,15 @@ func (r *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float
 	case "size":
 		return float64(item.Size)
 	case "modTime":
-		if item.ModTime == nil {
+		if item.ModTime <= 0 {
 			return float64(0)
 		}
-		return float64(item.ModTime.UnixMilli())
+		return float64(item.ModTime)
 	case "creTime":
-		if item.CreTime == nil {
+		if item.CreTime <= 0 {
 			return float64(0)
 		}
-		return float64(item.CreTime.UnixMilli())
+		return float64(item.CreTime)
 	default:
 		return 0
 	}
@@ -216,8 +215,7 @@ func (r *repositoryCache) updateModTime(path string) {
 		if score <= 0 {
 			return
 		}
-		tm := time.UnixMilli(int64(score))
-		info.ModTime = &tm
+		info.ModTime = int64(score)
 		if err := r.save(info); err != nil {
 			logger.Error("updateModTime error", err)
 		}

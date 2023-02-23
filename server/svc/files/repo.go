@@ -2,6 +2,7 @@ package files
 
 import (
 	"nas2cloud/libs/vfs"
+	"nas2cloud/svc/es"
 )
 
 type repository interface {
@@ -16,7 +17,18 @@ type repository interface {
 	updateModTime(path string)
 }
 
-var repo repository = &repositoryCache{
-	version:     "v1",
-	orderFields: []string{"fileName", "modTime", "creTime", "size"},
+//var repo repository = &repositoryCache{
+//	version:     "v1",
+//	orderFields: []string{"fileName", "modTime", "creTime", "size"},
+//}
+
+var repo repository
+
+func initRepository(env string) {
+	es.DoInit(env)
+	esRepo := &repositoryEs{}
+	if err := esRepo.createIndex(); err != nil {
+		panic(err)
+	}
+	repo = esRepo
 }

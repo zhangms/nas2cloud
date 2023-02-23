@@ -11,6 +11,7 @@ import (
 	"nas2cloud/svc/files"
 	"nas2cloud/svc/user"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -105,10 +106,10 @@ func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo, favors map[string]s
 			Thumbnail: itm.Preview,
 			Type:      string(itm.Type),
 			Size:      libs.ReadableDataSize(itm.Size),
-			ModTime: libs.IF(itm.ModTime == nil, func() any {
+			ModTime: libs.IF(itm.ModTime <= 0, func() any {
 				return ""
 			}, func() any {
-				return itm.ModTime.Format("2006-01-02 15:04")
+				return time.UnixMilli(itm.ModTime).Format("2006-01-02 15:04")
 			}).(string),
 			Ext:       itm.Ext,
 			Favor:     favor,

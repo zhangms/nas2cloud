@@ -144,8 +144,8 @@ func (l *Local) infoF(fullPath string, fi os.FileInfo) *ObjectInfo {
 	} else {
 		inf.Type = ObjectTypeFile
 		inf.Size = fi.Size()
-		inf.ModTime = &modTime
-		inf.CreTime = &modTime
+		inf.ModTime = modTime.UnixMilli()
+		inf.CreTime = modTime.UnixMilli()
 	}
 	return inf
 }

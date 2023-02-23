@@ -1,0 +1,34 @@
+{
+  "properties": {
+    "Name": {
+      "type": "keyword"
+    },
+    "Path": {
+      "type": "keyword"
+    },
+    "Type": {
+      "type": "keyword"
+    },
+    "Hidden": {
+      "type": "boolean"
+    },
+    "CreTime": {
+      "type": "date"
+    },
+    "ModTime": {
+      "type": "date"
+    },
+    "Preview": {
+      "type": "keyword"
+    },
+    "Size": {
+      "type": "long"
+    },
+    "Ext": {
+      "type": "keyword"
+    },
+    "Parent": {
+      "type": "keyword"
+    }
+  }
+}

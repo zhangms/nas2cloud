@@ -18,8 +18,8 @@ type ObjectInfo struct {
 	Path    string
 	Type    ObjectType
 	Hidden  bool
-	CreTime *time.Time
-	ModTime *time.Time
+	CreTime int64
+	ModTime int64
 	MD5Sum  string
 	Preview string
 	Size    int64

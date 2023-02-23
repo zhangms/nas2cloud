@@ -20,6 +20,7 @@ var RetryLaterAgain = errors.New("RetryLaterAgain")
 func DoInit(env string, ctx context.Context) {
 	initOnce.Do(func() {
 		vfs.Load(env)
+		initRepository(env)
 		startEventProcessor(ctx)
 		startThumbnailExecutor(ctx)
 		startDiskUsage(ctx)
@@ -132,8 +133,7 @@ func Upload(username string, fullPath string, reader io.Reader, modTime time.Tim
 	if err != nil {
 		return nil, err
 	}
-	now := time.Now()
-	info.CreTime = &now
+	info.CreTime = time.Now().UnixMilli()
 	thumbExecutor.post(info)
 	err = repo.save(info)
 	if err != nil {
