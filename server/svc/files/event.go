@@ -104,7 +104,7 @@ func (ep *eventProcessor) processWalk(event *event) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
-	repo.updateModTime(event.path)
+	repo.updateDirModTimeByChildren(event.path)
 	thumbExecutor.posts(files)
 	du.post(event.path)
 	return nil

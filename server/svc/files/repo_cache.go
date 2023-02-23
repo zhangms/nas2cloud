@@ -197,7 +197,7 @@ func (r *repositoryCache) updateSize(file string, size int64) error {
 	return nil
 }
 
-func (r *repositoryCache) updatePreview(file string, preview string) {
+func (r *repositoryCache) updatePreview(file string, preview string) error {
 	info, _ := r.get(file)
 	if info != nil && info.Preview != preview {
 		info.Preview = preview
@@ -205,19 +205,21 @@ func (r *repositoryCache) updatePreview(file string, preview string) {
 			logger.Error("updatePreview error", err)
 		}
 	}
+	return nil
 }
 
-func (r *repositoryCache) updateModTime(path string) {
+func (r *repositoryCache) updateDirModTimeByChildren(path string) error {
 	info, _ := r.get(path)
 	if info != nil && info.Type == vfs.ObjectTypeDir {
 		keyModTime := r.keyRank(path, "modTime")
 		score, _, _ := cache.ZMaxScore(keyModTime)
 		if score <= 0 {
-			return
+			return nil
 		}
 		info.ModTime = int64(score)
 		if err := r.save(info); err != nil {
-			logger.Error("updateModTime error", err)
+			logger.Error("updateDirModTimeByChildren error", err)
 		}
 	}
+	return nil
 }

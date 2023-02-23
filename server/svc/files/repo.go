@@ -13,8 +13,8 @@ type repository interface {
 	delete(path string) error
 	find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error)
 	updateSize(file string, size int64) error
-	updatePreview(file string, preview string)
-	updateModTime(path string)
+	updatePreview(file string, preview string) error
+	updateDirModTimeByChildren(path string) error
 }
 
 //var repo repository = &repositoryCache{
@@ -26,7 +26,9 @@ var repo repository
 
 func initRepository(env string) {
 	es.DoInit(env)
-	esRepo := &repositoryEs{}
+	esRepo := &repositoryEs{
+		env: env,
+	}
 	if err := esRepo.createIndex(); err != nil {
 		panic(err)
 	}

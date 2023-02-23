@@ -70,3 +70,7 @@ docker run `
 # sudo rsync -av --size-only /mnt/e/Mount /mnt/f
 
 # D:\NAS\release\bin\nas2cloud_win.exe
+
+docker run -d --name elasticsearch --net nas -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:8.6.2
+
+
