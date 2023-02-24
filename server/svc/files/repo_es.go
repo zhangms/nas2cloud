@@ -122,7 +122,8 @@ func (r *repositoryEs) save(item *vfs.ObjectInfo) error {
 
 func (r *repositoryEs) delete(path string) error {
 	index := r.namespace(esFileIndex)
-	_, err := es.Delete(index, docId(path))
+	deleteCount, err := es.Delete(index, docId(path))
+	logger.Info("delete file es", index, path, deleteCount)
 	return err
 }
 
@@ -162,7 +163,7 @@ func (r *repositoryEs) updateSize(file string, size int64) error {
 	mp := map[string]any{
 		"Size": size,
 	}
-	logger.Info("update size", index, file)
+	logger.Info("update size es", index, file)
 	return es.Update(index, docId(file), mp)
 }
 
@@ -171,7 +172,7 @@ func (r *repositoryEs) updatePreview(file string, preview string) error {
 	mp := map[string]any{
 		"Preview": preview,
 	}
-	logger.Info("update preview", index, file)
+	logger.Info("update preview es", index, file)
 	return es.Update(index, docId(file), mp)
 }
 
@@ -192,7 +193,7 @@ func (r *repositoryEs) updateDirModTimeByChildren(path string) error {
 	mp := map[string]any{
 		"ModTime": itm.ModTime,
 	}
-	logger.Info("update modTime", index, path)
+	logger.Info("update modTime es", index, path)
 	return es.Update(index, docId(path), mp)
 }
 
