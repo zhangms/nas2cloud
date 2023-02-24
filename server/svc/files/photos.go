@@ -2,6 +2,7 @@ package files
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"nas2cloud/svc/es"
 )
@@ -13,6 +14,9 @@ type photoSearch struct {
 }
 
 func (p *photoSearch) search() {
-	err := es.Search("dev_files", []byte(esQueryPhoto), nil)
+	mp := make(map[string]any)
+	err := es.Search("dev_files", []byte(esQueryPhoto), &mp)
 	fmt.Println(err)
+	data, _ := json.Marshal(&mp)
+	fmt.Println(string(data))
 }

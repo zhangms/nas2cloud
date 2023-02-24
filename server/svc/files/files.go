@@ -24,6 +24,7 @@ func DoInit(env string, ctx context.Context) {
 		startEventProcessor(ctx)
 		startThumbnailExecutor(ctx)
 		startDiskUsage(ctx)
+		startWalker(ctx)
 	})
 }
 

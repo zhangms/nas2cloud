@@ -2,10 +2,13 @@
   "query": {
     "constant_score": {
       "filter": {
-        "term": {
-          "Ext": ".PNG"
+        "terms": {
+          "Ext": [
+            ".BMP"
+          ]
         }
       }
     }
-  }
+  },
+  "size": 100
 }

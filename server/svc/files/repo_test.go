@@ -102,7 +102,7 @@ func TestUpdateModTime(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	initRepository("dev")
-	ret, total, err := repo.walk("/Pic2", "fileName_desc", 0, 50)
+	ret, total, err := repo.walk("/Pic", "fileName_desc", 0, 50)
 	if err != nil {
 		t.Error(err)
 	}

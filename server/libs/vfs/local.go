@@ -133,10 +133,11 @@ func (l *Local) Upload(file string, reader io.Reader, modTime time.Time) (int64,
 func (l *Local) infoF(fullPath string, fi os.FileInfo) *ObjectInfo {
 	modTime := fi.ModTime()
 	inf := &ObjectInfo{
-		Name:   libs.If(fullPath == l.bucket.Dir(), l.bucket.name, fi.Name()).(string),
-		Path:   fullPath,
-		Hidden: strings.Index(fi.Name(), ".") == 0,
-		Ext:    strings.ToUpper(filepath.Ext(fi.Name())),
+		Name:      libs.If(fullPath == l.bucket.Dir(), l.bucket.name, fi.Name()).(string),
+		Path:      fullPath,
+		Hidden:    strings.Index(fi.Name(), ".") == 0,
+		Ext:       strings.ToUpper(filepath.Ext(fi.Name())),
+		Authorize: l.bucket.Authorize(),
 	}
 	if fi.IsDir() {
 		inf.Type = ObjectTypeDir

@@ -96,7 +96,7 @@ func (ep *eventProcessor) processWalk(event *event) error {
 		return err
 	}
 	for _, item := range files {
-		if item.Hidden || item.Name == "$RECYCLE.BIN" || item.Name == "desktop.ini" {
+		if walkIgnore(item) {
 			continue
 		}
 		err = repo.saveIfAbsent(item)
@@ -104,7 +104,7 @@ func (ep *eventProcessor) processWalk(event *event) error {
 			return errs.Wrap(err, "save item error:"+item.Path)
 		}
 	}
-	repo.updateDirModTimeByChildren(event.path)
+	_ = repo.updateDirModTimeByChildren(event.path)
 	thumbExecutor.posts(files)
 	du.post(event.path)
 	return nil
@@ -135,4 +135,8 @@ func (ep *eventProcessor) tryFireWalk(event *event) (bool, error) {
 		return ok, nil
 	}
 	return ok, err
+}
+
+func walkIgnore(item *vfs.ObjectInfo) bool {
+	return item.Hidden || item.Name == "$RECYCLE.BIN" || item.Name == "desktop.ini"
 }

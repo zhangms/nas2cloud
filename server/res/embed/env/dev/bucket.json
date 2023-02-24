@@ -63,28 +63,10 @@
     "hidden": false
   },
   {
-    "id": "Pic2",
-    "name": "Pic2",
-    "mountType": "local",
-    "endpoint": "/Users/zms/Pictures",
-    "authorize": "admin,family",
-    "mode": "rw",
-    "hidden": false
-  },
-  {
     "id": "Downloads",
     "name": "Downloads",
     "mountType": "local",
     "endpoint": "/Users/ZMS/Downloads",
-    "authorize": "admin,family",
-    "mode": "rw",
-    "hidden": false
-  },
-  {
-    "id": "Docs",
-    "name": "Docs",
-    "mountType": "local",
-    "endpoint": "/Users/ZMS/Documents/",
     "authorize": "admin,family",
     "mode": "rw",
     "hidden": false
