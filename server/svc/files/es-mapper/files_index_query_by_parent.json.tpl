@@ -1,6 +1,6 @@
 {
   "query": {
-    "bool":{
+    "constant_score":{
       "filter": {
         "term": {"Parent": "{{.Path}}"}
       }
