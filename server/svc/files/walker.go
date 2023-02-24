@@ -42,20 +42,24 @@ func (w *walker) execute(path string) {
 			continue
 		}
 		w.execute(item.Path)
-		exists, er := repo.exists(item.Path)
-		if er != nil {
-			logger.Error("execute walk error, repo exists", path, er)
-		}
-		if !exists {
-			ok, _ := evt.tryFireWalk(&event{
-				eventType: eventWalk,
-				userName:  sysUser,
-				userRoles: sysUser,
-				path:      item.Path,
-			})
-			if ok {
-				logger.Info("execute walk", item.Path)
-			}
+	}
+	if path == "/" {
+		return
+	}
+	exists, er := repo.exists(path)
+	if er != nil {
+		logger.Error("execute walk error, repo.exists(path)", path, er)
+		return
+	}
+	if !exists {
+		ok, _ := evt.tryFireWalk(&event{
+			eventType: eventWalk,
+			userName:  sysUser,
+			userRoles: sysUser,
+			path:      path,
+		})
+		if ok {
+			logger.Info("execute walk", path)
 		}
 	}
 }
