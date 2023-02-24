@@ -99,7 +99,7 @@ func (r *repositoryEs) saveIfAbsent(item *vfs.ObjectInfo) error {
 	if er := es.Create(index, doc.Id(), data); er != nil {
 		return er
 	}
-	logger.Info("create file es", item.Path)
+	logger.Info("create file es", index, item.Path)
 	return nil
 }
 
@@ -113,7 +113,7 @@ func (r *repositoryEs) save(item *vfs.ObjectInfo) error {
 	if er := es.CreateOrUpdate(index, doc.Id(), data); er != nil {
 		return er
 	}
-	logger.Info("save file es", item.Path)
+	logger.Info("save file es", index, item.Path)
 	return nil
 }
 
