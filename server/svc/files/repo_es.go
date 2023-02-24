@@ -4,14 +4,20 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
+	"nas2cloud/res"
 	"nas2cloud/svc/es"
+	"strings"
 )
 
-//go:embed repo_es_files_index_specific.json
-var esFilesIndexSpecific string
+//go:embed es-mapper/files_index_mapping.json
+var esFilesIndexMapping string
+
+//go:embed es-mapper/files_index_query_by_parent.json.tpl
+var esFilesIndexQueryByParent string
 
 const esFileIndex = "files"
 
@@ -49,7 +55,7 @@ func (r *repositoryEs) createIndex() error {
 	if !exists {
 		_ = es.CreateIndex(index, nil)
 	}
-	if err := es.UpdateIndexMapping(index, []byte(esFilesIndexSpecific)); err != nil {
+	if err := es.UpdateIndexMapping(index, []byte(esFilesIndexMapping)); err != nil {
 		logger.Error("update index mapping error", index, err)
 		return err
 	}
@@ -109,9 +115,35 @@ func (r *repositoryEs) delete(path string) error {
 	return err
 }
 
-func (r *repositoryEs) find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *repositoryEs) walk(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
+	type params struct {
+		Path          string
+		From          int64
+		Size          int64
+		OrderByField  string
+		OrderByDirect string
+	}
+	orderByField, orderByDirect := r.parseOrderBy(orderBy)
+	param := &params{
+		Path:          path,
+		From:          start,
+		Size:          stop - start,
+		OrderByField:  orderByField,
+		OrderByDirect: orderByDirect,
+	}
+	dsl, err := res.ParseText("esFilesIndexQueryByParent", esFilesIndexQueryByParent, param)
+	if err != nil {
+		return nil, 0, err
+	}
+	searchResult := &es.SearchResult[*ObjectInfoDoc]{}
+	if err = es.Search(r.namespace(esFileIndex), dsl, searchResult); err != nil {
+		return nil, 0, err
+	}
+	ret := make([]*vfs.ObjectInfo, 0)
+	for _, doc := range searchResult.Hits.Hits {
+		ret = append(ret, doc.Source.ObjectInfo)
+	}
+	return ret, searchResult.Hits.Total.Value, nil
 }
 
 func (r *repositoryEs) updateSize(file string, size int64) error {
@@ -132,14 +164,43 @@ func (r *repositoryEs) updatePreview(file string, preview string) error {
 
 func (r *repositoryEs) updateDirModTimeByChildren(path string) error {
 	info, _ := r.get(path)
-	if info == nil && info.Type != vfs.ObjectTypeDir {
+	if info == nil || info.Type != vfs.ObjectTypeDir {
 		return nil
 	}
+	items, _, err := r.walk(path, "modTime_desc", 0, 2)
+	if err != nil {
+		return err
+	}
+	if len(items) == 0 {
+		return nil
+	}
+	itm := items[0]
+	index := r.namespace(esFileIndex)
+	mp := map[string]any{
+		"ModTime": itm.ModTime,
+	}
+	return es.Update(index, docId(path), mp)
+}
 
-	//index := r.namespace(esFileIndex)
-	//mp := map[string]any{
-	//	"Preview": preview,
-	//}
-	//return es.Update(index, docId(file), mp)
-	return nil
+func (r *repositoryEs) parseOrderBy(orderBy string) (orderByField, orderByDirect string) {
+	arr := strings.Split(orderBy, "_")
+	orderByDirect = libs.IF(len(arr) > 1, func() any {
+		return arr[1]
+	}, func() any {
+		return "asc"
+	}).(string)
+	field := arr[0]
+	switch field {
+	case "fileName":
+		orderByField = "Name"
+	case "size":
+		orderByField = "Size"
+	case "modTime":
+		orderByField = "ModTime"
+	case "creTime":
+		orderByField = "CreTime"
+	default:
+		orderByField = "Name"
+	}
+	return
 }

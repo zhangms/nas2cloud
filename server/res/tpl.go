@@ -47,15 +47,8 @@ func parse(tplType string, name string, content string) (tpl, error) {
 	}
 }
 
-func template(tplType string, name string, params any) ([]byte, error) {
-	data, err := Read("tpl/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if params == nil {
-		return data, nil
-	}
-	t, err := parse(tplType, name, string(data))
+func exec(tplType string, name string, content string, params any) ([]byte, error) {
+	t, err := parse(tplType, name, content)
 	if err != nil {
 		return nil, err
 	}
@@ -67,10 +60,29 @@ func template(tplType string, name string, params any) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func ParseHtml(name string, params any) ([]byte, error) {
+func template(tplType string, name string, params any) ([]byte, error) {
+	data, err := Read("tpl/" + name)
+	if err != nil {
+		return nil, err
+	}
+	if params == nil {
+		return data, nil
+	}
+	return exec(tplType, name, string(data), params)
+}
+
+func ParseHtmlTpl(name string, params any) ([]byte, error) {
 	return template("html", name, params)
 }
 
-func ParseText(name string, params any) ([]byte, error) {
+func ParseTextTpl(name string, params any) ([]byte, error) {
 	return template("text", name, params)
+}
+
+func ParseHtml(name string, html string, params any) ([]byte, error) {
+	return exec("html", name, html, params)
+}
+
+func ParseText(name string, text string, params any) ([]byte, error) {
+	return exec("text", name, text, params)
 }

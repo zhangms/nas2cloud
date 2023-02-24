@@ -214,7 +214,24 @@ func Update(index string, id string, field map[string]any) error {
 	return nil
 }
 
-func SearchPage(index string) {
+func Search(index string, dsl []byte, dest any) error {
+	req := esapi.SearchRequest{
+		Index: []string{index},
+		Body:  bytes.NewReader(dsl),
+	}
+	resp, err := req.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer closeResponse(resp)
+	if resp.IsError() {
+		return errors.New(resp.String())
+	}
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, dest)
 }
 
 func closeResponse(resp *esapi.Response) {

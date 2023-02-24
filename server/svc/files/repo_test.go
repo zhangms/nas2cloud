@@ -34,7 +34,7 @@ func TestSaveIfAbsent(t *testing.T) {
 	now := time.Now()
 	err := repo.saveIfAbsent(&vfs.ObjectInfo{
 		Name:    "abc.png",
-		Path:    "/path/to/abc.png",
+		Path:    "/path/to",
 		Type:    vfs.ObjectTypeDir,
 		Hidden:  false,
 		CreTime: now.UnixMilli(),
@@ -65,7 +65,7 @@ func TestBase64(t *testing.T) {
 	fmt.Println(ret)
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdateSize(t *testing.T) {
 	initRepository("dev")
 	path := "/path/to/abc.png"
 	err := repo.updateSize(path, 987)
@@ -75,4 +75,60 @@ func TestUpdate(t *testing.T) {
 	item, err := repo.get(path)
 	data, _ := json.Marshal(item)
 	fmt.Println(string(data), err)
+}
+
+func TestUpdatePreview(t *testing.T) {
+	initRepository("dev")
+	path := "/path/to/abc.png"
+	err := repo.updatePreview(path, "/thumb/aaaa.jpg")
+	if err != nil {
+		t.Error(err)
+	}
+	item, err := repo.get(path)
+	data, _ := json.Marshal(item)
+	fmt.Println(string(data), err)
+}
+
+func TestUpdateModTime(t *testing.T) {
+	initRepository("dev")
+	path := "/path/to"
+	err := repo.updateDirModTimeByChildren(path)
+	if err != nil {
+		t.Error(err)
+	}
+	item, err := repo.get(path)
+	data, _ := json.Marshal(item)
+	fmt.Println(string(data), err)
+}
+
+func TestSearch(t *testing.T) {
+	initRepository("dev")
+	ret, total, err := repo.walk("/path/to", "fileName_desc", 50, 100)
+	if err != nil {
+		t.Error(err)
+	}
+	data, err := json.Marshal(ret)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(total, string(data))
+}
+
+func TestJSON(t *testing.T) {
+
+	type Person struct {
+		Name   string `json:"name"`
+		Age    int    `json:"properties.age"`
+		Gender int    `json:"properties.gender"`
+	}
+
+	p := &Person{
+		Name:   "zhangsan",
+		Age:    20,
+		Gender: 1,
+	}
+
+	data, _ := json.Marshal(p)
+	fmt.Println(string(data))
+
 }

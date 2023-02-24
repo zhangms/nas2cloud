@@ -103,7 +103,7 @@ func (r *repositoryCache) getRankScore(item *vfs.ObjectInfo, field string) float
 	}
 }
 
-func (r *repositoryCache) find(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
+func (r *repositoryCache) walk(path string, orderBy string, start int64, stop int64) ([]*vfs.ObjectInfo, int64, error) {
 	arr := strings.Split(orderBy, "_")
 	fieldName := arr[0]
 	sort := libs.IF(len(arr) > 1, func() any {

@@ -49,7 +49,7 @@ func Walk(username string, fullPath string, orderBy string, start int64, stop in
 	if eventFired {
 		return nil, 0, RetryLaterAgain
 	}
-	arr, total, err := repo.find(path, orderBy, start, stop)
+	arr, total, err := repo.walk(path, orderBy, start, stop)
 	if err != nil {
 		return nil, 0, err
 	}

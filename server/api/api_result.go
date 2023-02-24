@@ -35,7 +35,7 @@ func SendMsg(c *fiber.Ctx, message string) error {
 
 func SendErrorPage(c *fiber.Ctx, status int, err error) error {
 	c.Type("html", "utf-8")
-	data, _ := res.ParseText("err.html", &struct {
+	data, _ := res.ParseTextTpl("err.html", &struct {
 		Message string
 	}{
 		Message: libs.IF(err != nil, func() any {
