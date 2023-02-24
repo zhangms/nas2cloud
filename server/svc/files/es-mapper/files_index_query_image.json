@@ -1,8 +1,10 @@
 {
   "query": {
-    "match": {
-      ".Ext": {
-        "query": "{{.Path}}"
+    "constant_score": {
+      "filter": {
+        "term": {
+          "Ext": ".PNG"
+        }
       }
     }
   }
