@@ -69,9 +69,9 @@ Content-Type: application/json
 
 
 ###查看mapping
-GET http://{{es_host}}/local_files/_mapping
+GET http://{{es_host}}/{{file_index_name}}/_mapping
 Accept: application/json
 
 ###
-DELETE http://{{es_host}}/local_files
+DELETE http://{{es_host}}/{{file_index_name}}
 
