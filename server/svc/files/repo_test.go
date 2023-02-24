@@ -21,7 +21,7 @@ func TestSave(t *testing.T) {
 	initRepository("dev")
 	vfs.Load("dev")
 
-	items, err := vfs.List("root", "/Pic2")
+	items, err := vfs.List("root", "/Pic2/啊啊")
 	if err != nil {
 		t.Error(err)
 	}
@@ -35,7 +35,7 @@ func TestSave(t *testing.T) {
 func TestSaveIfAbsent(t *testing.T) {
 	initRepository("dev")
 	vfs.Load("dev")
-	info, err := vfs.Info("root", "/Pic2")
+	info, err := vfs.Info("root", "/Pic2/啊啊")
 	if err != nil {
 		t.Error(err)
 	}
@@ -102,7 +102,7 @@ func TestUpdateModTime(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	initRepository("dev")
-	ret, total, err := repo.walk("/Pic2", "modTime_desc", 0, 50)
+	ret, total, err := repo.walk("/Pic2", "fileName_desc", 0, 50)
 	if err != nil {
 		t.Error(err)
 	}

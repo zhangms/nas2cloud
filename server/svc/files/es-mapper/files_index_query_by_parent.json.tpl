@@ -1,8 +1,8 @@
 {
   "query": {
-    "match": {
-      "Parent": {
-        "query": "{{.Path}}"
+    "bool":{
+      "filter": {
+        "term": {"Parent": "{{.Path}}"}
       }
     }
   },
