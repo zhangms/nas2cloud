@@ -24,6 +24,7 @@ const esFileIndex = "files"
 type ObjectInfoDoc struct {
 	*vfs.ObjectInfo
 	Parent string
+	Bucket string
 }
 
 func (o *ObjectInfoDoc) Id() string {
@@ -35,9 +36,11 @@ func docId(id string) string {
 }
 
 func NewObjectInfoDoc(info *vfs.ObjectInfo) *ObjectInfoDoc {
+	bucket, _ := vpath.BucketFile(info.Path)
 	return &ObjectInfoDoc{
 		ObjectInfo: info,
 		Parent:     vpath.Dir(info.Path),
+		Bucket:     bucket,
 	}
 }
 

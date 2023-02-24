@@ -14,17 +14,16 @@ const (
 )
 
 type ObjectInfo struct {
-	Name      string
-	Path      string
-	Type      ObjectType
-	Hidden    bool
-	CreTime   int64
-	ModTime   int64
-	MD5Sum    string
-	Preview   string
-	Size      int64
-	Ext       string
-	Authorize string
+	Name    string
+	Path    string
+	Type    ObjectType
+	Hidden  bool
+	CreTime int64
+	ModTime int64
+	MD5Sum  string
+	Preview string
+	Size    int64
+	Ext     string
 }
 
 type Store interface {

@@ -54,7 +54,7 @@ func IsRootDir(p string) bool {
 
 func BucketFile(file string) (string, string) {
 	pth := Clean(file)
-	arr := strings.SplitN(pth, string(Separator), 3)
+	arr := strings.SplitN(pth, Separator, 3)
 	if len(arr) == 3 {
 		return arr[1], arr[2]
 	}
