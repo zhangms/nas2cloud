@@ -24,6 +24,9 @@
     "Size": {
       "type": "long"
     },
+    "MD5Sum": {
+      "type": "keyword"
+    },
     "Ext": {
       "type": "keyword"
     },
