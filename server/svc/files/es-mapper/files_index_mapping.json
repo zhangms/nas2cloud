@@ -29,6 +29,9 @@
     },
     "Parent": {
       "type": "keyword"
+    },
+    "Bucket": {
+      "type": "keyword"
     }
   }
 }

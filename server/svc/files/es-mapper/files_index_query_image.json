@@ -1,13 +1,15 @@
 {
   "query": {
-    "constant_score": {
-      "filter": {
-        "terms": {
-          "Ext": [
-            ".BMP"
-          ]
+    "bool": {
+      "filter": [
+        {
+          "terms": {
+            "Bucket": [
+              "Downloads"
+            ]
+          }
         }
-      }
+      ]
     }
   },
   "size": 100
