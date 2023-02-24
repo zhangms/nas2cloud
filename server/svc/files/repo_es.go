@@ -96,7 +96,11 @@ func (r *repositoryEs) saveIfAbsent(item *vfs.ObjectInfo) error {
 	if err != nil {
 		return err
 	}
-	return es.Create(index, doc.Id(), data)
+	if er := es.Create(index, doc.Id(), data); er != nil {
+		return er
+	}
+	logger.Info("create file es", item.Path)
+	return nil
 }
 
 func (r *repositoryEs) save(item *vfs.ObjectInfo) error {
@@ -106,7 +110,11 @@ func (r *repositoryEs) save(item *vfs.ObjectInfo) error {
 		return err
 	}
 	index := r.namespace(esFileIndex)
-	return es.CreateOrUpdate(index, doc.Id(), data)
+	if er := es.CreateOrUpdate(index, doc.Id(), data); er != nil {
+		return er
+	}
+	logger.Info("save file es", item.Path)
+	return nil
 }
 
 func (r *repositoryEs) delete(path string) error {

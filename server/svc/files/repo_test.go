@@ -5,45 +5,44 @@ import (
 	"encoding/json"
 	"fmt"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/svc/es"
 	"testing"
-	"time"
 )
+
+func TestDeleteIndex(t *testing.T) {
+	initRepository("dev")
+	err := es.DeleteIndex("dev_files")
+	if err != nil {
+		t.Error(err)
+	}
+}
 
 func TestSave(t *testing.T) {
 	initRepository("dev")
+	vfs.Load("dev")
 
-	for i := 0; i < 100; i++ {
-		now := time.Now().AddDate(0, 0, i)
-		err := repo.save(&vfs.ObjectInfo{
-			Name:    fmt.Sprintf("abc%d.png", i),
-			Path:    fmt.Sprintf("/path/to/abc%d.png", i),
-			Type:    vfs.ObjectTypeDir,
-			Hidden:  false,
-			CreTime: now.UnixMilli(),
-			ModTime: now.UnixMilli(),
-			Preview: "",
-			Size:    1234567890,
-			Ext:     ".PNG",
-		})
-		fmt.Println(err)
+	items, err := vfs.List("root", "/Pic2")
+	if err != nil {
+		t.Error(err)
+	}
+	for _, item := range items {
+		if er := repo.saveIfAbsent(item); er != nil {
+			t.Error(er)
+		}
 	}
 }
 
 func TestSaveIfAbsent(t *testing.T) {
 	initRepository("dev")
-	now := time.Now()
-	err := repo.saveIfAbsent(&vfs.ObjectInfo{
-		Name:    "abc.png",
-		Path:    "/path/to",
-		Type:    vfs.ObjectTypeDir,
-		Hidden:  false,
-		CreTime: now.UnixMilli(),
-		ModTime: now.UnixMilli(),
-		Preview: "",
-		Size:    1234567890,
-		Ext:     ".PNG",
-	})
-	fmt.Println(err)
+	vfs.Load("dev")
+	info, err := vfs.Info("root", "/Pic2")
+	if err != nil {
+		t.Error(err)
+	}
+	err = repo.saveIfAbsent(info)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestGet(t *testing.T) {
@@ -91,7 +90,7 @@ func TestUpdatePreview(t *testing.T) {
 
 func TestUpdateModTime(t *testing.T) {
 	initRepository("dev")
-	path := "/path/to"
+	path := "/Pic2"
 	err := repo.updateDirModTimeByChildren(path)
 	if err != nil {
 		t.Error(err)
@@ -103,7 +102,7 @@ func TestUpdateModTime(t *testing.T) {
 
 func TestSearch(t *testing.T) {
 	initRepository("dev")
-	ret, total, err := repo.walk("/path/to", "fileName_desc", 50, 100)
+	ret, total, err := repo.walk("/Pic2", "modTime_desc", 0, 50)
 	if err != nil {
 		t.Error(err)
 	}
