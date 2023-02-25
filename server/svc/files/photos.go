@@ -15,7 +15,7 @@ type photoSearch struct {
 
 func (p *photoSearch) search() {
 	mp := make(map[string]any)
-	err := es.Search("dev_files", []byte(esQueryPhoto), &mp)
+	err := es.Search("local_files", []byte(esQueryPhoto), &mp)
 	fmt.Println(err)
 	data, _ := json.Marshal(&mp)
 	fmt.Println(string(data))

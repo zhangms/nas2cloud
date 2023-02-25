@@ -6,6 +6,7 @@
       }
     }
   },
+  "track_total_hits": true,
   "from": {{.From}},
   "size": {{.Size}},
   "sort": [

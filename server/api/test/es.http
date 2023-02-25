@@ -1,3 +1,11 @@
+PUT http://{{es_host}}/{{file_index_name}}/_settings
+Content-Type: application/json
+
+{
+  "index.max_result_window": 20000
+}
+
+###
 GET http://{{es_host}}/index_images/_search/scroll
 Accept: application/json
 
@@ -75,3 +83,5 @@ Accept: application/json
 ###
 DELETE http://{{es_host}}/{{file_index_name}}
 
+
+###

@@ -5,19 +5,25 @@
         {
           "terms": {
             "Bucket": [
-              "Movies"
+              "Family"
             ]
           }
         },
         {
           "terms": {
             "Ext": [
-              ".JPG"
+              ".JPG",
+              ".PNG",
+              ".JPEG",
+              ".BMP",
+              ".GIF"
             ]
           }
         }
       ]
     }
   },
-  "size": 100
+  "track_total_hits": true,
+  "from": 19000,
+  "size": 10
 }
