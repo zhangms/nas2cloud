@@ -44,6 +44,7 @@ func (w *walker) execute(path string) {
 		w.execute(item.Path)
 	}
 	if path == "/" {
+		logger.Info("walker execute finished")
 		return
 	}
 	exists, er := repo.exists(path)

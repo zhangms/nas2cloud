@@ -33,6 +33,7 @@ func startThumbnailExecutor(ctx context.Context) {
 			".BMP":  &ffmpegThumbnail{},
 			".MP4":  &ffmpegThumbnail{},
 			".MOV":  &ffmpegThumbnail{},
+			".3GP":  &ffmpegThumbnail{},
 			".MP3":  &tagThumbnail{defaultThumbnail: "/assets/icon_music.jpg"},
 		},
 		user:   sysUser,

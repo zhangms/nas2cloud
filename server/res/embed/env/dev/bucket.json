@@ -63,15 +63,6 @@
     "hidden": false
   },
   {
-    "id": "Downloads",
-    "name": "Downloads",
-    "mountType": "local",
-    "endpoint": "/Users/ZMS/Downloads",
-    "authorize": "admin,family",
-    "mode": "rw",
-    "hidden": false
-  },
-  {
     "id": "userhome_zms",
     "name": "ZMS的文件夹",
     "mountType": "local",

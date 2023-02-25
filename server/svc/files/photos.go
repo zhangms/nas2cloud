@@ -7,7 +7,7 @@ import (
 	"nas2cloud/svc/es"
 )
 
-//go:embed es-mapper/files_index_query_image.json
+//go:embed es-mapper/files_index_query_photos.json
 var esQueryPhoto string
 
 type photoSearch struct {

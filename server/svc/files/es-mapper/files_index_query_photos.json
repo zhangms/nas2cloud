@@ -5,7 +5,14 @@
         {
           "terms": {
             "Bucket": [
-              "Downloads"
+              "Movies"
+            ]
+          }
+        },
+        {
+          "terms": {
+            "Ext": [
+              ".JPG"
             ]
           }
         }
