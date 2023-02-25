@@ -41,6 +41,7 @@ class FileHelper {
       case ".MP4":
       case ".MOV":
       case ".MKV":
+      case ".3GP":
         return true;
       default:
         return false;
