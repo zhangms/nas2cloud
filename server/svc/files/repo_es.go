@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -218,4 +219,41 @@ func (r *repositoryEs) parseOrderBy(orderBy string) (orderByField, orderByDirect
 		orderByField = "Name"
 	}
 	return
+}
+
+//go:embed es-mapper/files_index_query_photos.json.tpl
+var esFilesIndexQueryPhotos string
+
+func (r *repositoryEs) searchPhotos(buckets []string, searchAfter string) ([]*vfs.ObjectInfo, string, error) {
+	type params struct {
+		Buckets     []string
+		SearchAfter string
+	}
+	pm := &params{
+		Buckets:     buckets,
+		SearchAfter: searchAfter,
+	}
+	dsl, err := res.ParseText("esFilesIndexQueryPhotos", esFilesIndexQueryPhotos, pm)
+	if err != nil {
+		return nil, "", err
+	}
+
+	fmt.Println(string(dsl))
+
+	searchResult := &es.SearchResult[*ObjectInfoDoc]{}
+	if err = es.Search(r.namespace(esFileIndex), dsl, searchResult); err != nil {
+		return nil, "", err
+	}
+	ret := make([]*vfs.ObjectInfo, 0)
+	var after []any = nil
+	for _, doc := range searchResult.Hits.Hits {
+		ret = append(ret, doc.Source.ObjectInfo)
+		after = doc.Sort
+	}
+	searchNextAfter := ""
+	if after != nil {
+		dt, _ := json.Marshal(after)
+		searchNextAfter = string(dt)
+	}
+	return ret, searchNextAfter, nil
 }

@@ -131,3 +131,14 @@ func TestJSON(t *testing.T) {
 	fmt.Println(string(data))
 
 }
+
+func TestSearchPhoto(t *testing.T) {
+	initRepository("dev")
+	ret, after, err := repo.searchPhotos([]string{"Movies", "Pic"}, "[1672678287011,\"/Pic/test2/pg copy 52.png\"]")
+	if err != nil {
+		t.Error(err)
+	}
+	data, _ := json.Marshal(ret)
+	fmt.Println(string(data))
+	fmt.Println(after)
+}

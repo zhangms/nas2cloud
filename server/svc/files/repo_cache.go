@@ -223,3 +223,7 @@ func (r *repositoryCache) updateDirModTimeByChildren(path string) error {
 	}
 	return nil
 }
+
+func (r *repositoryCache) searchPhotos(buckets []string, searchAfter string) ([]*vfs.ObjectInfo, string, error) {
+	panic("implement me")
+}

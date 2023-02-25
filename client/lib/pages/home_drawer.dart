@@ -3,12 +3,12 @@ import 'package:nas2cloud/pub/image_loader.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
+import '../components/photos/photos.dart';
 import '../components/setting/setting_page.dart';
 import '../components/uploader/pages/page_auto_upload.dart';
 import '../components/viewer/photo_viewer.dart';
 import '../event/bus.dart';
 import '../event/event_logout.dart';
-import '../pub/app_message.dart';
 import '../pub/app_nav.dart';
 import '../pub/widgets.dart';
 
@@ -121,7 +121,8 @@ class _HomeDrawerState extends State<HomeDrawer> {
       trailing: Icon(Icons.navigate_next),
       onTap: () {
         AppNav.pop(context);
-        AppMessage.show(context, "尚未支持");
+        // AppMessage.show(context, "尚未支持");
+        AppNav.openPage(context, TimelinePhotoGridView());
       },
     );
   }

@@ -15,6 +15,7 @@ type repository interface {
 	updateSize(file string, size int64) error
 	updatePreview(file string, preview string) error
 	updateDirModTimeByChildren(path string) error
+	searchPhotos(buckets []string, searchAfter string) ([]*vfs.ObjectInfo, string, error)
 }
 
 //var repo repository = &repositoryCache{

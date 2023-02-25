@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/components/photos/photos.dart';
 
 import '../api/api.dart';
 import '../api/app_config.dart';
-import '../components/files/file_list_page.dart';
 import '../components/notification/notification.dart';
 import '../components/uploader/auto_uploader.dart';
 import '../components/uploader/file_uploader.dart';
@@ -101,7 +101,8 @@ class TestPage extends StatelessWidget {
     //   print(
     //       "executeUpload-->${DateTime.now().difference(start).inMilliseconds}");
     // }
-    AppNav.openPage(context, FileListPage("/home", "TEST"));
+    // AppNav.openPage(context, FileListPage("/home", "TEST"));
+    AppNav.openPage(context, TimelinePhotoGridView());
   }
 
   initUploadData() async {
