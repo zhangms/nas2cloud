@@ -38,7 +38,7 @@
       ]
     }
   },
-  "size": 10,
+  "size": 256,
   {{if .SearchAfter}}
   "search_after": {{.SearchAfter}},
   {{end}}
