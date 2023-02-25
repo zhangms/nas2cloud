@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nas2cloud/api/api.dart';
+import 'package:nas2cloud/components/files/file_widgets.dart';
 import 'package:nas2cloud/pub/widgets.dart';
+
+import '../../dto/search_photo_response.dart';
 
 class TimelinePhotoGridView extends StatefulWidget {
   @override
@@ -7,6 +11,18 @@ class TimelinePhotoGridView extends StatefulWidget {
 }
 
 class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
+  static const int crossAxisCount = 8;
+
+  String searchAfter = "";
+  bool noMoreData = false;
+  List<SearchPhotoResponseDataFiles> files = [];
+
+  @override
+  void initState() {
+    super.initState();
+    searchPhoto(searchAfter);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +41,7 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   buildBody(BuildContext context) {
     return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 8,
+          crossAxisCount: crossAxisCount,
           mainAxisSpacing: 1,
           crossAxisSpacing: 1,
         ),
@@ -33,15 +49,35 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   }
 
   Widget? buildItem(BuildContext context, int index) {
-    if (index % 24 == 0) {
-      return Align(alignment: Alignment.bottomLeft, child: Text("2023-02"));
+    if (files.length <= index) {
+      return null;
     }
-    if (index % 24 < 8) {
-      return Container();
+    var item = files[index];
+    return FutureBuilder<Widget>(
+        future: FileWidgets.buildImage(
+            item.thumbnail ?? "/assets/default_thumb.jpg"),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return snapshot.data!;
+          }
+          return Container();
+        });
+  }
+
+  Future<void> searchPhoto(String searchAfter) async {
+    SearchPhotoResponse response = await Api().searchPhoto(searchAfter);
+    if (!response.success) {
+      print(response.toJson());
+      return;
     }
-    return Container(
-      color: Colors.blue,
-      child: Text("$index"),
-    );
+    if (response.data == null) {
+      return;
+    }
+    SearchPhotoResponseData data = response.data!;
+    var dataFiles = data.files ?? [];
+    setState(() {
+      searchAfter = data.searchAfter;
+      files.addAll(dataFiles);
+    });
   }
 }

@@ -1,0 +1,20 @@
+{
+  "r@success": true,
+  "message": "OK",
+  "data": {
+    "r@searchAfter": "[]",
+    "files": [
+      {
+        "r@name": "a.jpg",
+        "r@path": "/A/B/a.jpg",
+        "r@type": "DIR",
+        "thumbnail": "thumbnail",
+        "size": "128GB",
+        "modTime": "2023-12-22",
+        "ext": ".jpg",
+        "favor": true,
+        "favorName": "hello world"
+      }
+    ]
+  }
+}

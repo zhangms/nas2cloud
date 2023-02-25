@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:nas2cloud/dto/search_photo_response.dart';
 import 'package:path/path.dart' as p;
 
 import '../dto/file_walk_request.dart';
@@ -68,6 +69,8 @@ abstract class Api {
   });
 
   Future<RangeData> rangeGetStatic(String path, int start, int end);
+
+  Future<SearchPhotoResponse> searchPhoto(String searchAfter);
 }
 
 class RangeData {

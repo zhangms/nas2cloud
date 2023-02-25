@@ -68,7 +68,7 @@ class FileWidgets {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
           child: FutureBuilder<Widget>(
-              future: _buildImage(thumb),
+              future: buildImage(thumb),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return snapshot.data!;
@@ -80,7 +80,7 @@ class FileWidgets {
     );
   }
 
-  static Future<Widget> _buildImage(String thumbnail) async {
+  static Future<Widget> buildImage(String thumbnail) async {
     var url = await Api().getStaticFileUrl(thumbnail);
     var headers = await Api().httpHeaders();
     return ImageLoader.cacheNetworkImage(url, headers);

@@ -5,6 +5,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:nas2cloud/dto/search_photo_response.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 
 import '../dto/file_walk_request.dart';
@@ -303,5 +304,22 @@ class ApiReal extends Api {
       return "web";
     }
     return "${Platform.operatingSystem},${Platform.operatingSystemVersion}";
+  }
+
+  @override
+  Future<SearchPhotoResponse> searchPhoto(String searchAfter) async {
+    try {
+      var url = Uri.http(
+          await AppConfig.getServerAddress(), "/api/store/searchPhotos");
+      Response resp = await http.post(url,
+          headers: await httpHeaders(),
+          body: jsonEncode({
+            "searchAfter": searchAfter,
+          }));
+      return SearchPhotoResponse.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return SearchPhotoResponse.fromMap(_exception);
+    }
   }
 }

@@ -1,3 +1,5 @@
+import 'package:nas2cloud/dto/search_photo_response.dart';
+
 import '../dto/file_walk_request.dart';
 import '../dto/file_walk_response.dart';
 import '../dto/login_response.dart';
@@ -194,5 +196,11 @@ class ApiMock extends Api {
       "success": true,
       "message": "true",
     });
+  }
+
+  @override
+  Future<SearchPhotoResponse> searchPhoto(String searchAfter) {
+    // TODO: implement searchPhoto
+    throw UnimplementedError();
   }
 }
