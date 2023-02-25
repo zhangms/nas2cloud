@@ -3,6 +3,11 @@
     "bool": {
       "filter": [
         {
+          "term": {
+            "Type": "FILE"
+          }
+        },
+        {
           "terms": {
             "Bucket": [
             {{range .Buckets}}"{{.}}",{{end}}

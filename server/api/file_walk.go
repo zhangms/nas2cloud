@@ -150,3 +150,6 @@ func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNa
 	}
 	return ret
 }
+
+func (f *FileController) SearchPhotos() {
+}
