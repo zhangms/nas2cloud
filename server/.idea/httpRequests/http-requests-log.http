@@ -1,0 +1,874 @@
+POST http://localhost:8080/api/store/searchPhotos
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-e4570179-ac46-4273-a036-eca797eade4c
+Content-Length: 23
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "searchAfter": ""
+}
+
+<> 2023-02-25T230616.200.json
+
+###
+
+POST http://localhost:8080/api/user/login
+Content-Type: application/json
+X-DEVICE: http-client
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "username": "zms",
+  "password": "baobao4321x",
+  "device": "http-client"
+}
+
+<> 2023-02-25T230540.200.json
+
+###
+
+PUT http://192.168.31.99:9200/local_files/_settings
+Content-Type: application/json
+Content-Length: 38
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "index.max_result_window": 20000
+}
+
+<> 2023-02-25T111026.200.json
+
+###
+
+PUT http://192.168.31.99:9200/local_files/_settings
+Content-Type: application/json
+Content-Length: 38
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "index.max_result_window": 20000
+}
+
+<> 2023-02-25T110944.200.json
+
+###
+
+POST http://192.168.31.99:9200/local_files/_settings
+Content-Type: application/json
+Content-Length: 38
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "index.max_result_window": 20000
+}
+
+<> 2023-02-25T110934.405.json
+
+###
+
+POST http://192.168.31.99:9200/dev_files/_setting
+Content-Type: application/json
+Content-Length: 38
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "index.max_result_window": 20000
+}
+
+<> 2023-02-25T110851.400.json
+
+###
+
+DELETE http://192.168.31.99:9200/dev_files
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T102950.200.json
+
+###
+
+GET http://192.168.31.99:9200/local_files/_mapping
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T024847.200.json
+
+###
+
+GET http://192.168.31.99:9200/local_files/_mapping
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T024619.200.json
+
+###
+
+DELETE http://192.168.31.99:9200/local_files
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T024533.200.json
+
+###
+
+GET http://192.168.31.99:9200/local_files/_mapping
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T024326.200.json
+
+###
+
+DELETE http://192.168.31.99:9200/dev_files
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T023232.404.json
+
+###
+
+DELETE http://192.168.31.99:9200/dev_files
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T023228.200.json
+
+###
+
+GET http://192.168.31.99:9200/dev_files/_mapping
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T022856.404.json
+
+###
+
+DELETE http://192.168.31.99:9200/dev_files
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-25T022842.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T161108.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T161053.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Docs",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T161042.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Docs",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T161038.201.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T161010.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160950.200.json
+
+###
+
+POST http://localhost:8080/api/user/login
+Content-Type: application/json
+X-DEVICE: http-client
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "username": "zms",
+  "password": "baobao4321x",
+  "device": "http-client"
+}
+
+<> 2023-02-18T160942.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160937.403.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Docs",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160515.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160251.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160234.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Docs",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160224.201.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-b8402d0a-10f8-433e-a376-067445f45406
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160200.200.json
+
+###
+
+POST http://localhost:8080/api/user/login
+Content-Type: application/json
+X-DEVICE: http-client
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "username": "zms",
+  "password": "baobao4321x",
+  "device": "http-client"
+}
+
+<> 2023-02-18T160150.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T160143.403.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155952.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155932.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155924.201.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155915.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155903.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155353.201.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155301.201.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155223.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155121.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155112.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-bd246c86-1a1e-4473-b8fa-d2975dda056f
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T155109.201.json
+
+###
+
+POST http://localhost:8080/api/user/login
+Content-Type: application/json
+X-DEVICE: http-client
+Content-Length: 79
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "username": "zms",
+  "password": "baobao4321x",
+  "device": "http-client"
+}
+
+<> 2023-02-18T155057.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T151751.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T151748.201.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T055014.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T055005.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T054924.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 75
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T054900.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T054847.200.json
+
+###
+
+POST http://localhost:8080/api/store/walk
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
+Content-Length: 80
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "path": "/Music",
+  "pageNo": 0,
+  "pageSize": 50,
+  "orderBy": "fileName"
+}
+
+<> 2023-02-18T054832.200.json
+
+###
+

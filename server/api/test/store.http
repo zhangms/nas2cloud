@@ -11,3 +11,11 @@ X-AUTH-TOKEN: zms-70cbb5a3-5d13-4769-a276-0c1593b59498
 }
 
 ###
+POST http://localhost:8080/api/store/searchPhotos
+Content-Type: application/json
+X-DEVICE: http-client
+X-AUTH-TOKEN: zms-e4570179-ac46-4273-a036-eca797eade4c
+
+{
+  "searchAfter": ""
+}

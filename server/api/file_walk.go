@@ -24,13 +24,13 @@ type fileWalkRequest struct {
 }
 
 type fileWalkResult struct {
-	Nav          []*fileWalkNav  `json:"nav"`
-	Files        []*fileWalkItem `json:"files"`
-	Total        int64           `json:"total"`
-	CurrentPath  string          `json:"currentPath"`
-	CurrentStart int64           `json:"currentStart"`
-	CurrentStop  int64           `json:"currentStop"`
-	CurrentPage  int             `json:"currentPage"`
+	Nav          []*fileWalkNav `json:"nav"`
+	Files        []*fileItem    `json:"files"`
+	Total        int64          `json:"total"`
+	CurrentPath  string         `json:"currentPath"`
+	CurrentStart int64          `json:"currentStart"`
+	CurrentStop  int64          `json:"currentStop"`
+	CurrentPage  int            `json:"currentPage"`
 }
 
 type fileWalkNav struct {
@@ -38,7 +38,7 @@ type fileWalkNav struct {
 	Name string `json:"name"`
 }
 
-type fileWalkItem struct {
+type fileItem struct {
 	Name      string `json:"name"`
 	Path      string `json:"path"`
 	Thumbnail string `json:"thumbnail"`
@@ -96,11 +96,11 @@ func (f *FileController) walk(u *user.User, request *fileWalkRequest) (*fileWalk
 	}, nil
 }
 
-func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo, favors map[string]string) []*fileWalkItem {
-	items := make([]*fileWalkItem, 0)
+func (f *FileController) parseToFiles(lst []*vfs.ObjectInfo, favors map[string]string) []*fileItem {
+	items := make([]*fileItem, 0)
 	for _, itm := range lst {
 		favorName, favor := favors[itm.Path]
-		items = append(items, &fileWalkItem{
+		items = append(items, &fileItem{
 			Name:      itm.Name,
 			Path:      itm.Path,
 			Thumbnail: itm.Preview,
@@ -151,5 +151,27 @@ func (f *FileController) parseToNav(u *user.User, pathName string) []*fileWalkNa
 	return ret
 }
 
-func (f *FileController) SearchPhotos() {
+type photoResponse struct {
+	SearchAfter string      `json:"searchAfter"`
+	Files       []*fileItem `json:"files"`
+}
+
+func (f *FileController) SearchPhotos(c *fiber.Ctx) error {
+	type request struct {
+		SearchAfter string `json:"searchAfter"`
+	}
+	req := &request{}
+	_ = json.Unmarshal(c.Body(), req)
+
+	u, _ := GetContextUser(c)
+	items, after, err := files.Photos(u.Name, req.SearchAfter)
+	if err != nil {
+		return SendError(c, http.StatusInternalServerError, err.Error())
+	}
+	fileItems := f.parseToFiles(items, map[string]string{})
+	resp := &photoResponse{
+		SearchAfter: after,
+		Files:       fileItems,
+	}
+	return SendOK(c, resp)
 }
