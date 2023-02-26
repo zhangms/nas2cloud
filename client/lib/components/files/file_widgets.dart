@@ -63,8 +63,8 @@ class FileWidgets {
     return Padding(
       padding: const EdgeInsets.only(top: 5, bottom: 5),
       child: SizedBox(
-        height: 48,
-        width: 48,
+        height: 42,
+        width: 42,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
           child: FutureBuilder<Widget>(
