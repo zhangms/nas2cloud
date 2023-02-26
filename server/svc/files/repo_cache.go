@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// Deprecated
 type repositoryCache struct {
 	version     string
 	orderFields []string
