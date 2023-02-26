@@ -1,12 +1,18 @@
+import 'dart:async';
+
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/viewer/gallery.dart';
 
 import '../../api/api.dart';
+import '../../dto/file_walk_response.dart';
 import '../../dto/search_photo_response.dart';
+import '../../event/bus.dart';
 import '../../pub/app_nav.dart';
 import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
+import '../files/file_event.dart';
+import '../files/file_item_context_menu.dart';
 import '../files/file_widgets.dart';
 
 class TimelinePhotoGridView extends StatefulWidget {
@@ -22,15 +28,20 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   bool noMoreData = false;
   List<_GridItem> items = [];
   bool loading = false;
+  late final StreamSubscription<FileEvent> fileEventSubscription;
 
   @override
   void initState() {
     super.initState();
+    fileEventSubscription = eventBus.on<FileEvent>().listen((event) {
+      processFileEvent(event);
+    });
     loadPhoto();
   }
 
   @override
   void dispose() {
+    fileEventSubscription.cancel();
     scrollController.dispose();
     super.dispose();
   }
@@ -103,13 +114,19 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
             item.item?.thumbnail ?? "/assets/default_thumb.jpg"),
         builder: (context, snapshot) {
           return GestureDetector(
-            child: buildThumb(ext, snapshot.data ?? Container()),
+            child: buildThumb(ext, snapshot.data),
             onTap: () => openGallery(index),
+            onLongPress: () => showContextMenu(index),
           );
         });
   }
 
-  Widget buildThumb(String ext, Widget widget) {
+  Widget buildThumb(String ext, Widget? widget) {
+    if (widget == null) {
+      return Container(
+        color: Colors.black,
+      );
+    }
     if (FileHelper.isVideo(ext)) {
       return Stack(
         alignment: Alignment.center,
@@ -230,6 +247,37 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
     if (mounted) {
       AppNav.openPage(
           context, GalleryPhotoViewPage(galleryItems, galleryIndex));
+    }
+  }
+
+  showContextMenu(int index) {
+    var item = items[index];
+    if (item.item == null) {
+      return;
+    }
+    var file = FileWalkResponseDataFiles.fromJson(item.item!.toJson());
+    var builder = FileItemContextMenuBuilder(
+      currentPath: "photoViews",
+      index: index,
+      item: file,
+      isAutoUploaded: false,
+    );
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => builder.buildDialog(context),
+      );
+    }
+  }
+
+  void processFileEvent(FileEvent event) {
+    if (event.type == FileEventType.delete &&
+        event.currentPath == "photoViews") {
+      var index = int.parse(event.source ?? "-1");
+      if (index > 0) {
+        items.removeAt(index);
+        setState(() {});
+      }
     }
   }
 }

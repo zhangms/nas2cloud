@@ -3,9 +3,11 @@ import 'package:nas2cloud/pub/image_loader.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+import '../../pub/app_message.dart';
 import '../../pub/app_nav.dart';
 import '../../pub/widgets.dart';
 import '../../utils/file_helper.dart';
+import '../downloader/downloader.dart';
 import 'pdf_viewer.dart';
 import 'text_reader.dart';
 import 'video_player.dart';
@@ -120,7 +122,32 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
         onPressed: () => AppNav.pop(context),
       ),
       title: Text("($index/${widget.items.length})${item.name}"),
+      actions: [buildMoreAction()],
     );
+  }
+
+  buildMoreAction() {
+    return PopupMenuButton<String>(
+      icon: Icon(
+        Icons.more_horiz,
+      ),
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            child: Text("下载"),
+            onTap: () => downloadCurrent(),
+          ),
+        ];
+      },
+    );
+  }
+
+  downloadCurrent() async {
+    var item = widget.items[currentIndex];
+    Downloader.platform.download(item.url);
+    if (context.mounted) {
+      AppMessage.show(context, "已开始下载, 请从状态栏查看下载进度");
+    }
   }
 }
 
