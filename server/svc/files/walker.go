@@ -47,30 +47,30 @@ func (w *walker) execute(path string) {
 		logger.Info("walker execute finished")
 		return
 	}
-	//exists, er := repo.exists(path)
-	//if er != nil {
-	//	logger.Error("execute walk error, repo.exists(path)", path, er)
-	//	return
-	//}
-	//if !exists {
-	//	ok, _ := evt.tryFireWalk(&event{
-	//		eventType: eventWalk,
-	//		userName:  sysUser,
-	//		userRoles: sysUser,
-	//		path:      path,
-	//	})
-	//	if ok {
-	//		logger.Info("execute walk", path)
-	//	}
-	//}
-
-	ok, _ := evt.tryFireWalk(&event{
-		eventType: eventWalk,
-		userName:  sysUser,
-		userRoles: sysUser,
-		path:      path,
-	})
-	if ok {
-		logger.Info("execute walk", path)
+	exists, er := repo.exists(path)
+	if er != nil {
+		logger.Error("execute walk error, repo.exists(path)", path, er)
+		return
 	}
+	if !exists {
+		ok, _ := evt.tryFireWalk(&event{
+			eventType: eventWalk,
+			userName:  sysUser,
+			userRoles: sysUser,
+			path:      path,
+		})
+		if ok {
+			logger.Info("execute walk", path)
+		}
+	}
+	//
+	//ok, _ := evt.tryFireWalk(&event{
+	//	eventType: eventWalk,
+	//	userName:  sysUser,
+	//	userRoles: sysUser,
+	//	path:      path,
+	//})
+	//if ok {
+	//	logger.Info("execute walk", path)
+	//}
 }
