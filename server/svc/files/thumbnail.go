@@ -39,8 +39,8 @@ func startThumbnailExecutor(ctx context.Context) {
 		user:   sysUser,
 		queue:  make(chan string, 10240),
 		bucket: "thumb",
-		width:  50,
-		height: 50,
+		width:  192,
+		height: 192,
 	}
 	count := res.GetInt("processor.count.file.thumbnail", 1)
 	for i := 0; i < count; i++ {
@@ -81,7 +81,7 @@ func (t *thumbnailExecutor) posts(infos []*vfs.ObjectInfo) {
 
 func (t *thumbnailExecutor) getThumbDest(file string) string {
 	data := md5.Sum([]byte(file))
-	thumbName := hex.EncodeToString(data[0:]) + ".jpg"
+	thumbName := fmt.Sprintf("%s_%dx%d.jpg", hex.EncodeToString(data[0:]), t.width, t.height)
 	return vpath.Join(t.bucket, thumbName)
 }
 
