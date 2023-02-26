@@ -1,3 +1,4 @@
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:nas2cloud/components/viewer/gallery.dart';
 
@@ -14,8 +15,9 @@ class TimelinePhotoGridView extends StatefulWidget {
 }
 
 class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
-  static const int crossAxisCount = 6;
+  static const int crossAxisCount = 8;
 
+  final ScrollController scrollController = ScrollController();
   String searchAfter = "";
   bool noMoreData = false;
   List<_GridItem> items = [];
@@ -25,6 +27,12 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   void initState() {
     super.initState();
     loadPhoto();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -43,13 +51,31 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   }
 
   buildBody(BuildContext context) {
-    return GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount,
-          mainAxisSpacing: 1,
-          crossAxisSpacing: 1,
-        ),
-        itemBuilder: (context, index) => buildItem(context, index));
+    const int mainAxisExtent = 50;
+
+    return DraggableScrollbar.semicircle(
+      controller: scrollController,
+      labelTextBuilder: (double offset) {
+        int row = offset ~/ mainAxisExtent;
+        int index = crossAxisCount * row;
+        String group = "";
+        if (index >= 0 && items.length > index) {
+          group = items[index].group;
+        }
+        return Text(group);
+      },
+      backgroundColor: Theme.of(context).colorScheme.background,
+      child: GridView.builder(
+          controller: scrollController,
+          itemCount: items.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisExtent: mainAxisExtent.toDouble(),
+            mainAxisSpacing: 1,
+            crossAxisSpacing: 1,
+          ),
+          itemBuilder: (context, index) => buildItem(context, index)),
+    );
   }
 
   Widget? buildItem(BuildContext context, int index) {
@@ -57,12 +83,15 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
       loadPhoto();
       return null;
     }
+    if (items.isNotEmpty && items.length - index <= 10) {
+      loadPhoto();
+      return null;
+    }
     var item = items[index];
-
     if (item.type == "groupTitle") {
       return Align(
         alignment: Alignment.bottomLeft,
-        child: Text(item.group),
+        child: Text(item.text ?? ""),
       );
     }
     if (item.type == "placeholder") {
@@ -73,9 +102,10 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
         future: FileWidgets.buildImage(
             item.item?.thumbnail ?? "/assets/default_thumb.jpg"),
         builder: (context, snapshot) {
-          return TextButton(
-              onPressed: () => openGallery(index),
-              child: buildThumb(ext, snapshot.data ?? Container()));
+          return GestureDetector(
+            child: buildThumb(ext, snapshot.data ?? Container()),
+            onTap: () => openGallery(index),
+          );
         });
   }
 
@@ -133,12 +163,24 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
         int addCount = crossAxisCount - (items.length % crossAxisCount);
         if (addCount < crossAxisCount) {
           for (int i = 0; i < addCount; i++) {
-            items.add(_GridItem(type: "placeholder", group: preGroup));
+            items
+                .add(_GridItem(type: "placeholder", text: "", group: preGroup));
           }
         }
-        items.add(_GridItem(type: "groupTitle", group: group));
-        for (int i = 0; i < crossAxisCount - 1; i++) {
-          items.add(_GridItem(type: "placeholder", group: group));
+        var groups = group.split("-");
+        if (groups.length == 2) {
+          items.add(_GridItem(
+              type: "groupTitle", group: group, text: "${groups[0]}年"));
+          items.add(_GridItem(
+              type: "groupTitle", group: group, text: "${groups[1]}月"));
+          for (int i = 0; i < crossAxisCount - 2; i++) {
+            items.add(_GridItem(type: "placeholder", group: group));
+          }
+        } else {
+          items.add(_GridItem(type: "groupTitle", group: group));
+          for (int i = 0; i < crossAxisCount - 1; i++) {
+            items.add(_GridItem(type: "placeholder", group: group));
+          }
         }
       }
       items.add(_GridItem(type: "item", group: group, item: photo));
@@ -195,7 +237,13 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
 class _GridItem {
   String type;
   String group;
+  String? text;
   SearchPhotoResponseDataFiles? item;
 
-  _GridItem({required this.type, required this.group, this.item});
+  _GridItem({
+    required this.type,
+    required this.group,
+    this.text,
+    this.item,
+  });
 }

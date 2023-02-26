@@ -67,6 +67,7 @@ class _FileListViewState extends State<FileListView> {
   void dispose() {
     eventFileUploadSubscription.cancel();
     fileEventSubscription.cancel();
+    scrollController.dispose();
     super.dispose();
   }
 
