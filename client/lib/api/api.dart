@@ -6,6 +6,7 @@ import '../dto/file_walk_request.dart';
 import '../dto/file_walk_response.dart';
 import '../dto/login_response.dart';
 import '../dto/result.dart';
+import '../dto/search_photo_count_response.dart';
 import '../dto/state_response.dart';
 import 'api_mock.dart';
 import 'api_real.dart';
@@ -71,6 +72,8 @@ abstract class Api {
   Future<RangeData> rangeGetStatic(String path, int start, int end);
 
   Future<SearchPhotoResponse> searchPhoto(String searchAfter);
+
+  Future<SearchPhotoCountResponse> searchPhotoCount();
 }
 
 class RangeData {

@@ -1,3 +1,4 @@
+import 'package:nas2cloud/dto/search_photo_count_response.dart';
 import 'package:nas2cloud/dto/search_photo_response.dart';
 
 import '../dto/file_walk_request.dart';
@@ -200,7 +201,123 @@ class ApiMock extends Api {
 
   @override
   Future<SearchPhotoResponse> searchPhoto(String searchAfter) {
-    // TODO: implement searchPhoto
-    throw UnimplementedError();
+    return Future.value(SearchPhotoResponse.fromJson('''
+
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "searchAfter": "---",
+    "files": [
+      {
+        "name": "world map3.jpg",
+        "path": "/Pic/world map3.jpg",
+        "thumbnail": "",
+        "type": "FILE",
+        "size": "551KB",
+        "modTime": "2019-03-11 23:06",
+        "ext": ".JPG",
+        "favor": false,
+        "favorName": ""
+      },
+      {
+        "name": "world map2.jpg",
+        "path": "/Pic/world map2.jpg",
+        "thumbnail": "",
+        "type": "FILE",
+        "size": "3.47MB",
+        "modTime": "2019-03-11 23:04",
+        "ext": ".JPG",
+        "favor": false,
+        "favorName": ""
+      },
+      {
+        "name": "world map.jpg",
+        "path": "/Pic/world map.jpg",
+        "thumbnail": "",
+        "type": "FILE",
+        "size": "3.35MB",
+        "modTime": "2019-03-11 23:03",
+        "ext": ".JPG",
+        "favor": false,
+        "favorName": ""
+      }
+    ]
+  }
+}
+
+'''));
+  }
+
+  @override
+  Future<SearchPhotoCountResponse> searchPhotoCount() {
+    return Future.value(SearchPhotoCountResponse.fromJson('''
+{
+  "success": true,
+  "message": "OK",
+  "data": [
+    {
+      "key": "2023-02",
+      "value": 2
+    },
+    {
+      "key": "2023-03",
+      "value": 323
+    },
+    {
+      "key": "2023-04",
+      "value": 750
+    },
+    {
+      "key": "2023-05",
+      "value": 538
+    },
+    {
+      "key": "2023-06",
+      "value": 30
+    },
+    {
+      "key": "2023-07",
+      "value": 31
+    },
+    {
+      "key": "2023-08",
+      "value": 31
+    },
+    {
+      "key": "2023-09",
+      "value": 30
+    },
+    {
+      "key": "2023-10",
+      "value": 31
+    },
+    {
+      "key": "2023-11",
+      "value": 30
+    },
+    {
+      "key": "2023-12",
+      "value": 31
+    },
+    {
+      "key": "2024-01",
+      "value": 31
+    },
+    {
+      "key": "2024-02",
+      "value": 29
+    },
+    {
+      "key": "2024-03",
+      "value": 31
+    },
+    {
+      "key": "2024-04",
+      "value": 4
+    }
+  ]
+}
+'''));
   }
 }

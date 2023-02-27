@@ -7,33 +7,35 @@ import (
 	"nas2cloud/libs/vfs"
 	"nas2cloud/svc/es"
 	"testing"
+	"time"
 )
 
 func TestDeleteIndex(t *testing.T) {
-	initRepository("dev")
-	err := es.DeleteIndex("dev_files")
+	initRepository("docker")
+	err := es.DeleteIndex("docker_files")
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestSave(t *testing.T) {
-	initRepository("dev")
-	vfs.Load("dev")
-	saveRepo("/Pic", t)
-}
-
-func saveRepo(path string, t *testing.T) {
-	items, err := vfs.List("root", path)
-	if err != nil {
-		t.Error(err)
-	}
-	for _, item := range items {
-		if er := repo.saveIfAbsent(item); er != nil {
-			t.Error(er)
+	initRepository("docker")
+	for i := 500; i < 20000; i++ {
+		dur := int64(int64(time.Hour) * int64(i))
+		info := &vfs.ObjectInfo{
+			Path:    fmt.Sprintf("/Pic/mock/aaaa_%d.png", i),
+			Name:    fmt.Sprintf("aaaa_%d.png", i),
+			Ext:     ".PNG",
+			Preview: "/thumb/aaa.png",
+			Size:    1023,
+			Hidden:  false,
+			Type:    vfs.ObjectTypeFile,
+			CreTime: time.Now().Add(time.Duration(dur)).UnixMilli(),
+			ModTime: time.Now().Add(time.Duration(dur)).UnixMilli(),
 		}
-		if item.Type == vfs.ObjectTypeDir {
-			saveRepo(item.Path, t)
+		err := repo.save(info)
+		if err != nil {
+			t.Error(err)
 		}
 	}
 }

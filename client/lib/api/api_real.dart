@@ -5,6 +5,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:nas2cloud/dto/search_photo_count_response.dart';
 import 'package:nas2cloud/dto/search_photo_response.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 
@@ -320,6 +321,22 @@ class ApiReal extends Api {
     } catch (e) {
       print(e);
       return SearchPhotoResponse.fromMap(_exception);
+    }
+  }
+
+  @override
+  Future<SearchPhotoCountResponse> searchPhotoCount() async {
+    try {
+      var url = Uri.http(
+          await AppConfig.getServerAddress(), "/api/store/searchPhotoCount");
+      Response resp = await http.get(
+        url,
+        headers: await httpHeaders(),
+      );
+      return SearchPhotoCountResponse.fromJson(utf8.decode(resp.bodyBytes));
+    } catch (e) {
+      print(e);
+      return SearchPhotoCountResponse.fromMap(_exception);
     }
   }
 }
