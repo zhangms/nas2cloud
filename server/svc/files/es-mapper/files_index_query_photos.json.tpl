@@ -42,7 +42,7 @@
       ]
     }
   },
-  "size": 256,
+  "size": 1024,
   {{if .SearchAfter}}
   "search_after": {{.SearchAfter}},
   {{end}}
