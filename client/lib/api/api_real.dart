@@ -308,7 +308,8 @@ class ApiReal extends Api {
   }
 
   @override
-  Future<SearchPhotoResponse> searchPhoto(String searchAfter) async {
+  Future<SearchPhotoResponse> searchPhoto(
+      String time, String searchAfter) async {
     try {
       var url = Uri.http(
           await AppConfig.getServerAddress(), "/api/store/searchPhotos");
@@ -316,6 +317,7 @@ class ApiReal extends Api {
           headers: await httpHeaders(),
           body: jsonEncode({
             "searchAfter": searchAfter,
+            "time": time,
           }));
       return SearchPhotoResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {

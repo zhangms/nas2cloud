@@ -282,7 +282,7 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
     try {
       group.loading = true;
       print("begin--->${group.group} : ${group.searchAfter}");
-      var resp = await Api().searchPhoto(group.searchAfter);
+      var resp = await Api().searchPhoto(group.group, group.searchAfter);
       if (!resp.success) {
         print(resp.toJson());
         return;

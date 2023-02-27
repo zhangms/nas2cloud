@@ -71,7 +71,7 @@ abstract class Api {
 
   Future<RangeData> rangeGetStatic(String path, int start, int end);
 
-  Future<SearchPhotoResponse> searchPhoto(String searchAfter);
+  Future<SearchPhotoResponse> searchPhoto(String time, String searchAfter);
 
   Future<SearchPhotoCountResponse> searchPhotoCount();
 }

@@ -200,7 +200,7 @@ class ApiMock extends Api {
   }
 
   @override
-  Future<SearchPhotoResponse> searchPhoto(String searchAfter) {
+  Future<SearchPhotoResponse> searchPhoto(String time, String searchAfter) {
     return Future.value(SearchPhotoResponse.fromJson('''
 
 {
