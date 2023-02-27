@@ -296,7 +296,8 @@ func (r *repositoryEs) searchPhotosGroupTimeCount(buckets []string) ([]*KeyValue
 		return nil, err
 	}
 	ret := make([]*KeyValue, 0)
-	for _, a := range aggs {
+	for i := len(aggs) - 1; i >= 0; i-- {
+		a := aggs[i]
 		ret = append(ret, &KeyValue{
 			Key:   a.KeyAsString,
 			Value: int64(a.DocCount),
