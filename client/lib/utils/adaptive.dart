@@ -10,3 +10,7 @@ double screenMainAreaWidth({required BuildContext context}) {
     MediaQuery.of(context).size.width - 2 * _horizontalPadding,
   );
 }
+
+double screenWidth({required BuildContext context}) {
+  return MediaQuery.of(context).size.width;
+}

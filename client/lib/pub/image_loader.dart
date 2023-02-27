@@ -12,6 +12,8 @@ class ImageLoader {
   }
 
   static Image cacheNetworkImage(String url, Map<String, String>? headers) {
-    return Image(image: cacheNetworkImageProvider(url, headers));
+    return Image(
+      image: cacheNetworkImageProvider(url, headers),
+    );
   }
 }
