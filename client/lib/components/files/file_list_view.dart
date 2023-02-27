@@ -203,6 +203,8 @@ class _FileListViewState extends State<FileListView> {
           url: url,
           name: it.name,
           requestHeader: headers,
+          size: it.size??"",
+          modTime: it.modTime??"",
         ));
         if (it.path == item.path) {
           galleryIndex = galleryItems.length - 1;

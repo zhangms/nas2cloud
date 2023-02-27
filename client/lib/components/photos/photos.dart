@@ -67,7 +67,7 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   }
 
   buildBody(BuildContext context) {
-    int mainAxisExtent = screenWidth(context: context) ~/ 8;
+    int mainAxisExtent = screenWidth(context: context) ~/ crossAxisCount;
     return DraggableScrollbar.semicircle(
       controller: scrollController,
       labelTextBuilder: (double offset) {
@@ -118,9 +118,16 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
     if (item.type == "groupTitle") {
       return Align(
         alignment: Alignment.bottomLeft,
-        child: Text(
-          item.text ?? "",
-          overflow: TextOverflow.clip,
+        child: SizedBox(
+          height: 24,
+          child: Text(
+            item.text ?? "",
+            overflow: TextOverflow.clip,
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onBackground),
+          ),
         ),
       );
     }
@@ -239,6 +246,8 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
           name: it.name,
           requestHeader: headers,
           fileExt: it.ext,
+          size: it.size ?? "",
+          modTime: it.modTime ?? "",
         ));
         if (current == item) {
           galleryIndex = galleryItems.length - 1;
@@ -333,11 +342,12 @@ class _GridGroup {
     }
     var di = index - startIndex;
     if (di < leadingCount) {
-      List<String> indexNames = ["年", "月", "日"];
       var arr = group.split("-");
-      if (arr.length > di && indexNames.length > di) {
-        return _GridItem(
-            type: "groupTitle", text: "${arr[di]}${indexNames[di]}");
+      if (di == 0) {
+        return _GridItem(type: "groupTitle", text: "2009年");
+      }
+      if (di == 1 && arr.length > 1) {
+        return _GridItem(type: "groupTitle", text: "${arr[1]}月");
       }
       return _GridItem(type: "placeholder");
     }

@@ -134,6 +134,11 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
       itemBuilder: (context) {
         return [
           PopupMenuItem(
+            child: Text("显示详情"),
+            onTap: () => showDetail(),
+          ),
+          PopupMenuDivider(),
+          PopupMenuItem(
             child: Text("下载"),
             onTap: () => downloadCurrent(),
           ),
@@ -149,6 +154,25 @@ class _GalleryPhotoViewPageState extends State<GalleryPhotoViewPage> {
       AppMessage.show(context, "已开始下载, 请从状态栏查看下载进度");
     }
   }
+
+  showDetail() {
+    var item = widget.items[currentIndex];
+    String detail = "名称：${item.name}\n";
+    detail += "路径：${item.filepath}\n";
+    detail += "大小：${item.size}\n";
+    detail += "修改时间：${item.modTime}\n";
+
+    Future.delayed(Duration(milliseconds: 10), () {
+      showDialog(
+          context: context,
+          builder: ((context) {
+            return AlertDialog(
+              title: Text("详情"),
+              content: SelectableText(detail),
+            );
+          }));
+    });
+  }
 }
 
 class GalleryItem {
@@ -156,11 +180,15 @@ class GalleryItem {
   String? fileExt;
   String url;
   String name;
+  String size;
+  String modTime;
   Map<String, String> requestHeader;
 
   GalleryItem(
       {required this.filepath,
       this.fileExt,
+      required this.modTime,
+      required this.size,
       required this.url,
       required this.name,
       required this.requestHeader});
