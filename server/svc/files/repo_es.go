@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"nas2cloud/libs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
@@ -223,14 +224,32 @@ func (r *repositoryEs) parseOrderBy(orderBy string) (orderByField, orderByDirect
 //go:embed es-mapper/files_index_query_photos.json.tpl
 var esFilesIndexQueryPhotos string
 
-func (r *repositoryEs) searchPhotos(buckets []string, searchAfter string) ([]*vfs.ObjectInfo, string, error) {
-	type params struct {
-		Buckets     []string
-		SearchAfter string
+type photoSearchQuery struct {
+	Buckets     []string
+	SearchAfter string
+	Size        int
+	TimeAggs    *struct {
+		Interval string
+		Format   string
 	}
-	pm := &params{
+	ModTimeRange *struct {
+		StartTime string
+		EndTime   string
+		Format    string
+	}
+}
+
+func (r *repositoryEs) searchPhotos(buckets []string, groupTime string, searchAfter string) ([]*vfs.ObjectInfo, string, error) {
+	pm := &photoSearchQuery{
 		Buckets:     buckets,
 		SearchAfter: searchAfter,
+		Size:        1024,
+		TimeAggs:    nil,
+		ModTimeRange: &struct {
+			StartTime string
+			EndTime   string
+			Format    string
+		}{StartTime: groupTime, EndTime: fmt.Sprintf("%s||+1M", groupTime), Format: "yyyy-MM"},
 	}
 	dsl, err := res.ParseText("esFilesIndexQueryPhotos", esFilesIndexQueryPhotos, pm)
 	if err != nil {
@@ -252,4 +271,36 @@ func (r *repositoryEs) searchPhotos(buckets []string, searchAfter string) ([]*vf
 		searchNextAfter = string(dt)
 	}
 	return ret, searchNextAfter, nil
+}
+
+func (r *repositoryEs) searchPhotosGroupTimeCount(buckets []string) ([]*KeyValue, error) {
+	pm := &photoSearchQuery{
+		Buckets:     buckets,
+		SearchAfter: "",
+		Size:        0,
+		TimeAggs: &struct {
+			Interval string
+			Format   string
+		}{Interval: "1M", Format: "yyyy-MM"},
+	}
+	dsl, err := res.ParseText("esFilesIndexQueryPhotos", esFilesIndexQueryPhotos, pm)
+	if err != nil {
+		return nil, err
+	}
+	searchResult := &es.SearchResult[*ObjectInfoDoc]{}
+	if err = es.Search(r.namespace(esFileIndex), dsl, searchResult); err != nil {
+		return nil, err
+	}
+	aggs, err := es.GetAggsBuckets(searchResult.Aggregations, "timeAggs")
+	if err != nil {
+		return nil, err
+	}
+	ret := make([]*KeyValue, 0)
+	for _, a := range aggs {
+		ret = append(ret, &KeyValue{
+			Key:   a.KeyAsString,
+			Value: int64(a.DocCount),
+		})
+	}
+	return ret, nil
 }

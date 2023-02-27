@@ -15,14 +15,19 @@ type repository interface {
 	updateSize(file string, size int64) error
 	updatePreview(file string, preview string) error
 	updateDirModTimeByChildren(path string) error
-	searchPhotos(buckets []string, searchAfter string) ([]*vfs.ObjectInfo, string, error)
+	searchPhotosGroupTimeCount(buckets []string) ([]*KeyValue, error)
+	searchPhotos(buckets []string, groupTime string, searchAfter string) ([]*vfs.ObjectInfo, string, error)
 }
 
-//var repo repository = &repositoryCache{
-//	version:     "v1",
-//	orderFields: []string{"fileName", "modTime", "creTime", "size"},
-//}
+type KeyValue struct {
+	Key   string `json:"key"`
+	Value int64  `json:"value"`
+}
 
+//	var repo repository = &repositoryCache{
+//		version:     "v1",
+//		orderFields: []string{"fileName", "modTime", "creTime", "size"},
+//	}
 var repo repository
 
 func initRepository(env string) {

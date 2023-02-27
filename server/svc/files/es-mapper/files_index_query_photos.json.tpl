@@ -15,6 +15,18 @@
             ]
           }
         },
+        {{if .ModTimeRange}}
+        {
+          "range": {
+            "ModTime": {
+              "gte": "{{.ModTimeRange.StartTime}}",
+              "lt": "{{.ModTimeRange.EndTime}}",
+              "format": "{{.ModTimeRange.Format}}",
+              "time_zone": "-08:00"
+            }
+          }
+        },
+        {{end}}
         {
           "terms": {
             "Ext": [
@@ -43,9 +55,21 @@
     }
   },
   "track_total_hits": true,
-  "size": 1024,
+  "size": {{.Size}},
   {{if .SearchAfter}}
   "search_after": {{.SearchAfter}},
+  {{end}}
+  {{if .TimeAggs}}
+  "aggs": {
+    "timeAggs": {
+      "date_histogram": {
+        "field": "ModTime",
+        "calendar_interval": "{{.TimeAggs.Interval}}",
+        "format": "{{.TimeAggs.Format}}",
+        "offset": "-8h"
+      }
+    }
+  },
   {{end}}
   "sort": [
     {
@@ -54,15 +78,5 @@
     {
       "Path": "desc"
     }
-  ],
-  "aggs": {
-    "timeAggs": {
-      "date_histogram": {
-        "field": "ModTime",
-        "calendar_interval": "1M",
-        "format": "yyyy-MM",
-        "offset": "-8h"
-      }
-    }
-  }
+  ]
 }

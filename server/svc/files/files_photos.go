@@ -8,7 +8,7 @@ import (
 	"nas2cloud/svc/user"
 )
 
-func Photos(username string, searchAfter string) ([]*vfs.ObjectInfo, string, error) {
+func Photos(username string, groupTime string, searchAfter string) ([]*vfs.ObjectInfo, string, error) {
 	role := user.GetUserRoles(username)
 	info, _ := vfs.List(role, "/")
 	buckets := make([]string, 0)
@@ -19,5 +19,5 @@ func Photos(username string, searchAfter string) ([]*vfs.ObjectInfo, string, err
 	if len(buckets) == 0 {
 		return nil, "", errors.New("no buckets")
 	}
-	return repo.searchPhotos(buckets, searchAfter)
+	return repo.searchPhotos(buckets, groupTime, searchAfter)
 }

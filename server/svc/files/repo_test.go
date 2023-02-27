@@ -140,11 +140,24 @@ func TestJSON(t *testing.T) {
 
 func TestSearchPhoto(t *testing.T) {
 	initRepository("dev")
-	ret, after, err := repo.searchPhotos([]string{"Movies", "Pic"}, "")
+	ret, after, err := repo.searchPhotos([]string{"Movies", "Pic"}, "2022-01", "")
 	if err != nil {
 		t.Error(err)
 	}
 	data, _ := json.Marshal(ret)
 	fmt.Println(string(data))
 	fmt.Println(after)
+}
+
+func TestSearchPhotosMonthAggs(t *testing.T) {
+	initRepository("dev")
+	kv, err := repo.searchPhotosGroupTimeCount([]string{"Movies", "Pic"})
+	var count int64 = 0
+	for _, k := range kv {
+		count += k.Value
+	}
+	fmt.Println(count)
+	data, _ := json.Marshal(kv)
+	fmt.Println(string(data))
+	fmt.Println(err)
 }
