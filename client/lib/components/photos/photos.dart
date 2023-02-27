@@ -344,7 +344,7 @@ class _GridGroup {
     if (di < leadingCount) {
       var arr = group.split("-");
       if (di == 0) {
-        return _GridItem(type: "groupTitle", text: "2009年");
+        return _GridItem(type: "groupTitle", text: "${arr[0]}年");
       }
       if (di == 1 && arr.length > 1) {
         return _GridItem(type: "groupTitle", text: "${arr[1]}月");
