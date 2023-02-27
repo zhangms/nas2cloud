@@ -1,3 +1,7 @@
+GET http://localhost:8080/api/store/searchPhotoCount
+Accept: application/json
+
+###
 POST http://localhost:8080/api/store/walk
 Content-Type: application/json
 X-DEVICE: http-client
@@ -19,3 +23,4 @@ X-AUTH-TOKEN: zms-e4570179-ac46-4273-a036-eca797eade4c
 {
   "searchAfter": ""
 }
+

@@ -117,6 +117,7 @@ func registerHandler(app *fiber.App) {
 	app.Post("/api/user/login", handle(loginController.Login))
 	app.Post("/api/store/walk", handleLoginRequired(fileController.Walk))
 	app.Post("/api/store/searchPhotos", handleLoginRequired(fileController.SearchPhotos))
+	app.Get("/api/store/searchPhotoCount", handleLoginRequired(fileController.SearchPhotoCount))
 	app.Post("/api/store/toggleFavorite", handleLoginRequired(fileController.ToggleFavorite))
 	app.Post("/api/store/createFolder", handleLoginRequired(fileController.CreateFolder))
 	app.Post("/api/store/deleteFiles", handleLoginRequired(fileController.DeleteFiles))

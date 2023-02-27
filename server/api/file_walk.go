@@ -159,12 +159,13 @@ type photoResponse struct {
 func (f *FileController) SearchPhotos(c *fiber.Ctx) error {
 	type request struct {
 		SearchAfter string `json:"searchAfter"`
+		Time        string `json:"time"`
 	}
 	req := &request{}
 	_ = json.Unmarshal(c.Body(), req)
 
 	u, _ := GetContextUser(c)
-	items, after, err := files.Photos(u.Name, req.SearchAfter)
+	items, after, err := files.SearchPhotoByTime(u.Name, req.Time, req.SearchAfter)
 	if err != nil {
 		return SendError(c, http.StatusInternalServerError, err.Error())
 	}
@@ -174,4 +175,13 @@ func (f *FileController) SearchPhotos(c *fiber.Ctx) error {
 		Files:       fileItems,
 	}
 	return SendOK(c, resp)
+}
+
+func (f *FileController) SearchPhotoCount(c *fiber.Ctx) error {
+	u, _ := GetContextUser(c)
+	kv, err := files.SearchPhotoCountByTime(u.Name)
+	if err != nil {
+		return SendError(c, http.StatusInternalServerError, err.Error())
+	}
+	return SendOK(c, kv)
 }
