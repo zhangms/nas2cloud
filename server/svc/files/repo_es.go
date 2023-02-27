@@ -277,7 +277,7 @@ func (r *repositoryEs) searchPhotosGroupTimeCount(buckets []string) ([]*KeyValue
 	pm := &photoSearchQuery{
 		Buckets:     buckets,
 		SearchAfter: "",
-		Size:        0,
+		Size:        1110,
 		TimeAggs: &struct {
 			Interval string
 			Format   string

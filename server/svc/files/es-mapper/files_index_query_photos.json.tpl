@@ -66,7 +66,7 @@
         "field": "ModTime",
         "calendar_interval": "{{.TimeAggs.Interval}}",
         "format": "{{.TimeAggs.Format}}",
-        "offset": "-8h"
+        "time_zone": "-08:00"
       }
     }
   },

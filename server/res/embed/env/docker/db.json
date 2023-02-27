@@ -2,5 +2,5 @@
   "user": "nas2cloud",
   "password": "nas2cloud",
   "database": "nas2cloud",
-  "address": ""
+  "address": "localhost:33006"
 }

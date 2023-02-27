@@ -6,13 +6,82 @@ Content-Type: application/json
 }
 
 ###
-GET http://{{es_host}}/index_images/_search/scroll
+GET http://{{es_host}}/{{file_index_name}}/_search/scroll
 Accept: application/json
 
 ###
-POST http://{{es_host}}/files/_search
+POST http://{{es_host}}/{{file_index_name}}/_search
 Content-Type: application/json
 
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+            "Type": "FILE"
+          }
+        },
+        {
+          "terms": {
+            "Bucket": [
+              "Movies","Music","Pic",
+              "_NO_BUCKET_"
+            ]
+          }
+        },
+
+        {
+          "terms": {
+            "Ext": [
+              ".JPG",
+              ".PNG",
+              ".JPEG",
+              ".BMP",
+              ".GIF",
+              ".MP4",
+              ".MOV",
+              ".MKV",
+              ".3GP"
+            ]
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "terms": {
+            "Parent": [
+              "/Family/PHOTO/nas2cloud-pmz/Pictures/Gallery/owner/便便"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "track_total_hits": true,
+  "size": 1110,
+
+
+  "aggs": {
+    "timeAggs": {
+      "date_histogram": {
+        "field": "ModTime",
+        "calendar_interval": "1M",
+        "format": "yyyy-MM",
+        "offset": "-8h"
+      }
+    }
+  },
+
+  "sort": [
+    {
+      "ModTime": "desc"
+    },
+    {
+      "Path": "desc"
+    }
+  ]
+}
 
 
 ###

@@ -1,69 +1,72 @@
 [
   {
-    "id": "console",
-    "name": "console",
+    "id": "client",
+    "name": "client",
     "mountType": "local",
-    "endpoint": "/nas2cloud/console",
+    "endpoint": "/Users/ZMS/NAS/client",
     "authorize": "PUBLIC",
-    "hidden": true,
-    "mode": "r",
-    "comment": "react控制台前端"
-  },
-  {
-    "id": "app",
-    "name": "app",
-    "mountType": "local",
-    "endpoint": "/nas2cloud/app",
-    "authorize": "PUBLIC",
-    "hidden": true,
-    "mode": "r",
-    "comment": "app web"
+    "mode": "rw",
+    "hidden": true
   },
   {
     "id": "thumb",
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/nas2cloud/thumb",
+    "endpoint": "/Users/ZMS/NAS/thumb",
     "authorize": "ALL",
-    "hidden": true,
     "mode": "rw",
-    "comment": "缩略图"
+    "hidden": true
   },
   {
     "id": "assets",
-    "name": "assets",
+    "name": "thumb",
     "mountType": "local",
-    "endpoint": "/nas2cloud/assets",
+    "endpoint": "/Users/ZMS/NAS/assets",
     "authorize": "ALL",
-    "hidden": true,
     "mode": "rw",
-    "comment": "资源文件"
+    "hidden": true
   },
   {
-    "id": "client",
-    "name": "client",
+    "id": "console",
+    "name": "console",
     "mountType": "local",
-    "endpoint": "/nas2cloud/client",
+    "endpoint": "/Users/ZMS/Documents/ProjectBase/github/zhangms/nas2cloud/target/console",
     "authorize": "PUBLIC",
-    "mode": "rw",
-    "hidden": true,
-    "comment": "客户端更新"
+    "mode": "r",
+    "hidden": true
   },
   {
-    "id": "Family",
-    "name": "Family",
+    "id": "Movies",
+    "name": "Movies",
     "mountType": "local",
-    "endpoint": "/nas2cloud/externals/Family",
+    "endpoint": "/Users/ZMS/Movies",
     "authorize": "admin,family",
     "mode": "rw",
-    "hidden": false,
-    "comment": "家庭共享目录"
+    "hidden": false
+  },
+  {
+    "id": "Music",
+    "name": "Music",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Music",
+    "authorize": "admin,family",
+    "mode": "rw",
+    "hidden": false
+  },
+  {
+    "id": "Pic",
+    "name": "Pic",
+    "mountType": "local",
+    "endpoint": "/Users/ZMS/Pictures",
+    "authorize": "admin,family",
+    "mode": "rw",
+    "hidden": false
   },
   {
     "id": "userhome_zms",
     "name": "ZMS的文件夹",
     "mountType": "local",
-    "endpoint": "/nas2cloud/users/zms",
+    "endpoint": "/Users/ZMS/NAS/Users/zms",
     "authorize": "zms",
     "mode": "rw",
     "hidden": false
@@ -72,7 +75,7 @@
     "id": "userhome_pmz",
     "name": "PMZ的文件夹",
     "mountType": "local",
-    "endpoint": "/nas2cloud/users/pmz",
+    "endpoint": "/Users/ZMS/NAS/Users/pmz",
     "authorize": "pmz",
     "mode": "rw",
     "hidden": false
