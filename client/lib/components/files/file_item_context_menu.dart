@@ -31,6 +31,13 @@ class FileItemContextMenuBuilder {
 
   List<Widget> _buildContextMenu(BuildContext context) {
     List<Widget> ret = [];
+    ret.add(SimpleDialogOption(
+      onPressed: () => _onPressInfo(context),
+      child: ListTile(
+        leading: Icon(Icons.info),
+        title: Text("详情"),
+      ),
+    ));
     if (item.type == "DIR") {
       if (item.favor ?? false) {
         ret.add(SimpleDialogOption(
@@ -199,5 +206,22 @@ class FileItemContextMenuBuilder {
     await _deleteFile(context, false);
     int clearTaskCount = await AutoUploader().clearTaskByFile(item.path);
     print("clearAutoUploadTaskCount-->$clearTaskCount");
+  }
+
+  _onPressInfo(BuildContext context) {
+    String detail = "名称：${item.name}\n";
+    detail += "路径：${item.path}\n";
+    detail += "大小：${item.size}\n";
+    detail += "修改时间：${item.modTime}\n";
+    Future.delayed(Duration(milliseconds: 10), () {
+      showDialog(
+          context: context,
+          builder: ((context) {
+            return AlertDialog(
+              title: Text("详情"),
+              content: SelectableText(detail),
+            );
+          }));
+    });
   }
 }
