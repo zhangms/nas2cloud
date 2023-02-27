@@ -1,10 +1,11 @@
 package es
 
 type SearchResult[T any] struct {
-	Took     int64      `json:"took"`
-	TimedOut bool       `json:"timed_out"`
-	Shards   Shards     `json:"_shards"`
-	Hits     Content[T] `json:"hits"`
+	Took         int64          `json:"took"`
+	TimedOut     bool           `json:"timed_out"`
+	Shards       Shards         `json:"_shards"`
+	Hits         Content[T]     `json:"hits"`
+	Aggregations map[string]any `json:"aggregations"`
 }
 
 type Shards struct {

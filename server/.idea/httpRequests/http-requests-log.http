@@ -1,3 +1,22 @@
+GET http://11.158.187.50:9200/dev_files/_mapping
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-27T111829.200.json
+
+###
+
+DELETE http://11.158.187.50:9200/dev_files
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-02-27T105222.200.json
+
+###
+
 POST http://localhost:8080/api/store/searchPhotos
 Content-Type: application/json
 X-DEVICE: http-client
@@ -829,46 +848,6 @@ Accept-Encoding: br,deflate,gzip,x-gzip
 }
 
 <> 2023-02-18T054900.200.json
-
-###
-
-POST http://localhost:8080/api/store/walk
-Content-Type: application/json
-X-DEVICE: http-client
-X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
-Content-Length: 80
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "path": "/Music",
-  "pageNo": 0,
-  "pageSize": 50,
-  "orderBy": "fileName"
-}
-
-<> 2023-02-18T054847.200.json
-
-###
-
-POST http://localhost:8080/api/store/walk
-Content-Type: application/json
-X-DEVICE: http-client
-X-AUTH-TOKEN: zms-4dcb6f77-246f-41b3-8749-1db3414592f3
-Content-Length: 80
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.13 (Java/17.0.5)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "path": "/Music",
-  "pageNo": 0,
-  "pageSize": 50,
-  "orderBy": "fileName"
-}
-
-<> 2023-02-18T054832.200.json
 
 ###
 

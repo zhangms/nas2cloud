@@ -42,6 +42,7 @@
       ]
     }
   },
+  "track_total_hits": true,
   "size": 1024,
   {{if .SearchAfter}}
   "search_after": {{.SearchAfter}},
@@ -53,5 +54,15 @@
     {
       "Path": "desc"
     }
-  ]
+  ],
+  "aggs": {
+    "timeAggs": {
+      "date_histogram": {
+        "field": "ModTime",
+        "calendar_interval": "1M",
+        "format": "yyyy-MM",
+        "offset": "-8h"
+      }
+    }
+  }
 }

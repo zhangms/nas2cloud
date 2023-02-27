@@ -1,0 +1,13 @@
+{
+  "aggs": {
+    "xxx": {
+      "date_histogram": {
+        "field": "ModTime",
+        "calendar_interval": "1M",
+        "format": "yyyy-MM",
+        "offset": "-8h"
+      }
+    }
+  },
+  "size": 0
+}

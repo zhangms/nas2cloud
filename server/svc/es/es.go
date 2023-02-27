@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
@@ -231,6 +232,7 @@ func Search(index string, dsl []byte, dest any) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(string(data))
 	return json.Unmarshal(data, dest)
 }
 

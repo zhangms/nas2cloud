@@ -89,10 +89,6 @@ func TestTag(t *testing.T) {
 }
 
 func TestTime(t *testing.T) {
-	type TestObject struct {
-		ModTime *time.Time
-	}
-	obj := &TestObject{}
-	data, _ := json.Marshal(obj)
-	fmt.Println(string(data))
+	tm := time.UnixMilli(1675180800000)
+	fmt.Println(tm)
 }

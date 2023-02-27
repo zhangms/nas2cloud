@@ -20,14 +20,20 @@ func TestDeleteIndex(t *testing.T) {
 func TestSave(t *testing.T) {
 	initRepository("dev")
 	vfs.Load("dev")
+	saveRepo("/Pic", t)
+}
 
-	items, err := vfs.List("root", "/Pic2/啊啊")
+func saveRepo(path string, t *testing.T) {
+	items, err := vfs.List("root", path)
 	if err != nil {
 		t.Error(err)
 	}
 	for _, item := range items {
 		if er := repo.saveIfAbsent(item); er != nil {
 			t.Error(er)
+		}
+		if item.Type == vfs.ObjectTypeDir {
+			saveRepo(item.Path, t)
 		}
 	}
 }
@@ -134,7 +140,7 @@ func TestJSON(t *testing.T) {
 
 func TestSearchPhoto(t *testing.T) {
 	initRepository("dev")
-	ret, after, err := repo.searchPhotos([]string{"Movies", "Pic"}, "[1672678287011,\"/Pic/test2/pg copy 52.png\"]")
+	ret, after, err := repo.searchPhotos([]string{"Movies", "Pic"}, "")
 	if err != nil {
 		t.Error(err)
 	}
