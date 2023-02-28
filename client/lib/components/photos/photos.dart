@@ -205,9 +205,7 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
 
   buildThumb(String ext, Widget? widget) {
     if (widget == null) {
-      return Container(
-        color: Theme.of(context).colorScheme.tertiary,
-      );
+      return Container(color: Theme.of(context).colorScheme.tertiary);
     }
     if (FileHelper.isVideo(ext)) {
       return Stack(
@@ -284,7 +282,20 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
     }
   }
 
-  Future<void> tryLoadGroupData(_GridGroup group) async {
+  String lastGroup = "";
+
+  Future<void> tryLoadGroupData(final _GridGroup group) async {
+    lastGroup = group.group;
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (lastGroup == group.group) {
+        loadGroupData(group);
+      } else {
+        print("skip load $lastGroup, ${group.group}");
+      }
+    });
+  }
+
+  Future<void> loadGroupData(_GridGroup group) async {
     if (group.loading || group.noMoreData) {
       return;
     }
