@@ -67,11 +67,14 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
   }
 
   buildBody(BuildContext context) {
-    int mainAxisExtent = screenWidth(context: context) ~/ crossAxisCount;
+    double space = 1;
+    double mainAxisExtent =
+        (screenWidth(context: context) - (crossAxisCount - 1) * space) /
+            crossAxisCount;
     return DraggableScrollbar.semicircle(
       controller: scrollController,
       labelTextBuilder: (double offset) {
-        int row = offset ~/ (mainAxisExtent + 1);
+        int row = offset ~/ (mainAxisExtent + space);
         int index = crossAxisCount * row;
         return Text(getIndexGroupName(index));
       },
@@ -81,9 +84,9 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
           itemCount: totalCount,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            mainAxisExtent: mainAxisExtent.toDouble(),
-            mainAxisSpacing: 1,
-            crossAxisSpacing: 1,
+            mainAxisExtent: mainAxisExtent,
+            mainAxisSpacing: space,
+            crossAxisSpacing: space,
           ),
           itemBuilder: (context, index) => buildItem(context, index)),
     );
@@ -186,7 +189,11 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
         continue;
       }
       var preEnd = total;
-      var tailingCount = crossAxisCount - (value.value % crossAxisCount);
+      var tailingCount = 0;
+      var mod = (value.value % crossAxisCount);
+      if (mod > 0) {
+        tailingCount = crossAxisCount - mod;
+      }
       total += (value.value + crossAxisCount + tailingCount);
       groupData.add(_GridGroup(
         group: value.key,
