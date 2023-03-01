@@ -22,7 +22,7 @@
               "gte": "{{.ModTimeRange.StartTime}}",
               "lt": "{{.ModTimeRange.EndTime}}",
               "format": "{{.ModTimeRange.Format}}",
-              "time_zone": "-08:00"
+              "time_zone": "+08:00"
             }
           }
         },
@@ -66,7 +66,7 @@
         "field": "ModTime",
         "calendar_interval": "{{.TimeAggs.Interval}}",
         "format": "{{.TimeAggs.Format}}",
-        "time_zone": "-08:00"
+        "time_zone": "+08:00"
       }
     }
   },
