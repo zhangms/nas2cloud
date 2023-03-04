@@ -116,12 +116,12 @@ func (ep *eventProcessor) processCreate(event *event) error {
 		return err
 	}
 	thumbExecutor.post(info)
-	du.post(event.path)
+	du.post(vpath.Dir(event.path))
 	return nil
 }
 
 func (ep *eventProcessor) processDelete(event *event) error {
-	du.post(event.path)
+	du.post(vpath.Dir(event.path))
 	return nil
 }
 
