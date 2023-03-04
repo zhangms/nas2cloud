@@ -12,7 +12,7 @@ import (
 
 func TestDeleteIndex(t *testing.T) {
 	initRepository("docker")
-	err := es.DeleteIndex("docker_files")
+	err := es.DeleteIndex([]string{"docker_files"})
 	if err != nil {
 		t.Error(err)
 	}

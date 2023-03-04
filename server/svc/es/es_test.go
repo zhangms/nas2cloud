@@ -22,7 +22,7 @@ func TestIndexExists(t *testing.T) {
 
 func TestDeleteIndex(t *testing.T) {
 	DoInit("dev")
-	err := DeleteIndex("test")
+	err := DeleteIndex([]string{"test"})
 	fmt.Println(err)
 }
 

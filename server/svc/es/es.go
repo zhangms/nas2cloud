@@ -75,9 +75,24 @@ func CreateIndex(index string, indexSetting []byte) error {
 	return nil
 }
 
-func DeleteIndex(index string) error {
+func DeleteIndex(index []string) error {
 	req := esapi.IndicesDeleteRequest{
-		Index: []string{index},
+		Index: index,
+	}
+	resp, err := req.Do(context.Background(), client)
+	if err != nil {
+		return err
+	}
+	defer closeResponse(resp)
+	if resp.IsError() {
+		return errors.New(resp.String())
+	}
+	return nil
+}
+
+func RefreshIndex(index []string) error {
+	req := esapi.IndicesRefreshRequest{
+		Index: index,
 	}
 	resp, err := req.Do(context.Background(), client)
 	if err != nil {
@@ -189,6 +204,7 @@ func Delete(index string, id string) (int, error) {
 	if resp.IsError() {
 		return 0, nil
 	}
+	_ = RefreshIndex([]string{index})
 	return 1, nil
 }
 
