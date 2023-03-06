@@ -4,14 +4,4 @@
 .DS_Store
 server/nas2cloud.pid
 server/__debug_bin
-release/app/
-release/client/
-release/console/
-release/bin/nas2cloud_win.exe
-release/bin/nas2cloud
-release/assets/
-release/thumb/
-release/externals/
-release/users/
-release/nas2cloud.tar
-
+release/**/**
