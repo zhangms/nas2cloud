@@ -1,7 +1,8 @@
 Nas2cloud，个人NAS系统，提供文件和照片管理功能。  
 Nas2cloud，A personal NAS system for file and photo management.
 
-![Screenshot01.jpg](release%2FScreenshot01.jpg) ![Screenshot02.jpg](release%2FScreenshot02.jpg)
+<img src="./release/Screenshot01.jpg" width="300"/>
+
 
 服务端使用golang开发  
 可以运行在Windows、Macos、Linux，在低性能的个人电脑上可以提供较快的访问速度
