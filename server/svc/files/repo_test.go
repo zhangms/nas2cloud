@@ -42,7 +42,7 @@ func TestSave(t *testing.T) {
 
 func TestSaveIfAbsent(t *testing.T) {
 	initRepository("dev")
-	vfs.ConfigBuckets("dev")
+	//vfs.ConfigBuckets()
 	info, err := vfs.Info("root", "/Pic2/啊啊")
 	if err != nil {
 		t.Error(err)
