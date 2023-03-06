@@ -16,7 +16,7 @@ It can run on Windows, Macos, and Linux, and can provide faster response speed o
 The client is developed using flutter, and has been adapted to android 12+, supporting file and photo viewing and automatic uploading.
 
 
-## 安装 Install
+## 安装
 ### 依赖中间件
 1. redis
 2. elasticsearch
