@@ -6,6 +6,7 @@ import (
 	"io"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/libs/vfs/vpath"
+	"nas2cloud/res"
 	"nas2cloud/svc/user"
 	"sync"
 	"time"
@@ -19,7 +20,11 @@ var RetryLaterAgain = errors.New("RetryLaterAgain")
 
 func DoInit(env string, ctx context.Context) {
 	initOnce.Do(func() {
-		vfs.Load(env)
+		data, err := res.ReadByEnv(env, "bucket.json")
+		if err != nil {
+			panic(err)
+		}
+		vfs.ConfigBuckets(data)
 		initRepository(env)
 		startEventProcessor(ctx)
 		startThumbnailExecutor(ctx)

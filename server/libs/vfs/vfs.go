@@ -6,7 +6,6 @@ import (
 	"io"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs/vpath"
-	"nas2cloud/res"
 	"strings"
 	"time"
 )
@@ -64,7 +63,7 @@ func (b *Bucket) Authorize() string {
 var buckets map[string]*Bucket
 var bucketIds []string
 
-func Load(env string) {
+func ConfigBuckets(data []byte) {
 	type config struct {
 		Id        string `json:"id"`
 		Name      string `json:"name"`
@@ -75,7 +74,6 @@ func Load(env string) {
 		Hidden    bool   `json:"hidden"`
 	}
 	configs := make([]*config, 0)
-	data, _ := res.ReadByEnv(env, "bucket.json")
 	_ = json.Unmarshal(data, &configs)
 	buckets = make(map[string]*Bucket)
 	bucketIds = make([]string, 0)
@@ -91,7 +89,7 @@ func Load(env string) {
 			hidden:    conf.Hidden,
 		}
 	}
-	logger.Info("vfs loaded", len(buckets))
+	logger.Info("vfs buckets config", len(buckets))
 }
 
 func GetBucket(role string, file string) (*Bucket, string, error) {

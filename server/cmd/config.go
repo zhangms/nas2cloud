@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"io/fs"
+	"nas2cloud/libs"
 	"nas2cloud/libs/errs"
 	"os"
 	"path/filepath"
@@ -35,9 +36,7 @@ func genConfig(context *cli.Context) error {
 	if context.IsSet(configFlagProfile.Name) {
 		profileName = context.String(configFlagProfile.Name)
 	}
-	dir := resource(profileName)
-
-	fmt.Println(dir)
+	dir := libs.Resource(profileName)
 	_, err := os.Stat(dir)
 	if !os.IsNotExist(err) {
 		return errors.New(fmt.Sprintf("config dir: %s is already exists", dir))
