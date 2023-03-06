@@ -22,7 +22,7 @@ type startFlags struct {
 	profile string
 }
 
-var defaultFlags = startFlags{
+var defaultStartFlags = startFlags{
 	port:    8080,
 	profile: "dev",
 }
@@ -30,13 +30,13 @@ var defaultFlags = startFlags{
 var startFlagPort = &cli.IntFlag{
 	Name:        "port",
 	Usage:       "http server port",
-	DefaultText: fmt.Sprintf("%d", defaultFlags.port),
+	DefaultText: fmt.Sprintf("%d", defaultStartFlags.port),
 }
 
 var startFlagProfile = &cli.StringFlag{
 	Name:        "profile",
 	Usage:       "environment profile",
-	DefaultText: defaultFlags.profile,
+	DefaultText: defaultStartFlags.profile,
 }
 
 var startCommand = &cli.Command{
@@ -66,7 +66,7 @@ func start(cliCtx *cli.Context) error {
 }
 
 func getFlags(cliCtx *cli.Context) startFlags {
-	flags := defaultFlags
+	flags := defaultStartFlags
 	if cliCtx.IsSet(startFlagProfile.Name) {
 		flags.profile = cliCtx.String(startFlagProfile.Name)
 	}
