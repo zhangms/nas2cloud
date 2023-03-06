@@ -12,6 +12,7 @@ The server is developed using golang
 It can run on Windows, Macos, and Linux, and can provide faster response speed on low-performance computers.
 
 客户端使用flutter开发，已适配android 12+，支持文件及照片查看及自动上传。  
+
 The client is developed using flutter, and has been adapted to android 12+, supporting file and photo viewing and automatic uploading.
 
 
