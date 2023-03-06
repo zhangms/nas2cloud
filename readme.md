@@ -1,6 +1,6 @@
-NAS2CLOUD，个人NAS系统，只提供文件及照片管理功能。
+NAS2CLOUD，个人NAS系统，提供文件及照片管理功能。
 
-服务端使用golang开发，可在Windows、Macos、Linux上运行，低性能电脑上提供较快的响应速度，同等硬件配置下响应速度远超nextcloud
+服务端使用golang开发，可在Windows、Macos、Linux上运行，可在低性能电脑上提供较快的响应速度，同等硬件配置下响应速度远超nextcloud
 
 客户端使用flutter开发，已适配android 12+，支持文件及照片查看及自动上传。
 
