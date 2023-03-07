@@ -182,5 +182,5 @@ func genUserConfig(dir string) error {
   }
 ]
 `
-	return os.WriteFile(filepath.Join(dir, "user.json"), []byte(strings.TrimSpace(tpl)), fs.ModePerm)
+	return os.WriteFile(filepath.Join(dir, "users.json"), []byte(strings.TrimSpace(tpl)), fs.ModePerm)
 }

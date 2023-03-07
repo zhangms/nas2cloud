@@ -62,7 +62,7 @@ build_apk() {
     echo "{\"android\":\"nas2cloud-v$1.apk;v$1\"}" > release/client/release.json
 }
 
-build_dcoker() {
+build_docker() {
     cd release
     docker kill nas2cloud
     docker rm nas2cloud
@@ -83,7 +83,7 @@ zip_release() {
 main(){
     case $ACTION in
     server)
-        echo "useage : ./build.sh server linux/macos/windows"
+        echo "usage : ./build.sh server linux/macos/windows"
         build_server $1
     ;;
     console)
@@ -93,11 +93,11 @@ main(){
         build_appweb
     ;;
     apk)
-        echo "useage : ./build.sh apk versionName versionNumber eg: ./build.sh apk 2.9.2 292"
+        echo "usage : ./build.sh apk versionName versionNumber eg: ./build.sh apk 2.9.2 292"
         build_apk $1 $2
     ;;
     docker)
-        build_dcoker
+        build_docker
     ;;
     zip)
         zip_release
