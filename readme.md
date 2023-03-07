@@ -24,7 +24,7 @@ automatic uploading.
 ### 其他依赖：
 
 1. [ffmpeg](https://ffmpeg.org/download.html) 用来生成照片缩略图
-2. du命令，获取文件夹大小，windows下需要单独安装 [du for windows](https://learn.microsoft.com/en-us/sysinternals/downloads/du)
+2. du命令，获取文件夹大小，windows下需要单独安装并加入到PATH环境变量 [du for windows](https://learn.microsoft.com/en-us/sysinternals/downloads/du)
 
 ### 执行安装
 
