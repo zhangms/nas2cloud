@@ -8,26 +8,28 @@ usage(){
 
 build_server() {
     echo "build server $1"
-    rm -rf release/bin/nas2cloud
-    mkdir -p release/bin
+    mkdir -p release
     cd server
     if [ "$1" == "linux" ]; then
         export CGO_ENABLED=0
         export GOOS=linux
         export GOARCH=amd64
-        go build -o ../release/bin/nas2cloud_linux
+        rm -rf ../release/nas2cloud_linux
+        go build -o ../release/nas2cloud_linux
     fi
     if [ "$1" == "macos" ]; then
         export CGO_ENABLED=0
         export GOOS=darwin
         export GOARCH=amd64
-        go build -o ../release/bin/nas2cloud_macos
+        rm -rf ../release/nas2cloud_macos
+        go build -o ../release/nas2cloud_macos
     fi
     if [ "$1" == "windows" ]; then
         export CGO_ENABLED=0
         export GOOS=windows
         export GOARCH=amd64
-        go build -o ../release/bin/nas2cloud_win.exe
+        rm -rf ../release/nas2cloud_win.exe
+        go build -o ../release/nas2cloud_win.exe
     fi
     cd ..
 }
@@ -72,10 +74,11 @@ build_docker() {
 }
 
 zip_release() {
-    rm -rf /Users/ZMS/NAS/release
-    rm -rf /Users/ZMS/NAS/release.zip
-    cp -r release /Users/ZMS/NAS/
-    cd /Users/ZMS/NAS
+    mkdir -p ~/NAS
+    rm -rf ~/NAS/release
+    rm -rf ~/NAS/release.zip
+    cp -r release ~/NAS/
+    cd ~/NAS
     zip -r release.zip release
     cd -
 }

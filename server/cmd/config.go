@@ -72,28 +72,41 @@ func genBucket(dir string) error {
     "id": "client",
     "name": "client",
     "mountType": "local",
-    "endpoint": "/path/to/NAS/client",
+    "endpoint": "client",
     "authorize": "PUBLIC",
     "mode": "rw",
-    "hidden": true
+    "hidden": true,
+    "comment":"客户端更新目录"
   },
   {
-    "id": "thumb",
-    "name": "thumb",
+    "id": "app",
+    "name": "app",
     "mountType": "local",
-    "endpoint": "/path/to/NAS/thumb",
-    "authorize": "ALL",
+    "endpoint": "app",
+    "authorize": "PUBLIC",
     "mode": "rw",
-    "hidden": true
+    "hidden": true,
+    "comment":"WEB版客户端目录"
   },
   {
     "id": "assets",
     "name": "thumb",
     "mountType": "local",
-    "endpoint": "/path/to/NAS/assets",
+    "endpoint": "assets",
     "authorize": "ALL",
     "mode": "rw",
-    "hidden": true
+    "hidden": true,
+    "comment":"公共资源目录,包括用户头像之类的"
+  },
+  {
+    "id": "thumb",
+    "name": "thumb",
+    "mountType": "local",
+    "endpoint": "thumb",
+    "authorize": "ALL",
+    "mode": "rw",
+    "hidden": true,
+    "comment":"照片缩略图生成目录"
   },
   {
     "id": "Movies",
@@ -102,7 +115,8 @@ func genBucket(dir string) error {
     "endpoint": "/path/to/Movies",
     "authorize": "admin,family",
     "mode": "rw",
-    "hidden": false
+    "hidden": false,
+    "comment":"自定义的共享目录"
   },
   {
     "id": "userhome_user",
@@ -111,7 +125,8 @@ func genBucket(dir string) error {
     "endpoint": "/path/to/NAS/Users/username",
     "authorize": "username",
     "mode": "rw",
-    "hidden": false
+    "hidden": false,
+    "comment":"自定义的用户目录"
   }
 ]
 `

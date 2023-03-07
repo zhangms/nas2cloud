@@ -2,6 +2,7 @@ package vpath
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 )
 
@@ -9,6 +10,11 @@ func TestClean(t *testing.T) {
 	str := "C:\\hello\\world"
 
 	fmt.Println(Clean(str))
+}
+
+func TestAbs(t *testing.T) {
+	str := "client"
+	fmt.Println(filepath.Abs(str))
 }
 
 func TestBase(t *testing.T) {
