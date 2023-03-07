@@ -18,13 +18,13 @@ automatic uploading.
 
 ### 依赖中间件
 
-1. redis
-2. elasticsearch
+1. [redis](https://hub.docker.com/_/redis)
+2. [elasticsearch](https://hub.docker.com/_/elasticsearch)
 
 ### 其他依赖：
 
-1. ffmpeg 用来生成照片缩略图
-2. du命令，获取文件夹大小，windows下需要单独安装du for windows
+1. [ffmpeg](https://ffmpeg.org/download.html) 用来生成照片缩略图
+2. du命令，获取文件夹大小，windows下需要单独安装 [du for windows](https://learn.microsoft.com/en-us/sysinternals/downloads/du)
 
 ### 执行安装
 
