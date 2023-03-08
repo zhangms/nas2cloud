@@ -50,12 +50,12 @@ class ApiReal extends Api {
 
   @override
   Future<String> encrypt(String data) async {
-    var encrypter = await _getEncryptor();
-    if (encrypter == null) {
-      throw StateError("encrypter is null");
+    var encryptor = await _getEncryptor();
+    if (encryptor == null) {
+      throw StateError("encryptor is null");
     }
     try {
-      final encrypted = encrypter.encrypt(data);
+      final encrypted = encryptor.encrypt(data);
       return Base64Codec.urlSafe().encode(encrypted.bytes);
     } catch (e) {
       print(e);
@@ -68,7 +68,9 @@ class ApiReal extends Api {
     var header = {..._defaultHttpHeaders};
     var loginInfo = await AppConfig.getUserLoginInfo();
     if (loginInfo != null) {
-      header["X-AUTH-TOKEN"] = "${loginInfo.username}-${loginInfo.token}";
+      var token = "${loginInfo.username}-${loginInfo.token}";
+      var tokenSign = await signData(token);
+      header["X-AUTH-TOKEN"] = tokenSign;
     }
     return header;
   }
@@ -95,11 +97,17 @@ class ApiReal extends Api {
 
   @override
   Future<String> signUrl(String url) async {
-    var now = DateTime.now().millisecondsSinceEpoch;
     var headers = await httpHeaders();
-    String str = "$now ${jsonEncode(headers)}";
-    String sign = await encrypt(str);
+    String sign = await encrypt(jsonEncode(headers));
     return "$url?_sign=$sign";
+  }
+
+  @override
+  Future<String> signData(String data) async {
+    var now = DateTime.now().millisecondsSinceEpoch;
+    String str = "$now $data";
+    String sign = await encrypt(str);
+    return sign;
   }
 
   @override
@@ -136,12 +144,13 @@ class ApiReal extends Api {
     try {
       var url = Uri.http(await AppConfig.getServerAddress(), "/api/user/login");
       var headers = await httpHeaders();
-      Response resp = await http.post(url,
-          headers: headers,
-          body: jsonEncode({
-            "username": username,
-            "password": password,
-          }));
+
+      var body = jsonEncode({
+        "username": username,
+        "password": password,
+      });
+      var signBody = await signData(body);
+      Response resp = await http.post(url, headers: headers, body: signBody);
       return LoginResponse.fromJson(utf8.decode(resp.bodyBytes));
     } catch (e) {
       print(e);

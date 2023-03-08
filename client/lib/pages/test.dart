@@ -137,8 +137,9 @@ class TestPage extends StatelessWidget {
   }
 
   login() async {
-    await AppConfig.saveServerAddress("192.168.31.88:8080");
-    var resp = await Api().postLogin(username: "zms", password: "baobao4321x");
+    await AppConfig.saveServerAddress("127.0.0.1:8080");
+    await Api().tryGetServerStatus();
+    var resp = await Api().postLogin(username: "admin", password: "admin");
     await AppConfig.saveUserLoginInfo(resp.data!);
     await Api().tryGetServerStatus();
   }

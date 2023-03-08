@@ -37,4 +37,4 @@ automatic uploading.
 
 2. 执行 `./nas2cloud start --profile prod` 启动程序
 
-3. 访问 `http://localhost:8080/app/` 可在浏览器使用WEB版本客户端
+3. 访问 `http://localhost:8080/app/index.html` 可在浏览器中使用WEB版本客户端

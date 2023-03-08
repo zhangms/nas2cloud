@@ -1,12 +1,17 @@
 package api
 
 import (
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
+	"nas2cloud/svc/sign"
 	"nas2cloud/svc/user"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -164,4 +169,29 @@ func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 		}
 		return impl(c)
 	}
+}
+
+func decryptSign(base64Sign string) (string, error) {
+	chipertext, err := base64.URLEncoding.DecodeString(base64Sign)
+	if err != nil {
+		return "", err
+	}
+	origin, err := sign.DecryptToString("sys", chipertext)
+	if err != nil {
+		return "", err
+	}
+	arr := strings.SplitN(origin, " ", 2)
+	if len(arr) != 2 {
+		return "", errors.New("error sign")
+	}
+	mills, err := strconv.ParseInt(arr[0], 10, 64)
+	if err != nil {
+		return "", errors.New("error sign")
+	}
+	signTime := time.UnixMilli(mills)
+	now := time.Now()
+	if now.Sub(signTime) > time.Minute*60 || now.Sub(signTime) < time.Minute*-5 {
+		return "", errors.New("error sign time")
+	}
+	return arr[1], nil
 }

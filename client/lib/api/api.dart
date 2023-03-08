@@ -40,6 +40,8 @@ abstract class Api {
 
   Future<String> signUrl(String url);
 
+  Future<String> signData(String data);
+
   Future<StateResponse> tryGetServerStatus();
 
   Future<StateResponse> getServerStatus(String address);

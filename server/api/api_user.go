@@ -2,33 +2,29 @@ package api
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"nas2cloud/libs/logger"
-	"nas2cloud/svc/sign"
 	"nas2cloud/svc/user"
-	"strconv"
 	"strings"
-	"time"
 )
 
 const keyToken = "X-AUTH-TOKEN"
 const keyDevice = "X-DEVICE"
 
 func getUserRequestSign(c *fiber.Ctx) (token, device, mode string) {
-	sign := getUserHeaderSign(c)
-	if sign != nil {
-		return sign[keyToken], sign[keyDevice], "rw"
+	signMp := getUserHeaderSign(c)
+	if signMp != nil {
+		return signMp[keyToken], signMp[keyDevice], "rw"
 	}
-	sign = getUserCookieSign(c)
-	if sign != nil {
-		return sign[keyToken], sign[keyDevice], "rw"
+	signMp = getUserCookieSign(c)
+	if signMp != nil {
+		return signMp[keyToken], signMp[keyDevice], "rw"
 	}
-	sign = getUserQuerySign(c)
-	if sign != nil {
-		return sign[keyToken], sign[keyDevice], "r"
+	signMp = getUserQuerySign(c)
+	if signMp != nil {
+		return signMp[keyToken], signMp[keyDevice], "r"
 	}
 	return "", "", ""
 }
@@ -38,30 +34,13 @@ func getUserQuerySign(c *fiber.Ctx) map[string]string {
 	if len(base64sign) == 0 {
 		return nil
 	}
-	chipertext, err := base64.URLEncoding.DecodeString(base64sign)
-	if err != nil {
-		return nil
-	}
-	origin, err := sign.DecryptToString("sys", chipertext)
+	origin, err := decryptSign(base64sign)
 	if err != nil {
 		logger.Error("sign error:", base64sign)
 		return nil
 	}
-	arr := strings.SplitN(origin, " ", 2)
-	if len(arr) != 2 {
-		return nil
-	}
-	mills, err := strconv.ParseInt(arr[0], 10, 64)
-	if err != nil {
-		return nil
-	}
-	signTime := time.UnixMilli(mills)
-	now := time.Now()
-	if now.Sub(signTime) > time.Minute*60 || now.Sub(signTime) < time.Minute*-5 {
-		return nil
-	}
 	headers := make(map[string]string)
-	err = json.Unmarshal([]byte(arr[1]), &headers)
+	err = json.Unmarshal([]byte(origin), &headers)
 	if err != nil {
 		return nil
 	}
@@ -74,8 +53,13 @@ func getUserCookieSign(c *fiber.Ctx) map[string]string {
 	if len(token) == 0 || len(device) == 0 {
 		return nil
 	}
+	originToken, err := decryptSign(token)
+	if err != nil {
+		logger.Error("error sign token", token)
+		return nil
+	}
 	return map[string]string{
-		keyToken:  token,
+		keyToken:  originToken,
 		keyDevice: device,
 	}
 }
@@ -86,8 +70,13 @@ func getUserHeaderSign(c *fiber.Ctx) map[string]string {
 	if len(token) == 0 || len(device) == 0 {
 		return nil
 	}
+	originToken, err := decryptSign(token)
+	if err != nil {
+		logger.Error("error sign token", token)
+		return nil
+	}
 	return map[string]string{
-		keyToken:  token,
+		keyToken:  originToken,
 		keyDevice: device,
 	}
 }

@@ -320,4 +320,9 @@ class ApiMock extends Api {
 }
 '''));
   }
+
+  @override
+  Future<String> signData(String data) async {
+    return data;
+  }
 }

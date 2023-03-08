@@ -140,9 +140,7 @@ func Upload(username string, fullPath string, reader io.Reader, modTime time.Tim
 		return nil, err
 	}
 	info.CreTime = time.Now().UnixMilli()
-	thumbExecutor.post(info)
-	err = repo.save(info)
-	if err != nil {
+	if err = repo.save(info); err != nil {
 		return nil, err
 	}
 	evt.fire(&event{

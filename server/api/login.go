@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"nas2cloud/libs/logger"
 	"nas2cloud/svc/user"
 	"net/http"
@@ -28,8 +29,13 @@ func (l *LoginController) Login(c *fiber.Ctx) error {
 
 	request := &loginRequest{}
 	body := c.Body()
-	err := json.Unmarshal(body, request)
+	fmt.Println(string(body))
+	origin, err := decryptSign(string(body))
 	if err != nil {
+		logger.ErrorStacktrace(err, string(body))
+		return SendError(c, http.StatusBadRequest, "request error")
+	}
+	if err = json.Unmarshal([]byte(origin), request); err != nil {
 		logger.ErrorStacktrace(err, string(body))
 		return SendError(c, http.StatusBadRequest, "request error")
 	}
