@@ -79,6 +79,6 @@ class BackgroundProcessor {
       inputData: {"type": "once"},
       tag: autoUploadTaskName,
     );
-    print("once auto upload task registed");
+    print("once auto upload task registed: $n");
   }
 }
