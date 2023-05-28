@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../api/app_config.dart';
 import '../../dto/page_data.dart';
 import '../../dto/upload_entry.dart';
+import '../../utils/pair.dart';
 import 'upload_repo.dart';
 
 const String _initDbSQL = '''
@@ -81,16 +82,17 @@ class UploadRepoSqflite extends UploadRepository {
   }
 
   @override
-  Future<UploadEntry> saveIfNotExists(UploadEntry entry) async {
+  Future<Pair<UploadEntry, bool>> saveIfNotExists(UploadEntry entry) async {
     var database = await _open();
     var list = await database.rawQuery(
         "select * from t_upload_entry where src=? and dest=?",
         [entry.src, entry.dest]);
     if (list.isNotEmpty) {
-      return UploadEntry.fromMap(list[0]);
+      return Pair<UploadEntry, bool>(
+          left: UploadEntry.fromMap(list[0]), right: false);
     }
     var id = await database.insert("t_upload_entry", entry.toMap());
-    return entry.copyWith(id: id);
+    return Pair<UploadEntry, bool>(left: entry.copyWith(id: id), right: true);
   }
 
   @override

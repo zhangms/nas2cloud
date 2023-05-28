@@ -4,12 +4,15 @@
 .DS_Store
 server/nas2cloud.pid
 server/__debug_bin
+server/dev
 server/.idea
 client/.idea
 release/app
 release/client
 release/prod
-release/nas2cloud_linux
-release/nas2cloud_macos
-release/nas2cloud_win.exe
+release/bin/nas2cloud_linux
+release/bin/nas2cloud_macos
+release/bin/nas2cloud_win.exe
+release/console/*
+
 

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../dto/page_data.dart';
 import '../../dto/upload_entry.dart';
+import '../../utils/pair.dart';
 import 'upload_repo_sp.dart';
 import 'upload_repo_sqflite.dart';
 
@@ -22,7 +23,7 @@ abstract class UploadRepository {
 /*
  * return id
  */
-  Future<UploadEntry> saveIfNotExists(UploadEntry entry);
+  Future<Pair<UploadEntry, bool>> saveIfNotExists(UploadEntry entry);
 
   Future<int> deleteBySrcDest(String src, String dest);
 

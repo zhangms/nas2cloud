@@ -1,5 +1,6 @@
 import '../../dto/page_data.dart';
 import '../../dto/upload_entry.dart';
+import '../../utils/pair.dart';
 import '../../utils/spu.dart';
 import 'upload_repo.dart';
 
@@ -19,14 +20,15 @@ class UploadRepoSP extends UploadRepository {
   }
 
   @override
-  Future<UploadEntry> saveIfNotExists(UploadEntry entry) async {
+  Future<Pair<UploadEntry, bool>> saveIfNotExists(UploadEntry entry) async {
     var key = _getKey(_getTaskId(entry));
     var value = await Spu().getString(key);
     if (value != null) {
-      return UploadEntry.fromJson(value);
+      return Pair<UploadEntry, bool>(
+          left: UploadEntry.fromJson(value), right: false);
     }
     await Spu().setString(key, entry.toJson());
-    return entry;
+    return Pair<UploadEntry, bool>(left: entry, right: false);
   }
 
   @override

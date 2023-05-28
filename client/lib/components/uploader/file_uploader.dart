@@ -75,7 +75,8 @@ abstract class FileUploader {
 
   @protected
   Future<UploadEntry?> beforeUploadCheck(UploadEntry entry) async {
-    var savedEntry = await UploadRepository.platform.saveIfNotExists(entry);
+    var pair = await UploadRepository.platform.saveIfNotExists(entry);
+    var savedEntry = pair.left;
     if (savedEntry.uploadTaskId != "none") {
       return null;
     }
