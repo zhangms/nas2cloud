@@ -10,7 +10,6 @@ import (
 	"nas2cloud/svc/user"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"time"
 
@@ -184,14 +183,14 @@ func decryptSign(base64Sign string) (string, error) {
 	if len(arr) != 2 {
 		return "", errors.New("error sign")
 	}
-	mills, err := strconv.ParseInt(arr[0], 10, 64)
-	if err != nil {
-		return "", errors.New("error sign")
-	}
-	signTime := time.UnixMilli(mills)
-	now := time.Now()
-	if now.Sub(signTime) > time.Minute*60 || now.Sub(signTime) < time.Minute*-5 {
-		return "", errors.New("error sign time")
-	}
+	// mills, err := strconv.ParseInt(arr[0], 10, 64)
+	// if err != nil {
+	// 	return "", errors.New("error sign")
+	// }
+	// signTime := time.UnixMilli(mills)
+	// now := time.Now()
+	// if now.Sub(signTime) > time.Minute*60 || now.Sub(signTime) < time.Minute*-5 {
+	// 	return "", errors.New("error sign time")
+	// }
 	return arr[1], nil
 }
