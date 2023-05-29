@@ -10,9 +10,9 @@ client/.idea
 release/app
 release/client
 release/prod
-release/bin/nas2cloud_linux
-release/bin/nas2cloud_macos
-release/bin/nas2cloud_win.exe
+release/nas2cloud_linux
+release/nas2cloud_macos
+release/nas2cloud_win.exe
 release/console/*
 
 

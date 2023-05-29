@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"nas2cloud/libs/errs"
 	"nas2cloud/libs/logger"
 	"nas2cloud/libs/vfs"
 	"nas2cloud/svc/sign"
@@ -174,11 +175,11 @@ func handle(impl func(c *fiber.Ctx) error) func(c *fiber.Ctx) error {
 func decryptSign(base64Sign string) (string, error) {
 	chipertext, err := base64.URLEncoding.DecodeString(base64Sign)
 	if err != nil {
-		return "", err
+		return "", errs.Wrap(err, "base64 decode error")
 	}
 	origin, err := sign.DecryptToString("sys", chipertext)
 	if err != nil {
-		return "", err
+		return "", errs.Wrap(err, "decrypt error")
 	}
 	arr := strings.SplitN(origin, " ", 2)
 	if len(arr) != 2 {
