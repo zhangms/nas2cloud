@@ -1,6 +1,8 @@
+import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:path/path.dart' as p;
 
 import '../../dto/upload_entry.dart';
+import '../notification/notification.dart';
 import 'file_uploader.dart';
 import 'upload_status.dart';
 
@@ -11,9 +13,6 @@ class PathUploader extends FileUploader {
   Future<bool> initialize() async {
     if (!_initialized) {
       _initialized = true;
-      // flutterUploaderProcessHandler();
-      // FlutterUploader().setBackgroundHandler(flutterUploaderProcessHandler);
-      // print("FlutterUploader init complete");
     }
     return _initialized;
   }
@@ -30,15 +29,29 @@ class PathUploader extends FileUploader {
 
   @override
   Future<bool> enqueue(UploadEntry entry) async {
-    // _syncTaskState();
-    // var savedEntry = await beforeUploadCheck(entry);
-    // if (savedEntry == null) {
-    //   _sendNotification(entry);
-    //   return false;
-    // }
-    // var url = await Api()
-    //     .getApiUrl(Api().joinPath("/api/store/upload", savedEntry.dest));
+    var savedEntry = await beforeUploadCheck(entry);
+    if (savedEntry == null) {
+      _sendNotification(entry);
+      return false;
+    }
+    // var baseUrl = await Api().getBaseUrl();
     // var headers = await Api().httpHeaders();
+    // final dio = Dio(BaseOptions(
+    //   baseUrl: baseUrl,
+    //   headers: headers,
+    // ));
+    // final uploader = ChunkedUploader(dio);
+    //
+    // final response = await uploader.uploadUsingFilePath(
+    //   fileName: "file",
+    //   filePath: savedEntry.src,
+    //   maxChunkSize: 500000,
+    //   path: Api().joinPath("/api/store/upload", savedEntry.dest),
+    //   onUploadProgress: (progress) => print(progress),
+    // );
+    //
+    // print(response);
+
     // var taskId = await FlutterUploader().enqueue(
     //   MultipartFormDataUpload(
     //     url: url,
@@ -72,16 +85,16 @@ class PathUploader extends FileUploader {
   Future<void> cancelAllRunning() async {
     // await FlutterUploader().cancelAll();
     // await FlutterUploader().clearUploads();
-    // await UploadRepository.platform.deleteByStatus(UploadStatus.waiting.name);
-    // await UploadRepository.platform.deleteByStatus(UploadStatus.uploading.name);
-    // FileUploader.fireEvent(null);
+    await UploadRepository.platform.deleteByStatus(UploadStatus.waiting.name);
+    await UploadRepository.platform.deleteByStatus(UploadStatus.uploading.name);
+    FileUploader.fireEvent(null);
   }
 
   @override
   Future<void> clearTask(UploadStatus status) async {
     // await FlutterUploader().clearUploads();
-    // await UploadRepository.platform.deleteByStatus(status.name);
-    // FileUploader.fireEvent(null);
+    await UploadRepository.platform.deleteByStatus(status.name);
+    FileUploader.fireEvent(null);
   }
 //
 // void _syncTaskState() async {
@@ -95,6 +108,7 @@ class PathUploader extends FileUploader {
 //   await uploader.clearUploads();
 // }
 }
+
 //
 // @pragma('vm:entry-point')
 // void flutterUploaderProcessHandler() {
@@ -207,14 +221,14 @@ class PathUploader extends FileUploader {
 //   }
 // }
 //
-// Future<void> _sendNotification(UploadEntry entry) async {
-//   FileUploader.fireEvent(entry);
-//   var count = await UploadRepository.platform
-//       .countByStatus([UploadStatus.waiting.name, UploadStatus.uploading.name]);
-//   if (count == 0) {
-//     await LocalNotification.platform.clear(id: 1024);
-//   } else {
-//     LocalNotification.platform
-//         .send(id: 1024, title: "上传中...", body: "还剩$count个文件等待上传");
-//   }
-// }
+Future<void> _sendNotification(UploadEntry entry) async {
+  FileUploader.fireEvent(entry);
+  var count = await UploadRepository.platform
+      .countByStatus([UploadStatus.waiting.name, UploadStatus.uploading.name]);
+  if (count == 0) {
+    await LocalNotification.platform.clear(id: 1024);
+  } else {
+    LocalNotification.platform
+        .send(id: 1024, title: "上传中...", body: "还剩$count个文件等待上传");
+  }
+}

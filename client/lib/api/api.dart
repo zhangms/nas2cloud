@@ -34,6 +34,8 @@ abstract class Api {
     return p.normalize(["/", first, second].join("/"));
   }
 
+  Future<String> getBaseUrl();
+
   Future<String> getApiUrl(String path);
 
   Future<String> getStaticFileUrl(String path);

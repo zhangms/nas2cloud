@@ -325,4 +325,9 @@ class ApiMock extends Api {
   Future<String> signData(String data) async {
     return data;
   }
+
+  @override
+  Future<String> getBaseUrl() async {
+    return "";
+  }
 }

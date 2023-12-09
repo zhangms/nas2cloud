@@ -85,6 +85,15 @@ class ApiReal extends Api {
   }
 
   @override
+  Future<String> getBaseUrl() async {
+    if (!await AppConfig.isServerAddressConfig()) {
+      throw UnimplementedError();
+    }
+    var address = await AppConfig.getServerAddress();
+    return "http://$address";
+  }
+
+  @override
   Future<String> getStaticFileUrl(String path) async {
     if (!await AppConfig.isServerAddressConfig()) {
       return path;
