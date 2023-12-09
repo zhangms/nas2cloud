@@ -10,7 +10,7 @@ import '../components/uploader/file_uploader.dart';
 import '../utils/spu.dart';
 
 class AppConfig {
-  static const currentAppVersion = "v2.9.8";
+  static const currentAppVersion = "v3.0.1";
 
   static const defaultAppName = "Nas2cloud";
 
