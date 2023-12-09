@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:nas2cloud/components/uploader/upload_repo.dart';
 import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 
+import '../../api/api.dart';
 import '../../dto/upload_entry.dart';
 import '../notification/notification.dart';
 import 'file_uploader.dart';
@@ -29,11 +33,49 @@ class PathUploader extends FileUploader {
 
   @override
   Future<bool> enqueue(UploadEntry entry) async {
+    _sendNotification(entry);
     var savedEntry = await beforeUploadCheck(entry);
     if (savedEntry == null) {
-      _sendNotification(entry);
       return false;
     }
+
+    var taskId = Uuid().toString();
+
+    var currentEntry = savedEntry.copyWith(
+      status: UploadStatus.uploading.name,
+      message: "enqueued",
+      beginUploadTime: DateTime.now().millisecondsSinceEpoch,
+      endUploadTime: 0,
+      uploadTaskId: taskId,
+    );
+    await UploadRepository.platform.update(currentEntry);
+
+    var file = File.fromUri(Uri.file(currentEntry.src));
+    var stream = file.openRead();
+    var result = await Api().uploadStream(
+        dest: currentEntry.dest,
+        fileName: p.basename(currentEntry.src),
+        fileLastModified: file.lastModifiedSync().millisecond,
+        size: file.lengthSync(),
+        stream: stream);
+
+    if (result.success) {
+      var update = currentEntry.copyWith(
+        status: UploadStatus.successed.name,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+        message: result.message,
+      );
+      await UploadRepository.platform.update(update);
+    } else {
+      var update = currentEntry.copyWith(
+        status: UploadStatus.failed.name,
+        endUploadTime: DateTime.now().millisecondsSinceEpoch,
+        message: result.message,
+      );
+      await UploadRepository.platform.update(update);
+    }
+    _sendNotification(entry);
+
     // var baseUrl = await Api().getBaseUrl();
     // var headers = await Api().httpHeaders();
     // final dio = Dio(BaseOptions(
@@ -183,18 +225,19 @@ class PathUploader extends FileUploader {
 //   }
 // }
 //
-// Future<void> _handleComplete(UploadEntry entry, UploadStatus entryStatus,
-//     String statusName, String? message) async {
-//   if (entryStatus.groupIndex < UploadStatus.successed.groupIndex) {
-//     var result = entry.copyWith(
-//       status: UploadStatus.successed.name,
-//       endUploadTime: DateTime.now().millisecondsSinceEpoch,
-//       message: "$statusName:$message",
-//     );
-//     await UploadRepository.platform.update(result);
-//     _sendNotification(result);
-//   }
-// }
+Future<void> _handleComplete(UploadEntry entry, UploadStatus entryStatus,
+    String statusName, String? message) async {
+  if (entryStatus.groupIndex < UploadStatus.successed.groupIndex) {
+    var result = entry.copyWith(
+      status: UploadStatus.successed.name,
+      endUploadTime: DateTime.now().millisecondsSinceEpoch,
+      message: "$statusName:$message",
+    );
+    await UploadRepository.platform.update(result);
+    _sendNotification(result);
+  }
+}
+
 //
 // Future<void> _handleRunning(UploadEntry entry, UploadStatus entryStatus,
 //     String statusName, int? progress) async {
