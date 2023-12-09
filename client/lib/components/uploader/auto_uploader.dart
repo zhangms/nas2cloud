@@ -168,15 +168,15 @@ class AutoUploader {
         remote: config.remote!,
       );
       var pair = await UploadRepository.platform.saveIfNotExists(entry);
-      if (pair.right) {
-        var saved = pair.left;
-        if (saved.uploadTaskId == "none") {
-          waiting.add(saved);
-          if (waiting.length >= 1024) {
-            break;
-          }
+      // if (pair.right) {
+      var saved = pair.left;
+      if (saved.uploadTaskId == "none") {
+        waiting.add(saved);
+        if (waiting.length >= 1024) {
+          break;
         }
       }
+      // }
     }
     return waiting;
   }
