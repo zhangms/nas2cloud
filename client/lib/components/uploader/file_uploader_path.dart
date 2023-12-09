@@ -33,9 +33,9 @@ class PathUploader extends FileUploader {
 
   @override
   Future<bool> enqueue(UploadEntry entry) async {
-    _sendNotification(entry);
     var savedEntry = await beforeUploadCheck(entry);
     if (savedEntry == null) {
+      _sendNotification(entry);
       return false;
     }
 
@@ -48,14 +48,15 @@ class PathUploader extends FileUploader {
       endUploadTime: 0,
       uploadTaskId: taskId,
     );
-    await UploadRepository.platform.update(currentEntry);
 
+    await UploadRepository.platform.update(currentEntry);
+    _sendNotification(currentEntry);
     var file = File.fromUri(Uri.file(currentEntry.src));
     var stream = file.openRead();
     var result = await Api().uploadStream(
         dest: currentEntry.dest,
         fileName: p.basename(currentEntry.src),
-        fileLastModified: file.lastModifiedSync().millisecond,
+        fileLastModified: file.lastModifiedSync().millisecondsSinceEpoch,
         size: file.lengthSync(),
         stream: stream);
 
@@ -74,7 +75,7 @@ class PathUploader extends FileUploader {
       );
       await UploadRepository.platform.update(update);
     }
-    _sendNotification(entry);
+    _sendNotification(currentEntry);
 
     // var baseUrl = await Api().getBaseUrl();
     // var headers = await Api().httpHeaders();

@@ -172,7 +172,7 @@ class AutoUploader {
         var saved = pair.left;
         if (saved.uploadTaskId == "none") {
           waiting.add(saved);
-          if (waiting.length >= 128) {
+          if (waiting.length >= 1024) {
             break;
           }
         }
