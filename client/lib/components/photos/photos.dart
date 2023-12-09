@@ -325,7 +325,9 @@ class _TimelinePhotoGridViewState extends State<TimelinePhotoGridView> {
       }
       group.searchAfter = data.searchAfter;
       group.receive(photoList);
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } finally {
       group.loading = false;
       print("end--->${group.group} : ${group.searchAfter}");
