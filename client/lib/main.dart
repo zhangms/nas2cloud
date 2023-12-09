@@ -17,15 +17,15 @@ import 'pub/app_theme_light.dart';
 
 void main() {
   FlutterError.onError = (detail) => reportError(detail);
-  AppConfig.initialize().then((value) {
-    runZonedGuarded(() {
+  runZonedGuarded(() {
+    AppConfig.initialize().then((value) {
       runApp(MyApp());
-    }, (error, stack) {
-      reportError(FlutterErrorDetails(exception: error, stack: stack));
+    }).onError((error, stackTrace) {
+      reportError(
+          FlutterErrorDetails(exception: error ?? "ERROR", stack: stackTrace));
     });
-  }).onError((error, stackTrace) {
-    reportError(
-        FlutterErrorDetails(exception: error ?? "ERROR", stack: stackTrace));
+  }, (error, stack) {
+    reportError(FlutterErrorDetails(exception: error, stack: stack));
   });
 }
 

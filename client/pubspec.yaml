@@ -23,7 +23,6 @@ dependencies:
   flutter_downloader: ^1.10.1+2
   flutter_file_view: ^2.2.0+1
   flutter_local_notifications: ^16.2.0
-  flutter_uploader: ^3.0.0-beta.4
   http: ^1.1.2
   path: ^1.8.2
   path_provider: ^2.0.12

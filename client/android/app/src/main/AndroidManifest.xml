@@ -35,18 +35,6 @@
                     android:exported="false"/>
         </provider>
 
-        <provider
-                android:name="com.bluechilli.flutteruploader.FlutterUploaderInitializer"
-                android:authorities="${applicationId}.flutter-upload-init"
-                android:exported="false">
-            <meta-data
-                    android:name="com.bluechilli.flutterupload.MAX_CONCURRENT_TASKS"
-                    android:value="3"/>
-            <meta-data
-                    android:name="com.bluechilli.flutteruploader.UPLOAD_CONNECTION_TIMEOUT_IN_SECONDS"
-                    android:value="600"/>
-        </provider>
-
         <activity
                 android:name=".MainActivity"
                 android:exported="true"

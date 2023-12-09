@@ -14,6 +14,7 @@ void backgroundCallbackDispatcher() {
       switch (task) {
         case autoUploadTaskName:
           var enqueuedCount = await AutoUploader().executeAutoUpload();
+          print("auto upload enqueuedCount: $enqueuedCount}");
           return enqueuedCount >= 0;
         default:
           return true;
@@ -55,6 +56,8 @@ class BackgroundProcessor {
     if (isNotSupport()) {
       return;
     }
+    await Workmanager()
+        .initialize(backgroundCallbackDispatcher, isInDebugMode: kDebugMode);
     await Workmanager().registerPeriodicTask(
       "${AppConfig.appId}.periodic-autoupload-task",
       autoUploadTaskName,
